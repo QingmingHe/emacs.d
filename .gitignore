@@ -18,14 +18,11 @@ eshell/*
 image-dired/*
 elim/*
 doc/*
-elpa/*
-src/*
 themes/*
 url/*
 
 ## exported and encrypted files
 *gpg
-*el
 *elc
 *html
 *tex
@@ -51,3 +48,9 @@ secret.org
 .emacs.desktop*
 .*~
 agent/*
+
+## files
+*.swp
+**/*.swp
+*.elc
+**/*.elc
