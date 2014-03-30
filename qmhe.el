@@ -62,6 +62,3 @@
 ;; emacs lisp
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
-
-;; git-emacs
-(require 'git-emacs)
