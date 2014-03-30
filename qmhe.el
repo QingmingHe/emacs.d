@@ -39,7 +39,7 @@
 (evil-mode 1)
 
 ;; rst mode
-;; (add-hook 'rst-mode-hook 'flyspell-mode)
+(add-hook 'rst-mode-hook 'flyspell-mode)
 
 ;; window numbering
 (require 'window-numbering)
@@ -50,18 +50,18 @@
 (setq Tex-parse-self t)
 (setq-default Tex-master nil)
 (add-hook 'Latex-mode-hook 'visual-line-mode)
-;; (add-hook 'Latex-mode-hook 'flyspell-mode)
+(add-hook 'Latex-mode-hook 'flyspell-mode)
 (add-hook 'Latex-mode-hook 'Latex-math-mode)
 (add-hook 'Latex-mode-hook 'true-on-reftex)
 (setq reftex-plug-into-AUCTeX t)
 
 ;; python
 (add-hook 'python-mode-hook (lambda () (my-smartparens-config)))
-;; (add-hook 'python-mode-hook 'flyspell-prog-mode)
+(add-hook 'python-mode-hook 'flyspell-prog-mode)
 
 ;; emacs lisp
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
-;; (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+(add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
 
 ;; git-emacs
 (require 'git-emacs)
