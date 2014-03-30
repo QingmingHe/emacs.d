@@ -54,7 +54,7 @@ flyspell
 
 Add flyspell mode to other mode hook will cause error: "Autoloading
 failed to define function turn-on-flyspell". You have to activate
-flyspell mode manucallly.
+flyspell mode manually.
 
 eshell
 ------
