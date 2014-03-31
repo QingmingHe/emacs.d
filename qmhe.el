@@ -62,3 +62,8 @@
 ;; emacs lisp
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+
+;; smex
+(require 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
