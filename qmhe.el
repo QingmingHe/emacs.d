@@ -40,6 +40,8 @@
 
 ;; rst mode
 (add-hook 'rst-mode-hook 'flyspell-mode)
+(add-hook 'rst-mode-hook 'column-number-mode)
+(add-hook 'rst-mode-hook (lambda () (my-smartparens-config)))
 
 ;; window numbering
 (require 'window-numbering)
@@ -53,6 +55,7 @@
 (add-hook 'Latex-mode-hook 'flyspell-mode)
 (add-hook 'Latex-mode-hook 'Latex-math-mode)
 (add-hook 'Latex-mode-hook 'true-on-reftex)
+(add-hook 'Latex-mode-hook (lambda () (my-smartparens-config)))
 (setq reftex-plug-into-AUCTeX t)
 
 ;; python
