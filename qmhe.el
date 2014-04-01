@@ -66,3 +66,8 @@
 ;; Set 78 column rule. 78 not 80 for that two spaces are spared to fill
 ;; continuation symbol
 (setq default-fill-column 78)
+
+;; smex
+(require 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
