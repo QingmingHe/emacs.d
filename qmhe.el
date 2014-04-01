@@ -62,3 +62,7 @@
 ;; emacs lisp
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+
+;; Set 78 column rule. 78 not 80 for that two spaces are spared to fill
+;; continuation symbol
+(setq default-fill-column 78)
