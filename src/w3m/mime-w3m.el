@@ -1,6 +1,6 @@
 ;;; mime-w3m.el --- mime-view content filter for text
 
-;; Copyright (C) 2001, 2002, 2003, 2004, 2005, 2009, 2010
+;; Copyright (C) 2001-2005, 2009, 2010, 2012, 2013
 ;; TSUCHIYA Masatoshi <tsuchiya@namazu.org>
 
 ;; Author: TSUCHIYA Masatoshi <tsuchiya@namazu.org>,
@@ -35,6 +35,7 @@
 
 (eval-when-compile
   (require 'cl)
+  (require 'calist)
   ;; mime-parse.el should be loaded before mime.el so as not to make
   ;; `mime-uri-parse-cid' an autoloaded function to which the byte
   ;; compiler might issue a nonsense warning.
@@ -101,16 +102,17 @@ by way of `post-command-hook'."
   (setq mime-setup-enable-inline-html nil)
   (let (flag)
     (when (boundp 'mime-preview-condition)
-      (labels ((overwrite (x)
-		(if (symbolp x)
-		    (if (eq x 'mime-preview-text/html)
-			(setq flag 'mime-w3m-preview-text/html)
-		      (when (eq x 'mime-w3m-preview-text/html)
-			(setq flag t))
-		      x)
-		  (if (consp x)
-		      (cons (overwrite (car x)) (overwrite (cdr x)))
-		    x))))
+      (w3m-labels
+	  ((overwrite (x)
+		      (if (symbolp x)
+			  (if (eq x 'mime-preview-text/html)
+			      (setq flag 'mime-w3m-preview-text/html)
+			    (when (eq x 'mime-w3m-preview-text/html)
+			      (setq flag t))
+			    x)
+			(if (consp x)
+			    (cons (overwrite (car x)) (overwrite (cdr x)))
+			  x))))
 	(setq mime-preview-condition
 	      (overwrite mime-preview-condition))))
     (unless flag
@@ -207,7 +209,8 @@ Add some emacs-w3m utility functions to pre/post-command-hook."
       (w3m-insert-string (mime-entity-content entity))
       (mime-entity-type/subtype entity))))
 
-(dont-compile
+(eval
+ (quote
   ;; Arglist varies according to Emacs version.
   ;; Emacs 21.1~21.4, 23.3, 24, XEmacs, SXEmacs:
   ;; (kill-new string &optional replace)
@@ -220,7 +223,7 @@ Strip `keymap' or `local-map' properties from a killed string."
 			   'text-rendered-by-mime-w3m t (ad-get-arg 0))
 	(remove-text-properties 0 (length (ad-get-arg 0))
 				'(keymap nil local-map nil)
-				(ad-get-arg 0)))))
+				(ad-get-arg 0))))))
 
 (mime-w3m-insinuate)
 

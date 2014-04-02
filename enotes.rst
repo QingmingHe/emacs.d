@@ -30,3 +30,23 @@ listed below:
 |           |                          |defined in a  |
 |           |                          |source file   |
 +-----------+--------------------------+--------------+
+
+multi-term
+----------
+
+Eshell .vs. shell .vs. term .vs. multi-eshell .vs. multi-term. Why multi-term?
+
+* IPthon can be used in multi-term and support completion;
+* Create terminal easily;
+* No more.
+
+To kill process, *C-C* does not work and you have to kill it by command
+*kill*. First find what you want to kill by **ps** and **grep**::
+
+    ps | grep some-process
+
+Then kill it::
+
+    kill some-process-id
+
+

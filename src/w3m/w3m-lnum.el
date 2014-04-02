@@ -1,6 +1,6 @@
 ;;; w3m-lnum.el --- Operations using link numbers
 
-;; Copyright (C) 2004-2011 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
+;; Copyright (C) 2004-2013 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
 
 ;; Authors: TSUCHIYA Masatoshi <tsuchiya@namazu.org>
 ;;          Andrey Kotlarski <m00naticus@gmail.com>
@@ -166,7 +166,7 @@ filtering over an url being matched by the car."
 				    (concat im-alt ": ")))
 			 url)))
 	"Copy")
-    (?M (lambda (info) (w3m-external-view (car info)))
+    (?M (lambda (info) (w3m-view-url-with-browse-url (car info)))
 	"Open in external browser"))
   "Alist specifying keycodes and available actions over a selected link."
   :group 'w3m
@@ -218,7 +218,7 @@ filtering over an url being matched by the car."
      'w3m-edit-this-url 'w3m-lnum-edit-this-url
      'w3m-toggle-inline-image 'w3m-lnum-toggle-inline-image
      'w3m-print-this-url 'w3m-lnum-print-this-url
-     'w3m-external-view-this-url 'w3m-lnum-external-view-this-url
+     'w3m-view-url-with-browse-url 'w3m-lnum-external-view-this-url
      'w3m-bookmark-add-this-url 'w3m-lnum-bookmark-add-this-url
      'w3m-zoom-in-image 'w3m-lnum-zoom-in-image
      'w3m-zoom-out-image 'w3m-lnum-zoom-out-image)
@@ -466,7 +466,7 @@ Return list of selected number and last applied filter."
 	     ((memq ch '(32 ?\ ))		; scroll down
 	      (w3m-lnum-remove-overlays (point-min) (point-max))
 	      (ignore-errors
-		(w3m-scroll-up-1)
+		(w3m-scroll-up)
 		;; scroll-up sets wrongly window-start/end
 		(if (and (fboundp 'redisplay)
 			 (not (eq (symbol-function 'redisplay) 'ignore)))
@@ -568,6 +568,7 @@ the last used index number."
 chars, C-digit, C-SPACE: add chars, digits or space to string \
 filter | arrows: move selection | SPACE,DEL,<,>: scroll | \
 ESC, C-g: quit")
+		       (w3m-force-mode-line-update)
 		       (let ((last-index (w3m-lnum ,type ,filter)))
 			 ,@body))
        (setq mode-line-format original-mode-line-format)
@@ -682,7 +683,7 @@ If EDIT, edit URL before visiting."
 	    (goto-char (cadr ,info))
 	    (w3m-history-store-position)
 	    (w3m-goto-url
-	     ,(if edit `(read-string "Visit url in new session: "
+	     ,(if edit `(read-string "Visit url: "
 				     (car ,info))
 		`(car ,info))))))
 
@@ -766,8 +767,9 @@ Function has to take one argument that is selection info."
 				     "*Emacs-w3m action selection*")))
 	      (set-buffer selection-buffer)
 	      (setq mode-line-format "RET, left click: select | \
-<down>,TAB/<up>,BACKTAB: move to next/previous action")
-	      (setq buffer-read-only nil)
+<down>,TAB/<up>,BACKTAB: move to next/previous action"
+		    buffer-read-only nil)
+	      (w3m-force-mode-line-update)
 	      (mapc (lambda (option)
 		      (if (consp option)
 			  (insert
@@ -1011,7 +1013,8 @@ If no link at point, turn on link numbers and open selected externally."
 				(car
 				 (w3m-lnum-get-action
 				  "Open in external browser: " 1))))))
-    (if url (w3m-external-view url)
+    (if url
+	(w3m-view-url-with-browse-url url)
       (w3m-message "No URL selected"))))
 
 ;;;###autoload
@@ -1102,10 +1105,9 @@ If no link under point, activate numbering and ask for one."
 			    (cd (read-directory-name
 				 "Save to: " (getenv "HOME")
 				 nil t))
-			    (async-shell-command (concat "curl -O '"
-							 (car info)
-							 "'")
-						 "*Curl*")
+			    (shell-command
+			     (concat "curl -k -O '" (car info) "' &")
+			     "*Curl*")
 			    (cd olddir)))
 			"Download with Curl")))))
 

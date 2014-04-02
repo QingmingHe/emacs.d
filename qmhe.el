@@ -42,6 +42,7 @@
 (add-hook 'rst-mode-hook 'flyspell-mode)
 (add-hook 'rst-mode-hook 'column-number-mode)
 (add-hook 'rst-mode-hook (lambda () (my-smartparens-config)))
+(add-hook 'rst-mode-hook 'linum-mode)
 
 ;; window numbering
 (require 'window-numbering)
@@ -56,15 +57,18 @@
 (add-hook 'Latex-mode-hook 'Latex-math-mode)
 (add-hook 'Latex-mode-hook 'true-on-reftex)
 (add-hook 'Latex-mode-hook (lambda () (my-smartparens-config)))
+(add-hook 'Latex-mode-hook 'linum-mode)
 (setq reftex-plug-into-AUCTeX t)
 
 ;; python
 (add-hook 'python-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'python-mode-hook 'flyspell-prog-mode)
+(add-hook 'python-mode-hook 'linum-mode)
 
 ;; emacs lisp
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+(add-hook 'emacs-lisp-mode-hook 'linum-mode)
 
 ;; Set 78 column rule. 78 not 80 for that two spaces are spared to fill
 ;; continuation symbol

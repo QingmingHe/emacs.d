@@ -1,6 +1,6 @@
 ;;; w3m-util.el --- Utility macros and functions for emacs-w3m
 
-;; Copyright (C) 2001-2012 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
+;; Copyright (C) 2001-2014 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
 
 ;; Authors: TSUCHIYA Masatoshi <tsuchiya@namazu.org>,
 ;;          Shun-ichi GOTO     <gotoh@taiyo.co.jp>,
@@ -87,12 +87,14 @@
   "Like `if', except that it evaluates COND at compile-time."
   (if (eval cond) then `(progn  ,@else)))
 (put 'w3m-static-if 'lisp-indent-function 2)
+(def-edebug-spec w3m-static-if (&rest def-form))
 
 (put 'w3m-static-when 'lisp-indent-function 1)
 (defmacro w3m-static-when (cond &rest body)
   "Like `when', but evaluate COND at compile time."
   (if (eval cond)
       `(progn ,@body)))
+(def-edebug-spec w3m-static-when (&rest def-form))
 
 (put 'w3m-static-unless 'lisp-indent-function 1)
 (defmacro w3m-static-unless (cond &rest body)
@@ -100,6 +102,7 @@
   (if (eval cond)
       nil
     `(progn ,@body)))
+(def-edebug-spec w3m-static-unless (&rest def-form))
 
 (defmacro w3m-static-cond (&rest clauses)
   "Like `cond', except that it evaluates CONDITION part of each clause at
@@ -109,6 +112,7 @@ compile-time."
     (setq clauses (cdr clauses)))
   (if clauses
       (cons 'progn (cdr (car clauses)))))
+(def-edebug-spec w3m-static-cond (&rest (&rest def-form)))
 
 (put 'w3m-condition-case 'lisp-indent-function 2)
 (defmacro w3m-condition-case (var bodyform &rest handlers)
@@ -120,6 +124,81 @@ or `debug-on-quit' is non-nil."
 	 ,bodyform
        ,@handlers)))
 
+;;; Functions used in common:
+
+;; Moved from w3m-(ems,xmas).el because of modules' dependency problem.
+(defvar w3m-coding-system)
+(defvar w3m-default-coding-system)
+(defun w3m-decode-coding-string-with-priority (str coding)
+  "Decode the string STR which is encoded in CODING.
+If CODING is a list, look for the coding system using it as a priority
+list."
+  (w3m-static-cond
+   ((featurep 'emacs)
+    (setq str (string-make-unibyte str))
+    (when (listp coding)
+      (setq coding
+	    (with-temp-buffer
+	      (set-buffer-multibyte nil)
+	      (insert str)
+	      ;; A copy of `w3m-detect-coding-region' defined in w3m-ems.el.
+	      (w3m-static-if (fboundp 'with-coding-priority)
+		  (with-coding-priority coding
+		    (car (detect-coding-region (point-min) (point-max))))
+		(let (category categories)
+		  (dolist (codesys coding)
+		    (setq category (coding-system-category codesys))
+		    (unless (or (null category) (assq category categories))
+		      (push (cons category codesys) categories)))
+		  (car (detect-coding-with-priority
+			(point-min) (point-max) (nreverse categories))))))))
+    (decode-coding-string str
+			  (or coding
+			      w3m-default-coding-system
+			      w3m-coding-system
+			      'iso-2022-7bit)))
+   ;; XEmacs w/ Mule
+   ((featurep 'mule)
+    (if (listp coding)
+	(with-temp-buffer
+	  (insert str)
+	  (let* ((orig-category-list (coding-priority-list))
+		 (orig-category-systems (mapcar #'coding-category-system
+						orig-category-list))
+		 codesys category priority-list)
+	    (unwind-protect
+		(progn
+		  (while coding
+		    (setq codesys (car coding)
+			  coding (cdr coding)
+			  category (or (coding-system-category codesys)
+				       (coding-system-name codesys)))
+		    (unless (or (eq (coding-system-type codesys) 'undecided)
+				(assq category priority-list))
+		      (set-coding-category-system category codesys)
+		      (push category priority-list)))
+		  (set-coding-priority-list (nreverse priority-list))
+		  ;; `detect-coding-region' always returns `undecided'
+		  ;; ignoring `priority-list' in XEmacs 21.5-b19, but
+		  ;; that's okay.
+		  (when (consp (setq codesys (detect-coding-region
+					      (point-min) (point-max))))
+		    (setq codesys (car codesys)))
+		  (decode-coding-region (point-min) (point-max)
+					(or codesys
+					    w3m-default-coding-system
+					    w3m-coding-system
+					    'iso-2022-7bit))
+		  (buffer-string))
+	      (set-coding-priority-list orig-category-list)
+	      (while orig-category-list
+		(set-coding-category-system (car orig-category-list)
+					    (car orig-category-systems))
+		(setq orig-category-list (cdr orig-category-list)
+		      orig-category-systems (cdr orig-category-systems))))))
+      (decode-coding-string str coding)))
+   ;; XEmacs w/o Mule
+   (t str)))
 
 ;;; Text props:
 
@@ -547,64 +626,65 @@ for not deleting frames made for aims other than emacs-w3m sessions.")
   "Pop up BUFFER as a new window or a new frame
 according to `w3m-pop-up-windows' and `w3m-pop-up-frames' (which see)."
   (let ((window (get-buffer-window buffer t))
-	(oframe (selected-frame))
-	(popup-frame-p (w3m-popup-frame-p))
-	frame pop-up-frames buffers other)
-    (if (setq
-	 pop-up-frames
-	 (if window ;; The window showing BUFFER already exists.
-	     ;; Don't pop up a new frame if it is just the current frame.
-	     (not (eq (setq frame (window-frame window)) oframe))
-	   ;; There is no window for BUFFER, so look for the existing
-	   ;; emacs-w3m window if the tabs line is enabled or the
-	   ;; selection window exists (i.e., we can reuse it).
-	   (if (or (w3m-use-tab-p)
-		   (get-buffer-window w3m-select-buffer-name t))
-	       (progn
-		 (setq buffers (delq buffer (w3m-list-buffers t)))
-		 (while (and (not window)
-			     buffers)
-		   (setq window
-			 (get-buffer-window (setq other (pop buffers)) t)))
-		 (if window ;; The window showing another buffer exists.
-		     (not (eq (setq frame (window-frame window)) oframe))
-		   (setq other nil)
-		   ;; There is no window after all, so leave to the value
-		   ;; of `w3m-pop-up-frames' whether to pop up a new frame.
-		   popup-frame-p))
-	     ;; Ditto.
-	     popup-frame-p)))
-	(progn
-	  (cond (other
-		 ;; Pop up another emacs-w3m buffer and switch to BUFFER.
-		 (pop-to-buffer other)
-		 ;; Change the value for BUFFER's `w3m-initial-frames'.
-		 (setq w3m-initial-frames
-		       (prog1
-			   (copy-sequence w3m-initial-frames)
-			 (switch-to-buffer buffer))))
-		(frame
-		 ;; Pop up the existing frame which shows BUFFER.
-		 (pop-to-buffer buffer))
-		(t
-		 ;; Pop up a new frame.
-		 (let* ((pop-up-frame-alist (w3m-popup-frame-parameters))
-			(pop-up-frame-plist pop-up-frame-alist))
+	oframe popup-frame-p frame pop-up-frames buffers other)
+    (unless (eq window (selected-window))
+      (setq oframe (selected-frame)
+	    popup-frame-p (w3m-popup-frame-p))
+      (if (setq
+	   pop-up-frames
+	   (if window ;; The window showing BUFFER already exists.
+	       ;; Don't pop up a new frame if it is just the current frame.
+	       (not (eq (setq frame (window-frame window)) oframe))
+	     ;; There is no window for BUFFER, so look for the existing
+	     ;; emacs-w3m window if the tabs line is enabled or the
+	     ;; selection window exists (i.e., we can reuse it).
+	     (if (or (w3m-use-tab-p)
+		     (get-buffer-window w3m-select-buffer-name t))
+		 (progn
+		   (setq buffers (delq buffer (w3m-list-buffers t)))
+		   (while (and (not window)
+			       buffers)
+		     (setq window
+			   (get-buffer-window (setq other (pop buffers)) t)))
+		   (if window ;; The window showing another buffer exists.
+		       (not (eq (setq frame (window-frame window)) oframe))
+		     (setq other nil)
+		     ;; There is no window after all, so leave to the value
+		     ;; of `w3m-pop-up-frames' whether to pop up a new frame.
+		     popup-frame-p))
+	       ;; Ditto.
+	       popup-frame-p)))
+	  (progn
+	    (cond (other
+		   ;; Pop up another emacs-w3m buffer and switch to BUFFER.
+		   (pop-to-buffer other)
+		   ;; Change the value for BUFFER's `w3m-initial-frames'.
+		   (setq w3m-initial-frames
+			 (prog1
+			     (copy-sequence w3m-initial-frames)
+			   (switch-to-buffer buffer))))
+		  (frame
+		   ;; Pop up the existing frame which shows BUFFER.
 		   (pop-to-buffer buffer))
-		 (setq frame (window-frame (get-buffer-window buffer t)))))
-	  ;; Raise, select and focus the frame.
-	  (if (fboundp 'select-frame-set-input-focus)
-	      (select-frame-set-input-focus frame)
-	    (raise-frame frame)
-	    (select-frame frame)
-	    (w3m-static-when (featurep 'xemacs)
-	      (focus-frame frame))))
-      ;; Simply switch to BUFFER in the current frame.
-      (if (w3m-popup-window-p)
-	  (let ((pop-up-windows t))
-	    (pop-to-buffer buffer))
-	(switch-to-buffer buffer)))
-    (w3m-history-restore-position)))
+		  (t
+		   ;; Pop up a new frame.
+		   (let* ((pop-up-frame-alist (w3m-popup-frame-parameters))
+			  (pop-up-frame-plist pop-up-frame-alist))
+		     (pop-to-buffer buffer))
+		   (setq frame (window-frame (get-buffer-window buffer t)))))
+	    ;; Raise, select and focus the frame.
+	    (if (fboundp 'select-frame-set-input-focus)
+		(select-frame-set-input-focus frame)
+	      (raise-frame frame)
+	      (select-frame frame)
+	      (w3m-static-when (featurep 'xemacs)
+		(focus-frame frame))))
+	;; Simply switch to BUFFER in the current frame.
+	(if (w3m-popup-window-p)
+	    (let ((pop-up-windows t))
+	      (pop-to-buffer buffer))
+	  (switch-to-buffer buffer))
+	(w3m-history-restore-position)))))
 
 (eval-when-compile
   (when (and (fboundp 'select-frame-set-input-focus)
@@ -722,8 +802,8 @@ objects will not be deleted:
 		       flag))
 		    (delete-frame frame)
 		  (delete-window window))
-	      (unless one-window-p
-		(delete-window window)))))))))
+	      ;; do not clear the layout.
+	      (switch-to-buffer nil))))))))
 
 
 ;;; Navigation:
@@ -1397,16 +1477,16 @@ With one argument, just copy STRING without its properties."
     (defalias 'w3m-force-window-update 'ignore)))
 
 (if (boundp 'header-line-format)
-    (defun w3m-force-window-update-later (buffer &optional seconds)
+    (defun w3m-force-window-update-later (&optional buffer seconds)
       "Update the header-line appearance in BUFFER after SECONDS.
-If SECONDS is omitted, it defaults to 0.5."
-      (run-at-time (or seconds 0.5) nil
-		   (lambda (buffer)
-		     (when (and (buffer-live-p buffer)
-				(eq (get-buffer-window buffer t)
-				    (selected-window)))
-		       (w3m-force-window-update)))
-		   buffer))
+BUFFER defaults to the current buffer.  SECONDS defaults to 0.5."
+      (run-with-timer (or seconds 0.5) nil
+		      (lambda (buffer)
+			(when (and (buffer-live-p buffer)
+				   (eq (get-buffer-window buffer t)
+				       (selected-window)))
+			  (w3m-force-window-update)))
+		      (or buffer (current-buffer))))
   (defalias 'w3m-force-window-update-later 'ignore))
 
 (if (fboundp 'read-number)
@@ -1478,12 +1558,6 @@ The value of DEFAULT is inserted into PROMPT."
        (symbol-name c)))
    menu-commands))
 
-(eval-when-compile (require 'wid-edit))
-(defun w3m-widget-type-convert-widget (widget)
-  "Convert the car of `:args' as a widget type in WIDGET."
-  (apply 'widget-convert (widget-type widget)
-	 (eval (car (widget-get widget :args)))))
-
 (defun w3m-unseen-buffer-p (buffer)
   "Return t if buffer unseen."
   (with-current-buffer buffer
@@ -1516,6 +1590,48 @@ get to be the alias to `visited-file-modtime'."
     (wrong-number-of-arguments '(called-interactively-p))
     ;; Old ones
     (void-function '(interactive-p))))
+
+(defalias 'w3m-force-mode-line-update
+  (if (fboundp 'force-mode-line-update)
+      'force-mode-line-update
+    'redraw-modeline))
+
+;; `flet' and `labels' got obsolete since Emacs 24.3.
+(defmacro w3m-flet (bindings &rest body)
+  "Make temporary overriding function definitions.
+This is an analogue of a dynamically scoped `let' that operates on
+the function cell of FUNCs rather than their value cell.
+
+\(fn ((FUNC ARGLIST BODY...) ...) FORM...)"
+  (require 'cl)
+  (if (fboundp 'cl-letf)
+      `(cl-letf ,(mapcar (lambda (binding)
+			   `((symbol-function ',(car binding))
+			     (lambda ,@(cdr binding))))
+			 bindings)
+	 ,@body)
+    `(flet ,bindings ,@body)))
+(put 'w3m-flet 'lisp-indent-function 1)
+
+(defmacro w3m-labels (bindings &rest body)
+  "Make temporary function bindings.
+The bindings can be recursive and the scoping is lexical, but capturing
+them in closures will only work if `lexical-binding' is in use.  But in
+Emacs 24.2 and older, the lexical scoping is handled via `lexical-let'
+rather than relying on `lexical-binding'.
+
+\(fn ((FUNC ARGLIST BODY...) ...) FORM...)"
+  `(,(progn (require 'cl) (if (fboundp 'cl-labels) 'cl-labels 'labels))
+    ,bindings ,@body))
+(put 'w3m-labels 'lisp-indent-function 1)
+
+(eval-when-compile (require 'wid-edit))
+(defun w3m-widget-type-convert-widget (widget)
+  "Convert the car of `:args' as a widget type in WIDGET."
+  (require 'wid-edit)
+  (w3m-flet ((widget-sexp-value-to-internal (widget value) value))
+    (apply 'widget-convert (widget-type widget)
+	   (eval (car (widget-get widget :args))))))
 
 ;;; Punycode RFC 3492:
 

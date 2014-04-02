@@ -1,6 +1,6 @@
 ;;; w3m-ems.el --- GNU Emacs stuff for emacs-w3m
 
-;; Copyright (C) 2001-2012 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
+;; Copyright (C) 2001-2013 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
 
 ;; Authors: Yuuichi Teranishi  <teranisi@gohome.org>,
 ;;          TSUCHIYA Masatoshi <tsuchiya@namazu.org>,
@@ -84,7 +84,10 @@
   (autoload 'w3m-delete-buffer "w3m")
   (autoload 'w3m-image-type "w3m")
   (autoload 'w3m-retrieve "w3m")
-  (autoload 'w3m-select-buffer-update "w3m"))
+  (autoload 'w3m-select-buffer-update "w3m")
+  (unless (fboundp 'image-animate)
+    (defalias 'image-animate 'ignore)
+    (defalias 'image-multi-frame-p 'ignore)))
 
 (eval-and-compile
   (unless (fboundp 'frame-current-scroll-bars)
@@ -235,10 +238,36 @@ This function is an interface to `make-coding-system'."
 circumstances."
   (and w3m-display-inline-images (display-images-p)))
 
+;; Animation.
+(defcustom w3m-image-animate-seconds 10
+  "Animate images (if possible) for this many seconds.
+If nil, don't play the animation.  If t, loop forever."
+  :group 'w3m
+  :type '(choice (integer :tag "Animate for (seconds)")
+		 (const :tag "Inhibit animation" nil)
+		 (const :tag "Animate forever" t)))
+
 (eval-and-compile
-  (defalias 'w3m-ems-create-image (if (fboundp 'create-animated-image)
-				      'create-animated-image
-				    'create-image)))
+  (defalias 'w3m-image-multi-frame-p
+    (if (fboundp 'image-multi-frame-p)
+	(lambda (image)
+	  (cdr (image-multi-frame-p image)))
+      'image-animated-p)))
+
+(defun w3m-image-animate (image)
+  "Start animating IMAGE if possible.  Return IMAGE."
+    (when (and (fboundp 'image-animate)
+	       w3m-image-animate-seconds
+	       (w3m-image-multi-frame-p image))
+      (image-animate image nil w3m-image-animate-seconds)
+      ;; Reset an image to the initial one after playing the animation.
+      ;; FIXME: Is there a better way?
+      (when (numberp w3m-image-animate-seconds)
+	(run-with-timer (1+ w3m-image-animate-seconds) nil
+			(lambda (image)
+			  (image-animate image 0 0))
+			image)))
+    image)
 
 (defun w3m-create-image (url &optional no-cache referer size handler)
   "Retrieve data from URL and create an image object.
@@ -266,7 +295,7 @@ and its cdr element is used as height."
 				    ((match-beginning 2) 'jpeg)
 				    (t 'png)))
 			 (w3m-image-type type))))
-	  (setq image (w3m-ems-create-image
+	  (setq image (create-image
 		       (buffer-string) type t
 		       :ascent 'center
 		       :background w3m-image-default-background))
@@ -290,10 +319,8 @@ and its cdr element is used as height."
 				    (plist-get (cdr image) :data)
 				    (car set-size)(cdr set-size)
 				    handler))
-			(if resized (plist-put (cdr image) :data resized))
-			image))
-		  image))
-	    image))))))
+			(if resized (plist-put (cdr image) :data resized)))))))
+	  (w3m-image-animate image))))))
 
 (defun w3m-create-resized-image (url rate &optional referer size handler)
   "Resize an cached image object.
@@ -415,35 +442,40 @@ Buffer string between BEG and END are replaced with IMAGE."
   :action (function (lambda (widget &optional e)
 		      (eval (widget-get widget :w3m-form-action)))))
 
-(defun w3m-form-make-button (start end properties)
+(defun w3m-form-make-button (start end properties &optional readonly)
   "Make button on the region from START to END."
-  (if w3m-form-use-fancy-faces
-      (progn
-	(unless (memq (face-attribute 'w3m-form-button :box)
-		      '(nil unspecified))
-	  (and (eq ?\[ (char-after start))
-	       (eq ?\] (char-before end))
-	       (save-excursion
-		 (goto-char start)
-		 (delete-char 1)
-		 (insert " ")
-		 (goto-char end)
-		 (delete-char -1)
-		 (insert " ")
-		 (setq start (1+ start)
-		       end (1- end)))))
-	;; Empty text won't be buttonized, so we fill it with something.
-	;; "submit" seems to be a proper choice in nine cases out of ten.
-	(when (= start end)
-	  (goto-char start)
-	  (insert "submit")
-	  (setq end (point)))
-	(let ((w (widget-convert-button
-		  'w3m-form-button start end
-		  :w3m-form-action (plist-get properties 'w3m-action))))
-	  (overlay-put (widget-get w :button-overlay) 'evaporate t))
-	(add-text-properties start end properties))
-    (w3m-add-text-properties start end (append '(face w3m-form) properties))))
+  (cond (readonly
+	 (w3m-add-text-properties
+	  start end
+	  (append '(face w3m-form-inactive w3m-form-readonly t) properties)))
+	(w3m-form-use-fancy-faces
+	 (unless (memq (face-attribute 'w3m-form-button :box)
+		       '(nil unspecified))
+	   (and (eq ?\[ (char-after start))
+		(eq ?\] (char-before end))
+		(save-excursion
+		  (goto-char start)
+		  (delete-char 1)
+		  (insert " ")
+		  (goto-char end)
+		  (delete-char -1)
+		  (insert " ")
+		  (setq start (1+ start)
+			end (1- end)))))
+	 ;; Empty text won't be buttonized, so we fill it with something.
+	 ;; "submit" seems to be a proper choice in nine cases out of ten.
+	 (when (= start end)
+	   (goto-char start)
+	   (insert "submit")
+	   (setq end (point)))
+	 (let ((w (widget-convert-button
+		   'w3m-form-button start end
+		   :w3m-form-action (plist-get properties 'w3m-action))))
+	   (overlay-put (widget-get w :button-overlay) 'evaporate t))
+	 (add-text-properties start end properties))
+	(t
+	 (w3m-add-text-properties start end
+				  (append '(face w3m-form) properties)))))
 
 (defun w3m-setup-widget-faces ()
   (make-local-variable 'widget-button-face)
@@ -497,9 +529,12 @@ is for others."
 	     (w3m-update-toolbars)))))
 
 (defcustom w3m-toolbar-use-single-image-per-icon nil
-  "Non-nil means use single image (named possibly *-up) per icon.
+  "Non-nil means use single image (named *-up) per icon.
 If it is nil, subsidiaries, e.g., *-down and *-disabled, if any, are
-used together."
+used together.
+
+Note that this option will be ignored if running Emacs built with Gtk+
+and every button will use a single icon image."
   :group 'w3m
   :type 'boolean
   :set (lambda (symbol value)
@@ -605,7 +640,8 @@ Files of types that Emacs does not support are ignored."
 			      :ascent 'center
 			      (when (eq (cdr up) 'xpm)
 				xpm-props)))
-	      (if (or w3m-toolbar-use-single-image-per-icon
+	      (if (or (boundp 'gtk-version-string)
+		      w3m-toolbar-use-single-image-per-icon
 		      (not (or down disabled)))
 		  (set icon up)
 		(when down
@@ -826,7 +862,8 @@ otherwise works in all the emacs-w3m buffers."
 	     (not (eq (symbol-function 'force-window-update) 'ignore)))
 	(lambda (&optional window) "\
 Force redisplay of WINDOW which defaults to the selected window."
-	  (force-window-update (or window (selected-window))))
+	  (force-window-update (or window (selected-window)))
+	  (sit-for 0))
       (lambda (&optional ignore) "\
 Wobble the selected window to force redisplay of the header-line."
 	(save-window-excursion
@@ -874,18 +911,6 @@ Wobble the selected window to force redisplay of the header-line."
       (w3m-delete-buffer))
     (w3m-force-window-update window)))
 
-(defvar w3m-tab-line-format nil
-  "Internal variable used to keep contents to be shown in the header-line.
-This is a buffer-local variable.")
-(make-variable-buffer-local 'w3m-tab-line-format)
-
-(defvar w3m-tab-timer nil
-  "Internal variable used to say time has not gone by after the tab-line
-was updated last time.  It is used to control the `w3m-tab-line'
-function running too frequently, set by the function itself and
-cleared by a timer.")
-(make-variable-buffer-local 'w3m-tab-timer)
-
 (defcustom w3m-tab-track-mouse t
   "Say whether to make the mouse track the selected tab.
 It controls the behavior of the commands `w3m-tab-previous-buffer',
@@ -915,12 +940,11 @@ font for the tab faces.  See also `w3m-tab-track-mouse'."
   :group 'w3m
   :type '(cons (number :tag "M") (integer :tag "N")))
 
-(defun w3m-tab-mouse-track-selected-tab (event order
-					       &optional buffers decelerate)
+(defun w3m-tab-mouse-track-selected-tab (event order &optional decelerate)
   "Make the mouse track the selected tab.
 EVENT is a command event.  ORDER is the order number in tabs.
-The optional BUFFERS is a list of emacs-w3m buffers, DECELERATE if it
-is non-nil means not to respond to too fast operation of mouse wheel."
+The optional DECELERATE if it is non-nil means not to respond to too
+fast operation of mouse wheel."
   (when (and w3m-use-tab window-system w3m-tab-track-mouse
 	     (consp event) (symbolp (car event)))
     (let ((e (get (car event) 'event-symbol-elements))
@@ -937,9 +961,7 @@ is non-nil means not to respond to too fast operation of mouse wheel."
 	  (while (not (cadr (setq posn (mouse-pixel-position))))
 	    (select-frame-set-input-focus frame)))
 	;; Update the header line.
-	(setq w3m-tab-timer nil)
-	(sit-for 0)
-	(setq tab w3m-tab-line-format)
+	(setq tab (w3m-tab-line))
 	(with-temp-buffer
 	  (insert tab)
 	  (setq start (point-min)
@@ -990,7 +1012,7 @@ is non-nil means not to respond to too fast operation of mouse wheel."
       (run-hooks 'w3m-select-buffer-hook)
       (w3m-select-buffer-update)
       (w3m-tab-mouse-track-selected-tab
-       event (w3m-buffer-number (current-buffer)) buffers))))
+       event (w3m-buffer-number (current-buffer))))))
 
 (defun w3m-tab-previous-buffer (&optional n event)
   "Turn N pages of emacs-w3m buffers behind."
@@ -1017,7 +1039,7 @@ is non-nil means not to respond to too fast operation of mouse wheel."
       (w3m-buffer-set-number dest cur)
       (w3m-buffer-set-number (current-buffer) next)
       (w3m-select-buffer-update)
-      (w3m-tab-mouse-track-selected-tab event next buffers t))))
+      (w3m-tab-mouse-track-selected-tab event next t))))
 
 (defun w3m-tab-move-left (&optional n event)
   "Move this tab N times to the left (to the right if N is negative)."
@@ -1122,131 +1144,118 @@ is non-nil means not to respond to too fast operation of mouse wheel."
   "String used to separate tabs.")
 
 (defun w3m-tab-line ()
-  (or (and w3m-tab-timer w3m-tab-line-format)
-      (let* ((current (current-buffer))
-	     (buffers (w3m-list-buffers))
-	     (breadth 1)
-	     (number 0)
-	     (fringes (window-fringes))
-	     (width (+ (window-width)
-		       (/ (float (+ (or (car fringes) 0)
-				    (or (nth 1 fringes) 0)))
-			  (frame-char-width))
-		       ;; Assume that the vertical scroll-bar has
-		       ;; the width of two space characters.
-		       (if (car (frame-current-scroll-bars)) 2 0)))
-	     (nbuf (length buffers))
-	     (graphic (and window-system
-			   w3m-show-graphic-icons-in-header-line))
-	     (margin (if window-system
-			 (+ (if graphic 3.0 0.5)
-			    ;; Right and left shadows.
-			    (/ 2.0 (frame-char-width)))
-		       1))
-	     (spinner (when w3m-process-queue
-			(w3m-make-spinner-image)))
-	     buffer title data datum process unseen favicon keymap face icon
-	     line)
-	(setq w3m-tab-timer t)
-	(run-at-time 0.1 nil
-		     (lambda (buffer)
-		       (when (buffer-live-p buffer)
-			 (with-current-buffer buffer
-			   (setq w3m-tab-timer nil)
-			   (when (and (eq (selected-window)
-					  (get-buffer-window buffer))
-				      w3m-process-queue)
-			     (inline (w3m-force-window-update))))))
-		     current)
-	(save-current-buffer
-	  (while buffers
-	    (set-buffer (setq buffer (pop buffers)))
-	    (setq number (1+ number))
-	    (setq title (if w3m-add-tab-number
-			    (format "%d.%s" number (w3m-current-title))
-			  (w3m-current-title)))
-	    (setq breadth
-		  (max breadth
-		       ;; There may be a wide character in the beginning of
-		       ;; the title.
-		       (if (> (length title) 0)
-			   (char-width (aref title 0))
-			 0)))
-	    (push (list (eq current buffer)
-			w3m-current-process
-			(w3m-unseen-buffer-p buffer)
-			title
-			(when w3m-use-favicon w3m-favicon-image)
-			w3m-tab-map)
-		  data)))
-	(setq width (if (> (* nbuf (+ margin w3m-tab-width)) width)
-			(max (truncate (- (/ width nbuf) margin)) breadth)
-		      w3m-tab-width))
-	(while data
-	  (setq datum (pop data)
-		current (car datum)
-		process (nth 1 datum)
-		unseen (nth 2 datum)
-		title (nth 3 datum)
-		favicon (nth 4 datum)
-		keymap (nth 5 datum)
-		face (list
-		      (if process
-			  (if current
-			      'w3m-tab-selected-retrieving
-			    'w3m-tab-unselected-retrieving)
-			(if current
-			    'w3m-tab-selected
-			  (if unseen
-			      'w3m-tab-unselected-unseen
-			    'w3m-tab-unselected))))
-		icon (when graphic
-		       (cond
-			(process
-			 (when spinner
-			   (propertize
-			    " "
-			    'display spinner
-			    'face face
-			    'local-map w3m-tab-spinner-map
-			    'help-echo w3m-spinner-map-help-echo)))
-			(favicon
-			 (propertize
-			  " "
-			  'display favicon
-			  'face face
-			  'local-map keymap
-			  'help-echo title))))
-		breadth (cond (icon width)
-			      (graphic (+ 2 width))
-			      (t width)))
-	  (push
-	   (list
-	    icon
-	    (propertize
-	     (concat
-	      (when graphic w3m-tab-half-space)
-	      (replace-regexp-in-string
-	       "%" "%%"
-	       (if (and (> (string-width title) breadth)
-			(> breadth 6))
-		   (truncate-string-to-width
-		    (concat (truncate-string-to-width title (- breadth 3))
-			    "...")
-		    breadth nil ?.)
-		 (truncate-string-to-width title breadth nil ?\ ))))
-	     'face face
-	     'mouse-face 'w3m-tab-mouse
-	     'local-map keymap
-	     'help-echo title)
-	    w3m-tab-separator)
-	   line))
-	(setq w3m-tab-line-format
-	      (concat (apply 'concat (apply 'nconc line))
-		      (propertize (make-string (window-width) ?\ )
-				  'face (list 'w3m-tab-background)
-				  'mouse-face 'w3m-tab-selected-background
-				  'local-map w3m-tab-separator-map))))))
+  (let* ((current (current-buffer))
+	 (buffers (w3m-list-buffers))
+	 (breadth 1)
+	 (number 0)
+	 (fringes (window-fringes))
+	 (width (+ (window-width)
+		   (/ (float (+ (or (car fringes) 0)
+				(or (nth 1 fringes) 0)))
+		      (frame-char-width))
+		   ;; Assume that the vertical scroll-bar has
+		   ;; the width of two space characters.
+		   (if (car (frame-current-scroll-bars)) 2 0)))
+	 (nbuf (length buffers))
+	 (graphic (and window-system
+		       w3m-show-graphic-icons-in-header-line))
+	 (margin (if window-system
+		     (+ (if graphic 3.0 0.5)
+			;; Right and left shadows.
+			(/ 2.0 (frame-char-width)))
+		   1))
+	 (spinner (when w3m-process-queue
+		    (w3m-make-spinner-image)))
+	 buffer title data datum process unseen favicon keymap face icon
+	 line)
+    (save-current-buffer
+      (while buffers
+	(set-buffer (setq buffer (pop buffers)))
+	(setq number (1+ number))
+	(setq title (if w3m-add-tab-number
+			(format "%d.%s" number (w3m-current-title))
+		      (w3m-current-title)))
+	(setq breadth
+	      (max breadth
+		   ;; There may be a wide character in the beginning of
+		   ;; the title.
+		   (if (> (length title) 0)
+		       (char-width (aref title 0))
+		     0)))
+	(push (list (eq current buffer)
+		    w3m-current-process
+		    (w3m-unseen-buffer-p buffer)
+		    title
+		    (when w3m-use-favicon w3m-favicon-image)
+		    w3m-tab-map)
+	      data)))
+    (setq width (if (> (* nbuf (+ margin w3m-tab-width)) width)
+		    (max (truncate (- (/ width nbuf) margin)) breadth)
+		  w3m-tab-width))
+    (while data
+      (setq datum (pop data)
+	    current (car datum)
+	    process (nth 1 datum)
+	    unseen (nth 2 datum)
+	    title (nth 3 datum)
+	    favicon (nth 4 datum)
+	    keymap (nth 5 datum)
+	    face (list
+		  (if process
+		      (if current
+			  'w3m-tab-selected-retrieving
+			'w3m-tab-unselected-retrieving)
+		    (if current
+			'w3m-tab-selected
+		      (if unseen
+			  'w3m-tab-unselected-unseen
+			'w3m-tab-unselected))))
+	    icon (when graphic
+		   (cond
+		    (process
+		     (when spinner
+		       (propertize
+			" "
+			'display spinner
+			'face face
+			'local-map w3m-tab-spinner-map
+			'help-echo w3m-spinner-map-help-echo)))
+		    (favicon
+		     (propertize
+		      " "
+		      'display favicon
+		      'face face
+		      'local-map keymap
+		      'help-echo title))))
+	    breadth (cond (icon width)
+			  (graphic (+ 2 width))
+			  (t width)))
+      (push
+       (list
+	icon
+	(propertize
+	 (concat
+	  (when graphic w3m-tab-half-space)
+	  (replace-regexp-in-string
+	   "%" "%%"
+	   (if (and (> (string-width title) breadth)
+		    (> breadth 6))
+	       (truncate-string-to-width
+		(concat (truncate-string-to-width title (- breadth 3))
+			"...")
+		breadth nil ?.)
+	     (truncate-string-to-width title breadth nil ?\ ))))
+	 'face face
+	 'mouse-face 'w3m-tab-mouse
+	 'local-map keymap
+	 'help-echo title)
+	w3m-tab-separator)
+       line))
+    (concat (apply 'concat (apply 'nconc line))
+	    (propertize (make-string (window-width) ?\ )
+			'face (list 'w3m-tab-background)
+			'mouse-face 'w3m-tab-selected-background
+			'local-map w3m-tab-separator-map))))
 
 (add-hook 'w3m-mode-setup-functions 'w3m-tab-make-keymap)
 (add-hook 'w3m-mode-setup-functions 'w3m-setup-header-line)
@@ -1379,23 +1388,6 @@ It should be called periodically in order to spin the spinner."
 			'local-map w3m-modeline-spinner-map
 			'help-echo w3m-spinner-map-help-echo))
       image)))
-
-(defun w3m-decode-coding-string-with-priority (str coding)
-  "Decode the string STR which is encoded in CODING.
-If CODING is a list, look for the coding system using it as a priority
-list."
-  (setq str (string-make-unibyte str))
-  (when (listp coding)
-    (setq coding
-	  (with-temp-buffer
-	    (set-buffer-multibyte nil)
-	    (insert str)
-	    (w3m-detect-coding-region (point-min) (point-max) coding))))
-  (decode-coding-string str
-			(or coding
-			    w3m-default-coding-system
-			    w3m-coding-system
-			    'iso-2022-7bit)))
 
 (defun w3m-form-coding-system-accept-region-p (&optional from to coding-system)
   "Check whether `coding-system' can encode specified region."
