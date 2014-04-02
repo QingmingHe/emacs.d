@@ -1,6 +1,6 @@
 ;;; w3m-search.el --- functions convenient to access web search engines
 
-;; Copyright (C) 2001-2011 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
+;; Copyright (C) 2001--2012 TSUCHIYA Masatoshi <tsuchiya@namazu.org>
 
 ;; Authors: Keisuke Nishida    <kxn30@po.cwru.edu>,
 ;;          Shun-ichi GOTO     <gotoh@taiyo.co.jp>,
@@ -299,6 +299,11 @@ PROMPT-WITH-DEFAULT instead of string PROMPT."
 
 (defun w3m-search-read-variables ()
   "Ask for a search engine and words to query and return them as a list."
+  (when w3m-current-process
+    (error "%s"
+	   (substitute-command-keys "
+Cannot run two w3m processes simultaneously \
+\(Type `\\<w3m-mode-map>\\[w3m-process-stop]' to stop asynchronous process)")))
   (let* ((search-engine
 	  (if current-prefix-arg
 	      (let ((default (or (car w3m-search-engine-history)
@@ -323,6 +328,7 @@ PROMPT-WITH-DEFAULT instead of string PROMPT."
 	  (let ((query-string (w3m-search-escape-query-string query
 							      (caddr info)))
 		(post-data (cadddr info)))
+	    (w3m-history-store-position)
 	    (funcall w3m-goto-function
 		     (format (cadr info) query-string)
 		     post-data
