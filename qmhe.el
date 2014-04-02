@@ -86,3 +86,7 @@
 
 ;; multi-eshell
 (require 'multi-eshell)
+
+;; multi-term
+(require 'multi-term)
+(setq multi-term-program "/usr/bin/bash")
