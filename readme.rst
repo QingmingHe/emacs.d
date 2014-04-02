@@ -37,6 +37,9 @@ Third Party Packages Dependencies
     be English for Chinese OS.
     
 * `Ctags`_ for code navigation.
+* `w3m`_ text-based web browser.
+* `Pymacs`_, `rope`_, `ropemacs`_, `ropemode`_. The author has no idea the
+  relationship between them.
 
 ----------------
 Bugs or Problems
@@ -67,3 +70,8 @@ Starter-kit-eshell does not work.
 .. _goagent: https://code.google.con/p/goagent/
 .. _Aspell: https://aspell.net/
 .. _Ctags: http://ctags.sourceforge.net/
+.. _w3m: http://w3m.sourceforge.net/
+.. _ropemacs: https://pypi.python.org/pypi/ropemacs
+.. _rope: http://rope.sourceforge.net/
+.. _ropemode: https://pypi.python.org/pypi/ropemode
+.. _Pymacs: https://github.com/pinard/Pymacs

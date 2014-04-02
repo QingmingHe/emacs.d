@@ -83,3 +83,32 @@
 ;; optional keyboard short-cut
 (global-set-key "\C-xm" 'browse-url-at-point)
 (setq w3m-use-cookies t)
+
+;; company mode
+(require 'company)
+(setq company-idle-delay t)
+(dolist (hook (list
+               'emacs-lisp-mode-hook
+               'lisp-mode-hook
+               'lisp-interaction-mode-hook
+               'scheme-mode-hook
+               'c-mode-common-hook
+               'python-mode-hook
+               'haskell-mode-hook
+               'asm-mode-hook
+               'emms-tag-editor-mode-hook
+               'sh-mode-hook))
+(add-hook hook 'company-mode))
+(add-to-list 'company-backends 'company-inf-python)
+
+;; Pymacs configuration
+(eval-after-load "python-mode"  
+  '(progn  
+     (autoload 'pymacs-apply "pymacs")  
+     (autoload 'pymacs-call "pymacs")  
+     (autoload 'pymacs-eval "pymacs" nil t)  
+     (autoload 'pymacs-exec "pymacs" nil t)  
+     (autoload 'pymacs-load "pymacs" nil t)  
+     (pymacs-load "ropemacs" "rope-")  
+     (setq ropemacs-enable-autoimport t)  
+     ))  
