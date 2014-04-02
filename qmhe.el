@@ -83,3 +83,6 @@
 ;; optional keyboard short-cut
 (global-set-key "\C-xm" 'browse-url-at-point)
 (setq w3m-use-cookies t)
+
+;; multi-eshell
+(require 'multi-eshell)
