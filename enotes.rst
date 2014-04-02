@@ -50,3 +50,8 @@ Then kill it::
     kill some-process-id
 
 
+Ropemacs
+--------
+
+Ropemacs is based on rope, ropemode and Pymacs. At first usage, emacs will 
+inform to enter "rope project root folder", just enter ".ropeproject".
