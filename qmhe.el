@@ -92,6 +92,7 @@
 (require 'company)
 (setq company-idle-delay t)
 (dolist (hook (list
+               'fortran-mode-hook
                'emacs-lisp-mode-hook
                'lisp-mode-hook
                'lisp-interaction-mode-hook
@@ -103,7 +104,6 @@
                'emms-tag-editor-mode-hook
                'sh-mode-hook))
 (add-hook hook 'company-mode))
-(add-to-list 'company-backends 'company-inf-python)
 
 ;; Pymacs configuration
 (eval-after-load "python-mode"  
