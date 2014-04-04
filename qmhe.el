@@ -29,7 +29,7 @@
 ;; color theme
 (require 'color-theme)
 (color-theme-initialize)
-;(color-theme-gnome2)
+(color-theme-dark-blue)
 
 ;; evil mode
 (require 'evil)
