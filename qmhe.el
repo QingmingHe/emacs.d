@@ -87,6 +87,7 @@
 ;; optional keyboard short-cut
 (global-set-key "\C-xm" 'browse-url-at-point)
 (setq w3m-use-cookies t)
+(setq w3m-home-page "https://www.google.com.hk")
 
 ;; company mode
 (require 'company)
@@ -104,18 +105,6 @@
                'emms-tag-editor-mode-hook
                'sh-mode-hook))
 (add-hook hook 'company-mode))
-
-;; Pymacs configuration
-(eval-after-load "python-mode"  
-  '(progn  
-     (autoload 'pymacs-apply "pymacs")  
-     (autoload 'pymacs-call "pymacs")  
-     (autoload 'pymacs-eval "pymacs" nil t)  
-     (autoload 'pymacs-exec "pymacs" nil t)  
-     (autoload 'pymacs-load "pymacs" nil t)  
-     (pymacs-load "ropemacs" "rope-")  
-     (setq ropemacs-enable-autoimport t)  
-     ))  
 
 ;; multi-eshell
 (require 'multi-eshell)

@@ -55,3 +55,14 @@ Ropemacs
 
 Ropemacs is based on rope, ropemode and Pymacs. At first usage, emacs will 
 inform to enter "rope project root folder", just enter ".ropeproject".
+
+w3m-emacs
+---------
+
+* **S**: search with default engine
+* **a**: add to bookmark
+* **d**: download url at point
+* **B**: backward to history page
+* **N**: inverse to **B**
+* **C-c C-p**: w3m-previous-buffer
+* **C-c C-n**: w3m-next-buffer
