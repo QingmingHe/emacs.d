@@ -14,9 +14,6 @@
 ;; activate misc-recommended configuration of starter-kit
 (starter-kit-load "misc-recommended")
 
-;; dash
-(add-to-list 'load-path "~/.emacs.d/elpa/dash")
-
 ;; smartpatens
 (defun my-smartparens-config ()
   (require 'smartparens-config)
@@ -32,7 +29,7 @@
 ;; color theme
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-gnome2)
+;(color-theme-gnome2)
 
 ;; evil mode
 (require 'evil)
@@ -64,6 +61,9 @@
 (add-hook 'python-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'python-mode-hook 'flyspell-prog-mode)
 (add-hook 'python-mode-hook 'linum-mode)
+;; use jedi for completion
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
 
 ;; emacs lisp
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
@@ -99,7 +99,7 @@
                'lisp-interaction-mode-hook
                'scheme-mode-hook
                'c-mode-common-hook
-               'python-mode-hook
+;;               'python-mode-hook
                'haskell-mode-hook
                'asm-mode-hook
                'emms-tag-editor-mode-hook
@@ -112,3 +112,10 @@
 ;; multi-term
 (require 'multi-term)
 (setq multi-term-program "/usr/bin/bash")
+
+;; archives for package install
+(require 'package)
+(add-to-list 'package-archives 
+    '("marmalade" .
+      "http://marmalade-repo.org/packages/"))
+(package-initialize)
