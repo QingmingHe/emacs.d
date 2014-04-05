@@ -34,6 +34,7 @@
 ;; evil mode
 (require 'evil)
 (evil-mode 1)
+(require 'goto-chg)
 
 ;; rst mode
 (add-hook 'rst-mode-hook 'flyspell-mode)
