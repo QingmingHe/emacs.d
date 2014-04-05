@@ -94,3 +94,36 @@ Latex Chinese Support for non Windows OS
 * Error may occur that fonts not found. Open /usr/local/texlive/2013/texmf-dist/tex/latex/ctex/fontset/ctex-xecjk-winfonts.def
   and modify fonts name according to names viewed by **fc-list :lang=zh**
 * Compile again and view *.pdf in EMACS.
+
+------
+python
+------
+
+IPython
+-------
+
+IPython could be used in cygwin EMACS shell if IPython is installed from
+source. Never try to use Windows native IPython terminal in cygwin EMACS shell.
+
+matplotlib
+----------
+
+You can never use the matplotlib 1.3 in cygwin and cygwin emacs. However,
+there are ways to **dodge**. If you have Windows native Python and Matplotlib 
+installed (say, through Pythonxy), write a python script *plot.py*::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    x = np.linspace(-np.pi, np.pi)
+    y = np.sin(x)
+    plt.plot(x, y)
+    plt.show()
+    
+Then open a shell window in EMACS and key in::
+
+    /path/to/windows/native/python plot.py
+
+And you can enjoy the figure yourself. However, the author has no idea how to
+use Matplotlib in EMACS Python terminal interactively.
+
