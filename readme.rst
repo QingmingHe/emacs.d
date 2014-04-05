@@ -40,6 +40,9 @@ Third Party Packages Dependencies
 * `w3m`_ text-based web browser.
 * `Pymacs`_, `rope`_, `ropemacs`_, `ropemode`_. The author has no idea the
   relationship between them.
+* Never use packages listed above and use `jedi`_ instead, which is much
+  faster for python completion. To install **jedi**, follow the instructions
+  given in **jedi** 's home page.
 
 ----------------
 Bugs or Problems
@@ -75,3 +78,4 @@ Starter-kit-eshell does not work.
 .. _rope: http://rope.sourceforge.net/
 .. _ropemode: https://pypi.python.org/pypi/ropemode
 .. _Pymacs: https://github.com/pinard/Pymacs
+.. _jedi: http://tkf.github.io/emacs-jedi/latest/#pyinstall

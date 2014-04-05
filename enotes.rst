@@ -31,6 +31,7 @@ listed below:
 |           |                          |source file   |
 +-----------+--------------------------+--------------+
 
+----------
 multi-term
 ----------
 
@@ -49,13 +50,14 @@ Then kill it::
 
     kill some-process-id
 
-
+--------
 Ropemacs
 --------
 
 Ropemacs is based on rope, ropemode and Pymacs. At first usage, emacs will 
 inform to enter "rope project root folder", just enter ".ropeproject".
 
+---------
 w3m-emacs
 ---------
 
@@ -66,3 +68,29 @@ w3m-emacs
 * **N**: inverse to **B**
 * **C-c C-p**: w3m-previous-buffer
 * **C-c C-n**: w3m-next-buffer
+
+------
+auctex
+------
+
+Latex Chinese Support for non Windows OS
+----------------------------------------
+
+* Install texlive with full scheme;
+* Dowload fonts files or copy from /c/Windows/Fonts::
+
+    cp /c/Windows/Fonts/{sim,SIM}* ~/.fonts
+
+* **fc-cache** to update fonts;
+* **fc-list :lang=zh** to view Chinese fonts;
+* Write a Latex file for testing::
+
+    \documentclass{ctexart}
+    \begin{document}
+    Some Chinese Words
+    \end{document}
+    
+* Compile with **xelatex**;
+* Error may occur that fonts not found. Open /usr/local/texlive/2013/texmf-dist/tex/latex/ctex/fontset/ctex-xecjk-winfonts.def
+  and modify fonts name according to names viewed by **fc-list :lang=zh**
+* Compile again and view *.pdf in EMACS.
