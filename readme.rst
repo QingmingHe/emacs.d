@@ -43,6 +43,7 @@ Third Party Packages Dependencies
 * Never use packages listed above and use `jedi`_ instead, which is much
   faster for python completion. To install **jedi**, follow the instructions
   given in **jedi** 's home page.
+* `Evince`_ for pdf preview.
 
 ----------------
 Bugs or Problems
@@ -67,6 +68,12 @@ eshell
 
 Starter-kit-eshell does not work.
 
+w3m
+---
+
+Sometimes error of *apply: Setting current directory: permission denied,
+~/.w3m/* occurs and you should remove ~/.w3m.
+
 .. _dash: https://github.com/magnars/dash.el
 .. _flyspell: http://www-sop.inria.fr/members/Manuel.Serrano/flyspell/flyspell.html
 .. _evil: https://gitorious.org/evil/pages/Home
@@ -79,3 +86,4 @@ Starter-kit-eshell does not work.
 .. _ropemode: https://pypi.python.org/pypi/ropemode
 .. _Pymacs: https://github.com/pinard/Pymacs
 .. _jedi: http://tkf.github.io/emacs-jedi/latest/#pyinstall
+.. _Evince: https://wiki.gnome.org/Apps/Evince  

@@ -25,6 +25,12 @@
   (smartparens-mode 1)
   (show-smartparens-global-mode t)
   )
+
+;-------------------------------------------------------------------------------
+;; EMACS layout
+;-------------------------------------------------------------------------------
+(scroll-bar-mode 0)
+(column-number-mode 1)
   
 ;-------------------------------------------------------------------------------
 ;; aspell
@@ -51,7 +57,6 @@
 ;; rst mode
 ;-------------------------------------------------------------------------------
 (add-hook 'rst-mode-hook 'flyspell-mode)
-(add-hook 'rst-mode-hook 'column-number-mode)
 (add-hook 'rst-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'rst-mode-hook 'linum-mode)
 
