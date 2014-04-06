@@ -14,6 +14,9 @@
 ;; activate misc-recommended configuration of starter-kit
 (starter-kit-load "misc-recommended")
 
+;; activate Yasnippet configuration of starter-kit
+(starter-kit-load "yasnippet")
+
 ;-------------------------------------------------------------------------------
 ;; smartpatens
 ;-------------------------------------------------------------------------------
