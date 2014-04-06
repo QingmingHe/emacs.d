@@ -71,11 +71,9 @@
 (add-hook 'Latex-mode-hook 'flyspell-mode)
 (add-hook 'Latex-mode-hook 'Latex-math-mode)
 (add-hook 'Latex-mode-hook 'true-on-reftex)
-(add-hook 'Latex-mode-hook (lambda () (my-smartparens-config)))
-(add-hook 'Latex-mode-hook 'linum-mode)
 (setq reftex-plug-into-AUCTeX t)
 ;; Use evince to view PDF files. However, inverse search is not supported.
-;; Note that Evence is opened in preview mode, to maxmize, M-SPACE, X and
+;; Note that if Evince is opened in preview mode, M-SPACE, X to maximize and
 ;; M-<F4> to close
 (setq TeX-PDF-mode t)
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
@@ -88,7 +86,12 @@
         (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --shell-escape --synctex=1 %(mode)%'  %t" TeX-run-TeX nil t))
         (setq TeX-command-default "XeLaTeX")
         (setq TeX-save-query nil)
-        (setq TeX-show-compilation t)))
+        (setq TeX-show-compilation t)
+        (linum-mode)
+        (company-mode)
+        (my-smartparens-config)
+        (yas-minor-mode)
+        ))
 
 ;-------------------------------------------------------------------------------
 ;; python
@@ -107,6 +110,7 @@
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
 (add-hook 'emacs-lisp-mode-hook 'linum-mode)
+(add-hook 'emacs-lisp-mode-hook 'company-mode)
 
 ;-------------------------------------------------------------------------------
 ;; Set 78 column rule. 78 not 80 for that two spaces are spared to fill
@@ -138,19 +142,6 @@
 ;-------------------------------------------------------------------------------
 (require 'company)
 (setq company-idle-delay t)
-(dolist (hook (list
-               'fortran-mode-hook
-               'emacs-lisp-mode-hook
-               'lisp-mode-hook
-               'lisp-interaction-mode-hook
-               'scheme-mode-hook
-               'c-mode-common-hook
-;;               'python-mode-hook
-               'haskell-mode-hook
-               'asm-mode-hook
-               'emms-tag-editor-mode-hook
-               'sh-mode-hook))
-(add-hook hook 'company-mode))
 
 ;-------------------------------------------------------------------------------
 ;; multi-eshell and multi-term
@@ -167,3 +158,8 @@
     '("marmalade" .
       "http://marmalade-repo.org/packages/"))
 (package-initialize)
+
+;-------------------------------------------------------------------------------
+;; Fortran
+;-------------------------------------------------------------------------------
+(add-hook 'fortran-mode 'company-mode)

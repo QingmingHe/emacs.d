@@ -15,7 +15,6 @@
                                                   starter-kit-dir)))
 
 (require 'yasnippet)
-(yas-global-mode 1)
 
 (yas/load-directory (expand-file-name "snippets" starter-kit-dir))
 

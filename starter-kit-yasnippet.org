@@ -42,7 +42,6 @@ inspired by TextMate's templating syntax.
    :END:
 #+begin_src emacs-lisp
   (require 'yasnippet)
-  (yas-global-mode 1)
 #+end_src
 
 ** Load Snippets Distributed with the Starter Kit
