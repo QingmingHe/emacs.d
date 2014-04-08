@@ -127,3 +127,13 @@ Then open a shell window in EMACS and key in::
 And you can enjoy the figure yourself. However, the author has no idea how to
 use Matplotlib in EMACS Python terminal interactively.
 
+------
+Kmacro
+------
+
+Basic usage
+-----------
+
+**C-x (**: begin to define a keyboard macro;
+**C-x )**: end the definition;
+**C-u 10 C-x e**: execute last kmacro for 10 times.
