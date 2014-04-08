@@ -101,9 +101,14 @@
 ;-------------------------------------------------------------------------------
 ;; python
 ;-------------------------------------------------------------------------------
-(add-hook 'python-mode-hook (lambda () (my-smartparens-config)))
-(add-hook 'python-mode-hook 'flyspell-prog-mode)
-(add-hook 'python-mode-hook 'linum-mode)
+(add-hook 'python-mode-hook (lambda ()
+                              (my-smartparens-config)
+                              (flyspell-prog-mode)
+                              (linum-mode)
+                              (outline-minor-mode)
+                              (setq outline-regexp " *\\(def \\|class \\)")
+                              (hide-body)
+                              ))
 ;; use jedi for completion
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:setup-keys t)
@@ -167,7 +172,16 @@
 ;-------------------------------------------------------------------------------
 ;; Fortran
 ;-------------------------------------------------------------------------------
-(add-hook 'fortran-mode 'company-mode)
+(require 'f90-interface-browser)
+(add-hook 'f90-mode-hook '(lambda () 
+                               (company-mode)
+                               (my-smartparens-config)
+                               (flyspell-prog-mode)
+                               (linum-mode)
+                               (outline-minor-mode)
+                               (setq outline-regexp " *\\(function \\|subroutine \\|type ::\\|module \\|interface \\|program \\)")
+                               (hide-body)
+                          ))
 
 ;-------------------------------------------------------------------------------
 ;; Dictionary
