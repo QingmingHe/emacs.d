@@ -54,11 +54,13 @@
 (require 'goto-chg)
 
 ;-------------------------------------------------------------------------------
-;; rst mode
+;; rst mode.
 ;-------------------------------------------------------------------------------
-(add-hook 'rst-mode-hook 'flyspell-mode)
-(add-hook 'rst-mode-hook (lambda () (my-smartparens-config)))
-(add-hook 'rst-mode-hook 'linum-mode)
+(add-hook 'rst-mode-hook (lambda ()
+                           (flyspell-mode)
+                           (my-smartparens-config)
+                           (linum-mode)
+                           ))
 
 ;-------------------------------------------------------------------------------
 ;; window numbering
@@ -73,7 +75,6 @@
 (setq Tex-parse-self t)
 (setq-default Tex-master nil)
 (add-hook 'Latex-mode-hook 'visual-line-mode)
-(add-hook 'Latex-mode-hook 'flyspell-mode)
 (add-hook 'Latex-mode-hook 'Latex-math-mode)
 (add-hook 'Latex-mode-hook 'true-on-reftex)
 (setq reftex-plug-into-AUCTeX t)
@@ -96,6 +97,7 @@
         (company-mode)
         (my-smartparens-config)
         (yas-minor-mode)
+        (flyspell-mode)
         ))
 
 ;-------------------------------------------------------------------------------
@@ -106,7 +108,7 @@
                               (flyspell-prog-mode)
                               (linum-mode)
                               (outline-minor-mode)
-                              (setq outline-regexp " *\\(def \\|class \\)")
+                              (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
                               (hide-body)
                               ))
 ;; use jedi for completion
