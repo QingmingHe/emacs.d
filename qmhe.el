@@ -60,6 +60,9 @@
                            (flyspell-mode)
                            (my-smartparens-config)
                            (linum-mode)
+                           (outline-minor-mode)
+                           (setq outline-regexp "\.\. _\\(CHAPTER\\|SECTION\\|SUBSECTION\\)")
+                           (hide-body)
                            ))
 
 ;-------------------------------------------------------------------------------
