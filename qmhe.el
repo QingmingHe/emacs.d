@@ -205,3 +205,32 @@
   "Display entries matching the word at the point" t)
 (autoload 'dictionary-tooltip-mode "dictionary"
   "Display tooltips for the current word" t)
+
+;-------------------------------------------------------------------------------
+; org mode for gtd
+;-------------------------------------------------------------------------------
+(global-set-key "\C-cc" 'remember)
+;; GTD templates
+(org-remember-insinuate) 
+(setq org-directory "~/docs/gtd/")
+(setq org-remember-templates '(
+("Task" ?t "** TODO %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Tasks")
+("Book" ?c "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Book") 
+("Calendar" ?c "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Calender") 
+("Project" ?p "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Project"))) 
+(setq org-default-notes-file (concat org-directory "/inbox.org"))
+;;TODO keywords
+(setq org-todo-keywords
+      (list "TODO(t)" "|" "CANCELED(c)" "DONE(d)"))
+;; switch among different files
+(custom-set-variables
+'(org-refile-targets 
+  (quote 
+   (("inbox.org" :level . 1)("canceled.org" :level . 1) ("finished.org":level . 1))
+)))
+;; find inbox file
+(defun inbox() (interactive) (find-file "~/docs/gtd/inbox.org")) 
+;; specify org agenda files
+(setq org-agenda-files
+(list "~/docs/gtd/inbox.org"
+      "~/docs/gtd/finished.org"))
