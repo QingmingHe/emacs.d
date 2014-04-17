@@ -225,6 +225,10 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-use-speed-commands t)
+;; org todo keywords
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
+              (sequence "WAITING(w@/!)" "SOMEDAY(S)" "PROJECT(P@)" "|" "CANCELLED(c@/!)"))))
 ;; GTD templates Note that org no longer support remember since org-8.
 ; use capture instead of remember
 (global-set-key "\C-cc" 'org-capture)
@@ -287,6 +291,66 @@
       org-tags-column 80
       ;org-startup-indented t
       )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org clock
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Change task state to STARTED when clocking in
+(setq org-clock-in-switch-to-state "STARTED")
+;; Save clock data and notes in the LOGBOOK drawer
+(setq org-clock-into-drawer t)
+;; Removes clocked tasks with 0:00 duration
+(setq org-clock-out-remove-zero-time-clocks t)
+
+;; Show the clocked-in task - if any - in the header line
+(defun sanityinc/show-org-clock-in-header-line ()
+  (setq-default header-line-format '((" " org-mode-line-string " "))))
+
+(defun sanityinc/hide-org-clock-from-header-line ()
+  (setq-default header-line-format nil))
+
+(add-hook 'org-clock-in-hook 'sanityinc/show-org-clock-in-header-line)
+(add-hook 'org-clock-out-hook 'sanityinc/hide-org-clock-from-header-line)
+(add-hook 'org-clock-cancel-hook 'sanityinc/hide-org-clock-from-header-line)
+
+(eval-after-load 'org-clock
+  '(progn
+     (define-key org-clock-mode-line-map [header-line mouse-2] 'org-clock-goto)
+     (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu)))
+
+(eval-after-load 'org
+   '(progn
+      (require 'org-exp)
+      (require 'org-clock)
+      ; @see http://irreal.org/blog/?p=671
+      (setq org-src-fontify-natively t)
+      ;;(require 'org-checklist)
+      (require 'org-fstree)
+      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
+                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
+      (defun soft-wrap-lines ()
+        "Make lines wrap at window edge and on word boundary,
+        in current buffer."
+        (interactive)
+        (setq truncate-lines nil)
+        (setq word-wrap t)
+        )
+      (add-hook 'org-mode-hook '(lambda ()
+                                  (setq evil-auto-indent nil)
+                                  (soft-wrap-lines)
+                                  ))))
+
+(defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
+  (let ((browse-url-browser-function
+         (cond ((equal (ad-get-arg 0) '(4))
+                'browse-url-generic)
+               ((equal (ad-get-arg 0) '(16))
+                'choose-browser)
+               (t
+                (lambda (url &optional new)
+                  (w3m-browse-url url t))))))
+    ad-do-it))
 ;; Show agenda at startup
 (setq inhibit-splash-screen t)
 (org-agenda-list)

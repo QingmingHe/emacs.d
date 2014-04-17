@@ -178,4 +178,27 @@ Basic usage
 **C-x )**: end the definition;
 **C-u 10 C-x e**: execute last kmacro for 10 times.
 
+--------
+org-mode
+--------
+
+Install the latest org
+----------------------
+
+* Never use package management system to install the latest org, which has
+  several bugs
+* It is recommended to use Git to update org::
+
+    git clone git://orgmode.org/org-mode.git
+    make autoloads
+
+  .. note::
+
+      The second step is indispensable to make org work.
+
+* Org no longer support remember so that you have to switch to capture for
+  quick notes.
+* Add load path of org at first lines of init.el, otherwise starter-kit cannot
+  find and load org
+
 .. _object.inv: http://docs.python.org/objects.inv
