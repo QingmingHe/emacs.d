@@ -47,6 +47,12 @@
 (color-theme-dark-blue)
 
 ;-------------------------------------------------------------------------------
+;; undo-tree
+;-------------------------------------------------------------------------------
+(require 'undo-tree)
+(global-undo-tree-mode)
+
+;-------------------------------------------------------------------------------
 ;; evil mode
 ;-------------------------------------------------------------------------------
 (require 'evil)
@@ -156,7 +162,7 @@
 ;; company mode
 ;-------------------------------------------------------------------------------
 (require 'company)
-(setq company-idle-delay t)
+(setq company-idle-delay 0.2)
 
 ;-------------------------------------------------------------------------------
 ;; multi-eshell and multi-term
@@ -214,21 +220,60 @@
 (org-remember-insinuate) 
 (setq org-directory "~/docs/gtd/")
 (setq org-remember-templates '(
-("Task" ?t "** TODO %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Tasks")
-("Book" ?c "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Book") 
-("Calendar" ?c "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Calender") 
-("Note" ?c "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Notes") 
-("Project" ?p "** %? %t\n %i\n %a" "~/docs/gtd/inbox.org" "Projects"))) 
+("Task" ?t "** TODO %? \n   SCHEDULED: %T \n   %i" "~/docs/gtd/inbox.org" "Tasks")
+("Daily" ?d "** %? \n   SCHEDULED: %T \n   %i" "~/docs/gtd/inbox.org" "Dailies") 
+("Calendar" ?l "** %? \n   %T" "~/docs/gtd/inbox.org" "Calendar") 
+("Project" ?p "** %? \n   SCHEDULED: %T \n   %i" "~/docs/gtd/inbox.org" "Projects"))) 
+;; specify org agenda files
+(setq org-agenda-files 
+      (list "~/docs/gtd/inbox.org"
+            "~/docs/gtd/projects.org"
+            ))
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
-; Targets include this file and any file contributing to the agenda
-(setq org-refile-targets (quote ((nil :maxlevel . 2)
-                                 (org-agenda-files :maxlevel . 2)
+; Refile targets include this file and any file contributing to the agenda 
+(setq org-refile-files
+      (list "~/docs/gtd/inbox.org"
+            "~/docs/gtd/projects.org"
+            "~/docs/gtd/finished.org"
+            "~/docs/gtd/canceled.org")
+      )
+(setq org-refile-targets (quote (
+                                 (nil :maxlevel . 3)
+                                 (org-refile-files :maxlevel . 3)
+                                ; (org-agenda-files :maxlevel . 3)
                                  )))
+; Targets start with the file name - allows creating level 1 tasks
+(setq org-refile-use-outline-path (quote file))
+; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
+(setq org-outline-path-complete-in-steps t)
 ;; find inbox file
 (defun inbox() (interactive) (find-file "~/docs/gtd/inbox.org")) 
-;; specify org agenda files
-(setq org-agenda-files
-(list "~/docs/gtd/inbox.org"
-      "~/docs/gtd/canceled.org"
-      "~/docs/gtd/projects.org"
-      "~/docs/gtd/finished.org"))
+;; org mode hook
+(add-hook 'org-mode-hook '(lambda () 
+                               (my-smartparens-config)
+                               (linum-mode)
+                          ))
+;; export org-mode into PDF
+(setq org-latex-to-pdf-process
+      '("xelatex -interaction nonstopmode -output-directory %o %f"
+        "xelatex -interaction nonstopmode -output-directory %o %f"
+        "xelatex -interaction nonstopmode -output-directory %o %f"))
+;; Various preferences
+(setq org-log-done t
+      org-completion-use-ido t
+      org-edit-src-content-indentation 0
+      org-edit-timestamp-down-means-later t
+      org-agenda-start-on-weekday nil
+      org-agenda-span 14
+      ;org-agenda-include-diary t
+      org-agenda-window-setup 'current-window
+      org-fast-tag-selection-single-key 'expert
+      org-export-kill-product-buffer-when-displayed t
+      org-export-odt-preferred-output-format "doc"
+      org-tags-column 80
+      ;org-startup-indented t
+      )
+;; Show agenda at startup
+(setq inhibit-splash-screen t)
+(org-agenda-list)
+(delete-other-windows)

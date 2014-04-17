@@ -45,8 +45,8 @@ from within Emacs.
    call to the `org-export-region-as-html' function should be changed
    from
    #+begin_src emacs-lisp
-     (org-export-region-as-html (point-min) (point-max)
-                                nil g-scratch-buffer)
+   (org-export-region-as-html (point-min) (point-max)
+                              nil g-scratch-buffer)
    #+end_src
    to
    #+begin_src emacs-lisp
