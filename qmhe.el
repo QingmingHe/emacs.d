@@ -221,6 +221,8 @@
 ;-------------------------------------------------------------------------------
 ; org mode for gtd
 ;-------------------------------------------------------------------------------
+;; Donot show Chinese Time Stamp
+(setq system-time-locale "C")
 ;; org key bindings
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
