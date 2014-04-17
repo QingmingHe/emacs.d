@@ -1,8 +1,13 @@
+;; activate debugging
+(setq debug-on-error t
+      debug-on-signal nil
+      debug-on-quit nil)
+
 ;; activate python configuration of starter-kit
 (starter-kit-load "python")
 
 ;; activate org configuration of starter-kit
-(starter-kit-load "org")
+;(starter-kit-load "org")
 
 ;; activate eshell configuration of starter-kit
 ;; This cause error
@@ -178,6 +183,7 @@
 (add-to-list 'package-archives 
     '("marmalade" .
       "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
 
 ;-------------------------------------------------------------------------------
@@ -215,22 +221,31 @@
 ;-------------------------------------------------------------------------------
 ; org mode for gtd
 ;-------------------------------------------------------------------------------
-(global-set-key "\C-cc" 'remember)
-;; GTD templates
-(org-remember-insinuate) 
+;; org key bindings
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-use-speed-commands t)
+;; GTD templates Note that org no longer support remember since org-8.
+; use capture instead of remember
+(global-set-key "\C-cc" 'org-capture)
 (setq org-directory "~/docs/gtd/")
-(setq org-remember-templates '(
-("Task" ?t "** TODO %? \n   SCHEDULED: %T \n   %i" "~/docs/gtd/inbox.org" "Tasks")
-("Daily" ?d "** %? \n   SCHEDULED: %T \n   %i" "~/docs/gtd/inbox.org" "Dailies") 
-("Calendar" ?l "** %? \n   %T" "~/docs/gtd/inbox.org" "Calendar") 
-("Project" ?p "** %? \n   SCHEDULED: %T \n   %i" "~/docs/gtd/inbox.org" "Projects"))) 
-;; specify org agenda files
+(setq org-capture-templates
+      '(("t" "Task" entry (file+headline ,"~/docs/gtd/inbox.org" "Tasks")
+         "** TODO %? \n   SCHEDULED: %T \n   %i")
+        ("d" "Daily" entry (file+headline ,"~/docs/gtd/inbox.org" "Dailies")
+         "** %? \n   SCHEDULED: %T \n   %i")
+        ("l" "Calendar" entry (file+headline ,"~/docs/gtd/inbox.org" "Calendar")
+         "** %? \n   %T" "~/docs/gtd/inbox.org")
+        ("p" "Project" entry (file+headline ,"~/docs/gtd/inbox.org" "Projects")
+         "** %? \n   SCHEDULED: %T \n   %i")
+        ))
+;;; specify org agenda files
 (setq org-agenda-files 
       (list "~/docs/gtd/inbox.org"
             "~/docs/gtd/projects.org"
             ))
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
-; Refile targets include this file and any file contributing to the agenda 
+;; Refile targets include this file and any file contributing to the agenda 
 (setq org-refile-files
       (list "~/docs/gtd/inbox.org"
             "~/docs/gtd/projects.org"
@@ -240,7 +255,6 @@
 (setq org-refile-targets (quote (
                                  (nil :maxlevel . 3)
                                  (org-refile-files :maxlevel . 3)
-                                ; (org-agenda-files :maxlevel . 3)
                                  )))
 ; Targets start with the file name - allows creating level 1 tasks
 (setq org-refile-use-outline-path (quote file))

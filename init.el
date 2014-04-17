@@ -5,6 +5,10 @@
 ;; This is the first thing to get loaded.
 ;;
 
+;; add path of org-8
+(add-to-list 'load-path "~/.emacs.d/src/org-mode/lisp")
+(add-to-list 'load-path "~/.emacs.d/src/org-mode/contrib/lisp" t)
+
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
   (let ((org-lisp-dir (expand-file-name "lisp" (getenv "ORG_HOME"))))
