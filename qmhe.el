@@ -1,7 +1,7 @@
 ;; activate debugging
-(setq debug-on-error t
-      debug-on-signal nil
-      debug-on-quit nil)
+;; (setq debug-on-error t
+;;       debug-on-signal nil
+;;       debug-on-quit nil)
 
 ;; activate python configuration of starter-kit
 (starter-kit-load "python")
@@ -234,29 +234,29 @@
 ;; GTD templates Note that org no longer support remember since org-8.
 ; use capture instead of remember
 (global-set-key "\C-cc" 'org-capture)
-(setq org-directory "~/docs/gtd/")
+(setq org-directory "~/docs/gtd/source/")
 (setq org-capture-templates
-      '(("t" "Task" entry (file+headline ,"~/docs/gtd/inbox.org" "Tasks")
+      '(("t" "Task" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Tasks")
          "** TODO %? \n   SCHEDULED: %T \n   %i")
-        ("d" "Daily" entry (file+headline ,"~/docs/gtd/inbox.org" "Dailies")
+        ("d" "Daily" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Dailies")
          "** %? \n   SCHEDULED: %T \n   %i")
-        ("l" "Calendar" entry (file+headline ,"~/docs/gtd/inbox.org" "Calendar")
-         "** %? \n   %T" "~/docs/gtd/inbox.org")
-        ("p" "Project" entry (file+headline ,"~/docs/gtd/inbox.org" "Projects")
+        ("l" "Calendar" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Calendar")
+         "** %? \n   %T")
+        ("p" "Project" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Projects")
          "** %? \n   SCHEDULED: %T \n   %i")
         ))
 ;;; specify org agenda files
 (setq org-agenda-files 
-      (list "~/docs/gtd/inbox.org"
-            "~/docs/gtd/projects.org"
+      (list "~/docs/gtd/source/inbox.org"
+            "~/docs/gtd/source/projects.org"
             ))
 (setq org-default-notes-file (concat org-directory "/inbox.org"))
 ;; Refile targets include this file and any file contributing to the agenda 
 (setq org-refile-files
-      (list "~/docs/gtd/inbox.org"
-            "~/docs/gtd/projects.org"
-            "~/docs/gtd/finished.org"
-            "~/docs/gtd/canceled.org")
+      (list "~/docs/gtd/source/inbox.org"
+            "~/docs/gtd/source/projects.org"
+            "~/docs/gtd/source/finished.org"
+            "~/docs/gtd/source/canceled.org")
       )
 (setq org-refile-targets (quote (
                                  (nil :maxlevel . 3)
@@ -267,7 +267,7 @@
 ; Targets complete in steps so we start with filename, TAB shows the next level of targets etc
 (setq org-outline-path-complete-in-steps t)
 ;; find inbox file
-(defun inbox() (interactive) (find-file "~/docs/gtd/inbox.org")) 
+(defun inbox() (interactive) (find-file "~/docs/gtd/source/inbox.org")) 
 ;; org mode hook
 (add-hook 'org-mode-hook '(lambda () 
                                (my-smartparens-config)
@@ -323,7 +323,7 @@
 
 (eval-after-load 'org
    '(progn
-      (require 'org-exp)
+;      (require 'org-exp)
       (require 'org-clock)
       ; @see http://irreal.org/blog/?p=671
       (setq org-src-fontify-natively t)
@@ -353,6 +353,22 @@
                 (lambda (url &optional new)
                   (w3m-browse-url url t))))))
     ad-do-it))
+
+;-------------------------------------------------------------------------------
+; org publish
+;-------------------------------------------------------------------------------
+(require 'ox-publish)
+(require 'ox-html)
+(setq org-publish-project-alist
+  '(("gtd"
+     :base-directory "~/docs/gtd/source/"
+     :base-extension "org"
+     :recursive t
+     :headline-levels 3
+     :auto-preamble t
+     :publishing-directory "~/docs/gtd/html"
+     :publishing-function org-html-publish-to-html)
+    ("all" :components ("html" ))))
 ;; Show agenda at startup
 (setq inhibit-splash-screen t)
 (org-agenda-list)

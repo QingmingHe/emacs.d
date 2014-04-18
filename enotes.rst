@@ -178,6 +178,8 @@ Basic usage
 **C-x )**: end the definition;
 **C-u 10 C-x e**: execute last kmacro for 10 times.
 
+.. _SECTION-org-mode:
+
 --------
 org-mode
 --------
@@ -200,5 +202,19 @@ Install the latest org
   quick notes.
 * Add load path of org at first lines of init.el, otherwise starter-kit cannot
   find and load org
+* Uninstall the old version org or you will encounter unknown problems
+  
+Math
+----
+
+* You can insert LaTeX math expression in org.
+* To export math in html with LaTeX instead of MathJax, add to file at head::
+
+    #+OPTIONS: tex:imagemagick
+    
+Publish
+-------
+
+TODO
 
 .. _object.inv: http://docs.python.org/objects.inv
