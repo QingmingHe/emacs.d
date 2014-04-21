@@ -360,15 +360,16 @@
 (require 'ox-publish)
 (require 'ox-html)
 (setq org-publish-project-alist
-  '(("gtd"
+  '(("gtd-html"
      :base-directory "~/docs/gtd/source/"
      :base-extension "org"
-     :recursive t
-     :headline-levels 3
+     :recursive nil
+     :headline-levels 2
      :auto-preamble t
      :publishing-directory "~/docs/gtd/html"
-     :publishing-function org-html-publish-to-html)
-    ("all" :components ("html" ))))
+     :publishing-function org-html-publish-to-html
+     )
+    ("all" :components ("gtd-html" ))))
 ;; Show agenda at startup
 (setq inhibit-splash-screen t)
 (org-agenda-list)

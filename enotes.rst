@@ -194,15 +194,16 @@ Install the latest org
     git clone git://orgmode.org/org-mode.git
     make autoloads
 
-  .. note::
-
-      The second step is indispensable to make org work.
+  .. note:: The second step is indispensable to make org work.
 
 * Org no longer support remember so that you have to switch to capture for
   quick notes.
 * Add load path of org at first lines of init.el, otherwise starter-kit cannot
   find and load org
 * Uninstall the old version org or you will encounter unknown problems
+  
+  .. note:: The old version org has been removed to **~/share/org_old**
+
   
 Math
 ----
