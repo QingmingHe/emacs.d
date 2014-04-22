@@ -60,9 +60,20 @@
 ;-------------------------------------------------------------------------------
 ;; evil mode
 ;-------------------------------------------------------------------------------
+;; enable evil-leader before enable evil-mode
+(require 'evil-leader)
+(global-evil-leader-mode)
 (require 'evil)
 (evil-mode 1)
 (require 'goto-chg)
+
+;; vim key bindings based on evil and evil leader
+(evil-leader/set-key
+ "zo" 'show-entry
+ "zO" 'show-all
+ "zc" 'hide-entry
+ "zC" 'hide-body
+)
 
 ;-------------------------------------------------------------------------------
 ;; rst mode.
@@ -113,6 +124,10 @@
         (yas-minor-mode)
         (flyspell-mode)
         ))
+;; reftex
+(setq reftex-default-bibliography
+      (quote
+       ("~/share/bib/My_Collection.bib"))) 
 
 ;-------------------------------------------------------------------------------
 ;; python
