@@ -72,8 +72,18 @@
  "zo" 'show-entry
  "zO" 'show-all
  "zc" 'hide-entry
- "zC" 'hide-body
-)
+ "zC" 'hide-body)
+
+;; matchit not used now
+;(require 'evil-matchit)
+;(global-evil-matchit-mode 1)
+
+
+;-------------------------------------------------------------------------------
+;; expand region 
+;-------------------------------------------------------------------------------
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
 
 ;-------------------------------------------------------------------------------
 ;; rst mode.
