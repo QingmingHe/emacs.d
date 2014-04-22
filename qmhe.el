@@ -230,7 +230,7 @@
 ;; org todo keywords
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
-              (sequence "WAITING(w@/!)" "SOMEDAY(S)" "PROJECT(P@)" "|" "CANCELLED(c@/!)"))))
+              (sequence "WAITING(w@/!)" "SOMEDAY(S)" "PROJECT(P@)" "|" "CANCELED(c@/!)"))))
 ;; GTD templates Note that org no longer support remember since org-8.
 ; use capture instead of remember
 (global-set-key "\C-cc" 'org-capture)
@@ -293,6 +293,12 @@
       org-tags-column 80
       ;org-startup-indented t
       )
+;; MathJax
+(setq org-html-mathjax-options '((path "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+                                 (scale "100")
+                                 (align "center")
+                                 (indent "2em")
+                                 (mathml t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org clock
@@ -368,6 +374,8 @@
      :auto-preamble t
      :publishing-directory "~/docs/gtd/html"
      :publishing-function org-html-publish-to-html
+     :author "Qingming He"
+     :email "906459647@qq.com"
      )
     ("all" :components ("gtd-html" ))))
 ;; Show agenda at startup

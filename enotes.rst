@@ -209,9 +209,13 @@ Math
 ----
 
 * You can insert LaTeX math expression in org.
-* To export math in html with LaTeX instead of MathJax, add to file at head::
+* To export math in html with LaTeX, add to file at head::
 
     #+OPTIONS: tex:imagemagick
+    
+* To employ MathJax::
+
+    #+HTML_MATHJAX: align:"center" mathml:t path:"http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
     
 Publish
 -------
