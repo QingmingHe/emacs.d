@@ -261,14 +261,16 @@
 (global-set-key "\C-cc" 'org-capture)
 (setq org-directory "~/docs/gtd/source/")
 (setq org-capture-templates
-      '(("t" "Task" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Tasks")
+      '(("t" "Task" entry (file+headline "~/docs/gtd/source/inbox.org" "Tasks")
          "** TODO %? \n   SCHEDULED: %T \n   %i")
-        ("d" "Daily" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Dailies")
+        ("d" "Daily" entry (file+headline "~/docs/gtd/source/inbox.org" "Dailies")
          "** %? \n   SCHEDULED: %T \n   %i")
-        ("l" "Calendar" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Calendar")
+        ("l" "Calendar" entry (file+headline "~/docs/gtd/source/inbox.org" "Calendar")
          "** %? \n   %T")
-        ("p" "Project" entry (file+headline ,"~/docs/gtd/source/inbox.org" "Projects")
+        ("p" "Project" entry (file+headline "~/docs/gtd/source/inbox.org" "Projects")
          "** %? \n   SCHEDULED: %T \n   %i")
+        ("n" "Note" entry (file+headline "~/docs/gtd/source/inbox.org" "Notes")
+         "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i")
         ))
 ;;; specify org agenda files
 (setq org-agenda-files 
