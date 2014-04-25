@@ -36,6 +36,14 @@
 ;-------------------------------------------------------------------------------
 (scroll-bar-mode 0)
 (column-number-mode 1)
+
+;-------------------------------------------------------------------------------
+;; sr-speedbar
+;-------------------------------------------------------------------------------
+(require 'sr-speedbar)
+(setq sr-speedbar-right-side nil)
+(setq sr-speedbar-width 30)
+(setq speedbar-show-unknown-files t)
   
 ;-------------------------------------------------------------------------------
 ;; aspell
@@ -72,7 +80,8 @@
  "zo" 'show-entry
  "zO" 'show-all
  "zc" 'hide-entry
- "zC" 'hide-body)
+ "zC" 'hide-body
+ "wm" 'sr-speedbar-toggle)
 
 ;; matchit not used now
 ;(require 'evil-matchit)
@@ -109,10 +118,6 @@
 (setq Tex-auto-save t)
 (setq Tex-parse-self t)
 (setq-default Tex-master nil)
-(add-hook 'Latex-mode-hook 'visual-line-mode)
-(add-hook 'Latex-mode-hook 'Latex-math-mode)
-(add-hook 'Latex-mode-hook 'true-on-reftex)
-(setq reftex-plug-into-AUCTeX t)
 ;; Use evince to view PDF files. However, inverse search is not supported.
 ;; Note that if Evince is opened in preview mode, M-SPACE, X to maximize and
 ;; M-<F4> to close
@@ -133,8 +138,12 @@
         (my-smartparens-config)
         (yas-minor-mode)
         (flyspell-mode)
+        (LaTeX-math-mode)
+        (reftex-mode)
+        (cdlatex-mode)
         ))
 ;; reftex
+(setq reftex-plug-into-AUCTeX t)
 (setq reftex-default-bibliography
       (quote
        ("~/share/bib/My_Collection.bib"))) 
@@ -221,7 +230,7 @@
                                (flyspell-prog-mode)
                                (linum-mode)
                                (outline-minor-mode)
-                               (setq outline-regexp " *\\(function \\|subroutine \\|type ::\\|module \\|interface \\|program \\)")
+                               (setq outline-regexp " *\\(function \\|subroutine \\|type ::\\|module \\|interface \\|program \\|recursive \\)")
                                (hide-body)
                           ))
 
@@ -246,6 +255,11 @@
 ;-------------------------------------------------------------------------------
 ; org mode for gtd
 ;-------------------------------------------------------------------------------
+;; hooks
+(add-hook 'org-mode-hook 
+    (lambda()
+      (org-cdlatex-mode)
+        ))
 ;; Donot show Chinese Time Stamp
 (setq system-time-locale "C")
 ;; org key bindings
