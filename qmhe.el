@@ -23,6 +23,23 @@
 (starter-kit-load "yasnippet")
 
 ;-------------------------------------------------------------------------------
+;; Set fonts and encoding
+;-------------------------------------------------------------------------------
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+;; Setting English Font
+(set-face-attribute
+ 'default nil :font "Consolas")
+;; Setting Chinese Font
+(dolist (charset '(kana han symbol cjk-misc bopomofo))
+  (set-fontset-font (frame-parameter nil 'font)
+                    charset
+                    (font-spec :family "Microsoft Yahei" :size 14)))
+
+;-------------------------------------------------------------------------------
 ;; Set 78 column rule. 78 not 80 for that two spaces are spared to fill
 ;; continuation symbol
 ;-------------------------------------------------------------------------------
