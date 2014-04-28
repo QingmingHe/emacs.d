@@ -59,6 +59,10 @@
 ;-------------------------------------------------------------------------------
 (scroll-bar-mode 0)
 (column-number-mode 1)
+;; only split horizontally
+(setq split-height-threshold nil
+      split-width-threshold 0)
+
 
 ;-------------------------------------------------------------------------------
 ;; sr-speedbar
@@ -119,6 +123,17 @@
 (global-set-key (kbd "C-=") 'er/expand-region)
 
 ;-------------------------------------------------------------------------------
+;; auto complete
+;-------------------------------------------------------------------------------
+(require 'auto-complete)  
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
+(ac-config-default)
+
+;; add file name source
+(add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
+
+;-------------------------------------------------------------------------------
 ;; rst mode.
 ;-------------------------------------------------------------------------------
 (add-hook 'rst-mode-hook (lambda ()
@@ -147,14 +162,16 @@
 (setq Tex-auto-save t)
 (setq Tex-parse-self t)
 (setq-default Tex-master nil)
+
 ;; Use evince to view PDF files. However, inverse search is not supported.
 ;; Note that if Evince is opened in preview mode, M-SPACE, X to maximize and
 ;; M-<F4> to close
 (setq TeX-PDF-mode t)
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
 (setq TeX-source-correlate-start-server t)
-(setq TeX-view-program-list '(("Evince" "evince --preview --page-index=%(outpage) %o")))
+(setq TeX-view-program-list '(("Evince" "evince -f --page-index=%(outpage) %o")))
 (setq TeX-view-program-selection '((output-pdf "Evince")))
+
 ;; set XeTeX mode in TeX/LaTeX
 (add-hook 'LaTeX-mode-hook 
     (lambda()
@@ -171,6 +188,7 @@
         (reftex-mode)
         (cdlatex-mode)
         ))
+
 ;; reftex
 (setq reftex-plug-into-AUCTeX t)
 (setq reftex-default-bibliography
@@ -178,8 +196,43 @@
        ("~/share/bib/My_Collection.bib"))) 
 
 ;-------------------------------------------------------------------------------
-;; python
+;; python. Note that IPython only partly works. To enable completion in
+;; IPython, you should set up jedi. Path completion in IPython is enabled by
+;; auto complete (ac-source-filename)
 ;-------------------------------------------------------------------------------
+;;; IPython setup
+
+(defun setup-ipython-inferior-shell (&optional oldversion)
+  "Setup IPython as inferior python shell.
+
+If OLDVERSION is non-nil, it will setup completion for ipython
+0.10 or less (which is currently used in Sagemath)."
+  (interactive)
+  ;; common values
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args ""
+        python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+        python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+        python-shell-completion-setup-code
+        "from IPython.core.completerlib import module_completion")
+  ;; completion setup is different for old IPython
+  (if oldversion
+      (setq python-shell-completion-string-code
+            "';'.join(__IP.complete('''%s'''))\n"
+            python-shell-completion-module-string-code "")
+    (setq python-shell-completion-module-string-code
+          "';'.join(module_completion('''%s'''))\n"
+          python-shell-completion-string-code
+          "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")))
+
+;; Only for Emacs >= 24.3
+(when (and (executable-find "ipython") 
+           (or (> emacs-major-version 24)
+               (and (>= emacs-major-version 24)
+                    (>= emacs-minor-version 3))))
+           (setup-ipython-inferior-shell))
+
+;; python mode hook
 (add-hook 'python-mode-hook (lambda ()
                               (my-smartparens-config)
                               (flyspell-prog-mode)
@@ -188,6 +241,7 @@
                               (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
                               (hide-body)
                               ))
+
 ;; use jedi for completion
 (add-hook 'python-mode-hook 'jedi:setup)
 (setq jedi:setup-keys t)
@@ -337,11 +391,10 @@
                                (my-smartparens-config)
 ;                               (linum-mode)
                           ))
-;; export org-mode into PDF
+;; export org-mode into PDF, Two times is to generate labels and references
 (setq org-latex-to-pdf-process
-      '("xelatex -interaction nonstopmode -output-directory %o %f"
-        "xelatex -interaction nonstopmode -output-directory %o %f"
-        "xelatex -interaction nonstopmode -output-directory %o %f"))
+      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 ;; Various preferences
 (setq org-log-done t
       org-completion-use-ido t
@@ -363,6 +416,15 @@
                                  (align "center")
                                  (indent "2em")
                                  (mathml t)))
+
+;; Export LaTeX with source code highlight
+;; Include the latex-exporter
+(require 'ox-latex)
+;; Add minted to the defaults packages to include when exporting.
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+;; Tell the latex export to use the minted package for source
+;; code coloration.
+(setq org-latex-listings 'minted)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Org clock
