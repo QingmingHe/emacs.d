@@ -1,3 +1,5 @@
+.. _SECTION-install:
+
 -------
 Install
 -------
@@ -25,6 +27,7 @@ and then move to ~/.emacs.d.
         [http]
               postBuffer = 524288000
 
+.. _SECTION-dependencies:              
 
 ---------------------------------
 Third Party Packages Dependencies
@@ -44,6 +47,9 @@ Third Party Packages Dependencies
   faster for python completion. To install **jedi**, follow the instructions
   given in **jedi** 's home page.
 * `Evince`_ for pdf preview.
+* Fonts: Consolas for English and Microsoft Yahei for Chinese
+  
+.. _SECTION-bugs-and-problems:
 
 ----------------
 Bugs or Problems

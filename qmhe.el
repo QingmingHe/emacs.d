@@ -104,7 +104,8 @@
  "zO" 'show-all
  "zc" 'hide-entry
  "zC" 'hide-body
- "wm" 'sr-speedbar-toggle)
+ "wm" 'sr-speedbar-toggle
+ "ln" 'linum-mode)
 
 ;; matchit not used now
 ;(require 'evil-matchit)
@@ -123,7 +124,7 @@
 (add-hook 'rst-mode-hook (lambda ()
                            (flyspell-mode)
                            (my-smartparens-config)
-                           (linum-mode)
+;                           (linum-mode)
                            (outline-minor-mode)
                            (setq outline-regexp "\.\. _\\(CHAPTER\\|SECTION\\|SUBSECTION\\)")
                            (hide-body)
@@ -161,7 +162,7 @@
         (setq TeX-command-default "XeLaTeX")
         (setq TeX-save-query nil)
         (setq TeX-show-compilation t)
-        (linum-mode)
+;        (linum-mode)
         (company-mode)
         (my-smartparens-config)
         (yas-minor-mode)
@@ -182,7 +183,7 @@
 (add-hook 'python-mode-hook (lambda ()
                               (my-smartparens-config)
                               (flyspell-prog-mode)
-                              (linum-mode)
+;                              (linum-mode)
                               (outline-minor-mode)
                               (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
                               (hide-body)
@@ -197,7 +198,7 @@
 ;-------------------------------------------------------------------------------
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
 (add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
-(add-hook 'emacs-lisp-mode-hook 'linum-mode)
+;(add-hook 'emacs-lisp-mode-hook 'linum-mode)
 (add-hook 'emacs-lisp-mode-hook 'company-mode)
 
 ;-------------------------------------------------------------------------------
@@ -250,7 +251,7 @@
                                (company-mode)
                                (my-smartparens-config)
                                (flyspell-prog-mode)
-                               (linum-mode)
+;                               (linum-mode)
                                (outline-minor-mode)
                                (setq outline-regexp " *\\(function \\|subroutine \\|type ::\\|module \\|interface \\|program \\|recursive \\)")
                                (hide-body)
@@ -334,7 +335,7 @@
 ;; org mode hook
 (add-hook 'org-mode-hook '(lambda () 
                                (my-smartparens-config)
-                               (linum-mode)
+;                               (linum-mode)
                           ))
 ;; export org-mode into PDF
 (setq org-latex-to-pdf-process
@@ -441,6 +442,7 @@
      :email "906459647@qq.com"
      )
     ("all" :components ("gtd-html" ))))
+
 ;; Show agenda at startup
 (setq inhibit-splash-screen t)
 (org-agenda-list)
