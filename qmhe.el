@@ -40,8 +40,7 @@
                     (font-spec :family "Microsoft Yahei" :size 14)))
 
 ;-------------------------------------------------------------------------------
-;; Set 78 column rule. 78 not 80 for that two spaces are spared to fill
-;; continuation symbol
+;; Set 78 column rule.
 ;-------------------------------------------------------------------------------
 (setq default-fill-column 78)
 
