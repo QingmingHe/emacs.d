@@ -1,4 +1,3 @@
-
 (let ((elisp-dir (expand-file-name "src" starter-kit-dir)))
   ;; add the src directory to the load path
   (add-to-list 'load-path elisp-dir)

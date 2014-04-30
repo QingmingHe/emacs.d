@@ -1,0 +1,15 @@
+#+TITLE: Starter Kit Sr-Speedbar
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Srspeedbar
+Sr-speedbar can imitate taglist in Vim. The differences are:
++ Only one window split at right
++ All the files are listed in the window
++ To show/unfold the tags in file, key *+*; otherwise key *-*
+
+#+BEGIN_SRC emacs-lisp
+(require 'sr-speedbar)
+(setq sr-speedbar-right-side nil)
+(setq sr-speedbar-width 30)
+(setq speedbar-show-unknown-files t)
+#+END_SRC

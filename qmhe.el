@@ -3,46 +3,13 @@
 ;;       debug-on-signal nil
 ;;       debug-on-quit nil)
 
-;; activate python configuration of starter-kit
 (starter-kit-load "python")
-
-;; activate org configuration of starter-kit
-;(starter-kit-load "org")
-
-;; activate eshell configuration of starter-kit
-;; This cause error
-;; (starter-kit-load "eshell")
-
-;; activate lisp configuration of starter-kit
-(starter-kit-load "lisp")
-
-;; activate misc-recommended configuration of starter-kit
-(starter-kit-load "misc-recommended")
-
-;; activate Yasnippet configuration of starter-kit
+(starter-kit-load "emacs")
 (starter-kit-load "yasnippet")
-
-;-------------------------------------------------------------------------------
-;; Set fonts and encoding
-;-------------------------------------------------------------------------------
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-;; Setting English Font
-(set-face-attribute
- 'default nil :font "Consolas")
-;; Setting Chinese Font
-(dolist (charset '(kana han symbol cjk-misc bopomofo))
-  (set-fontset-font (frame-parameter nil 'font)
-                    charset
-                    (font-spec :family "Microsoft Yahei" :size 14)))
-
-;-------------------------------------------------------------------------------
-;; Set 78 column rule.
-;-------------------------------------------------------------------------------
-(setq default-fill-column 78)
+;(starter-kit-load "org")
+(starter-kit-load "lisp")
+(starter-kit-load "misc-recommended")
+(starter-kit-load "srspeedbar")
 
 ;-------------------------------------------------------------------------------
 ;; smartpatens
@@ -52,25 +19,7 @@
   (smartparens-mode 1)
   (show-smartparens-global-mode t)
   )
-
-;-------------------------------------------------------------------------------
-;; EMACS layout
-;-------------------------------------------------------------------------------
-(scroll-bar-mode 0)
-(column-number-mode 1)
-;; only split horizontally
-(setq split-height-threshold nil
-      split-width-threshold 0)
-
-
-;-------------------------------------------------------------------------------
-;; sr-speedbar
-;-------------------------------------------------------------------------------
-(require 'sr-speedbar)
-(setq sr-speedbar-right-side nil)
-(setq sr-speedbar-width 30)
-(setq speedbar-show-unknown-files t)
-  
+ 
 ;-------------------------------------------------------------------------------
 ;; aspell
 ;-------------------------------------------------------------------------------

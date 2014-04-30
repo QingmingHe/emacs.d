@@ -1,4 +1,3 @@
-
 (starter-kit-install-if-needed 'yasnippet)
 
 ;; If `yasnippet-bundle' has previously been installed through ELPA,
