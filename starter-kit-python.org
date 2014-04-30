@@ -27,6 +27,29 @@ supplied by the Python distribution itself.
 (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 #+end_src
 
+** Configuration for python mode
+Flyspell is used to check spelling in comment; outline mode is used to fold
+code blocks, which is realised by defining key words like *def*, *class* and
+so on and you can add your own key words.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'python-mode-hook (lambda ()
+                              (flyspell-prog-mode)
+                              (outline-minor-mode)
+                              (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
+                              (hide-body)
+                              ))
+#+END_SRC
+
+** Completion
+Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
+emerging jedi is a better choice, though it is almost impossible to install
+manually.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:setup-keys t)
+(setq jedi:complete-on-dot t)
+#+END_SRC
+
 ** Use Cython mode
    :PROPERTIES:
    :CUSTOM_ID: cython
@@ -37,3 +60,53 @@ supplied by the Python distribution itself.
     (add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
     (add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode)))
 #+end_src
+
+** Set up for Sconstruct
+[[http://www.scons.org/][SCons]] is a software construction tool written in python. The /input card/ or
+/script/ for SCons is *SConstruct*, which can be treated as Python script.
+#+BEGIN_SRC emacs-lisp
+(setq auto-mode-alist
+      (append '(("SConstruct\\'" . python-mode)
+		("SConscript\\'" . python-mode))
+              auto-mode-alist))
+#+END_SRC
+
+** IPython set up
+To use IPython from Emacs, you can just activate IPython terminal in Emacs
+term (not eshell, which does not work with IPython at all), however, copy and
+paste is tricky in Emacs term and /ipython.el/ may be a better choice.
+#+BEGIN_SRC emacs-lisp
+(require 'ipython)
+
+(defun setup-ipython-inferior-shell (&optional oldversion)
+  "Setup IPython as inferior python shell.
+
+If OLDVERSION is non-nil, it will setup completion for ipython
+0.10 or less (which is currently used in Sagemath)."
+  (interactive)
+  ;; common values
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args ""
+        python-shell-prompt-regexp "In \\[[0-9]+\\]: "
+        python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
+        python-shell-completion-setup-code
+        "from IPython.core.completerlib import module_completion")
+  ;; completion setup is different for old IPython
+  (if oldversion
+      (setq python-shell-completion-string-code
+            "';'.join(__IP.complete('''%s'''))\n"
+            python-shell-completion-module-string-code "")
+    (setq python-shell-completion-module-string-code
+          "';'.join(module_completion('''%s'''))\n"
+          python-shell-completion-string-code
+          "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")))
+
+;; Only for Emacs >= 24.3
+(when (and (executable-find "ipython") 
+           (or (> emacs-major-version 24)
+               (and (>= emacs-major-version 24)
+                    (>= emacs-minor-version 3))))
+           (setup-ipython-inferior-shell))
+#+END_SRC
+
+Note that completion in IPython does not work and you should activate jedi.

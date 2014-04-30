@@ -195,58 +195,6 @@
        ("~/share/bib/My_Collection.bib"))) 
 
 ;-------------------------------------------------------------------------------
-;; python. Note that IPython only partly works. To enable completion in
-;; IPython, you should set up jedi. Path completion in IPython is enabled by
-;; auto complete (ac-source-filename)
-;-------------------------------------------------------------------------------
-;;; IPython setup
-
-(defun setup-ipython-inferior-shell (&optional oldversion)
-  "Setup IPython as inferior python shell.
-
-If OLDVERSION is non-nil, it will setup completion for ipython
-0.10 or less (which is currently used in Sagemath)."
-  (interactive)
-  ;; common values
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args ""
-        python-shell-prompt-regexp "In \\[[0-9]+\\]: "
-        python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
-        python-shell-completion-setup-code
-        "from IPython.core.completerlib import module_completion")
-  ;; completion setup is different for old IPython
-  (if oldversion
-      (setq python-shell-completion-string-code
-            "';'.join(__IP.complete('''%s'''))\n"
-            python-shell-completion-module-string-code "")
-    (setq python-shell-completion-module-string-code
-          "';'.join(module_completion('''%s'''))\n"
-          python-shell-completion-string-code
-          "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")))
-
-;; Only for Emacs >= 24.3
-(when (and (executable-find "ipython") 
-           (or (> emacs-major-version 24)
-               (and (>= emacs-major-version 24)
-                    (>= emacs-minor-version 3))))
-           (setup-ipython-inferior-shell))
-
-;; python mode hook
-(add-hook 'python-mode-hook (lambda ()
-                              (my-smartparens-config)
-                              (flyspell-prog-mode)
-;                              (linum-mode)
-                              (outline-minor-mode)
-                              (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
-                              (hide-body)
-                              ))
-
-;; use jedi for completion
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:setup-keys t)
-(setq jedi:complete-on-dot t)
-
-;-------------------------------------------------------------------------------
 ;; emacs lisp
 ;-------------------------------------------------------------------------------
 (add-hook 'emacs-lisp-mode-hook (lambda () (my-smartparens-config)))
