@@ -9,6 +9,9 @@ Download zip file and extract to ~/.emacs.d or use Git:
 .. code-block:: sh
 
     git clone https://github.com/QingmingHe/emacs.d
+    mv emacs.d .emacs.d
+    cd .emacs.d/src/org-mode/
+    make autoloads
 
 and then move to ~/.emacs.d.
 
@@ -41,13 +44,12 @@ Third Party Packages Dependencies
     
 * `Ctags`_ for code navigation.
 * `w3m`_ text-based web browser.
-* `Pymacs`_, `rope`_, `ropemacs`_, `ropemode`_. The author has no idea the
-  relationship between them.
-* Never use packages listed above and use `jedi`_ instead, which is much
-  faster for python completion. To install **jedi**, follow the instructions
-  given in **jedi** 's home page.
+* `jedi`_. To install **jedi**, follow the instructions given in **jedi** 's
+  home page.
 * `Evince`_ for pdf preview.
 * Fonts: Consolas for English and Microsoft Yahei for Chinese
+* `LaTeX`_ packages collections such as `TEX live`_  
+* `Python`_ and `IPython`_
   
 .. _SECTION-bugs-and-problems:
 
@@ -93,3 +95,7 @@ Sometimes error of *apply: Setting current directory: permission denied,
 .. _Pymacs: https://github.com/pinard/Pymacs
 .. _jedi: http://tkf.github.io/emacs-jedi/latest/#pyinstall
 .. _Evince: https://wiki.gnome.org/Apps/Evince  
+.. _python: https://www.python.org/
+.. _IPython: http://ipython.org/
+.. _LaTeX: http://www.latex-project.org/
+.. _TEX live: https://www.tug.org/texlive/

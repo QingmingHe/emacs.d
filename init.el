@@ -38,6 +38,10 @@
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
 
+;; Get GTD_ROOT for Getting Things Done
+(if (getenv "GTD_ROOT")
+    (setq gtd-root (getenv "GTD_ROOT"))
+  (setq gtd-root nil))
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")

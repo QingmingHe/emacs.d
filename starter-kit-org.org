@@ -251,20 +251,22 @@ just provide a possible one. The meanings of these templates are:
 + *Note* container of ideas and notes
 
 #+BEGIN_SRC emacs-lisp
-(setq org-directory "~/docs/gtd/source/")
-(setq org-capture-templates
-      '(("t" "Task" entry (file+headline "~/docs/gtd/source/inbox.org" "Tasks")
-         "** TODO %? \n   SCHEDULED: %T \n   %i")
-        ("d" "Daily" entry (file+headline "~/docs/gtd/source/inbox.org" "Dailies")
-         "** %? \n   SCHEDULED: %T \n   %i")
-        ("l" "Calendar" entry (file+headline "~/docs/gtd/source/inbox.org" "Calendar")
-         "** %? \n   %T")
-        ("p" "Project" entry (file+headline "~/docs/gtd/source/inbox.org" "Projects")
-         "** %? \n   SCHEDULED: %T \n   %i")
-        ("n" "Note" entry (file+headline "~/docs/gtd/source/inbox.org" "Notes")
-         "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i")
-        ))
-(setq org-default-notes-file (concat org-directory "/inbox.org"))
+(when gtd-root
+     (setq org-directory (format "%s/%s" gtd-root "source")
+           org-default-notes-file (concat org-directory "/inbox.org")
+           org-capture-templates
+           '(("t" "Task" entry (file+headline org-default-notes-file "Tasks")
+              "** TODO %? \n   SCHEDULED: %T \n   %i")
+             ("d" "Daily" entry (file+headline org-default-notes-file "Dailies")
+              "** %? \n   SCHEDULED: %T \n   %i")
+             ("l" "Calendar" entry (file+headline org-default-notes-file "Calendar")
+              "** %? \n   %T")
+             ("p" "Project" entry (file+headline org-default-notes-file "Projects")
+              "** %? \n   SCHEDULED: %T \n   %i")
+             ("n" "Note" entry (file+headline org-default-notes-file "Notes")
+              "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i")))
+     )
+
 #+END_SRC
 
 *** Org agenda
@@ -272,17 +274,21 @@ just provide a possible one. The meanings of these templates are:
 Set files where org agenda will extract from.
 
 #+BEGIN_SRC emacs-lisp
-(setq org-agenda-files 
-      (list "~/docs/gtd/source/inbox.org"
-            "~/docs/gtd/source/projects.org"
-            ))
+(when gtd-root
+  (setq org-agenda-files 
+        (list org-default-notes-file
+              (concat org-directory "/projects.org")
+              ))
+  )
 #+END_SRC
 
 Show agenda at start up.
 #+BEGIN_SRC emacs-lisp
-(setq inhibit-splash-screen t)
-(org-agenda-list)
-(delete-other-windows)
+(when gtd-root
+  (setq inhibit-splash-screen t)
+  (org-agenda-list)
+  (delete-other-windows)
+  )
 #+END_SRC
 
 *** Org refile
@@ -292,38 +298,43 @@ refile level is set to be 3, or you can change it as you like. To ease refile,
 set targets start with the file name and complete in steps with *TAB*.
 
 #+BEGIN_SRC emacs-lisp
-(setq org-refile-files
-      (list "~/docs/gtd/source/inbox.org"
-            "~/docs/gtd/source/projects.org"
-            "~/docs/gtd/source/finished.org"
-            "~/docs/gtd/source/canceled.org")
-      )
-(setq org-refile-targets (quote (
-                                 (nil :maxlevel . 3)
-                                 (org-refile-files :maxlevel . 3)
-                                 )))
-(setq org-refile-use-outline-path (quote file))
-(setq org-outline-path-complete-in-steps t)
+(when gtd-root
+  (setq org-refile-files
+        (list (concat org-directory "/inbox")
+              (concat org-directory "/projects")
+              (concat org-directory "/finished")
+              (concat org-directory "/canceled")
+              )
+        )
+  (setq org-refile-targets (quote (
+                                   (nil :maxlevel . 3)
+                                   (org-refile-files :maxlevel . 3)
+                                   )))
+  (setq org-refile-use-outline-path (quote file))
+  (setq org-outline-path-complete-in-steps t)
+  )
 #+END_SRC
 
 *** Org publish
 The setup is very personal.
 #+BEGIN_SRC emacs-lisp
-(require 'ox-publish)
-(require 'ox-html)
-(setq org-publish-project-alist
-  '(("gtd-html"
-     :base-directory "~/docs/gtd/source/"
-     :base-extension "org"
-     :recursive nil
-     :headline-levels 2
-     :auto-preamble t
-     :publishing-directory "~/docs/gtd/html"
-     :publishing-function org-html-publish-to-html
-     :author "Qingming He"
-     :email "906459647@qq.com"
-     )
-    ("all" :components ("gtd-html" ))))
+(when gtd-root
+  (require 'ox-publish)
+  (require 'ox-html)
+  (setq org-publish-project-alist
+        '(("gtd-html"
+           :base-directory "~/docs/gtd/source/"
+           :base-extension "org"
+           :recursive nil
+           :headline-levels 2
+           :auto-preamble t
+           :publishing-directory "~/docs/gtd/html"
+           :publishing-function org-html-publish-to-html
+           :author "Qingming He"
+           :email "906459647@qq.com"
+           )
+          ("all" :components ("gtd-html" ))))
+  )
 #+END_SRC
 
 ** Other
@@ -331,35 +342,35 @@ The author copy codes below from
 [[https://github.com/redguardtoo/emacs.d/blob/master/init-org.el]] and have no
 idea what it means.
 
-#+BEGIN_SRC emacs-lisp
-(eval-after-load 'org
-   '(progn
-      (require 'org-clock)
-      ; @see http://irreal.org/blog/?p=671
-      (setq org-src-fontify-natively t)
-      (require 'org-fstree)
-      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
-                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
-      (defun soft-wrap-lines ()
-        "Make lines wrap at window edge and on word boundary,
-        in current buffer."
-        (interactive)
-        (setq truncate-lines nil)
-        (setq word-wrap t)
-        )
-      (add-hook 'org-mode-hook '(lambda ()
-                                  (setq evil-auto-indent nil)
-                                  (soft-wrap-lines)
-                                  ))))
-
-(defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
-  (let ((browse-url-browser-function
-         (cond ((equal (ad-get-arg 0) '(4))
-                'browse-url-generic)
-               ((equal (ad-get-arg 0) '(16))
-                'choose-browser)
-               (t
-                (lambda (url &optional new)
-                  (w3m-browse-url url t))))))
-    ad-do-it))
-#+END_SRC
+# #+BEGIN_SRC emacs-lisp
+# (eval-after-load 'org
+#    '(progn
+#       (require 'org-clock)
+#       ; @see http://irreal.org/blog/?p=671
+#       (setq org-src-fontify-natively t)
+#       (require 'org-fstree)
+#       (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
+#                                        (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
+#       (defun soft-wrap-lines ()
+#         "Make lines wrap at window edge and on word boundary,
+#         in current buffer."
+#         (interactive)
+#         (setq truncate-lines nil)
+#         (setq word-wrap t)
+#         )
+#       (add-hook 'org-mode-hook '(lambda ()
+#                                   (setq evil-auto-indent nil)
+#                                   (soft-wrap-lines)
+#                                   ))))
+# 
+# (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
+#   (let ((browse-url-browser-function
+#          (cond ((equal (ad-get-arg 0) '(4))
+#                 'browse-url-generic)
+#                ((equal (ad-get-arg 0) '(16))
+#                 'choose-browser)
+#                (t
+#                 (lambda (url &optional new)
+#                   (w3m-browse-url url t))))))
+#     ad-do-it))
+# #+END_SRC
