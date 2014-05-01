@@ -56,7 +56,7 @@ agent/*
 \#*
 .\#*
 ac-comphist.dat
-starter-kit-*.el
+starter-kit*.el
 
 ## emacs bookmarks
 bookmarks
