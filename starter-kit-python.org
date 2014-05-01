@@ -43,11 +43,15 @@ so on and you can add your own key words.
 ** Completion
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
 emerging jedi is a better choice, though it is almost impossible to install
-manually.
+manually. Or you can just enable company mode or auto-complete instead of
+setup jedi.
 #+BEGIN_SRC emacs-lisp
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:setup-keys t)
-(setq jedi:complete-on-dot t)
+(defun my-jedi-setup ()
+  (interactive)
+  (jedi:setup)
+  (setq jedi:setup-keys t)
+  (setq jedi:complete-on-dot t)
+  )
 #+END_SRC
 
 ** Use Cython mode
@@ -76,6 +80,9 @@ To use IPython from Emacs, you can just activate IPython terminal in Emacs
 term (not eshell, which does not work with IPython at all), however, copy and
 paste is tricky in Emacs term and /ipython.el/ may be a better choice.
 #+BEGIN_SRC emacs-lisp
+
+(setq ipython-command "/usr/bin/ipython")
+(setq py-python-command "/usr/bin/ipython")
 (require 'ipython)
 
 (defun setup-ipython-inferior-shell (&optional oldversion)

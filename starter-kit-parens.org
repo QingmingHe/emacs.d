@@ -5,8 +5,8 @@ Parens pairs always make a trouble for coder and I use smartparens to treat
 this.
 #+BEGIN_SRC emacs-lisp
 (require 'smartparens-config)
-(smartparens-mode 1)
-(show-smartparens-global-mode t)
+(smartparens-global-mode t)
+(show-smartparens-global-mode)
 #+END_SRC
 
 Note that smartparens is applied globally and you should disable
