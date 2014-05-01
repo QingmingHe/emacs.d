@@ -1,0 +1,92 @@
+#+TITLE: Starter Kit LaTeX
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit LaTeX
+
+** Customary Customization
+
+#+BEGIN_QUOTE
+To edit LaTeX documents, you will probably want to include the following in
+your ~/.emacs.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(setq Tex-auto-save t)
+(setq Tex-parse-self t)
+(setq-default Tex-master nil)
+#+END_SRC
+
+** PDF preview
+
+To use Evince for PDF preview, you should activate PDF mode. To activate
+inverse search, activate ... mode, though the author never succeed.
+
+*Notes* that:
++ Just *C-c C-c*, *View* and finally *Evince* to preview.
++ The forward search is enabled by locating the page index of PDF file.
++ Evince is activated in full screen, *M-space* to show tool bar and *M-<F4>*
+  to close in Windows.
+
+#+BEGIN_SRC emacs-lisp
+(setq TeX-PDF-mode t)
+(add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+(setq TeX-source-correlate-start-server t)
+(setq TeX-view-program-list '(("Evince" "evince -f --page-index=%(outpage) %o")))
+(setq TeX-view-program-selection '((output-pdf "Evince")))
+#+END_SRC
+
+** Other minor modes
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'LaTeX-mode-hook 
+    (lambda()
+        (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --shell-escape --synctex=1 %(mode)%'  %t" TeX-run-TeX nil t))
+        (setq TeX-command-default "XeLaTeX")
+        (setq TeX-save-query nil)
+        (setq TeX-show-compilation t)
+        (company-mode)
+        (yas-minor-mode)
+        (flyspell-mode)
+        (LaTeX-math-mode)
+        (reftex-mode)
+        (cdlatex-mode)
+        ))
+#+END_SRC
+
+*** XeLaTeX
+
+XeLaTeX prevails over other LaTeX compilers for that it could use system
+fonts, which is very convenient for languages such as *Chinese*. To enable
+source highlight packages such as [[http://www.minted.com/][minted]] and [[http://www.ctan.org/pkg/listings][listings]] *--shell-escape* should
+be added to compilation command. To enable inverse search (in theory it
+works), add *--syntex=1*. To compile TeX file, just key in *C-c C-c* and
+*XeLaTeX*.
+
+*** other modes
+
+company for completion, along with yas minor mode. Flyspell for checking
+spelling. LaTeX-math-mode and cdlatex-mode for easy math. Reftex-mode to
+handle references.
+
+** RefTeX
+
+#+BEGIN_QUOTE
+RefTEX is a specialized package for support of labels, references, citations,
+and the indices in LATEX. RefTEX wraps itself round four LATEX macros: \label,
+\ref, \cite, and \index. Using these macros usually requires looking up
+different parts of the document and searching through BibTEX database
+files. RefTEX automates these time-consuming tasks almost entirely. It also
+provides functions to display the structure of a document and to move around
+in this structure quickly.
+#+END_QUOTE
+
+*Note* that the default bib file is fixed and he who use it should modify the
+ path.
+
+#+BEGIN_SRC emacs-lisp
+(setq reftex-plug-into-AUCTeX t)
+(setq reftex-default-bibliography
+      (quote
+       ("~/share/bib/My_Collection.bib"))) 
+#+END_SRC
+

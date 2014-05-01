@@ -166,6 +166,9 @@ general starter-kit updates without conflict.
        (starter-kit-load "gnus" "visual")
      #+end_src
 
+     There is a file named *activation.el* where you can activate or
+     deactivate by uncomment and comment.
+
 - Installing more elisp libraries :: The easiest way to install new
      libraries is through the Emacs Lisp Package Archive (see [[#emacs-lisp-package-archive][Emacs
      Lisp Package Archive]] below).  When a library is not available
@@ -425,8 +428,8 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
       (sk-load system-name)
       ;; load user-specific config
       (sk-load user-login-name)
-      ;; load qmhe's config
-      (sk-load "qmhe")
+      ;; activation
+      (sk-load "activation")
       ;; load any files in the user's directory
       (when (file-exists-p user-dir)
         (add-to-list 'load-path user-dir)

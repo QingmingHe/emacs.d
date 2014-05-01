@@ -1,0 +1,9 @@
+#+TITLE: Starter Kit Window Numbering
+#+OPTIONS: toc:nil num:nil ^:nil
+
+Changing from one window to another is so easy in Emacs with window number,
+you just key in *M-n* to jump to n-th window numbered by the plugin.
+#+BEGIN_SRC emacs-lisp
+(require 'window-numbering)
+(window-numbering-mode 1)
+#+END_SRC

@@ -1,0 +1,31 @@
+#+TITLE: Starter Kit Fortran
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Fortran
+
+Fortran is a major language for scientific computation but a minor for other.
+
+** Fortran interface
+
+Interfaces are heavily used since Fortran 90 and Emacs provide a minor mode
+for browsing these interfaces easily.
+
+#+BEGIN_SRC emacs-lisp
+(require 'f90-interface-browser)
+#+END_SRC
+
+** Completion and folding
+
+Use company and outline just as other languages.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'f90-mode-hook '(lambda () 
+                               (company-mode)
+                               (flyspell-prog-mode)
+                               (outline-minor-mode)
+                               (setq outline-regexp " *\\(function \\|subroutine \\|type ::\\|module \\|interface \\|program \\|recursive \\)")
+                               (hide-body)
+                          ))
+#+END_SRC
+
+

@@ -1,0 +1,61 @@
+#+TITLE: Emacs Starter Evil
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Starter Kit Evil
+
+Evil is an evil mode to imitate Vim in Emacs. Starter Kit will set global evil
+mode if starter-kit-evil is activated.
+
+** Evil leader
+
+#+BEGIN_QUOTE
+Evil Leader provides the /leader/ feature from Vim that provides an easy way
+to bind keys under a variable prefix key. For an experienced Emacs User it is
+nothing more than a convoluted key map, but for a Evil user coming from Vim it
+means an easier start. The default escape is */*.
+#+END_QUOTE
+ 
+You should enable global-evil-leader-mode before you enable evil-mode,
+otherwise evil-leader won't be enabled in initial buffers (*scratch*,
+*Messages*, ...)
+#+BEGIN_SRC emacs-lisp
+(require 'evil-leader)
+(global-evil-leader-mode)
+#+END_SRC
+
+** Evil mode
+
+Set evil mode globally for that the author is a severe Vim user for the past
+several years.
+#+BEGIN_SRC emacs-lisp
+(require 'evil)
+(evil-mode 1)
+#+END_SRC
+
+** Go to change
+
+It is so happy to key in *g;* to go to last change and g, to com back.
+#+BEGIN_SRC emacs-lisp
+(require 'goto-chg)
+#+END_SRC
+
+** Set Vim like Key Bindings
+
+| key bindings | Emcas command      | equivalent of Vim |
+|--------------+--------------------+-------------------|
+| zo           | show-entry         | unfold            |
+| zO           | show-all           | unfold all        |
+| zc           | hide-entry         | fold              |
+| zC           | hide-body          | fold all          |
+| wm           | sr-speedbar-toggle | show taglist      |
+| ln           | linum-mode         | set number        |
+
+#+BEGIN_SRC emacs-lisp
+(evil-leader/set-key
+ "zo" 'show-entry
+ "zO" 'show-all
+ "zc" 'hide-entry
+ "zC" 'hide-body
+ "wm" 'sr-speedbar-toggle
+ "ln" 'linum-mode)
+#+END_SRC

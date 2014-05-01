@@ -1,0 +1,11 @@
+#+TITLE: Starter Kit Company
+#+OPTIONS: toc:nil num:nil ^:nil
+
+Company and auto complete provide a font end for completion based on several
+backend.
+
+#+BEGIN_SRC emacs-lisp
+(require 'company)
+(setq company-idle-delay 0.2)
+#+END_SRC
+

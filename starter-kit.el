@@ -126,8 +126,8 @@ to your configuration."
     (sk-load system-name)
     ;; load user-specific config
     (sk-load user-login-name)
-    ;; load qmhe's config
-    (sk-load "qmhe")
+    ;; activation
+    (sk-load "activation")
     ;; load any files in the user's directory
     (when (file-exists-p user-dir)
       (add-to-list 'load-path user-dir)

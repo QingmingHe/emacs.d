@@ -212,3 +212,11 @@ pretty \lambda's in clojure
 (font-lock-add-keywords 'lisp-mode
 			'(("(\\|)" . 'starter-kit-paren-face)))
 #+end_src
+** Other
+
+Use flyspell and company.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
+(add-hook 'emacs-lisp-mode-hook 'company-mode)
+#+END_SRC
+

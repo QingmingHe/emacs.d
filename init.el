@@ -5,6 +5,11 @@
 ;; This is the first thing to get loaded.
 ;;
 
+;; activate debugging
+;; (setq debug-on-error t
+;;       debug-on-signal nil
+;;       debug-on-quit nil)
+
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
@@ -24,6 +29,15 @@
 ;; add path of org-8
 (add-to-list 'load-path "~/.emacs.d/src/org-mode/lisp")
 (add-to-list 'load-path "~/.emacs.d/src/org-mode/contrib/lisp" t)
+
+;; archives for install packages such as org, jedi, ...
+(require 'package)
+(add-to-list 'package-archives 
+    '("marmalade" .
+      "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+(package-initialize)
+
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")

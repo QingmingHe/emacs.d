@@ -1,0 +1,18 @@
+#+TITLE: Emacs Starter Auto Complete
+#+OPTIONS: toc:2 num:nil ^:nil
+
+Use the default settings of auto complete.
+#+BEGIN_SRC emacs-lisp
+(require 'auto-complete)  
+(require 'auto-complete-config)
+(add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
+(ac-config-default)
+#+END_SRC
+
+For that IPython's completion does not work in Emacs and it is recommended to
+activate jedi, which is based on auto complete. You have to add the path
+completion source manually or file/path will be troublesome to enter in
+IPython terminal.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
+#+END_SRC

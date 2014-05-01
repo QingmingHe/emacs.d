@@ -1,0 +1,10 @@
+#+TITLE: Starter Kit Smex
+#+OPTIONS: toc:nil num:nil ^:nil
+
+Smex make you key in Emacs command like flying.
+
+#+BEGIN_SRC emacs-lisp
+(require 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+#+END_SRC

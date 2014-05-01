@@ -1,0 +1,23 @@
+#+TITLE: Starter Kit Rst
+#+OPTIONS: toc:nil num:nil ^:nil
+
+#+BEGIN_QUOTE
+reStructuredText is an easy-to-read, what-you-see-is-what-you-get plaintext
+markup syntax and parser system. It is useful for in-line program
+documentation (such as Python docstrings), for quickly creating simple web
+pages, and for standalone documents. reStructuredText is designed for
+extensibility for specific application domains. The reStructuredText parser is
+a component of Docutils. reStructuredText is a revision and reinterpretation
+of the StructuredText and Setext lightweight markup systems.
+#+END_QUOTE
+
+Flyspell for checking spelling and outline mode for folding.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'rst-mode-hook (lambda ()
+                           (flyspell-mode)
+                           (my-smartparens-config)
+                           (outline-minor-mode)
+                           (setq outline-regexp "\.\. _\\(CHAPTER\\|SECTION\\|SUBSECTION\\)")
+                           (hide-body)
+                           ))
+#+END_SRC

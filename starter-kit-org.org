@@ -14,13 +14,15 @@ GTD system or tool for reproducible research and literate programming.
 For more information on org-mode check out [[http://orgmode.org/worg/][worg]], a large Org-mode wiki
 which is also *implemented using* Org-mode and [[http://git-scm.com/][git]].
 
-** Org-Mode Hook -- Keybindings
+** Org-Mode Hook
    :PROPERTIES:
    :CUSTOM_ID: keybindings
    :END:
 #+begin_src emacs-lisp
   (add-hook 'org-mode-hook
             (lambda ()
+              ;; math
+              (org-cdlatex-mode)
               (local-set-key "\M-\C-n" 'outline-next-visible-heading)
               (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
               (local-set-key "\M-\C-u" 'outline-up-heading)
@@ -28,9 +30,55 @@ which is also *implemented using* Org-mode and [[http://git-scm.com/][git]].
               (local-set-key "\M-\C-w" 'org-table-copy-region)
               (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
               (local-set-key "\M-\C-l" 'org-table-sort-lines)
+              ;; global key bindings
+              (define-key global-map "\C-cl" 'org-store-link)
+              (define-key global-map "\C-ca" 'org-agenda)
+              (global-set-key "\C-cc" 'org-capture)
               ;; display images
               (local-set-key "\M-I" 'org-toggle-iimage-in-org)))
 #+end_src
+
+** Time and clock
+*** Time stamp
+
+You may not want to see Chinese words in a English-style time stamp.
+#+BEGIN_SRC emacs-lisp
+(setq system-time-locale "C")
+#+END_SRC
+
+*** Org clock
+Change task state to *STARTED* when clocking in.
+#+BEGIN_SRC emacs-lisp
+(setq org-clock-in-switch-to-state "STARTED")
+#+END_SRC
+
+Save clock data and notes in the *LOGBOOK* drawer.
+#+BEGIN_SRC emacs-lisp
+(setq org-clock-into-drawer t)
+#+END_SRC
+
+Remove clocked tasks with 0:00 duration.
+#+BEGIN_SRC emacs-lisp
+(setq org-clock-out-remove-zero-time-clocks t)
+#+END_SRC
+
+Show the clocked-in task if possible at Emacs head.
+#+BEGIN_SRC emacs-lisp
+(defun sanityinc/show-org-clock-in-header-line ()
+  (setq-default header-line-format '((" " org-mode-line-string " "))))
+
+(defun sanityinc/hide-org-clock-from-header-line ()
+  (setq-default header-line-format nil))
+
+(add-hook 'org-clock-in-hook 'sanityinc/show-org-clock-in-header-line)
+(add-hook 'org-clock-out-hook 'sanityinc/hide-org-clock-from-header-line)
+(add-hook 'org-clock-cancel-hook 'sanityinc/hide-org-clock-from-header-line)
+
+(eval-after-load 'org-clock
+  '(progn
+     (define-key org-clock-mode-line-map [header-line mouse-2] 'org-clock-goto)
+     (define-key org-clock-mode-line-map [header-line mouse-1] 'org-clock-menu)))
+#+END_SRC
 
 ** Speed keys
    :PROPERTIES:
@@ -98,3 +146,214 @@ directory) file for information on the functions, and see
 
 Code blocks can be loaded into the library of babel from any Org-mode
 file using the `org-babel-lob-ingest' function.
+** Various preferences
+#+BEGIN_SRC emacs-lisp
+(setq org-log-done t
+      org-completion-use-ido t
+      org-edit-src-content-indentation 0
+      org-edit-timestamp-down-means-later t
+      org-agenda-start-on-weekday nil
+      org-agenda-span 14
+      org-agenda-window-setup 'current-window
+      org-fast-tag-selection-single-key 'expert
+      org-export-kill-product-buffer-when-displayed t
+      org-export-odt-preferred-output-format "doc"
+      org-tags-column 80
+      )
+#+END_SRC
+
+** Org export to PDF
+*** XeLaTeX
+Use XeLaTeX to export PDF and compile two times to generate references.
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-to-pdf-process
+      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+#+END_SRC
+
+*** Source highlight
+Use minted for source highlight in exported LaTeX, first include the latex
+exporter.
+#+BEGIN_SRC emacs-lisp
+(require 'ox-latex)
+#+END_SRC
+
+Then add minted to the default packages.
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+#+END_SRC
+
+Finally tell the latex export to use the minted package for source code
+coloration.
+#+BEGIN_SRC emacs-lisp
+(setq org-latex-listings 'minted)
+#+END_SRC
+
+*** MathJaX
+
+Use MathJaX instead of LaTeX to support math for that LaTeX is too slow to
+generate math pictures. The latest MathJaX engine is used.
+
+To enable LaTeX if you like, just add to head of org file:
+#+BEGIN_SRC text
+#+OPTIONS: tex:imagemagick
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(setq org-html-mathjax-options '((path "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+                                 (scale "100")
+                                 (align "center")
+                                 (indent "2em")
+                                 (mathml t)))
+#+END_SRC
+
+** Getting Things Done
+
+#+BEGIN_QUOTE
+Getting Things Done is a time-management method, described in a book of the
+same title by productivity consultant David Allen. It is often referred to as
+GTD.
+
+The GTD method rests on the idea of moving planned tasks and projects out of
+the mind by recording them externally and then breaking them into actionable
+work items. This allows one to focus attention on taking action on tasks,
+instead of on recalling them.
+#+END_QUOTE
+*** Org TODO keywords
+
+The default org todo keywords are *TODO* and *DONE*, which is not adequate for
+handling daily work and several other words are added.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "STARTED(s)" "|" "DONE(d!/!)")
+              (sequence "WAITING(w@/!)" "SOMEDAY(S)" "PROJECT(P@)" "|" "CANCELED(c@/!)"))))
+#+END_SRC
+
+*** Org capture
+
+Since Org-8.0, org no longer support remember but use its own capture to
+*CAPTURE* ideas, notes and so on in a very fast manner.
+
+The path of gtd files and the templates are at the mercy of you and the author
+just provide a possible one. The meanings of these templates are:
+
++ *Task* work or job can be done in several hours or several days
++ *Daily* work scheduled daily and should be accomplished in time
++ *Calendar* periodical events
++ *Project* temporary container of project
++ *Note* container of ideas and notes
+
+#+BEGIN_SRC emacs-lisp
+(setq org-directory "~/docs/gtd/source/")
+(setq org-capture-templates
+      '(("t" "Task" entry (file+headline "~/docs/gtd/source/inbox.org" "Tasks")
+         "** TODO %? \n   SCHEDULED: %T \n   %i")
+        ("d" "Daily" entry (file+headline "~/docs/gtd/source/inbox.org" "Dailies")
+         "** %? \n   SCHEDULED: %T \n   %i")
+        ("l" "Calendar" entry (file+headline "~/docs/gtd/source/inbox.org" "Calendar")
+         "** %? \n   %T")
+        ("p" "Project" entry (file+headline "~/docs/gtd/source/inbox.org" "Projects")
+         "** %? \n   SCHEDULED: %T \n   %i")
+        ("n" "Note" entry (file+headline "~/docs/gtd/source/inbox.org" "Notes")
+         "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i")
+        ))
+(setq org-default-notes-file (concat org-directory "/inbox.org"))
+#+END_SRC
+
+*** Org agenda
+
+Set files where org agenda will extract from.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-agenda-files 
+      (list "~/docs/gtd/source/inbox.org"
+            "~/docs/gtd/source/projects.org"
+            ))
+#+END_SRC
+
+Show agenda at start up.
+#+BEGIN_SRC emacs-lisp
+(setq inhibit-splash-screen t)
+(org-agenda-list)
+(delete-other-windows)
+#+END_SRC
+
+*** Org refile
+
+Org refile provides a convenient method for moving a tree to another. The max
+refile level is set to be 3, or you can change it as you like. To ease refile,
+set targets start with the file name and complete in steps with *TAB*.
+
+#+BEGIN_SRC emacs-lisp
+(setq org-refile-files
+      (list "~/docs/gtd/source/inbox.org"
+            "~/docs/gtd/source/projects.org"
+            "~/docs/gtd/source/finished.org"
+            "~/docs/gtd/source/canceled.org")
+      )
+(setq org-refile-targets (quote (
+                                 (nil :maxlevel . 3)
+                                 (org-refile-files :maxlevel . 3)
+                                 )))
+(setq org-refile-use-outline-path (quote file))
+(setq org-outline-path-complete-in-steps t)
+#+END_SRC
+
+*** Org publish
+The setup is very personal.
+#+BEGIN_SRC emacs-lisp
+(require 'ox-publish)
+(require 'ox-html)
+(setq org-publish-project-alist
+  '(("gtd-html"
+     :base-directory "~/docs/gtd/source/"
+     :base-extension "org"
+     :recursive nil
+     :headline-levels 2
+     :auto-preamble t
+     :publishing-directory "~/docs/gtd/html"
+     :publishing-function org-html-publish-to-html
+     :author "Qingming He"
+     :email "906459647@qq.com"
+     )
+    ("all" :components ("gtd-html" ))))
+#+END_SRC
+
+** Other
+The author copy codes below from
+[[https://github.com/redguardtoo/emacs.d/blob/master/init-org.el]] and have no
+idea what it means.
+
+#+BEGIN_SRC emacs-lisp
+(eval-after-load 'org
+   '(progn
+      (require 'org-clock)
+      ; @see http://irreal.org/blog/?p=671
+      (setq org-src-fontify-natively t)
+      (require 'org-fstree)
+      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
+                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
+      (defun soft-wrap-lines ()
+        "Make lines wrap at window edge and on word boundary,
+        in current buffer."
+        (interactive)
+        (setq truncate-lines nil)
+        (setq word-wrap t)
+        )
+      (add-hook 'org-mode-hook '(lambda ()
+                                  (setq evil-auto-indent nil)
+                                  (soft-wrap-lines)
+                                  ))))
+
+(defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
+  (let ((browse-url-browser-function
+         (cond ((equal (ad-get-arg 0) '(4))
+                'browse-url-generic)
+               ((equal (ad-get-arg 0) '(16))
+                'choose-browser)
+               (t
+                (lambda (url &optional new)
+                  (w3m-browse-url url t))))))
+    ad-do-it))
+#+END_SRC
