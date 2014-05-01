@@ -14,6 +14,12 @@ GTD system or tool for reproducible research and literate programming.
 For more information on org-mode check out [[http://orgmode.org/worg/][worg]], a large Org-mode wiki
 which is also *implemented using* Org-mode and [[http://git-scm.com/][git]].
 
+To install org, you may need to key in command:
+#+BEGIN_SRC sh
+make autoloads
+#+END_SRC
+at root of org package.
+
 ** Org-Mode Hook
    :PROPERTIES:
    :CUSTOM_ID: keybindings
