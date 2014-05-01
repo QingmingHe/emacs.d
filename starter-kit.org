@@ -380,11 +380,6 @@ everyone using the starter kit.
   (starter-kit-load "starter-kit-defuns.org")
   #+end_src
 
-- Key Bindings in [[file:starter-kit-bindings.org][starter-kit-bindings]]
-  #+begin_src emacs-lisp
-  (starter-kit-load "starter-kit-bindings.org")
-  #+end_src
-
 - Miscellaneous settings in [[file:starter-kit-misc.org][starter-kit-misc]]
   #+begin_src emacs-lisp
   (starter-kit-load "starter-kit-misc.org")

@@ -22,3 +22,4 @@
 (starter-kit-load "dictionary")
 (starter-kit-load "latex")
 (starter-kit-load "org")
+(starter-kit-load "bindings")
