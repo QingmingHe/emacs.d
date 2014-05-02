@@ -20,6 +20,6 @@
 (starter-kit-load "multiterm")
 (starter-kit-load "fortran")
 (starter-kit-load "dictionary")
-(starter-kit-load "latex")
 (starter-kit-load "org")
+(starter-kit-load "latex")
 (starter-kit-load "bindings")

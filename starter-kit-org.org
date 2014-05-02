@@ -225,7 +225,16 @@ the mind by recording them externally and then breaking them into actionable
 work items. This allows one to focus attention on taking action on tasks,
 instead of on recalling them.
 #+END_QUOTE
-*** Org TODO keywords
+*** GTD root
+GTD root is defined by *GTD_ROOT* environment variable.    
+#+BEGIN_SRC emacs-lisp
+(if (getenv "GTD_ROOT")
+    (setq gtd-root (getenv "GTD_ROOT"))
+  (setq gtd-root nil))
+#+END_SRC
+   
+*** Org TODO #+KEYWORDS: 0
+
 
 The default org todo keywords are *TODO* and *DONE*, which is not adequate for
 handling daily work and several other words are added.

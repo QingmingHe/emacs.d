@@ -42,10 +42,21 @@ so on and you can add your own key words.
 
 ** Completion
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
-emerging jedi is a better choice, though it is almost impossible to install
+emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
 manually. Or you can just enable company mode or auto-complete instead of
 setup jedi.
 #+BEGIN_SRC emacs-lisp
+;; Get path of python server for jedi
+(let ((manual-jedi-server-path "/lib/python2.7/site-packages/jediepcserver-0.0.0-py2.7.egg"))
+  (let ((manual-jedi-server (concat manual-jedi-server-path "/jediepcserver.py")))
+    (if (getenv "JEDI_SERVER")
+        (setq my-jedi-server (getenv "JEDI_SERVER"))
+      (if (file-directory-p "~/.emacs.d/.python-environments" )
+          (setq my-jedi-server "default")
+        (if (file-directory-p manual-jedi-server-path)
+            (setq my-jedi-server manual-jedi-server)
+          (setq my-jedi-server nil))))))
+
 (defun my-jedi-conf ()
   (jedi:setup)
   (setq jedi:setup-keys t)
