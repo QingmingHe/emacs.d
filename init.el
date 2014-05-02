@@ -10,6 +10,9 @@
 ;;       debug-on-signal nil
 ;;       debug-on-quit nil)
 
+;; load my own functions
+(load-file "~/.emacs.d/my-functions.el")
+
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
@@ -44,14 +47,15 @@
   (setq gtd-root nil))
 
 ;; Get path of python server for jedi
-(let ((manual-jedi-server "/lib/python2.7/site-packages/jediepcserver-0.0.0-py2.7.egg/jediepcserver.py")))
-(if (getenv "JEDI_SERVER")
-    (setq my-jedi-server (getenv "JEDI_SERVER"))
-  (if (file-directory-p "~/.emacs.d/.python-environments" )
-      (setq my-jedi-server "default")
-    (if (file-directory-p manual-jedi-server)
-        (setq my-jedi-server manual-jedi-server)
-      (setq my-jedi-server nil))))
+(let ((manual-jedi-server "/lib/python2.7/site-packages/jediepcserver-0.0.0-py2.7.egg/jediepcserver.py"))
+  (if (getenv "JEDI_SERVER")
+      (setq my-jedi-server (getenv "JEDI_SERVER"))
+    (if (file-directory-p "~/.emacs.d/.python-environments" )
+        (setq my-jedi-server "default")
+      (if (file-directory-p manual-jedi-server)
+          (setq my-jedi-server manual-jedi-server)
+        (setq my-jedi-server nil)))))
+
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
