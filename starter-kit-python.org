@@ -46,12 +46,20 @@ emerging jedi is a better choice, though it is almost impossible to install
 manually. Or you can just enable company mode or auto-complete instead of
 setup jedi.
 #+BEGIN_SRC emacs-lisp
-(defun my-jedi-setup ()
-  (interactive)
+(defun my-jedi-conf ()
   (jedi:setup)
   (setq jedi:setup-keys t)
   (setq jedi:complete-on-dot t)
   )
+
+(defun my-jedi-setup ()
+  (interactive)
+  (if (not my-jedi-server)
+      (message "jedi is not installed")
+    (if (string-equal my-jedi-server "default")
+        (my-jedi-conf)
+      (progn (setq jedi:server-command '(my-jedi-server))
+             (my-jedi-conf)))))
 #+END_SRC
 
 ** Use Cython mode

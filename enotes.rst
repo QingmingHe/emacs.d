@@ -189,6 +189,7 @@ Install the latest org
 
 * Never use package management system to install the latest org, which has
   several bugs
+* You may have to uninstall the old version org released with Emacs  
 * It is recommended to use Git to update org::
 
     git clone git://orgmode.org/org-mode.git

@@ -86,10 +86,3 @@ Rgrep is infinitely useful in multi-file projects.
 #+begin_src emacs-lisp
   (define-key global-map "\C-x\C-r" 'rgrep)
 #+end_src
-** end of line
-*C-e* in Vim means move window up one line, so I have to overwrite this key
-binding defined by Evil, which is globally activated.
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-x C-e") 'end-of-line)
-#+END_SRC
-
