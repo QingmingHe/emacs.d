@@ -309,10 +309,10 @@ set targets start with the file name and complete in steps with *TAB*.
 #+BEGIN_SRC emacs-lisp
 (when gtd-root
   (setq org-refile-files
-        (list (concat org-directory "/inbox")
-              (concat org-directory "/projects")
-              (concat org-directory "/finished")
-              (concat org-directory "/canceled")
+        (list (concat org-directory "/inbox.org")
+              (concat org-directory "/projects.org")
+              (concat org-directory "/finished.org")
+              (concat org-directory "/canceled.org")
               )
         )
   (setq org-refile-targets (quote (

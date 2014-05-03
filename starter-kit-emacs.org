@@ -4,14 +4,22 @@
 * Starter Kit Emacs
 
 ** Encoding system
-This configures layout, encoding and odds and ends of Emacs. To begin with set
-the encoding to be utf-8.
+Emacs对中文的支持依然是老大难，不是buffer乱码就是文件名乱码。经各种尝试发现
+Emacs-24.3的默认设置还是不错的，至少buffer没有乱码。但在Emacs的terminal下进入
+中文路径还是会报各种error，这时建议采用dired。千万不要un-comment下面的代码，肯
+定会出现问题。
 #+BEGIN_SRC emacs-lisp
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
+;; (setq locale-coding-system 'utf-8)
+;; (set-terminal-coding-system 'utf-8)
+;; (set-keyboard-coding-system 'utf-8)
+;; (set-selection-coding-system 'utf-8)
+;; (if (or *win32* *cygwin*)
+;;     (progn (setq file-name-coding-system 'gbk)
+;;            (setq path-name-coding-system 'gbk))
+;;   (progn (setq file-name-coding-system 'utf-8)
+;;          (setq path-name-coding-system 'utf-8)))
+;; (prefer-coding-system 'utf-8)
+;; (prefer-coding-system 'gb18030)
 #+END_SRC
 
 ** Font for English and Chinese
