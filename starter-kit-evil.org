@@ -56,6 +56,6 @@ It is so happy to key in *g;* to go to last change and g, to com back.
  "zO" 'show-all
  "zc" 'hide-entry
  "zC" 'hide-body
- "wm" 'sr-speedbar-toggle
+ "wm" 'my-sr-speedbar-toggle
  "ln" 'linum-mode)
 #+END_SRC
