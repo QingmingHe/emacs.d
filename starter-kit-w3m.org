@@ -12,11 +12,16 @@ Svn version of Emacs w3m does not work and the author combined several
 versions to make it work, without any rational.
 
 #+BEGIN_SRC emacs-lisp
-(require 'w3m-load)
-(setq w3m-command "/usr/bin/w3m")
-(setq browse-url-browser-function 'w3m-browse-url)
-(autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
-(global-set-key "\C-xm" 'browse-url-at-point)
-(setq w3m-use-cookies t)
-(setq w3m-home-page "https://www.google.com.hk")
+(if (equal 0 (shell-command "which w3m"))
+  (progn
+    (require 'w3m-load)
+    (setq w3m-command "w3m")
+    (setq browse-url-browser-function 'w3m-browse-url)
+    (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
+    (global-set-key "\C-xm" 'browse-url-at-point)
+    (setq w3m-use-cookies t)
+    (setq w3m-home-page "https://www.google.com.hk")
+    )
+  (message "w3m is not installed!")
+  )
 #+END_SRC
