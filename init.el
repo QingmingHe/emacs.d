@@ -29,6 +29,12 @@
 (setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
 (setq *emacs24* (and (not *xemacs*) (or (>= emacs-major-version 24))) )
 
+;; get root of Cygwin in view of Windows
+(if *cygwin*
+    (if (getenv "CYGWIN_ROOT")
+        (setq cygwin-root (getenv "CYGWIN_ROOT"))
+      (setq cygwin-root "D:/cygwin")))
+
 ;; add path of org-8
 (add-to-list 'load-path "~/.emacs.d/src/org-mode/lisp")
 (add-to-list 'load-path "~/.emacs.d/src/org-mode/contrib/lisp" t)

@@ -20,4 +20,14 @@
   "Return the basename of path. Just like os.path.basename in Python"
   (car (last (split-string path "/"))))
 
+(defun my-join-string-list (string-list &optional separator)
+  "Join list of string with a separator. (default is space)"
+  (mapconcat 'identity string-list
+             (if separator
+                 separator
+               " ")))
 
+(defun my-cygwin-to-win-path (cygwin-path)
+  "Transforms Cygwin path to Windows path"
+  (concat (file-name-as-directory cygwin-root) (expand-file-name cygwin-path))
+  )
