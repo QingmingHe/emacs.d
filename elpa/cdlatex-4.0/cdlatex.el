@@ -717,7 +717,7 @@ Entering cdlatex-mode calls the hook cdlatex-mode-hook.
 (defun cdlatex-pbb ()
   "Insert a pair of parens, brackets or braces."
   (interactive)
-  (let ((paren (char-to-string last-command-char)))
+  (let ((paren (char-to-string last-command-event)))
     (if (and (stringp cdlatex-paired-parens)
              (string-match (regexp-quote paren) cdlatex-paired-parens)
              (not (cdlatex-number-of-backslashes-is-odd)))
@@ -766,21 +766,21 @@ When not in LaTeX math environment, _{} and ^{} will have dollars."
   (interactive)
   (if (cdlatex-number-of-backslashes-is-odd)
       ;; Quoted
-      (insert last-command-char)
+      (insert last-command-event)
     ;; Check if we need to switch to math mode
     (if (not (texmathp)) (cdlatex-dollar))
     (if (string= (buffer-substring (max (point-min) (- (point) 2)) (point))
-                 (concat (char-to-string last-command-char) "{"))
+                 (concat (char-to-string last-command-event) "{"))
         ;; We are at the start of a sub/suberscript.  Allow a__{b} and a^^{b}
         ;; This is an undocumented feature, please keep it in.  It supports
         ;; a special notation which can be used for upright sub- and 
         ;; superscripts. 
         (progn
           (backward-char 1)
-          (insert last-command-char)
+          (insert last-command-event)
           (forward-char 1))
       ;; Insert the normal template.
-      (insert last-command-char)
+      (insert last-command-event)
       (insert "{}")
       (forward-char -1))))
 
