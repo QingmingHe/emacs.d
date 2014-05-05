@@ -8,4 +8,5 @@ just from one to another easily.
 (require 'multi-eshell)
 (require 'multi-term)
 (setq multi-term-program "/usr/bin/bash")
+(global-set-key (kbd "C-M-m") 'multi-term)
 #+END_SRC
