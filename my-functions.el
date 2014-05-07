@@ -31,3 +31,23 @@
   "Transforms Cygwin path to Windows path"
   (concat (file-name-as-directory cygwin-root) (expand-file-name cygwin-path))
   )
+
+(defun my-fill-line (&optional filling)
+  "Fill current line with filling from (point) to default-fill-column"
+  (let ((l-filling " "))
+    (when filling
+      (setq l-filling filling))
+    (let (
+          (line-position nil)
+          (i 0)
+          (remainder nil)
+          )
+      (setq line-position (- (point) (line-beginning-position)))
+      (setq remainder (- default-fill-column line-position))
+      (while (< i remainder)
+        (setq i (+ 1 i))
+        (insert l-filling)
+        )
+      )
+    )
+  )
