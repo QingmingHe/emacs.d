@@ -71,4 +71,7 @@
     ;; load up the starter kit
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 
+;; Generate a temporary buffer for scratch
+(generate-new-buffer "temporary")
+
 ;;; init.el ends here
