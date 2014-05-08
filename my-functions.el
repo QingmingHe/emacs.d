@@ -34,6 +34,7 @@
 
 (defun my-fill-line (&optional filling)
   "Fill current line with filling from (point) to default-fill-column"
+  (interactive (list (read-char "Enter filling character: ")))
   (let ((l-filling " "))
     (when filling
       (setq l-filling filling))

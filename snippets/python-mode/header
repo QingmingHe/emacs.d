@@ -1,0 +1,14 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: header
+# key: header
+# --
+#!/usr/bin/python
+"""
+Author: Qingming He @ NECP
+Time Stamp: `(format-time-string "%Y-%m-%d %T")`
+
+Description
+===========
+
+$0
+"""
