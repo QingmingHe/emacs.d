@@ -169,8 +169,13 @@ file using the `org-babel-lob-ingest' function.
 #+END_SRC
 
 ** Org export to PDF
+   
+对于中文文档，org 应保存为 utf-8 编码，否则不能导出正确编码的 TeX 文档。
+
 *** XeLaTeX
-Use XeLaTeX to export PDF and compile two times to generate references.
+Use XeLaTeX to export PDF and compile two times to generate references. You
+should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
+compile it.
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-to-pdf-process
       '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
