@@ -12,7 +12,7 @@ mode if starter-kit-evil is activated.
 Evil Leader provides the /leader/ feature from Vim that provides an easy way
 to bind keys under a variable prefix key. For an experienced Emacs User it is
 nothing more than a convoluted key map, but for a Evil user coming from Vim it
-means an easier start. The default escape is */*.
+means an easier start. The default escape is *\*.
 #+END_QUOTE
  
 You should enable global-evil-leader-mode before you enable evil-mode,
@@ -38,6 +38,29 @@ It is so happy to key in *g;* to go to last change and g, to com back.
 #+BEGIN_SRC emacs-lisp
 (require 'goto-chg)
 #+END_SRC
+
+** Surround
+This package emulates surround.vim by Tim Pope. The functionality is wrapped
+into a minor mode.
+
+#+BEGIN_SRC emacs-lisp
+(require 'surround)
+#+END_SRC
+
+To activate it, *M-x surround-mode*.
+
+*** Add surrounding
+
+You can surround in visual-state with s<textobject><trigger> or in
+normal-state with ys<textobject><trigger>.
+
+*** Change surrounding
+
+You can change a surrounding with cs<old-trigger><new-trigger>.
+
+*** Delete surrounding
+
+You can delete a surrounding with ds<trigger>.
 
 ** Set Vim like Key Bindings
 
