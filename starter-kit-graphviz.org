@@ -1,0 +1,39 @@
+#+TITLE: Emacs Starter Graphviz
+#+OPTIONS: toc:2 num:nil ^:nil
+
+Auto load graphviz-dot-mode for *.gv.
+#+BEGIN_SRC emacs-lisp
+(require 'graphviz-dot-mode)
+(setq auto-mode-alist (append '(("\\.gv\\'" . graphviz-dot-mode))
+                              auto-mode-alist))
+#+END_SRC
+
+Define my function to compile.
+#+BEGIN_SRC emacs-lisp
+(defun my-graghviz-compile (&optional format)
+  "Compile current graphviz file."
+  (interactive (list (read-string "my-graphviz-compile :: Enter output format (default is png): ")))
+  (let (output-format graphviz-file output-file)
+    (if (not (equal 0 (length format)))
+        (setq output-format format)
+      (setq output-format "png"))
+    (setq graphviz-file (buffer-name))
+    (setq output-file (concat (file-name-base graphviz-file) "." output-format))
+    (shell-command (format "dot -T%s %s -o %s" output-format graphviz-file output-file))
+    )
+  )
+#+END_SRC
+
+Graphviz-dot-mode bind "C-c c" to compile, which contradicts with org
+capture. So it is unbinded in favour of org mode. And I don't like the other
+key bindings also.
+#+BEGIN_SRC emacs-lisp
+(define-key graphviz-dot-mode-map (kbd "C-c c") nil)
+(define-key graphviz-dot-mode-map (kbd "C-c p") nil)
+(define-key graphviz-dot-mode-map (kbd "C-c v") nil)
+#+END_SRC
+
+Emacs key binding for compiling graphviz file for this mode.
+#+BEGIN_SRC emacs-lisp
+(define-key graphviz-dot-mode-map (kbd "C-c C-c") 'my-graghviz-compile)
+#+END_SRC
