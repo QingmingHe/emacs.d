@@ -23,3 +23,4 @@
 (starter-kit-load "org")
 (starter-kit-load "latex")
 (starter-kit-load "bindings")
+(starter-kit-load "matlab")
