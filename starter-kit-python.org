@@ -136,3 +136,23 @@ If OLDVERSION is non-nil, it will setup completion for ipython
 #+END_SRC
 
 Note that completion in IPython does not work and you should activate jedi.
+** Key bindings
+   
+Map <F5> to run python just as in spyder IDE. I always work in Cygwin so I
+link *winpy* to Windows native Python and bind C-<F5> to run with winpy.
+#+BEGIN_SRC emacs-lisp
+(define-key python-mode-map (kbd "<f5>")
+  (lambda ()
+    (interactive)
+    (save-buffer)
+    (shell-command (format "python %s" (buffer-name)))))
+(when *cygwin*
+  (define-key python-mode-map (kbd "C-<f5>")
+    (lambda ()
+      (interactive)
+      (save-buffer)
+      (shell-command (format "winpy %s" (buffer-name)))))
+  )
+
+#+END_SRC
+

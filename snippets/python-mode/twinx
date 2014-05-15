@@ -24,7 +24,5 @@ ax2.legend(loc="${8:upper right}")
 
 # Set title
 plt.title("$9", fontsize="large")
-# Set other properties like xlim
-plt.set()
-# Show fig or save fig: show(), savefig(figname)
+# Show fig or save fig: show(), savefig(figname) and close()
 plt.show()

@@ -3,6 +3,7 @@
 # key: header
 # --
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
 Author: Qingming He @ NECP
 Time Stamp: `(format-time-string "%Y-%m-%d %T")`

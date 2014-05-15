@@ -1,6 +1,9 @@
 #+TITLE: Emacs Starter Graphviz
 #+OPTIONS: toc:2 num:nil ^:nil
 
+* Starter Kit Graphviz
+
+** Basic Set up
 Auto load graphviz-dot-mode for *.gv.
 #+BEGIN_SRC emacs-lisp
 (require 'graphviz-dot-mode)
@@ -8,6 +11,7 @@ Auto load graphviz-dot-mode for *.gv.
                               auto-mode-alist))
 #+END_SRC
 
+** Function to compile
 Define my function to compile.
 #+BEGIN_SRC emacs-lisp
 (defun my-graghviz-compile (&optional format)
@@ -24,6 +28,7 @@ Define my function to compile.
   )
 #+END_SRC
 
+** Key bindings
 Graphviz-dot-mode bind "C-c c" to compile, which contradicts with org
 capture. So it is unbinded in favour of org mode. And I don't like the other
 key bindings also.
