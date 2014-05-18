@@ -16,3 +16,9 @@ IPython terminal.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
 #+END_SRC
+
+Bind "M-/" to auto-complete
+#+BEGIN_SRC emacs-lisp
+(define-key ac-mode-map (kbd "M-/") 'auto-complete)
+#+END_SRC
+

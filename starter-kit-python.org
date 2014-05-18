@@ -61,6 +61,7 @@ setup jedi.
   (jedi:setup)
   (setq jedi:setup-keys t)
   (setq jedi:complete-on-dot t)
+  (define-key python-mode-map (kbd "M-/") 'jedi:complete)
   )
 
 (defun my-jedi-setup ()
@@ -70,7 +71,11 @@ setup jedi.
     (if (string-equal my-jedi-server "default")
         (my-jedi-conf)
       (progn (setq jedi:server-command '(my-jedi-server))
-             (my-jedi-conf)))))
+             (my-jedi-conf)
+             )
+      )
+    )
+  )
 #+END_SRC
 
 ** Use Cython mode

@@ -72,6 +72,7 @@ You can delete a surrounding with ds<trigger>.
 | zC           | hide-body          | fold all          |
 | wm           | sr-speedbar-toggle | show taglist      |
 | ln           | linum-mode         | set number        |
+| fl           | my-fill-line       | None              |
 
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-key
@@ -80,5 +81,7 @@ You can delete a surrounding with ds<trigger>.
  "zc" 'hide-entry
  "zC" 'hide-body
  "wm" 'my-sr-speedbar-toggle
- "ln" 'linum-mode)
+ "ln" 'linum-mode
+ "fl" 'my-fill-line
+ )
 #+END_SRC
