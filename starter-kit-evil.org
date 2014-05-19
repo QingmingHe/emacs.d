@@ -83,5 +83,7 @@ You can delete a surrounding with ds<trigger>.
  "wm" 'my-sr-speedbar-toggle
  "ln" 'linum-mode
  "fl" 'my-fill-line
+ "me" 'multi-eshell
+ "mn" 'multi-eshell-switch
  )
 #+END_SRC
