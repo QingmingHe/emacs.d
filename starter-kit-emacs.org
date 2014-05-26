@@ -58,3 +58,12 @@ continuation marker in code such as Fortran, two columns are spared.
 (setq default-fill-column 78)
 #+END_SRC
 
+** Disable recentering
+For smooth scrolling and disabling the auto-recentering of emacs screen when
+moving cursor.
+#+BEGIN_SRC emacs-lisp
+(setq scroll-step 1
+      scroll-conservatively 10000
+      auto-window-vscroll nil)
+#+END_SRC
+
