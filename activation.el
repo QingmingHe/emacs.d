@@ -24,3 +24,5 @@
 (starter-kit-load "latex")
 (starter-kit-load "bindings")
 (starter-kit-load "graphviz")
+(starter-kit-load "matlab")
+(starter-kit-load "rnc")
