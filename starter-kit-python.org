@@ -37,6 +37,7 @@ so on and you can add your own key words.
                               (outline-minor-mode)
                               (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
                               (hide-body)
+                              (auto-fill-mode)
                               ))
 #+END_SRC
 

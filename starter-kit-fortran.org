@@ -23,8 +23,9 @@ Use company and outline just as other languages.
                                (company-mode)
                                (flyspell-prog-mode)
                                (outline-minor-mode)
-                               (setq outline-regexp " *\\(function \\|subroutine \\|type ::\\|module \\|interface \\|program \\|recursive \\)")
+                               (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
                                (hide-body)
+                               (auto-fill-mode)
                           ))
 #+END_SRC
 
