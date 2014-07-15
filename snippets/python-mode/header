@@ -11,5 +11,5 @@ Date: `(format-time-string "%Y-%m-%d %T")`
 Description
 ===========
 
-$0
+
 """
