@@ -1,0 +1,21 @@
+#+TITLE: Starter Kit CC
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit CC
+
+** Minor mode
+   
+Company-mode needs *clang* to be installed.
+The author has no idea how to set outline regexp of C language.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'c-mode-common-hook '(lambda ()
+                          (company-mode)
+                          (yas-minor-mode)
+                          (flyspell-prog-mode)
+                          (outline-minor-mode)
+                          (auto-fill-mode)
+                          )
+          )
+#+END_SRC
+
