@@ -18,8 +18,10 @@ Key Bindings.
 #+end_src
 
 ** Completion that uses many different methods to find options.
+   
+I NEVER use hippie.
 #+begin_src emacs-lisp 
-(global-set-key (kbd "M-/") 'hippie-expand)
+;(global-set-key (kbd "M-/") 'hippie-expand)
 #+end_src
 
 ** Turn on the menu bar for exploring new modes

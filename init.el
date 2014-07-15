@@ -29,6 +29,12 @@
 (setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
 (setq *emacs24* (and (not *xemacs*) (or (>= emacs-major-version 24))) )
 
+;; get root of Cygwin in view of Windows
+(if *cygwin*
+    (if (getenv "CYGWIN_ROOT")
+        (setq cygwin-root (getenv "CYGWIN_ROOT"))
+      (setq cygwin-root "D:/cygwin")))
+
 ;; add path of org-8
 (add-to-list 'load-path "~/.emacs.d/src/org-mode/lisp")
 (add-to-list 'load-path "~/.emacs.d/src/org-mode/contrib/lisp" t)
@@ -41,6 +47,9 @@
 ;; Never install org from package archives, but from Git version
 (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
 (package-initialize)
+
+;; enable auto revert-buffer
+(global-auto-revert-mode 1)
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
@@ -62,5 +71,8 @@
        '(require 'org))
     ;; load up the starter kit
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
+
+;; Generate a temporary buffer for scratch
+(generate-new-buffer "temporary")
 
 ;;; init.el ends here

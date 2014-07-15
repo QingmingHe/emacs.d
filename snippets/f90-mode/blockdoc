@@ -1,0 +1,7 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: blockdoc
+# key: blockdoc
+# --
+!${1:`(my-fill-line "-")`}
+! $2
+!$1

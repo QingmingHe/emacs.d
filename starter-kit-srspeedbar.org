@@ -28,9 +28,10 @@ if not opened, open the bar, goto the entry of the buffer and expand it"
   (if (sr-speedbar-exist-p)
       (progn
         (sr-speedbar-close)
-        (when my-speedbar-from-buffer
-          (switch-to-buffer my-speedbar-from-buffer)
-          )
+        ;; switch to original buffer will muffle the windows
+        ;; (when my-speedbar-from-buffer
+        ;;   (switch-to-buffer my-speedbar-from-buffer)
+        ;;   )
         )
     (let ((fname (buffer-name)))
       (progn

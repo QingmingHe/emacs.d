@@ -1,0 +1,15 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: header
+# key: header
+# --
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+"""
+Author: Qingming He @ NECP
+Date: `(format-time-string "%Y-%m-%d %T")`
+
+Description
+===========
+
+
+"""

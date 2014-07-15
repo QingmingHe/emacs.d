@@ -1,7 +1,7 @@
 #+TITLE: Emacs Starter Auto Complete
 #+OPTIONS: toc:2 num:nil ^:nil
 
-Use the default settings of auto complete.
+Use the default settings of auto complete but disable auto complete by default.
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)  
 (require 'auto-complete-config)
@@ -16,3 +16,9 @@ IPython terminal.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
 #+END_SRC
+
+Bind "M-/" to auto-complete
+#+BEGIN_SRC emacs-lisp
+(define-key ac-mode-map (kbd "M-/") 'auto-complete)
+#+END_SRC
+

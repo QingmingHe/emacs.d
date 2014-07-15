@@ -3,6 +3,11 @@
 
 * Starter Kit Emacs
 
+** Font size
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute 'default (selected-frame) :height 120)
+#+END_SRC
+
 ** Encoding system
 Emacs对中文的支持依然是老大难，不是buffer乱码就是文件名乱码。经各种尝试发现
 Emacs-24.3的默认设置还是不错的，至少buffer没有乱码。但在Emacs的terminal下进入
@@ -17,7 +22,6 @@ Emacs-24.3的默认设置还是不错的，至少buffer没有乱码。但在Emacs的terminal下进入
   (progn (prefer-coding-system 'utf-8)
          (prefer-coding-system 'gb18030))
   )
-
 #+END_SRC
 
 ** Font for English and Chinese
@@ -57,5 +61,14 @@ It's a good habit to obey to 80 column rule. In the convenience of adding
 continuation marker in code such as Fortran, two columns are spared.
 #+BEGIN_SRC emacs-lisp
 (setq default-fill-column 78)
+#+END_SRC
+
+** Disable recentering
+For smooth scrolling and disabling the auto-recentering of emacs screen when
+moving cursor.
+#+BEGIN_SRC emacs-lisp
+(setq scroll-step 1
+      scroll-conservatively 10000
+      auto-window-vscroll nil)
 #+END_SRC
 
