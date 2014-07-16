@@ -58,6 +58,7 @@ agent/*
 ac-comphist.dat
 starter-kit*.el
 texput.log
+*stackdump
 
 ## emacs bookmarks
 bookmarks

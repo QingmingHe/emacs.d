@@ -26,3 +26,4 @@
 (starter-kit-load "graphviz")
 (starter-kit-load "matlab")
 (starter-kit-load "rnc")
+(starter-kit-load "cc")
