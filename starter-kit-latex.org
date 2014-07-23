@@ -2,7 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit LaTeX
-
+  
 ** Customary Customization
 
 #+BEGIN_QUOTE
@@ -40,7 +40,10 @@ inverse search, activate ... mode, though the author never succeed.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'LaTeX-mode-hook 
     (lambda()
-        (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --shell-escape --synctex=1 %(mode)%'  %t" TeX-run-TeX nil t))
+        (setq-default Tex-master nil)
+        (add-to-list 'TeX-command-list 
+                     '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"
+                       TeX-run-TeX nil TeX-master))
         (setq TeX-command-default "XeLaTeX")
         (setq TeX-save-query nil)
         (setq TeX-show-compilation t)

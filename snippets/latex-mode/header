@@ -1,0 +1,12 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: header
+# key: header
+# --
+% -*- coding: utf-8 -*-
+
+
+
+% LaTeX doc ends here
+%%% Local Variables:
+%%% TeX-master: "$1.tex"
+%%% End:
