@@ -64,26 +64,24 @@ You can delete a surrounding with ds<trigger>.
 
 ** Set Vim like Key Bindings
 
-| key bindings | Emcas command      | equivalent of Vim |
-|--------------+--------------------+-------------------|
-| zo           | show-entry         | unfold            |
-| zO           | show-all           | unfold all        |
-| zc           | hide-entry         | fold              |
-| zC           | hide-body          | fold all          |
-| mt           | sr-speedbar-toggle | show taglist      |
-| ln           | linum-mode         | set number        |
-| fl           | my-fill-line       | None              |
-    
 #+BEGIN_SRC emacs-lisp
+
+(defun make-ctags ()
+  (interactive)
+  (shell-command "ctags -e -R .")
+  )
+
 (evil-leader/set-key
- "zo" 'show-entry
- "zO" 'show-all
- "zc" 'hide-entry
- "zC" 'hide-body
- "mt" 'my-sr-speedbar-toggle
- "ln" 'linum-mode
- "fl" 'my-fill-line
- "me" 'multi-eshell
- "mn" 'multi-eshell-switch
+  "zo" 'show-entry
+  "zO" 'show-all
+  "zc" 'hide-entry
+  "zC" 'hide-body
+  "mt" 'my-sr-speedbar-toggle
+  "ln" 'linum-mode
+  "fl" 'my-fill-line
+  "me" 'multi-eshell
+  "mn" 'multi-eshell-switch
+  "ta" 'find-tag
+  "mt" 'make-ctags
  )
 #+END_SRC
