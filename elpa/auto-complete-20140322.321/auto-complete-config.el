@@ -514,7 +514,7 @@
   (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
   (add-hook 'css-mode-hook 'ac-css-mode-setup)
   (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  ;(global-auto-complete-mode t)
+  ;(global-auto-complete-mode t)  ;; commented by qmhe
   )
 
 (provide 'auto-complete-config)

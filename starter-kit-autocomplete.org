@@ -1,24 +1,38 @@
 #+TITLE: Emacs Starter Auto Complete
 #+OPTIONS: toc:2 num:nil ^:nil
 
+* Starter Kit AC
+
+** Basic setup
 Use the default settings of auto complete but disable auto complete by default.
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)  
 (require 'auto-complete-config)
+(require 'auto-complete-clang)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
 (ac-config-default)
+(setq ac-auto-start nil)
+(setq ac-quick-help-delay 0.5)
 #+END_SRC
 
 For that IPython's completion does not work in Emacs and it is recommended to
-activate jedi, which is based on auto complete. You have to add the path
-completion source manually or file/path will be troublesome to enter in
-IPython terminal.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'auto-complete-mode-hook (lambda () (add-to-list 'ac-sources 'ac-source-filename)))
-#+END_SRC
+activate jedi, which is based on auto complete. 
 
+** Key bindings
 Bind "M-/" to auto-complete
 #+BEGIN_SRC emacs-lisp
 (define-key ac-mode-map (kbd "M-/") 'auto-complete)
 #+END_SRC
 
+** Backends
+   
+Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*, to
+ac-clang backend. These paths should be specified by user in
+*~/.c-include-path* file.
+#+BEGIN_SRC emacs-lisp
+(setq ac-clang-flags
+      (mapcar (lambda (item)(concat "-I" item))
+              (my-readlines "~/.c-include-path")
+              )
+      )
+#+END_SRC

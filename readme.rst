@@ -13,7 +13,7 @@ Download zip file and extract to ~/.emacs.d or use Git:
     cd .emacs.d/src/org-mode/
     make autoloads
 
-and then move to ~/.emacs.d.
+and then change directory to ~/.emacs.d.
 
 .. note::
 
@@ -29,6 +29,9 @@ and then move to ~/.emacs.d.
 
         [http]
               postBuffer = 524288000
+              
+    * file of **~/.c-include-path** should be provided, with each path split
+      by spaces
 
 .. _SECTION-dependencies:              
 
@@ -50,6 +53,8 @@ Third Party Packages Dependencies
 * Fonts: Consolas for English and Microsoft Yahei for Chinese
 * `LaTeX`_ packages collections such as `TEX live`_  
 * `Python`_ and `IPython`_
+* **clang** for completion. **~/.c-include-path** file is also needed to
+  specify the include paths
   
 .. _SECTION-bugs-and-problems:
 

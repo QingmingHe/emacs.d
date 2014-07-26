@@ -52,3 +52,13 @@
       )
     )
   )
+
+(defun my-readlines (fname)
+  "Read lines from file."
+  (with-temp-buffer
+    (insert-file-contents fname)
+    (split-string
+     (buffer-string)
+     )
+    )
+  )

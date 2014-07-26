@@ -9,13 +9,19 @@ Company-mode needs *clang* to be installed.
 The author has no idea how to set outline regexp of C language.
 
 #+BEGIN_SRC emacs-lisp
+(require 'auto-complete)  
+(require 'auto-complete-config)
+(require 'auto-complete-clang)
 (add-hook 'c-mode-common-hook '(lambda ()
-                          (company-mode)
+                          (auto-complete-mode)
                           (yas-minor-mode)
                           (flyspell-prog-mode)
                           (outline-minor-mode)
                           (auto-fill-mode)
+                          (setq ac-sources 
+                                (append
+                                 '(ac-source-clang ac-source-yasnippet)
+                                 ac-sources))
                           )
           )
 #+END_SRC
-

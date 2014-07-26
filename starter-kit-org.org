@@ -25,23 +25,25 @@ at root of org package.
    :CUSTOM_ID: keybindings
    :END:
 #+begin_src emacs-lisp
-  (add-hook 'org-mode-hook
-            (lambda ()
-              ;; math
-              (org-cdlatex-mode)
-              (local-set-key "\M-\C-n" 'outline-next-visible-heading)
-              (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
-              (local-set-key "\M-\C-u" 'outline-up-heading)
-              ;; table
-              (local-set-key "\M-\C-w" 'org-table-copy-region)
-              (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
-              (local-set-key "\M-\C-l" 'org-table-sort-lines)
-              ;; global key bindings
-              (define-key global-map "\C-cl" 'org-store-link)
-              (define-key global-map "\C-ca" 'org-agenda)
-              (global-set-key "\C-cc" 'org-capture)
-              ;; display images
-              (local-set-key "\M-I" 'org-toggle-iimage-in-org)))
+(add-hook 'org-mode-hook
+          (lambda ()
+            ;; other minor mode
+            (yas-minor-mode)
+            ;; math
+            (org-cdlatex-mode)
+            (local-set-key "\M-\C-n" 'outline-next-visible-heading)
+            (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
+            (local-set-key "\M-\C-u" 'outline-up-heading)
+            ;; table
+            (local-set-key "\M-\C-w" 'org-table-copy-region)
+            (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
+            (local-set-key "\M-\C-l" 'org-table-sort-lines)
+            ;; global key bindings
+            (define-key global-map "\C-cl" 'org-store-link)
+            (define-key global-map "\C-ca" 'org-agenda)
+            (global-set-key "\C-cc" 'org-capture)
+            ;; display images
+            (local-set-key "\M-I" 'org-toggle-iimage-in-org)))
 #+end_src
 
 ** Time and clock
@@ -170,7 +172,7 @@ file using the `org-babel-lob-ingest' function.
 
 ** Org export to PDF
    
-对于中文文档，org 应保存为 utf-8 编码，否则不能导出正确编码的 TeX 文档。
+瀵逛簬涓枃鏂囨。锛宱rg 搴斾繚瀛樹负 utf-8 缂栫爜锛屽惁鍒欎笉鑳藉鍑烘纭紪鐮佺殑 TeX 鏂囨。銆�
 
 *** XeLaTeX
 Use XeLaTeX to export PDF and compile two times to generate references. You
