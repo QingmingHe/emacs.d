@@ -25,6 +25,7 @@
 (setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
 (setq *unix* (or *linux* (eq system-type 'usg-unix-v) (eq system-type 'berkeley-unix)) )
 (setq *linux-x* (and window-system *linux*) )
+(setq *terminal* (eq window-system nil))
 (setq *xemacs* (featurep 'xemacs) )
 (setq *emacs23* (and (not *xemacs*) (or (>= emacs-major-version 23))) )
 (setq *emacs24* (and (not *xemacs*) (or (>= emacs-major-version 24))) )
