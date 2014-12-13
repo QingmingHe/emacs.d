@@ -73,3 +73,14 @@ following function allows these two to play nicely together.
 
   (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
+
+** Rebind key of yas
+   
+using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
+
+#+BEGIN_SRC emacs-lisp
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-minor-mode-map (kbd "<C-tab>") 'yas-expand)
+#+END_SRC
+

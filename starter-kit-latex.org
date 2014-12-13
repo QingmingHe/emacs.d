@@ -2,7 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit LaTeX
-
+  
 ** Customary Customization
 
 #+BEGIN_QUOTE
@@ -35,12 +35,28 @@ inverse search, activate ... mode, though the author never succeed.
 (setq TeX-view-program-selection '((output-pdf "Evince")))
 #+END_SRC
 
-** Other minor modes
+** Other minor mode
+
+XeLaTeX prevails over other LaTeX compilers for that it could use system
+fonts, which is very convenient for languages such as *Chinese*. To enable
+source highlight packages such as [[http://www.minted.com/][minted]] and [[http://www.ctan.org/pkg/listings][listings]] *-shell-escape* should
+be added to compilation command. To enable inverse search (in theory it
+works), add *-syntex=1*. To make compilation do not stop when meeting errors,
+add *-interaction=nonstopmode*. You may also want to spread a document over
+multiple files and wish AuCTeX compile the master file even the current buffer
+is not the master. This is recognized by setting *TeX-master* variable to be
+the master file and setting *TeX-master* as the input file of XeLaTeX command
+within TeX-command-list.
+
+To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'LaTeX-mode-hook 
     (lambda()
-        (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex --shell-escape --synctex=1 %(mode)%'  %t" TeX-run-TeX nil t))
+        (setq-default TeX-master nil)
+        (add-to-list 'TeX-command-list 
+                     '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"
+                       TeX-run-TeX nil TeX-master))
         (setq TeX-command-default "XeLaTeX")
         (setq TeX-save-query nil)
         (setq TeX-show-compilation t)
@@ -52,15 +68,6 @@ inverse search, activate ... mode, though the author never succeed.
         (cdlatex-mode)
         ))
 #+END_SRC
-
-*** XeLaTeX
-
-XeLaTeX prevails over other LaTeX compilers for that it could use system
-fonts, which is very convenient for languages such as *Chinese*. To enable
-source highlight packages such as [[http://www.minted.com/][minted]] and [[http://www.ctan.org/pkg/listings][listings]] *--shell-escape* should
-be added to compilation command. To enable inverse search (in theory it
-works), add *--syntex=1*. To compile TeX file, just key in *C-c C-c* and
-*XeLaTeX*.
 
 *** other modes
 

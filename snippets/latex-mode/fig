@@ -1,0 +1,9 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: fig
+# key: fig
+# --
+\begin{figure}[h!]
+  \centering
+  \includegraphics{$0}
+  \caption{$1}
+\end{figure}

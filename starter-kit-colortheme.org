@@ -6,5 +6,5 @@ applied.
 #+BEGIN_SRC emacs-lisp
 (require 'color-theme)
 (color-theme-initialize)
-(color-theme-dark-blue)
+(color-theme-solarized-dark)
 #+END_SRC

@@ -1,0 +1,8 @@
+#+TITLE: Emacs Starter Ctags
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Starter Kit Ctags
+
+#+BEGIN_SRC emacs-lisp
+(setq tags-revert-without-query t)
+#+END_SRC
