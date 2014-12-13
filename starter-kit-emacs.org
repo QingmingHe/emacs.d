@@ -41,6 +41,14 @@ vertically by default.
 (setq split-width-threshold 160)
 #+END_SRC
 
+** Line number
+
+Use relative line number.
+#+BEGIN_SRC emacs-lisp
+(require 'linum-relative)
+#+END_SRC
+
+
 ** 80 Column Rule
 It's a good habit to obey to 80 column rule. In the convenience of adding
 continuation marker in code such as Fortran, two columns are spared.

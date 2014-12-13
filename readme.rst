@@ -9,9 +9,7 @@ Download zip file and extract to ~/.emacs.d or use Git:
 .. code-block:: sh
 
     git clone https://github.com/QingmingHe/emacs.d
-    mv emacs.d .emacs.d
-    cd .emacs.d/src/org-mode/
-    make autoloads
+    mv Emacs.d .emacs.d
 
 and then change directory to ~/.emacs.d.
 
