@@ -390,3 +390,7 @@ idea what it means.
 #                   (w3m-browse-url url t))))))
 #     ad-do-it))
 # #+END_SRC
+** Tips and comments
+*** Key bindings
+
++ You can use *C-c .* to edit source code in its own mode.

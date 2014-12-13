@@ -50,10 +50,12 @@ continuation marker in code such as Fortran, two columns are spared.
 
 ** Disable recentering
 For smooth scrolling and disabling the auto-recentering of emacs screen when
-moving cursor.
+moving cursor. Set scroll margin to be 4 so that an ape can see the following
+lines of codes.
 #+BEGIN_SRC emacs-lisp
 (setq scroll-step 1
       scroll-conservatively 10000
       auto-window-vscroll nil)
+(setq scroll-margin 4)
 #+END_SRC
 

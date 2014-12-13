@@ -5,6 +5,7 @@ Default color scheme of GNU Emacs is not that pleasant and color-theme is
 applied.
 #+BEGIN_SRC emacs-lisp
 (require 'color-theme)
+(require 'color-theme-molokai)
 (color-theme-initialize)
-(color-theme-solarized-dark)
+(color-theme-solarized-light)
 #+END_SRC

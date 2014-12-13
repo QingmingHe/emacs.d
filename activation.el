@@ -27,3 +27,4 @@
 (starter-kit-load "matlab")
 (starter-kit-load "rnc")
 (starter-kit-load "cc")
+(starter-kit-load "fixbug")
