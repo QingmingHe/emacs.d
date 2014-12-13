@@ -76,12 +76,12 @@ You can delete a surrounding with ds<trigger>.
   "zO" 'show-all
   "zc" 'hide-entry
   "zC" 'hide-body
-  "mt" 'my-sr-speedbar-toggle
   "ln" 'linum-mode
   "fl" 'my-fill-line
   "me" 'multi-eshell
   "mn" 'multi-eshell-switch
   "ta" 'find-tag
   "mt" 'make-ctags
+  "sp" 'my-sr-speedbar-toggle
  )
 #+END_SRC
