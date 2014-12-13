@@ -1,0 +1,14 @@
+#+TITLE: Emacs Starter Fix Bug
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Starter Kit Fix Bug
+
+** directory unsafe error
+On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
+redefine server-ensure-safe-dir function to suppress this kind of error.
+#+BEGIN_SRC emacs-lisp
+(when (or *win32* *cygwin*)
+  (defun server-ensure-safe-dir (dir) "Noop" t)
+  )
+#+END_SRC
+
