@@ -37,8 +37,8 @@
       (setq cygwin-root "D:/cygwin")))
 
 ;; add path of org-8
-(add-to-list 'load-path "~/.emacs.d/src/org-mode/lisp")
-(add-to-list 'load-path "~/.emacs.d/src/org-mode/contrib/lisp" t)
+;;(add-to-list 'load-path "~/.emacs.d/src/org-mode/lisp")
+;;(add-to-list 'load-path "~/.emacs.d/src/org-mode/contrib/lisp" t)
 
 ;; archives for install packages such as org, jedi, ...
 (require 'package)

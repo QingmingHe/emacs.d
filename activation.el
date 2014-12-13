@@ -1,3 +1,4 @@
+(starter-kit-load "fixbug")
 (starter-kit-load "misc-recommended")
 (starter-kit-load "parens")
 (starter-kit-load "aspell")
@@ -27,4 +28,3 @@
 (starter-kit-load "matlab")
 (starter-kit-load "rnc")
 (starter-kit-load "cc")
-(starter-kit-load "fixbug")
