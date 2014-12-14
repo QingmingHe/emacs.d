@@ -1,0 +1,7 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: loop
+# key: loop
+# --
+$1:s -> $2:s[arrowhead=none];
+$2:n -> $1:n;
+{rank=same; $1; $2}

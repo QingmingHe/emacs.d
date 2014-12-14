@@ -9,6 +9,9 @@ Auto load graphviz-dot-mode for *.gv.
 (require 'graphviz-dot-mode)
 (setq auto-mode-alist (append '(("\\.gv\\'" . graphviz-dot-mode))
                               auto-mode-alist))
+(add-hook 'graphviz-dot-mode-hook '(lambda ()
+                                (yas-minor-mode)
+                                (auto-complete-mode)))
 #+END_SRC
 
 ** Function to compile
@@ -17,6 +20,7 @@ Define my function to compile.
 (defun my-graghviz-compile (&optional format)
   "Compile current graphviz file."
   (interactive (list (read-string "my-graphviz-compile :: Enter output format (default is png): ")))
+  (save-buffer)
   (let (output-format graphviz-file output-file)
     (if (not (equal 0 (length format)))
         (setq output-format format)
