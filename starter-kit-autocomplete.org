@@ -27,12 +27,26 @@ Bind "M-/" to auto-complete
 ** Backends
    
 Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*, to
-ac-clang backend. These paths should be specified by user in
-*~/.c-include-path* file.
+ac-clang backend.
 #+BEGIN_SRC emacs-lisp
+(defun get-c-include-path ()
+  (with-temp-buffer
+    (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
+    (goto-char (point-min))
+    (search-forward "#include <...>")
+    (next-line)
+    (setq p1 (line-beginning-position))
+    (search-forward "# 1")
+    (previous-line)
+    (previous-line)
+    (setq p2 (line-end-position))
+    (split-string (buffer-substring-no-properties p1 p2))
+    )
+  )
+
 (setq ac-clang-flags
       (mapcar (lambda (item)(concat "-I" item))
-              (my-readlines "~/.c-include-path")
+              (get-c-include-path)
               )
       )
 #+END_SRC
