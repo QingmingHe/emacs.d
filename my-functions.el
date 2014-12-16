@@ -62,3 +62,8 @@
      )
     )
   )
+
+(defun my-system-type ()
+  "Get system type by Python."
+  (shell-command-to-string "python -c 'import sys; print(sys.platform)'")
+  )
