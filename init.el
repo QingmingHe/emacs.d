@@ -66,5 +66,6 @@
 
 ;; Generate a temporary buffer for scratch
 (generate-new-buffer "temporary")
+(put 'erase-buffer 'disabled nil)
 
 ;;; init.el ends here
