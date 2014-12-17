@@ -4,6 +4,10 @@
 *TAGS
 ido.last
 
+## zip and tar
+*.zip
+*.tar
+
 ## misc
 loaddefs.el*
 auto-save-list
