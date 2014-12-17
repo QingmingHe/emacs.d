@@ -21,7 +21,9 @@
 (starter-kit-load "multiterm")
 (starter-kit-load "fortran")
 (starter-kit-load "dictionary")
-(starter-kit-load "org")
+;; Configure org 8.* bundled with Emacs 24.4
+(when (eq *emacsversion* 4)
+  (starter-kit-load "org"))
 (starter-kit-load "latex")
 (starter-kit-load "bindings")
 (starter-kit-load "graphviz")

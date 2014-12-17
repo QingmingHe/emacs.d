@@ -21,6 +21,18 @@
 (setq *linux* (string-match "linux" (my-system-type)))
 (setq *terminal* (eq window-system nil))
 
+;; check for emacs version
+(if (< emacs-major-version 24)
+  (error "Emacs major version should be 24")
+  (if (eq emacs-minor-version 3)
+    (setq *emacsversion* 3)
+    (if (eq emacs-minor-version 4)
+      (setq *emacsversion* 4)
+      (error "Emacs minor version should be 3 or 4")
+      )
+    )
+)
+
 ;; get root of Cygwin in view of Windows
 (if *cygwin*
     (if (getenv "CYGWIN_ROOT")
