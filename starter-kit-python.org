@@ -44,9 +44,9 @@ so on and you can add your own key words.
 
 ** Completion
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
-emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
-manually. Or you can just enable company mode or auto-complete instead of
-setup jedi.
+emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice,
+though it is almost impossible to install manually. Or you can just enable
+company mode or auto-complete instead of setup jedi.
 #+BEGIN_SRC emacs-lisp
 ;; Get path of python server for jedi
 (let ((manual-jedi-server-path "/lib/python2.7/site-packages/jediepcserver-0.0.0-py2.7.egg"))
