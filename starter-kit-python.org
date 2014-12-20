@@ -39,6 +39,7 @@ so on and you can add your own key words.
                               (hide-body)
                               (auto-fill-mode)
                               (yas-minor-mode)
+                              (auto-complete-mode)
                               ))
 #+END_SRC
 
@@ -47,37 +48,34 @@ Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
 emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
 manually. Or you can just enable company mode or auto-complete instead of
 setup jedi.
+
+To install jedi manually:
+#+BEGIN_SRC sh
+  pip install jedi
+  pip install epc
+#+END_SRC
+
+To use my configuration, set JEDI_SERVER environment to be
+/path/to/jediepcserver.py.
 #+BEGIN_SRC emacs-lisp
-;; Get path of python server for jedi
-(let ((manual-jedi-server-path "/lib/python2.7/site-packages/jediepcserver-0.0.0-py2.7.egg"))
-  (let ((manual-jedi-server (concat manual-jedi-server-path "/jediepcserver.py")))
-    (if (getenv "JEDI_SERVER")
-        (setq my-jedi-server (getenv "JEDI_SERVER"))
-      (if (file-directory-p "~/.emacs.d/.python-environments" )
-          (setq my-jedi-server "default")
-        (if (file-directory-p manual-jedi-server-path)
-            (setq my-jedi-server manual-jedi-server)
-          (setq my-jedi-server nil))))))
-
-(defun my-jedi-conf ()
-  (jedi:setup)
-  (setq jedi:setup-keys t)
-  (setq jedi:complete-on-dot t)
-  (define-key python-mode-map (kbd "M-/") 'jedi:complete)
-  )
-
-(defun my-jedi-setup ()
-  (interactive)
-  (if (not my-jedi-server)
-      (message "jedi is not installed")
-    (if (string-equal my-jedi-server "default")
-        (my-jedi-conf)
-      (progn (setq jedi:server-command '(my-jedi-server))
-             (my-jedi-conf)
-             )
-      )
+  (defun my-jedi-conf ()
+    (jedi:setup)
+    (setq jedi:setup-keys t)
+    (setq jedi:complete-on-dot t)
+    (define-key python-mode-map (kbd "M-/") 'jedi:complete)
     )
-  )
+  
+  (defun my-jedi-setup ()
+    (interactive)
+    (if (file-directory-p "~/.emacs.d/.python-environments")
+        (my-jedi-conf)
+      (if (getenv "JEDI_SERVER")
+          ;; use backquote and and "," so that list element of list can be
+          ;; evaluated
+          (progn (setq jedi:server-command `("python" ,(getenv "JEDI_SERVER")))
+                 (my-jedi-conf))
+        (message "Jedi is not installed!")))
+    )
 #+END_SRC
 
 ** Use Cython mode
