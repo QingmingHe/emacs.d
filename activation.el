@@ -19,6 +19,7 @@
 (starter-kit-load "w3m")
 (starter-kit-load "company")
 (starter-kit-load "multiterm")
+(starter-kit-load "ansiterm")
 (starter-kit-load "fortran")
 (starter-kit-load "dictionary")
 (starter-kit-load "org")

@@ -102,47 +102,22 @@ company mode or auto-complete instead of setup jedi.
 #+END_SRC
 
 ** IPython set up
-To use IPython from Emacs, you can just activate IPython terminal in Emacs
-term (not eshell, which does not work with IPython at all), however, copy and
-paste is tricky in Emacs term and /ipython.el/ may be a better choice.
+   
+Activate IPython in ansi-term.
 #+BEGIN_SRC emacs-lisp
-
-(setq ipython-command "/usr/bin/ipython")
-(setq py-python-command "/usr/bin/ipython")
-(require 'ipython)
-
-(defun setup-ipython-inferior-shell (&optional oldversion)
-  "Setup IPython as inferior python shell.
-
-If OLDVERSION is non-nil, it will setup completion for ipython
-0.10 or less (which is currently used in Sagemath)."
+(defun my-ipython ()
+  "Activate IPython shell"
   (interactive)
-  ;; common values
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args ""
-        python-shell-prompt-regexp "In \\[[0-9]+\\]: "
-        python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
-        python-shell-completion-setup-code
-        "from IPython.core.completerlib import module_completion")
-  ;; completion setup is different for old IPython
-  (if oldversion
-      (setq python-shell-completion-string-code
-            "';'.join(__IP.complete('''%s'''))\n"
-            python-shell-completion-module-string-code "")
-    (setq python-shell-completion-module-string-code
-          "';'.join(module_completion('''%s'''))\n"
-          python-shell-completion-string-code
-          "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")))
-
-;; Only for Emacs >= 24.3
-(when (and (executable-find "ipython") 
-           (or (> emacs-major-version 24)
-               (and (>= emacs-major-version 24)
-                    (>= emacs-minor-version 3))))
-           (setup-ipython-inferior-shell))
+  ;; Get buffer index
+  (setq my-ipython-shell-index 0)
+  (while (get-buffer (format "*IPython <%d>*" my-ipython-shell-index))
+    (setq my-ipython-shell-index (+ 1 my-ipython-shell-index)))
+  ;; Create new ansi term
+  (ansi-term "ipython" (format "IPython <%d>" my-ipython-shell-index))
+  (switch-to-buffer (format "*IPython <%d>*" my-ipython-shell-index))
+  )
 #+END_SRC
 
-Note that completion in IPython does not work and you should activate jedi.
 ** Key bindings
    
 Map <F5> to run python just as in spyder IDE. I always work in Cygwin so I
