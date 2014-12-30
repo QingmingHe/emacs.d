@@ -1,0 +1,24 @@
+#+TITLE: Starter Kit Ansi Term
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Ansi Term
+  
+You can do key in command in char mode and copy/paste in line mode. The follow
+function and kbd provide easy toggling.
+#+BEGIN_SRC emacs-lisp
+(require 'term)
+
+(defun my-toggle-term-line-char-mode ()
+  "Toggle term between line mode and char mode"
+  (interactive)
+  (if (term-in-line-mode)
+      (term-char-mode)
+    (term-line-mode)))
+
+(define-key term-mode-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
+(define-key term-mode-map (kbd "C-c C-k") 'my-toggle-term-line-char-mode)
+(define-key term-raw-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
+(define-key term-raw-map (kbd "C-c C-k") 'my-toggle-term-line-char-mode)
+#+END_SRC
