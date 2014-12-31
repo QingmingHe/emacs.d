@@ -40,6 +40,7 @@ so on and you can add your own key words.
                               (auto-fill-mode)
                               (yas-minor-mode)
                               (auto-complete-mode)
+                              (etags-update-mode)
                               ))
 #+END_SRC
 

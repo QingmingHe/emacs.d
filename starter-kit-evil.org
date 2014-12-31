@@ -76,7 +76,7 @@ You can delete a surrounding with ds<trigger>.
   "mn" 'multi-eshell-switch
   "ta" 'find-tag
   "at" 'pop-tag-mark
-  "mt" 'my-make-ctags
+  "mt" 'my-make-tags
   "tl" 'my-sr-speedbar-toggle
  )
 #+END_SRC

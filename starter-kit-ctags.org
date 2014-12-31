@@ -15,7 +15,11 @@
   "Create tags file."
   (interactive "DDirectory: ")
   (shell-command
-   (format "find %s |grep \".\+\.\(h\|c\|py\|f90\|F90\|f\|el\)\" | xargs ctags -e" (directory-file-name dir-name)))
+   (format "ctags -e -R -f %s %s" (format "%s/%s" (directory-file-name dir-name) "TAGS")
+           (directory-file-name dir-name)
+           )
+   ;;(format "find %s |grep \".\+\.\(h\|c\|py\|f90\|F90\|f\|el\)\" | xargs ctags -e" (directory-file-name dir-name))
+   )
   )
 #+END_SRC
    
@@ -29,5 +33,25 @@
   (chmod (expand-file-name "~/bin/etags-update.pl") 755))
 
 (require 'etags-update)
+
+;; set tags-file-name to be nil so no error in writing .ido.last
+(add-hook 'kill-emacs-hook '(lambda ()
+                              (setq tags-file-name nil)))
+#+END_SRC
+   
+** taglist
+
+#+BEGIN_SRC emacs-lisp
+(require 'taglist)
 #+END_SRC
 
+
+** How to use ctags
+
+*** Key bindings
+See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
+
+*** Make and update tags file
++ *M-x my-make-tags* to make tags file.
++ *M-x visit-tags-table* to visit tags table.
++ Emacs will update tags file automatically.
