@@ -51,8 +51,8 @@ Third Party Packages Dependencies
 * Fonts: Consolas for English and Microsoft Yahei for Chinese
 * `LaTeX`_ packages collections such as `TEX live`_  
 * `Python`_ and `IPython`_
-* **clang** for completion. **~/.c-include-path** file is also needed to
-  specify the include paths
+* **clang** for completion. 
+* **perl** for updating tags file
   
 .. _SECTION-bugs-and-problems:
 
