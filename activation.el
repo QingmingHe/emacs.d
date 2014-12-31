@@ -3,7 +3,6 @@
 (starter-kit-load "misc-recommended")
 (starter-kit-load "parens")
 (starter-kit-load "aspell")
-(starter-kit-load "srspeedbar")
 (starter-kit-load "colortheme")
 (starter-kit-load "emacs")
 (starter-kit-load "undo")

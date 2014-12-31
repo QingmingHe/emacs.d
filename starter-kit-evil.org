@@ -74,9 +74,16 @@ You can delete a surrounding with ds<trigger>.
   "ln" 'linum-mode
   "me" 'multi-eshell
   "mn" 'multi-eshell-switch
-  "ta" 'find-tag
+  "ta" 'etags-select-find-tag
   "at" 'pop-tag-mark
   "mt" 'my-make-tags
-  "tl" 'my-sr-speedbar-toggle
+  "tl" 'taglist
+  "im" 'my-imenu
  )
 #+END_SRC
+   
+** Disable evil for some modes
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'evil-emacs-state-modes 'taglist-mode)
+#+END_SRC
+
