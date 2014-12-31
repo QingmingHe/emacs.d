@@ -171,3 +171,9 @@ let them live in the =backups/= directory inside of the starter kit.
      (set-face-foreground 'magit-diff-del "red3")))
 #+end_src
 
+   
+** Ctags
+#+BEGIN_SRC emacs-lisp
+(setq tags-revert-without-query t)
+#+END_SRC
+

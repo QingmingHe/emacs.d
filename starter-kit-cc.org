@@ -22,6 +22,7 @@ The author has no idea how to set outline regexp of C language.
                                 (append
                                  '(ac-source-clang ac-source-yasnippet)
                                  ac-sources))
+                          (etags-update-mode)
                           )
           )
 #+END_SRC

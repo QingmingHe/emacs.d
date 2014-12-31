@@ -1,4 +1,5 @@
 (starter-kit-load "fixbug")
+(starter-kit-load "ctags")
 (starter-kit-load "misc-recommended")
 (starter-kit-load "parens")
 (starter-kit-load "aspell")
