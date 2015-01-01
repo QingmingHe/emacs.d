@@ -28,6 +28,7 @@ Use company and outline just as other languages.
                                (auto-fill-mode)
                                (yas-minor-mode)
                                (etags-update-mode)
+                               (modify-syntax-entry ?_ "w")
                           ))
 #+END_SRC
 
@@ -47,4 +48,26 @@ Default indentation for Fortran is not that friendly.
  '(f90-type-indent 2)
  )
 #+END_SRC
+
+** Declaration align
+   
+Align variable declaration. Key binding is *C-c C-i*.
+
+#+BEGIN_SRC emacs-lisp
+(defun my-f90-align-declare ()
+  "Align declaration of Fortran variables. The declaration before align
+should have \"::\" and \"!\". Declaration like these are valid:
+
+integer :: i ! an integer
+type(SomeType) :: atype ! object of SomeType"
+  (interactive)
+  (let ((begin (region-beginning))
+        (end (region-end)))
+    (indent-region begin end)
+    (align-regexp begin end "\\(\\s-*\\)::" 1 1 nil)
+    (align-regexp begin end "::\\(\\s-*\\)" 1 1 nil)
+    (align-regexp begin end "\\(\\s-*\\)!" 1 1 nil)))
+(define-key f90-mode-map (kbd "C-c C-i") 'my-f90-align-declare)
+#+END_SRC
+
 
