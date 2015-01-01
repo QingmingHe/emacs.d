@@ -27,6 +27,7 @@ Use company and outline just as other languages.
                                (hide-body)
                                (auto-fill-mode)
                                (yas-minor-mode)
+                               (etags-update-mode)
                           ))
 #+END_SRC
 

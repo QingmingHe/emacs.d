@@ -3,6 +3,29 @@
 
 * Starter Kit Ctags
   
+** Define project
+
+First define projects.
+#+BEGIN_SRC emacs-lisp
+(require 'project-root)
+(setq project-roots
+      `(
+        ("CExamples"
+         :root-contains-files ("CExamples-TAGS")
+         :filename-regex ,(regexify-ext-list '(c h))
+         :exclude-paths (".git"))
+        ("SUGAR"
+         :root-contains-files ("SUGAR-TAGS")
+         :filename-regex ,(regexify-ext-list '(f90 py))
+         :exclude-paths (".git"))
+        ("Emacs.d"
+         :root-contains-files ("Emacs.d-TAGS")
+         :filename-regex ,(regexify-ext-list '(el pl py))
+         :exclude-paths (".git"))
+        )
+      )
+#+END_SRC
+  
 ** Don't ask yes or no when revert tags file
 
 #+BEGIN_SRC emacs-lisp
@@ -11,16 +34,14 @@
    
 ** Function to generate tags file
 #+BEGIN_SRC emacs-lisp
-(defun my-make-tags (dir-name)
+(defun my-make-tags (dir-name project-name)
   "Create tags file."
-  (interactive "DDirectory: ")
+  (interactive "DPath to make tags: \nsProject name: ")
   (shell-command
-   (format "ctags -e -R -f %s %s" (format "%s/%s" (directory-file-name dir-name) "TAGS")
-           (directory-file-name dir-name)
-           )
-   ;;(format "find %s |grep \".\+\.\(h\|c\|py\|f90\|F90\|f\|el\)\" | xargs ctags -e" (directory-file-name dir-name))
-   )
+   (format "find %s -type f ! -path \"./.git/*\" | grep \".\\+\\.\\(py\\|c\\|h\\|cxx\\|cpp\\|f90\\|F90\\|f\\|F\\|el\\)\" | xargs ctags -e -f %s/%s-TAGS"
+           (directory-file-name dir-name) (directory-file-name dir-name) project-name)
   )
+)
 #+END_SRC
    
 ** Install etags update
@@ -113,9 +134,13 @@ See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
 *M-x my-imenu* use imenu with ido
 
 *** Make and update tags file
-+ *M-x my-make-tags* to make tags file.
-+ *M-x visit-tags-table* to visit tags table.
+    
++ Define project in project-roots.
++ *M-x my-make-tags* to make tags file for the project. Note that path to make
+  tags should be the root of project.
++ *M-x etags-update-mode* to activate etags update mode.
 + Emacs will update tags file automatically.
++ Answer *n* to "keep current list of tags table also?"
   
 *** find tag
 *\ta* and chose a key word. If multiple tags exist, etags-select will work and

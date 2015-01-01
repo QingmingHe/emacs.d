@@ -25,11 +25,16 @@
 ;; when saving a file.  See the README file for more information:
 ;; https://github.com/mattkeller/etags-update#readme
 ;;
+;; etags-update only update TAGS for project-root defined projects. You should
+;; use it with project-root
+;;
 ;; Note: etags-update.el requires etags-update.pl in your PATH.
 
 ;;; Code:
 
-(defvar etu/etags-update-version "0.1"
+(require 'project-root)
+
+(defvar etu/etags-update-version "0.2"
   "As tagged at http://github.com/mattkeller/etags-update/tree/master")
 
 (defgroup etags-update nil
@@ -174,10 +179,30 @@ the match or nil."
        (t t)))
      (t (error "Invalid etu/append-file-action action: %s" action)))))
 
+(defun etu/visit-tags-table ()
+  "Visit tags table at root of project which is defined by project-roots"
+  (interactive)
+  (if (project-root-fetch)
+    (with-project-root
+        (catch 'tags-found
+          (mapcar
+           (lambda (file-name)
+             (when (string-match-p ".\*TAGS" file-name)
+               (visit-tags-table file-name)
+               (throw 'tags-found t)))
+           (directory-files ".")
+           )
+          )
+        )
+    (setq tags-file-name nil)
+    )
+  )
+
 (defun etu/update-tags-for-file ()
   "Update the TAGS file for the file of the current buffer. If
 the file is not already in TAGS, maybe add it."
   (interactive)
+  (etu/visit-tags-table)
   (catch 'etu/update-tags-for-file
     (when tags-file-name
       (let ((tags-file-full-name (expand-file-name tags-file-name)))
@@ -190,6 +215,8 @@ the file is not already in TAGS, maybe add it."
              (proc-name         "etags-update")
              (default-directory (etu/tags-file-dir)))
         (if (string= file tags-file-name)
+            (throw 'etu/update-tags-for-file nil))
+        (if (not (project-root-file-in-project (buffer-file-name)))
             (throw 'etu/update-tags-for-file nil))
         (unless file-in-tags
           (unless (etu/append-file-p file)
