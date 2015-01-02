@@ -34,6 +34,7 @@ so on and you can add your own key words.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'python-mode-hook (lambda ()
                               (flyspell-prog-mode)
+                              (flycheck-mode)
                               (outline-minor-mode)
                               (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
                               (hide-body)

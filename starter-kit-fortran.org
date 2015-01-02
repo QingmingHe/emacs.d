@@ -22,6 +22,7 @@ Use company and outline just as other languages.
 (add-hook 'f90-mode-hook '(lambda () 
                                (company-mode)
                                (flyspell-prog-mode)
+                               (flycheck-mode)
                                (outline-minor-mode)
                                (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
                                (hide-body)

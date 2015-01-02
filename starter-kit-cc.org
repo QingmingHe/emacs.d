@@ -16,6 +16,7 @@ outline regexp of C language.
                           (auto-complete-mode)
                           (yas-minor-mode)
                           (flyspell-prog-mode)
+                          (flycheck-mode)
                           (auto-fill-mode)
                           (make-local-variable 'ac-sources)
                           (add-to-list 'ac-sources 'ac-source-clang)

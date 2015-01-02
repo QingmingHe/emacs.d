@@ -79,6 +79,7 @@ You can delete a surrounding with ds<trigger>.
   "mt" 'my-make-tags
   "tl" 'taglist
   "im" 'my-imenu
+  "ne" 'flycheck-next-error
  )
 #+END_SRC
    
