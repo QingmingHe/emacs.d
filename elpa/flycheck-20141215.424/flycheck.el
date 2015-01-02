@@ -5797,7 +5797,7 @@ Uses GCC's Fortran compiler gfortran.  See URL
   :error-patterns
   ((error line-start (file-name) ":" line "." column ":\n"
           (= 3 (zero-or-more not-newline) "\n")
-          (or "Error" "Fatal Error" "错误") (or ": " "： ") (message) line-end)
+          (or "Error" "Fatal Error" "错误" "致命错误") (or ": " "： ") (message) line-end)
    (warning line-start (file-name) ":" line "." column ":\n"
             (= 3 (zero-or-more not-newline) "\n")
             (or "Warning: " "警告： ") (message) line-end))

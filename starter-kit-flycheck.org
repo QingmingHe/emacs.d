@@ -3,12 +3,26 @@
 
 * Starter Kit Flycheck
   
+Don't always check buffer, it's too slow.
 #+BEGIN_SRC emacs-lisp
 (require 'flycheck)
+(setq flycheck-check-syntax-automatically '(save mode-enabled))
 #+END_SRC
 
 ** Fortran
    
+Check all warnings.
 #+BEGIN_SRC emacs-lisp
 (setq flycheck-gfortran-warnings "all")
+#+END_SRC
+
+You may work on a large project and has complex dependencies, where module
+files may locate here and there. In these cases, gfortran can't find these
+module files and flycheck will always prompt errors like *No such file or
+directory*. The solution is to add a *.dir-locals.el* at current path and add
+codes:
+#+BEGIN_SRC emacs-lisp :tangle no
+(
+ (f90-mode (flycheck-gfortran-include-path . ("path0" "other/path")))
+ )
 #+END_SRC
