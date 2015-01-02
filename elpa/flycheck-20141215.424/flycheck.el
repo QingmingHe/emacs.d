@@ -5797,10 +5797,10 @@ Uses GCC's Fortran compiler gfortran.  See URL
   :error-patterns
   ((error line-start (file-name) ":" line "." column ":\n"
           (= 3 (zero-or-more not-newline) "\n")
-          (or "Error" "Fatal Error") ": " (message) line-end)
+          (or "Error" "Fatal Error" "错误") (or ": " "： ") (message) line-end)
    (warning line-start (file-name) ":" line "." column ":\n"
             (= 3 (zero-or-more not-newline) "\n")
-            "Warning: " (message) line-end))
+            (or "Warning: " "警告： ") (message) line-end))
   :modes (fortran-mode f90-mode))
 
 (flycheck-define-checker go-gofmt

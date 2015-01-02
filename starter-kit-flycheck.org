@@ -1,0 +1,14 @@
+#+TITLE: Starter Kit Flycheck
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Flycheck
+  
+#+BEGIN_SRC emacs-lisp
+(require 'flycheck)
+#+END_SRC
+
+** Fortran
+   
+#+BEGIN_SRC emacs-lisp
+(setq flycheck-gfortran-warnings "all")
+#+END_SRC
