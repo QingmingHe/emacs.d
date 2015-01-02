@@ -17,10 +17,10 @@ outline regexp of C language.
                           (yas-minor-mode)
                           (flyspell-prog-mode)
                           (auto-fill-mode)
-                          (setq ac-sources 
-                                (append
-                                 '(ac-source-clang ac-source-yasnippet)
-                                 ac-sources))
+                          (make-local-variable 'ac-sources)
+                          (add-to-list 'ac-sources 'ac-source-clang)
+                          (add-to-list 'ac-sources 'ac-source-yasnippet)
+                          (add-to-list 'ac-sources 'ac-source-etags)
                           (etags-update-mode)
                           (modify-syntax-entry ?_ "w")
                           )
