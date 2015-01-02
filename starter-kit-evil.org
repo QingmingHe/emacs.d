@@ -65,7 +65,7 @@ You can delete a surrounding with ds<trigger>.
 ** Set Vim like Key Bindings
 
 #+BEGIN_SRC emacs-lisp
-
+;; global key bindings
 (evil-leader/set-key
   "zo" 'show-entry
   "zO" 'show-all

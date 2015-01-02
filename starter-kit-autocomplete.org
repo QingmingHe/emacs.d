@@ -40,7 +40,8 @@ ac-clang backend.
     (previous-line)
     (previous-line)
     (setq p2 (line-end-position))
-    (split-string (buffer-substring-no-properties p1 p2))
+    (setq c-include-paths (split-string (buffer-substring-no-properties p1 p2)))
+    (add-to-list 'c-include-paths ".")
     )
   )
 
