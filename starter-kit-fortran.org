@@ -14,11 +14,16 @@ for browsing these interfaces easily.
 (require 'f90-interface-browser)
 #+END_SRC
 
-** Completion and folding
+** Fortran hooks
 
 Use company and outline just as other languages.
 
 #+BEGIN_SRC emacs-lisp
+(require 'company)
+(require 'flyspell)
+(require 'flycheck)
+(require 'outline)
+(require 'project)
 (add-hook 'f90-mode-hook '(lambda () 
                                (company-mode)
                                (flyspell-prog-mode)
@@ -28,7 +33,7 @@ Use company and outline just as other languages.
                                (hide-body)
                                (auto-fill-mode)
                                (yas-minor-mode)
-                               (etags-update-mode)
+                               (project-minor-mode)
                                (modify-syntax-entry ?_ "w")
                           ))
 #+END_SRC

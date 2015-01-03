@@ -40,15 +40,21 @@
 
 ;; An example configuration:
 
+;; :root-contains-files is necessary.
 ;; (setq project-roots
-;;       `(("Generic Perl Project"
+;;       `(("GPerl"
 ;;          :root-contains-files ("t" "lib")
 ;;          :filename-regex ,(regexify-ext-list '(pl pm))
 ;;          :on-hit (lambda (p) (message (car p))))
-;;         ("Django project"
+;;         ("Django"
 ;;          :root-contains-files ("manage.py")
 ;;          :filename-regex ,(regexify-ext-list '(py html css js))
-;;          :exclude-paths ("media" "contrib"))))
+;;          :exclude-paths ("media" "contrib"))
+;;         ("SUGAR"
+;;          :root-contains-files ("SUGAR-TAGS")
+;;          :filename-regex ,(regexify-ext-list '(py f90 f))
+;;          :exclude-paths (".git" "tests")
+;;          :gfortran-include-paths ("../BUILD_DEBUG/include"))))
 ;;
 ;; I bind the following:
 ;;
@@ -137,6 +143,7 @@
 
 (require 'find-cmd)
 (require 'cl)
+(require 'flycheck)
 
 (eval-when-compile
   (defvar anything-project-root)
@@ -456,13 +463,23 @@ directory they are found in so that they are unique."
           (setq .project-root-find-executable (executable-find "find")))
       .project-root-find-executable))
 
+(defun project-root-exclude-paths (&optional p)
+  "Absolute paths of exclude paths."
+  (let ((p (or p (progn (project-root-fetch) project-details))))
+    (mapcar
+     (lambda (exclude-path)
+       (expand-file-name (concat (cdr p) exclude-path)))
+     (or (project-root-data :exclude-paths p) '(".git")))))
+
 (defun project-root-find-cmd (&rest pattern)
-  (let ((pattern (car pattern)))
+  (let ((pattern (car pattern))
+        (p (progn (project-root-fetch) project-details)))
     ;; TODO: use find-cmd here
     (concat (project-root-find-executable) " " default-directory
-            (project-root-find-prune exclude-paths)
+            (project-root-find-prune
+             (project-root-exclude-paths p))
             project-root-extra-find-args
-            ", -type f -regex \"" filename-regex "\" "
+            ", -type f -regex \"" (project-root-data :filename-regex p) "\" "
             (if pattern (concat " -name '*" pattern "*' "))
             project-root-find-options)))
 
@@ -504,24 +521,26 @@ then the current project-details are used."
                   (abbreviate-file-name filename)))))))
 
 (defun project-root-file-is-project-file (filename &optional p)
-  "Determine whether file is a project file."
+  "Determine whether file is a project file. The difference between this
+function and project-root-file-is-project-file is that this function check
+whether a file is in project by checking paths, exclude paths and
+filename-regex."
   (let ((p (or p (progn
                    (project-root-fetch)
                    project-details))))
     (and
      p
      (file-exists-p filename)
-     (string-match-p (project-root-data :filename-regex p) filename)
+     (string-match-p
+      (or (project-root-data :filename-regex p) "") filename)
      (catch 'under-due-path
        (mapcar
         (lambda (exclude-path)
           (if (eq 0
-                  (string-match-p
-                   (concat (cdr project-details) exclude-path)
-                   (buffer-file-name)))
+                  (string-match-p exclude-path (buffer-file-name)))
               (throw 'under-due-path nil)
             t))
-        (or (project-root-data :exclude-paths p) (".git")))))))
+        (project-root-exclude-paths p))))))
 
 (defun project-root-buffer-in-project (buffer &optional p)
   "Check to see if buffer is in project"
@@ -627,6 +646,19 @@ this function."
         `(and ,project-root-extra-find-args
               (name ,(concat "*" pattern "*"))
               (type "f"))))))
+
+(defun project-root-set-gfortran-include-paths (&optional p)
+  "Set gfortran include paths defined by :gfortran-include-paths, or set
+ the current path"
+  (when (string= "f90-mode" (format "%s" major-mode))
+      (let ((p (or p (progn (project-root-fetch) project-details))))
+        (when (not flycheck-gfortran-include-path)
+            (make-local-variable 'flycheck-gfortran-include-path))
+        (setq flycheck-gfortran-include-path
+              (mapcar
+               (lambda (include-path)
+                 (expand-file-name (concat (cdr p) include-path)))
+               (or (project-root-data :gfortran-include-paths p) '(".")))))))
 
 (provide 'project-root)
 
