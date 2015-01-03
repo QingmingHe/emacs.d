@@ -16,7 +16,7 @@ First define projects.
          :exclude-paths (".git"))
         ("SUGAR"
          :root-contains-files ("SUGAR-TAGS")
-         :filename-regex ,(regexify-ext-list '(f90 py))
+         :filename-regex ,(regexify-ext-list '(f90 f py))
          :exclude-paths (".git"))
         ("Emacs.d"
          :root-contains-files ("Emacs.d-TAGS")

@@ -503,6 +503,27 @@ then the current project-details are used."
                  (regexp-quote (abbreviate-file-name (cdr p)))
                   (abbreviate-file-name filename)))))))
 
+(defun project-root-file-is-project-file (filename &optional p)
+  "Determine whether file is a project file."
+  (let ((p (or p (progn
+                   (project-root-fetch)
+                   project-details))))
+    (and
+     p
+     (file-exists-p filename)
+     (string-match-p (project-root-data :filename-regex p) filename)
+     (catch 'under-due-path
+       (mapcar
+        (lambda (exclude-path)
+          (if (eq 0
+                  (string-match-p
+                   (expand-file-name
+                    (concat (cdr project-details) exclude-path))
+                   (buffer-file-name)))
+              (throw 'under-due-path nil)
+            t))
+        (or (project-root-data :exclude-paths p) (".git")))))))
+
 (defun project-root-buffer-in-project (buffer &optional p)
   "Check to see if buffer is in project"
   (let ((filename (buffer-file-name buffer)))

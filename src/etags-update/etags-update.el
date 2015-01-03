@@ -179,31 +179,34 @@ the match or nil."
        (t t)))
      (t (error "Invalid etu/append-file-action action: %s" action)))))
 
+(defun etu/visit-tags-table-new (file-name)
+  "Visit new tags table"
+  (when (not (string= file-name tags-file-name))
+    (visit-tags-table file-name)))
+
 (defun etu/visit-tags-table ()
   "Visit tags table at root of project which is defined by project-roots"
   (interactive)
-  (if (project-root-fetch)
+  (when (project-root-fetch)
     (with-project-root
-        (catch 'tags-found
-          (mapcar
-           (lambda (file-name)
-             (when (string-match-p ".\*TAGS" file-name)
-               (visit-tags-table file-name)
-               (throw 'tags-found t)))
-           (directory-files ".")
-           )
-          )
-        )
-    (setq tags-file-name nil)
-    )
-  )
+        (if (file-exists-p (concat (car project-details) "-TAGS"))
+            (etu/visit-tags-table-new
+             (concat (car project-details) "-TAGS"))
+          (catch 'tags-found
+            (mapcar
+             (lambda (file-name)
+               (when (string-match-p ".*TAGS$" file-name)
+                 (etu/visit-tags-table-new file-name)
+                 (throw 'tags-found t)))
+             (directory-files ".")))))))
 
 (defun etu/update-tags-for-file ()
   "Update the TAGS file for the file of the current buffer. If
 the file is not already in TAGS, maybe add it."
   (interactive)
   (etu/visit-tags-table)
-  (catch 'etu/update-tags-for-file
+  (when project-details
+    (catch 'etu/update-tags-for-file
     (when tags-file-name
       (let ((tags-file-full-name (expand-file-name tags-file-name)))
         (unless (get-file-buffer tags-file-full-name)
@@ -216,7 +219,7 @@ the file is not already in TAGS, maybe add it."
              (default-directory (etu/tags-file-dir)))
         (if (string= file tags-file-name)
             (throw 'etu/update-tags-for-file nil))
-        (if (not (project-root-file-in-project (buffer-file-name)))
+        (if (not (project-root-file-is-project-file (buffer-file-name)))
             (throw 'etu/update-tags-for-file nil))
         (unless file-in-tags
           (unless (etu/append-file-p file)
@@ -227,7 +230,7 @@ the file is not already in TAGS, maybe add it."
           (setq cmd (concat "etags -o " tags-file-name " -a " file)))
         (message "Refreshing TAGS file for %s..." file)
         (start-process-shell-command proc-name etu/proc-buf cmd)
-        (set-process-sentinel (get-process proc-name) 'etu/update-cb)))))
+        (set-process-sentinel (get-process proc-name) 'etu/update-cb)))))) 
 
 (define-minor-mode etags-update-mode
   "Minor mode to update the TAGS file when a file is saved.
