@@ -517,8 +517,7 @@ then the current project-details are used."
         (lambda (exclude-path)
           (if (eq 0
                   (string-match-p
-                   (expand-file-name
-                    (concat (cdr project-details) exclude-path))
+                   (concat (cdr project-details) exclude-path)
                    (buffer-file-name)))
               (throw 'under-due-path nil)
             t))
