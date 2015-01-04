@@ -22,15 +22,48 @@
 (require 'project-root)
 (require 'etags-update)
 
+(defvar project-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    ;; (define-key map (kbd "SomeKey") 'some-function)
+    nil
+    map))
+
+(defvar project-update-etags t)
+
+(defun prj/set-gfortran-include-paths (&optional p)
+  "Set gfortran include paths defined by :gfortran-include-paths, or set
+ the current path"
+  (when (string= "f90-mode" (format "%s" major-mode))
+      (let ((p (or p (project-root-fetch))))
+        (when (not flycheck-gfortran-include-path)
+            (make-local-variable 'flycheck-gfortran-include-path))
+        (setq flycheck-gfortran-include-path
+              (mapcar
+               (lambda (include-path)
+                 (if (eq 0 (string-match-p "[/~]" include-path))
+                     (expand-file-name include-path)
+                   (expand-file-name (concat (cdr p) include-path))))
+               (or (project-root-data :gfortran-include-paths p) '(".")))))))
+
+(defun prj/set-include-paths (&optional p)
+  "Set include paths depend on major mode"
+  (let ((p (or p (project-root-fetch))))
+    (when p
+      (if (string= "f90-mode" (format "%s" major-mode))
+          (prj/set-gfortran-include-paths p)
+        (if (string= "cc-mode" (format "%s" major-mode))
+            ())))))
+
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
   nil
   :lighter " prj"
   :after-hook (progn
-                (project-root-set-gfortran-include-paths))
+                (prj/set-include-paths))
   (if project-minor-mode
       (progn
-        (add-hook 'after-save-hook 'etu/update-tags-for-file))
+        (when project-update-etags
+          (add-hook 'after-save-hook 'etu/update-tags-for-file)))
     (progn
       (remove-hook 'after-save-hook 'etu/update-tags-for-file))))
 

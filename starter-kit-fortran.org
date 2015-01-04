@@ -30,7 +30,6 @@ Use company and outline just as other languages.
                                (flycheck-mode)
                                (outline-minor-mode)
                                (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
-                               (hide-body)
                                (auto-fill-mode)
                                (yas-minor-mode)
                                (project-minor-mode)

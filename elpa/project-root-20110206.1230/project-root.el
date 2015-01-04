@@ -530,9 +530,7 @@ then the current project-details are used."
 function and project-root-file-is-project-file is that this function check
 whether a file is in project by checking paths, exclude paths and
 filename-regex."
-  (let ((p (or p (progn
-                   (project-root-fetch)
-                   project-details))))
+  (let ((p (or p (project-root-fetch))))
     (and
      p
      (file-exists-p filename)
@@ -651,19 +649,6 @@ this function."
         `(and ,project-root-extra-find-args
               (name ,(concat "*" pattern "*"))
               (type "f"))))))
-
-(defun project-root-set-gfortran-include-paths (&optional p)
-  "Set gfortran include paths defined by :gfortran-include-paths, or set
- the current path"
-  (when (string= "f90-mode" (format "%s" major-mode))
-      (let ((p (or p (progn (project-root-fetch) project-details))))
-        (when (not flycheck-gfortran-include-path)
-            (make-local-variable 'flycheck-gfortran-include-path))
-        (setq flycheck-gfortran-include-path
-              (mapcar
-               (lambda (include-path)
-                 (expand-file-name (concat (cdr p) include-path)))
-               (or (project-root-data :gfortran-include-paths p) '(".")))))))
 
 (defun project-root-generate-tags (dir tags-file)
   "Make $PROJECT-TAGS at project root."

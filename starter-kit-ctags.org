@@ -8,6 +8,11 @@
 First define projects.
 #+BEGIN_SRC emacs-lisp
 (require 'project-root)
+
+(defun get-SUGAR-include-paths ()
+  (append '("../BUILD_RELEASE/include")
+          `(,(format "%s/include" (getenv "HDF5_ROOT")))))
+
 (setq project-roots
       `(
         ("CExamples"
@@ -17,7 +22,8 @@ First define projects.
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py))
-         :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest"))
+         :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
+         :gfortran-include-paths ,(get-SUGAR-include-paths))
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))
