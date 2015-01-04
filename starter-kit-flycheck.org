@@ -27,3 +27,26 @@ codes:
  (f90-mode (flycheck-gfortran-include-path . ("path0" "other/path")))
  )
 #+END_SRC
+
+** Python
+
+Select checker for that flake8 is not always available.
+#+BEGIN_SRC emacs-lisp
+(require 'python-mode)
+
+(defun select-python-checker ()
+  (when (string= "python-mode" (format "%s" major-mode))
+    (if (executable-find "flake8")
+        (flycheck-select-checker 'python-flake8)
+      (flycheck-select-checker 'python-pycompile))))
+
+(add-hook 'python-mode-hook '(lambda ()
+                               (select-python-checker)))
+#+END_SRC
+
+You can install flake8 with its dependencies without direct Internet
+connection this way:
+1. Download flake8 and its packages *pip install flake8
+   --download=/path/to/download*.
+2. Move all the packages where you want.
+3. Install the packages in a dependent sequence *pip install /path/to/package*.
