@@ -14,6 +14,9 @@ for browsing these interfaces easily.
 (require 'f90-interface-browser)
 #+END_SRC
 
+** Display function data
+TODO
+use *display-message-or-buffer*.
 ** Fortran hooks
 
 Use company and outline just as other languages.
