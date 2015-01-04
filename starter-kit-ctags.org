@@ -11,17 +11,17 @@ First define projects.
 (setq project-roots
       `(
         ("CExamples"
-         :root-contains-files ("CExamples-TAGS")
+         :root-contains-files (".CExample-root.el")
          :filename-regex ,(regexify-ext-list '(c h))
          :exclude-paths (".git"))
         ("SUGAR"
-         :root-contains-files ("SUGAR-TAGS")
-         :filename-regex ,(regexify-ext-list '(f90 f py))
-         :exclude-paths (".git"))
-        ("Emacs.d"
-         :root-contains-files ("Emacs.d-TAGS")
-         :filename-regex ,(regexify-ext-list '(el pl py))
-         :exclude-paths (".git"))
+         :root-contains-files (".SUGAR-root.el")
+         :filename-regex ,(regexify-ext-list '(f90 for py))
+         :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest"))
+        ("EmacsConfig"
+         :root-contains-files (".EmacsConfig-root.el")
+         :filename-regex ,(regexify-ext-list '(el pl py org))
+         :exclude-paths (".git" "backups" "auto-save-list"))
         )
       )
 #+END_SRC

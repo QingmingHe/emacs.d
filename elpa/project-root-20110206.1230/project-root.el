@@ -55,6 +55,11 @@
 ;;          :filename-regex ,(regexify-ext-list '(py f90 f))
 ;;          :exclude-paths (".git" "tests")
 ;;          :gfortran-include-paths ("../BUILD_DEBUG/include"))))
+;; properties:
+;;   :root-contains-files
+;;   :filename-regex
+;;   :exclude-paths
+;;   :gfortran-include-paths
 ;;
 ;; I bind the following:
 ;;
@@ -659,6 +664,19 @@ this function."
                (lambda (include-path)
                  (expand-file-name (concat (cdr p) include-path)))
                (or (project-root-data :gfortran-include-paths p) '(".")))))))
+
+(defun project-root-generate-tags (dir tags-file)
+  "Make $PROJECT-TAGS at project root."
+  (interactive
+   (list
+    (read-directory-name "Generate tags at what directory: "
+                         (cdr (project-root-fetch)))
+    (read-string "Name of tags file: "
+                 (concat (car (project-root-fetch)) "-TAGS"))))
+  (let ((default-directory dir))
+    (shell-command
+     (format "%s | ctags -e -R -f %s"
+             (project-root-find-cmd) (expand-file-name tags-file)))))
 
 (provide 'project-root)
 

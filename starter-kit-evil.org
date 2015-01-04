@@ -76,7 +76,7 @@ You can delete a surrounding with ds<trigger>.
   "mn" 'multi-eshell-switch
   "ta" 'etags-select-find-tag
   "at" 'pop-tag-mark
-  "mt" 'my-make-tags
+  "mt" 'project-root-generate-tags
   "tl" 'taglist
   "im" 'my-imenu
   "ne" 'flycheck-next-error

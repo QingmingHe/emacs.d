@@ -188,17 +188,17 @@ the match or nil."
   "Visit tags table at root of project which is defined by project-roots"
   (interactive)
   (when (project-root-fetch)
-    (with-project-root
-        (if (file-exists-p (concat (car project-details) "-TAGS"))
-            (etu/visit-tags-table-new
-             (concat (car project-details) "-TAGS"))
-          (catch 'tags-found
-            (mapcar
-             (lambda (file-name)
-               (when (string-match-p ".*TAGS$" file-name)
-                 (etu/visit-tags-table-new file-name)
-                 (throw 'tags-found t)))
-             (directory-files ".")))))))
+    (let ((default-directory (cdr project-details)))
+      (if (file-exists-p (concat (car project-details) "-TAGS"))
+          (etu/visit-tags-table-new
+           (concat (car project-details) "-TAGS"))
+        (catch 'tags-found
+          (mapcar
+           (lambda (file-name)
+             (when (string-match-p ".*TAGS$" file-name)
+               (etu/visit-tags-table-new file-name)
+               (throw 'tags-found t)))
+           (directory-files ".")))))))
 
 (defun etu/update-tags-for-file ()
   "Update the TAGS file for the file of the current buffer. If
@@ -217,8 +217,6 @@ the file is not already in TAGS, maybe add it."
              (cmd               (concat "etags-update.pl " tags-file-name " " file-in-tags))
              (proc-name         "etags-update")
              (default-directory (etu/tags-file-dir)))
-        (if (string= file tags-file-name)
-            (throw 'etu/update-tags-for-file nil))
         (if (not (project-root-file-is-project-file (buffer-file-name)))
             (throw 'etu/update-tags-for-file nil))
         (unless file-in-tags
