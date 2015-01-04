@@ -1,0 +1,29 @@
+#+TITLE: Emacs Starter Nxml
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Starter Kit Nxml
+
+** Pretty print xml
+
+#+BEGIN_SRC emacs-lisp
+(defun my-pp-xml (begin end)
+  "Pretty format XML markup in region. The function inserts
+linebreaks to separate tags that have nothing but whitespace
+between them. It then indents the markup by using nxml's
+indentation rules."
+  (interactive "r")
+  (save-excursion
+    (nxml-mode)
+    (goto-char begin)
+    (while (search-forward-regexp "\>[ \\t]*\<" nil t)
+      (backward-char) (insert "\n"))
+    (indent-region begin end)))
+#+END_SRC
+
+** other config
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'nxml-mode-hook '(lambda ()
+                             (modify-syntax-entry ?_ "w")))
+(setq nxml-slash-auto-complete-flag t)
+#+END_SRC

@@ -1,6 +1,8 @@
 #+TITLE: Starter Kit W3m
 #+OPTIONS: toc:nil num:nil ^:nil
 
+* Starter Kit W3m
+
 #+BEGIN_QUOTE
 w3m is a text-based web browser as well as a pager like `more' or `less'. With
 w3m you can browse web pages through a terminal emulator window (xterm, rxvt
@@ -12,7 +14,7 @@ Svn version of Emacs w3m does not work and the author combined several
 versions to make it work, without any rational.
 
 #+BEGIN_SRC emacs-lisp
-(if (equal 0 (shell-command "which w3m"))
+(if (executable-find "w3m")
   (progn
     (require 'w3m-load)
     (setq w3m-command "w3m")

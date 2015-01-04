@@ -172,7 +172,7 @@ file using the `org-babel-lob-ingest' function.
 
 ** Org export to PDF
    
-瀵逛簬涓枃鏂囨。锛宱rg 搴斾繚瀛樹负 utf-8 缂栫爜锛屽惁鍒欎笉鑳藉鍑烘纭紪鐮佺殑 TeX 鏂囨。銆�
+�菟��蝪祆��枃鏂�具��锛摰徘g �湔�曄��瀛璅寡�� utf-8 蝻��怎��锛撅賣��鍒甈�蝚��唾���梢��烘蝥叟�曄揪�桐蝶畾� TeX 鏂�具��銆�
 
 *** XeLaTeX
 Use XeLaTeX to export PDF and compile two times to generate references. You
@@ -393,4 +393,4 @@ idea what it means.
 ** Tips and comments
 *** Key bindings
 
-+ You can use *C-c .* to edit source code in its own mode.
++ You can use *C-c '* to edit source code in its own mode.

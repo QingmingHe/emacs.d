@@ -4,6 +4,13 @@
 *TAGS
 ido.last
 
+# project root
+.project-roots
+
+## zip and tar
+*.zip
+*.tar
+
 ## misc
 loaddefs.el*
 auto-save-list

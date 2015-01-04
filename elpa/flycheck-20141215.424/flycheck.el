@@ -5773,6 +5773,23 @@ recommended warnings and some extra warnings are enabled (as by
 Refer to the gfortran manual at URL
 `https://gcc.gnu.org/onlinedocs/gfortran/' for more information
 about warnings")
+;; (flycheck-def-option-var flycheck-clang-definitions nil c/c++-clang
+;;   "Additional preprocessor definitions for Clang.
+
+;; The value of this variable is a list of strings, where each
+;; string is an additional definition to pass to Clang, via the `-D'
+;; option."
+;;   :type '(repeat (string :tag "Definition"))
+;;   :safe #'flycheck-string-list-p
+;;   :package-version '(flycheck . "0.15"))
+(flycheck-def-option-var flycheck-gfortran-definitions nil fortran-gfortran
+  "A list of definition for GCC Fortran.
+
+The value of this variable is a list of strings, each of which predefines
+name as a macro. Default nil"
+  :type '(repeat (string :tag "Definition"))
+  :safe #'flycheck-string-list-p
+  :package-version '(flycheck . "0.23"))
 
 (flycheck-define-checker fortran-gfortran
   "An Fortran syntax checker using GCC.
@@ -5780,6 +5797,7 @@ about warnings")
 Uses GCC's Fortran compiler gfortran.  See URL
 `https://gcc.gnu.org/onlinedocs/gfortran/'."
   :command ("gfortran"
+            "-cpp"
             "-fsyntax-only"
             "-fshow-column"
             "-fno-diagnostics-show-caret" ; Do not visually indicate the source location
@@ -5792,15 +5810,16 @@ Uses GCC's Fortran compiler gfortran.  See URL
                     flycheck-option-gfortran-layout)
             (option-list "-W" flycheck-gfortran-warnings concat)
             (option-list "-I" flycheck-gfortran-include-path concat)
+            (option-list "-D" flycheck-gfortran-definitions concat)
             (eval flycheck-gfortran-args)
             source)
   :error-patterns
   ((error line-start (file-name) ":" line "." column ":\n"
           (= 3 (zero-or-more not-newline) "\n")
-          (or "Error" "Fatal Error") ": " (message) line-end)
+          (or "Error" "Fatal Error" "错误" "致命错误") (or ": " "： ") (message) line-end)
    (warning line-start (file-name) ":" line "." column ":\n"
             (= 3 (zero-or-more not-newline) "\n")
-            "Warning: " (message) line-end))
+            (or "Warning: " "警告： ") (message) line-end))
   :modes (fortran-mode f90-mode))
 
 (flycheck-define-checker go-gofmt

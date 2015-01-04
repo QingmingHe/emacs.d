@@ -16,10 +16,22 @@
 ;;----------------------------------------------------------------------------
 ;; Which functionality to enable (use t or nil for true and false)
 ;;----------------------------------------------------------------------------
-(setq *win32* (string-match "win32" (my-system-type)))
+(setq *win32* (string-match "win[0-9]+" (my-system-type)))
 (setq *cygwin* (string-match "cygwin" (my-system-type)))
 (setq *linux* (string-match "linux" (my-system-type)))
 (setq *terminal* (eq window-system nil))
+
+;; check for emacs version
+(if (< emacs-major-version 24)
+  (error "Emacs major version should be 24")
+  (if (eq emacs-minor-version 3)
+    (setq *emacsversion* 3)
+    (if (eq emacs-minor-version 4)
+      (setq *emacsversion* 4)
+      (error "Emacs minor version should be 3 or 4")
+      )
+    )
+)
 
 ;; get root of Cygwin in view of Windows
 (if *cygwin*

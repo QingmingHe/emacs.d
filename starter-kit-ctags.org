@@ -1,8 +1,166 @@
-#+TITLE: Emacs Starter Ctags
-#+OPTIONS: toc:2 num:nil ^:nil
+#+TITLE: Starter Kit Ctags
+#+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Ctags
+  
+** Define project
+
+First define projects.
+#+BEGIN_SRC emacs-lisp
+(require 'project-root)
+
+(defun get-SUGAR-include-paths ()
+  (let ((paths '("../BUILD_RELEASE/include")))
+    (when (getenv "HDF5_ROOT")
+      (add-to-list 'paths (format "%s/include" (getenv "HDF5_ROOT"))))
+    paths))
+
+(defun get-SUGAR-definitions ()
+  (let ((defs '("F08_GNU")))
+    (when (getenv "HDF5_ROOT")
+      (add-to-list 'defs "HDF5"))
+    (when *win32*
+      (add-to-list 'defs "IS_WIN"))
+    defs))
+
+(setq project-roots
+      `(
+        ("CExamples"
+         :root-contains-files (".CExample-root.el")
+         :filename-regex ,(regexify-ext-list '(c h))
+         :exclude-paths (".git"))
+        ("SUGAR"
+         :root-contains-files (".SUGAR-root.el")
+         :filename-regex ,(regexify-ext-list '(f90 for py))
+         :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
+         :gfortran-include-paths ,(get-SUGAR-include-paths)
+         :gfortran-definitions ,(get-SUGAR-definitions)
+         :gfortran-language-standard "f2008")
+        ("EmacsConfig"
+         :root-contains-files (".EmacsConfig-root.el")
+         :filename-regex ,(regexify-ext-list '(el pl py org))
+         :exclude-paths (".git" "backups" "auto-save-list"))
+        )
+      )
+#+END_SRC
+  
+** Don't ask yes or no when revert tags file
 
 #+BEGIN_SRC emacs-lisp
 (setq tags-revert-without-query t)
 #+END_SRC
+   
+** Function to generate tags file
+#+BEGIN_SRC emacs-lisp
+(defun my-make-tags (dir-name project-name)
+  "Create tags file."
+  (interactive "DPath to make tags: \nsProject name: ")
+  (shell-command
+   (format "find %s -type f ! -path \"./.git/*\" | grep \".\\+\\.\\(py\\|c\\|h\\|cxx\\|cpp\\|f90\\|F90\\|f\\|F\\|el\\)\" | xargs ctags -e -f %s/%s-TAGS"
+           (directory-file-name dir-name) (directory-file-name dir-name) project-name)
+  )
+)
+#+END_SRC
+   
+** Install etags update
+
+#+BEGIN_SRC emacs-lisp
+(when (not (executable-find "etags-update.pl"))
+  (copy-file
+   (format "%s/src/etags-update/etags-update.pl" starter-kit-dir)
+   (expand-file-name "~/bin/etags-update.pl"))
+  (chmod (expand-file-name "~/bin/etags-update.pl") 777))
+
+;; set tags-file-name to be nil so no error in writing .ido.last
+(add-hook 'kill-emacs-hook '(lambda ()
+                              (setq tags-file-name nil)))
+#+END_SRC
+   
+** etags select
+
+#+BEGIN_SRC emacs-lisp
+(require 'etags-select)
+#+END_SRC
+   
+** taglist
+
+#+BEGIN_SRC emacs-lisp
+(require 'taglist)
+#+END_SRC
+   
+** imenu with ido
+
+#+BEGIN_SRC emacs-lisp
+    (defun my-imenu (&optional symbol-list)
+      "Refresh imenu and jump to a place in the buffer using Ido."
+      (interactive)
+      (unless (featurep 'imenu)
+        (require 'imenu nil t))
+      (cond
+       ((not symbol-list)
+        (let ((ido-mode ido-mode)
+              (ido-enable-flex-matching
+               (if (boundp 'ido-enable-flex-matching)
+                   ido-enable-flex-matching t))
+              name-and-pos symbol-names position)
+          (unless ido-mode
+            (ido-mode 1)
+            (setq ido-enable-flex-matching t))
+          (while (progn
+                   (imenu--cleanup)
+                   (setq imenu--index-alist nil)
+                   (my-imenu (imenu--make-index-alist))
+                   (setq selected-symbol
+                         (ido-completing-read "Symbol? " symbol-names))
+                   (string= (car imenu--rescan-item) selected-symbol)))
+          (unless (and (boundp 'mark-active) mark-active)
+            (push-mark nil t nil))
+          (setq position (cdr (assoc selected-symbol name-and-pos)))
+          (cond
+           ((overlayp position)
+            (goto-char (overlay-start position)))
+           (t
+            (goto-char position)))))
+       ((listp symbol-list)
+        (dolist (symbol symbol-list)
+          (let (name position)
+            (cond
+             ((and (listp symbol) (imenu--subalist-p symbol))
+              (my-imenu symbol))
+             ((listp symbol)
+              (setq name (car symbol))
+              (setq position (cdr symbol)))
+             ((stringp symbol)
+              (setq name symbol)
+              (setq position
+                    (get-text-property 1 'org-imenu-marker symbol))))
+            (unless (or (null position) (null name)
+                        (string= (car imenu--rescan-item) name))
+              (add-to-list 'symbol-names name)
+              (add-to-list 'name-and-pos (cons name position))))))))
+#+END_SRC
+   
+** How to use imenu, ctags and taglist
+
+*** Key bindings
+See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
+
+*** imenu
+
+*M-x my-imenu* use imenu with ido
+
+*** Make and update tags file
+    
++ Define project in project-roots.
++ *M-x my-make-tags* to make tags file for the project. Note that path to make
+  tags should be the root of project.
++ *M-x etags-update-mode* to activate etags update mode.
++ Emacs will update tags file automatically.
++ Answer *n* to "keep current list of tags table also?"
+  
+*** find tag
+*\ta* and chose a key word. If multiple tags exist, etags-select will work and
+ pop a buffer for tags selecting.
+ 
+*** taglist
+*\tl* opens taglist and navigate with *jk*.

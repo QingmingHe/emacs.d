@@ -16,7 +16,7 @@ redefine server-ensure-safe-dir function to suppress this kind of error.
 ** ad-advised-definition-p error
 No such function in Emacs 24.4, so add it.
 #+BEGIN_SRC emacs-lisp
-(when (not (fboundp 'ad-advised-definision-p))
+(when (eq *emacsversion* 4)
   (defmacro ad-macro-p (definition)
     ;;"non-nil if DEFINITION is a macro."
     (` (eq (car-safe (, definition)) 'macro)))

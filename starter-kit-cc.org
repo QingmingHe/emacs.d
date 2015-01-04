@@ -5,23 +5,26 @@
 
 ** Minor mode
    
-Company-mode needs *clang* to be installed.
-The author has no idea how to set outline regexp of C language.
+auto complete needs *clang* to be installed. The author has no idea how to set
+outline regexp of C language.
 
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)  
 (require 'auto-complete-config)
 (require 'auto-complete-clang)
+(require 'project)
 (add-hook 'c-mode-common-hook '(lambda ()
                           (auto-complete-mode)
                           (yas-minor-mode)
                           (flyspell-prog-mode)
-                          (outline-minor-mode)
+                          (flycheck-mode)
                           (auto-fill-mode)
-                          (setq ac-sources 
-                                (append
-                                 '(ac-source-clang ac-source-yasnippet)
-                                 ac-sources))
+                          (make-local-variable 'ac-sources)
+                          (add-to-list 'ac-sources 'ac-source-clang)
+                          (add-to-list 'ac-sources 'ac-source-yasnippet)
+                          (add-to-list 'ac-sources 'ac-source-etags)
+                          (project-minor-mode)
+                          (modify-syntax-entry ?_ "w")
                           )
           )
 #+END_SRC

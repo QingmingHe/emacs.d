@@ -1,0 +1,34 @@
+* Emacs Notes
+
+** align-regexp
+
+To align:
+#+BEGIN_EXAMPLE
+California 423,970 km²
+Taiwan 36,008 km²
+Japan 377,944 km²
+Germany 357,021 km²
+Iraq 438,317 km²
+Iran 1,648,195 km²
+Korea (North+South) 219,140 km²
+Mexico 1,964,375 km²
+#+END_EXAMPLE
+to:
+#+BEGIN_EXAMPLE
+California             423,970 km²
+Taiwan                  36,008 km²
+Japan                  377,944 km²
+Germany                357,021 km²
+Iraq                   438,317 km²
+Iran                 1,648,195 km²
+Korea (North+South)    219,140 km²
+Mexico               1,964,375 km²
+#+END_EXAMPLE
+Just *C-u M-x align-regexp*, * \([0-9,]+\) *, *-1*, *1*, *y* (*n* will be
+OK). *C-u* will prompt you to select parameters; * \([0-9,]+\) * matches the
+number of one space on the left and right; words matched regexp inside
+parenthesis will be aligned right by adding or deleting characters on left or
+right; things aligned right include added or deleted characters; *-1* means
+the first group (regexp inside first pair of parenthesis) and the minus means
+adding or deleting spaces on the left side, otherwise on the right side; *1*
+means spacing one; *y* means aligning through the line.
