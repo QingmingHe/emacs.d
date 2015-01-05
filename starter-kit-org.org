@@ -172,8 +172,6 @@ file using the `org-babel-lob-ingest' function.
 
 ** Org export to PDF
    
-ç€èŸ€›èªç¥†¶“î…Ÿæƒé‚å›å…·€‚é”›æ‘°å¾˜g ææ¹”–æ›„¹šç€›ç’…å¯¡´Ÿ utf-8 è»‚æ æ€ˆœé”›æ’…è³£ƒé’ç”ˆèš‰é‘å”¾—‰î‡æ¢¢‘çƒ˜î„œè¥åŸ†æ›„æªéæ¡è¶ç•¾‘ TeX é‚å›å…·€‚éŠ†‚
-
 *** XeLaTeX
 Use XeLaTeX to export PDF and compile two times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
