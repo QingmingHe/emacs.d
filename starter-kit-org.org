@@ -298,11 +298,11 @@ Set files where org agenda will extract from.
 
 Show agenda at start up.
 #+BEGIN_SRC emacs-lisp
-(when gtd-root
-  (setq inhibit-splash-screen t)
-  (org-agenda-list)
-  (delete-other-windows)
-  )
+;; (when gtd-root
+;;   (setq inhibit-splash-screen t)
+;;   (org-agenda-list)
+;;   (delete-other-windows)
+;;   )
 #+END_SRC
 
 *** Org refile

@@ -78,6 +78,11 @@
 
 ;; Generate a temporary buffer for scratch
 (generate-new-buffer "temporary")
+;; show bookmark at startup
+(setq inhibit-splash-screen t)
+(bookmark-bmenu-list)
+(switch-to-buffer "*Bookmark List*")
+
 (put 'erase-buffer 'disabled nil)
 
 ;;; init.el ends here
