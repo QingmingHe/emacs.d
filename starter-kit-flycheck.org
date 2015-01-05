@@ -7,14 +7,14 @@ Don't always check buffer, it's too slow.
 #+BEGIN_SRC emacs-lisp
 (require 'flycheck)
 (setq flycheck-check-syntax-automatically '(save mode-enabled))
-(setq flycheck-gfortran-language-standard "f2008")
 #+END_SRC
 
 ** Fortran
    
-Check all warnings.
+Check all warnings. Set standard to be Fortran 2008.
 #+BEGIN_SRC emacs-lisp
 (setq flycheck-gfortran-warnings "all")
+(setq flycheck-gfortran-language-standard "f2008")
 #+END_SRC
 
 You may work on a large project and has complex dependencies, where module

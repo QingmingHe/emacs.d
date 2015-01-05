@@ -1,4 +1,3 @@
-(starter-kit-load "fixbug")
 (starter-kit-load "ctags")
 (starter-kit-load "flycheck")
 (starter-kit-load "nxml")
@@ -6,7 +5,6 @@
 (starter-kit-load "parens")
 (starter-kit-load "aspell")
 (starter-kit-load "colortheme")
-(starter-kit-load "emacs")
 (starter-kit-load "undo")
 (starter-kit-load "evil")
 (starter-kit-load "expand")
@@ -25,7 +23,7 @@
 (starter-kit-load "fortran")
 (starter-kit-load "dictionary")
 ;; Configure org 8.* bundled with Emacs 24.4
-(when (eq *emacsversion* 4)
+(when (> emacs-minor-version 3)
   (starter-kit-load "org"))
 (starter-kit-load "latex")
 (starter-kit-load "bindings")

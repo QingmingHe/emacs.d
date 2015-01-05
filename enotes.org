@@ -1,4 +1,18 @@
 * Emacs Notes
+  
+** Install Emacs-24.4 from source
+
+1. Download source package *wget
+   http://ftp.gnu.org/gnu/emacs/emacs-24.4.tar.xz*.
+2. Decompress *tar -xvf emacs-24.4.tar.xz*.
+3. Install all the dependencies of emacs.
+   1. Get dependency information *yum deplist emacs*.
+   2. Install packages in deplist *yum install $package*.
+   3. You may have to install some packages from source for some packages are
+      too old.
+   4. You may have to add path of manually installed libraries to
+      $LD_LIBRARY_PATH
+4. Configure, make and make install.
 
 ** align-regexp
 

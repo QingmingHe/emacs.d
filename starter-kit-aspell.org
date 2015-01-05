@@ -3,7 +3,6 @@
 
 Use the latest aspell instead of ispell to check spelling.
 #+BEGIN_SRC emacs-lisp
-(custom-set-variables
-    '(ispell-dictionary "british")
-    '(ispell-program-name "aspell"))
+(setq ispell-dictionary "british")
+(setq ispell-program-name "aspell")
 #+END_SRC

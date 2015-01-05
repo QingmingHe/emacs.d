@@ -73,3 +73,70 @@ a lambda doesn't already exist in the list.
         (find-file (cdr (assoc filename 
                                file-assoc-list)))))) 
  #+end_src 
+
+#+BEGIN_SRC emacs-lisp
+(defun my-no-word (fname)
+  "Open MS word using antiword."
+  (interactive (list (read-file-name "Open MS word file: ")))
+  (let (
+        (tmp-file-name (format (concat "/tmp/" "." (file-name-nondirectory fname))))
+        )
+    (progn
+      (shell-command
+       (format "antiword -m UTF-8 %s > %s" fname tmp-file-name))
+      (find-file tmp-file-name)
+      )
+    )
+  )
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(defun my-fill-line (&optional filling)
+  "Fill current line with filling from (point) to default-fill-column"
+  (interactive (list (read-char "Enter filling character: ")))
+  (let ((l-filling " "))
+    (when filling
+      (setq l-filling filling))
+    (let (
+          (line-position nil)
+          (i 0)
+          (remainder nil)
+          )
+      (setq line-position (- (point) (line-beginning-position)))
+      (setq remainder (- default-fill-column line-position))
+      (while (< i remainder)
+        (setq i (+ 1 i))
+        (insert l-filling)
+        )
+      )
+    )
+  )
+#+END_SRC
+
+No such function in Emacs 24.4, so add it.
+#+BEGIN_SRC emacs-lisp
+(when (not (fboundp 'ad-advised-definition-p))
+  (defmacro ad-macro-p (definition)
+    ;;"non-nil if DEFINITION is a macro."
+    (` (eq (car-safe (, definition)) 'macro)))
+  
+  (defun ad-advised-definition-p (definition)
+    ;;"non-nil if DEFINITION was generated from advice information."
+    (if (or (ad-lambda-p definition)
+            (ad-macro-p definition)
+            (ad-compiled-p definition))
+        (let ((docstring (ad-docstring definition)))
+          (and (stringp docstring)
+               (string-match
+                ad-advised-definition-docstring-regexp docstring)))))
+  )
+#+END_SRC
+
+On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
+redefine server-ensure-safe-dir function to suppress this kind of error.
+#+BEGIN_SRC emacs-lisp
+(require 'server)
+(when (or *win32* *cygwin*)
+  (defun server-ensure-safe-dir (dir) "Noop" t)
+  )
+#+END_SRC

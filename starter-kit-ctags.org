@@ -66,10 +66,15 @@ First define projects.
 
 #+BEGIN_SRC emacs-lisp
 (when (not (executable-find "etags-update.pl"))
-  (copy-file
-   (format "%s/src/etags-update/etags-update.pl" starter-kit-dir)
-   (expand-file-name "~/bin/etags-update.pl"))
-  (chmod (expand-file-name "~/bin/etags-update.pl") 777))
+  (when (not (file-exists-p (expand-file-name "~/bin")))
+    (shell-command (format "mkdir %s" (expand-file-name "~/bin"))))
+  (shell-command
+   (format "cp -f %s %s"
+           (format "%s/src/etags-update/etags-update.pl" starter-kit-dir)
+           (expand-file-name "~/bin/etags-update.pl")))
+  (shell-command
+   (format "chmod 755 %s"
+           (expand-file-name "~/bin/etags-update.pl"))))
 
 ;; set tags-file-name to be nil so no error in writing .ido.last
 (add-hook 'kill-emacs-hook '(lambda ()

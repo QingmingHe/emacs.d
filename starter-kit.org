@@ -239,6 +239,26 @@ is probably safe to stop reading at this point unless you are
 interested in the actual code implementing the starter kit.
 
 ** Starter kit basics
+   
+- Determine system type and emacs version
+#+BEGIN_SRC emacs-lisp
+(defun my-system-type ()
+  "Get system type by Python."
+  (shell-command-to-string "python -c 'import sys; print(sys.platform)'")
+  )
+
+(setq *win32* (string-match-p "win[0-9]+" (my-system-type)))
+(setq *cygwin* (string-match-p "cygwin" (my-system-type)))
+(setq *linux* (string-match-p "linux" (my-system-type)))
+(setq *terminal* (eq window-system nil))
+
+(if (< emacs-major-version 24)
+    (error "Emacs major version should be >= 24.3")
+  (when (< emacs-minor-version 3)
+    (error "Emacs minor version should be >= 24.3"))
+)
+#+END_SRC
+
 - Load path etc.
   #+name: starter-kit-load-paths
   #+begin_src emacs-lisp
@@ -440,6 +460,21 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 #+begin_src emacs-lisp
   (load custom-file 'noerror)
 #+end_src
+    
+** Starter kit initial display
+   
+This should be placed at end of starter kit and configures the initial
+windows. Since Emacs-24.4 you can toggle full screen by <F11>.
+#+BEGIN_SRC emacs-lisp
+;; Generate a temporary buffer for write something
+(generate-new-buffer "temporary")
+;; show bookmark and scratch at startup
+(setq inhibit-splash-screen t)
+(bookmark-bmenu-list)
+(switch-to-buffer "*Bookmark List*")
+(split-window-right)
+(switch-to-buffer "*scratch*")
+#+END_SRC
 
 * Footnotes
 
