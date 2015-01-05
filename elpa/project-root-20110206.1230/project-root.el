@@ -506,6 +506,14 @@ project."
                                       (mapcar 'car project-files)))))
         (find-file (cdr (assoc file project-files))))))
 
+(defun project-root-find-grep (grep-regexp)
+  "Run grep with find at project root"
+  (interactive (list (read-string "grep regexpa: ")))
+  (with-project-root
+      (find-grep
+       (format "%s -exec grep -nH -e %s {} +"
+               (project-root-find-cmd) grep-regexp))))
+
 (defun project-root-execute-extended-command ()
   "Run `execute-extended-command' after having set
 `default-directory' to the root of the current project."
