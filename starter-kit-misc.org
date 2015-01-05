@@ -171,3 +171,10 @@ let them live in the =backups/= directory inside of the starter kit.
      (set-face-foreground 'magit-diff-del "red3")))
 #+end_src
 
+** Dired+ and bookmark+
+
+#+BEGIN_SRC emacs-lisp
+(require 'bookmark+)
+(require 'dired+)
+#+END_SRC
+
