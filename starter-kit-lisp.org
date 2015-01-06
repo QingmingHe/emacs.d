@@ -61,13 +61,15 @@ back, =C-M-u= up, =C-M-d= down)
    :END:
 
 #+begin_src emacs-lisp
-(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
-(add-hook 'emacs-lisp-mode-hook 'run-starter-kit-coding-hook)
-(add-hook 'emacs-lisp-mode-hook 'starter-kit-remove-elc-on-save)
-(add-hook 'emacs-lisp-mode-hook 'project-minor-mode)
 (add-hook 'emacs-lisp-mode-hook '(lambda ()
                                    (modify-syntax-entry ?_ "w")
-                                   (modify-syntax-entry ?- "w")))
+                                   (modify-syntax-entry ?- "w")
+                                   (flyspell-prog-mode)
+                                   (auto-complete-mode)
+                                   (turn-on-eldoc-mode)
+                                   (run-starter-kit-coding-hook)
+                                   (starter-kit-remove-elc-on-save)
+                                   (project-minor-mode)))
 ;; (add-hook 'emacs-lisp-mode-hook 'idle-highlight)
 (define-key emacs-lisp-mode-map (kbd "C-c v") 'eval-buffer)
 
@@ -217,11 +219,3 @@ pretty \lambda's in clojure
 (font-lock-add-keywords 'lisp-mode
 			'(("(\\|)" . 'starter-kit-paren-face)))
 #+end_src
-** Other
-
-Use flyspell and company.
-#+BEGIN_SRC emacs-lisp
-(add-hook 'emacs-lisp-mode-hook 'flyspell-prog-mode)
-(add-hook 'emacs-lisp-mode-hook 'company-mode)
-#+END_SRC
-
