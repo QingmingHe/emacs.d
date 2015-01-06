@@ -42,18 +42,14 @@ To use my configuration, set JEDI_SERVER environment to be
   (if (file-directory-p "~/.emacs.d/.python-environments")
       (my-jedi-conf)
     (if (getenv "JEDI_SERVER")
-        ;; use backquote and and "," so that list element of list can be
-        ;; evaluated
         (progn (setq jedi:server-command
                      `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
                (my-jedi-conf))
-      (if (executable-find "jediepcserver.py")
+      (when (executable-find "jediepcserver.py")
           (progn
             (setq jedi:server-command
                   `(,(executable-find "jediepcserver.py")))
-            (my-jedi-conf))
-        (auto-complete-mode))))
-  )
+            (my-jedi-conf))))))
 #+END_SRC
 
 ** Use Python's python-mode.el instead of Emacs' python.el
@@ -79,9 +75,7 @@ so on and you can add your own key words.
                               (outline-minor-mode)
                               (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
                               (auto-fill-mode)
-                              (yas-minor-mode)
                               (my-jedi-setup)
-                              (add-to-list 'ac-sources 'ac-source-etags)
                               (project-minor-mode)
                               ))
 #+END_SRC
