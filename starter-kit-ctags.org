@@ -8,7 +8,7 @@
 First define projects.
 #+BEGIN_SRC emacs-lisp
 (require 'project-root)
-
+(require 'project)
 (defun get-SUGAR-include-paths ()
   (let ((paths '("../BUILD_RELEASE/include")))
     (when (getenv "HDF5_ROOT")

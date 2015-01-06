@@ -175,6 +175,7 @@ let them live in the =backups/= directory inside of the starter kit.
 
 #+BEGIN_SRC emacs-lisp
 (require 'bookmark+)
+(setq bmkp-bmenu-state-file (expand-file-name "~/.emacs.d/.emacs-bmk-bmenu-state.el"))
 ;; set diredp-hide-details-initially-flag before load dired+
 (setq diredp-hide-details-initially-flag nil)
 (require 'dired+)

@@ -9,17 +9,12 @@ auto complete needs *clang* to be installed. The author has no idea how to set
 outline regexp of C language.
 
 #+BEGIN_SRC emacs-lisp
-(require 'auto-complete)  
-(require 'auto-complete-config)
-(require 'auto-complete-clang)
-(require 'project)
 (add-hook 'c-mode-common-hook '(lambda ()
                           (auto-complete-mode)
                           (yas-minor-mode)
                           (flyspell-prog-mode)
                           (flycheck-mode)
                           (auto-fill-mode)
-                          (make-local-variable 'ac-sources)
                           (add-to-list 'ac-sources 'ac-source-clang)
                           (add-to-list 'ac-sources 'ac-source-yasnippet)
                           (add-to-list 'ac-sources 'ac-source-etags)

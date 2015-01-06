@@ -19,22 +19,17 @@ TODO
 use *display-message-or-buffer*.
 ** Fortran hooks
 
-Use company and outline just as other languages.
-
 #+BEGIN_SRC emacs-lisp
-(require 'company)
-(require 'flyspell)
-(require 'flycheck)
-(require 'outline)
-(require 'project)
-(add-hook 'f90-mode-hook '(lambda () 
-                               (company-mode)
+(add-hook 'f90-mode-hook '(lambda ()
+                               (yas-minor-mode)
+                               (auto-complete-mode)
+                               (add-to-list 'ac-sources 'ac-source-yasnippet)
+                               (add-to-list 'ac-sources 'ac-source-etags)
                                (flyspell-prog-mode)
                                (flycheck-mode)
                                (outline-minor-mode)
                                (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
                                (auto-fill-mode)
-                               (yas-minor-mode)
                                (project-minor-mode)
                                (modify-syntax-entry ?_ "w")
                           ))

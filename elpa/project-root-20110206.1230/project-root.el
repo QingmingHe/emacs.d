@@ -508,11 +508,16 @@ project."
 
 (defun project-root-find-grep (grep-regexp)
   "Run grep with find at project root"
-  (interactive (list (read-string "grep regexpa: ")))
+  (interactive (list
+                (read-string
+                 (format "grep regexp (default %s): " (word-at-point)))))
   (with-project-root
       (find-grep
        (format "%s -exec grep -nH -e %s {} +"
-               (project-root-find-cmd) grep-regexp))))
+               (project-root-find-cmd)
+               (if (string-empty-p grep-regexp)
+                   (word-at-point)
+                 grep-regexp)))))
 
 (defun project-root-execute-extended-command ()
   "Run `execute-extended-command' after having set

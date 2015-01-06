@@ -15,36 +15,6 @@ install them.
   (starter-kit-install-if-needed 'python-mode 'ipython)
 #+end_src
 
-** Use Python's python-mode.el instead of Emacs' python.el
-   :PROPERTIES:
-   :CUSTOM_ID: python
-   :END:
-Replace the Python mode that comes with Emacs by the Python mode
-supplied by the Python distribution itself.
-#+begin_src emacs-lisp
-(require 'python-mode)
-(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-(add-to-list 'interpreter-mode-alist '("python" . python-mode))
-#+end_src
-
-** Configuration for python mode
-Flyspell is used to check spelling in comment; outline mode is used to fold
-code blocks, which is realised by defining key words like *def*, *class* and
-so on and you can add your own key words.
-#+BEGIN_SRC emacs-lisp
-(require 'project)
-(add-hook 'python-mode-hook (lambda ()
-                              (flyspell-prog-mode)
-                              (flycheck-mode)
-                              (outline-minor-mode)
-                              (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
-                              (auto-fill-mode)
-                              (yas-minor-mode)
-                              (auto-complete-mode)
-                              (project-minor-mode)
-                              ))
-#+END_SRC
-
 ** Completion
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
 emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
@@ -74,10 +44,46 @@ To use my configuration, set JEDI_SERVER environment to be
     (if (getenv "JEDI_SERVER")
         ;; use backquote and and "," so that list element of list can be
         ;; evaluated
-        (progn (setq jedi:server-command `("python" ,(getenv "JEDI_SERVER")))
+        (progn (setq jedi:server-command
+                     `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
                (my-jedi-conf))
-      (message "Jedi is not installed!")))
+      (if (executable-find "jediepcserver.py")
+          (progn
+            (setq jedi:server-command
+                  `(,(executable-find "jediepcserver.py")))
+            (my-jedi-conf))
+        (auto-complete-mode))))
   )
+#+END_SRC
+
+** Use Python's python-mode.el instead of Emacs' python.el
+   :PROPERTIES:
+   :CUSTOM_ID: python
+   :END:
+Replace the Python mode that comes with Emacs by the Python mode
+supplied by the Python distribution itself.
+#+begin_src emacs-lisp
+(require 'python-mode)
+(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+#+end_src
+
+** Configuration for python mode
+Flyspell is used to check spelling in comment; outline mode is used to fold
+code blocks, which is realised by defining key words like *def*, *class* and
+so on and you can add your own key words.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'python-mode-hook '(lambda ()
+                              (flyspell-prog-mode)
+                              (flycheck-mode)
+                              (outline-minor-mode)
+                              (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
+                              (auto-fill-mode)
+                              (yas-minor-mode)
+                              (my-jedi-setup)
+                              (add-to-list 'ac-sources 'ac-source-etags)
+                              (project-minor-mode)
+                              ))
 #+END_SRC
 
 ** Use Cython mode
