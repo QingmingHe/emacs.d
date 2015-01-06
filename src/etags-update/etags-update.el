@@ -184,27 +184,30 @@ the match or nil."
   (when (not (string= file-name tags-file-name))
     (visit-tags-table file-name)))
 
-(defun etu/visit-tags-table ()
-  "Visit tags table at root of project which is defined by project-roots"
+(defun etu/visit-tags-table (&optional quit-when-not-p)
+  "Visit tags table at root of project which is defined by project-roots or
+prompt for user input tags file name."
   (interactive)
-  (when (project-root-fetch)
-    (let ((default-directory (cdr project-details)))
-      (if (file-exists-p (concat (car project-details) "-TAGS"))
-          (etu/visit-tags-table-new
-           (concat (car project-details) "-TAGS"))
-        (catch 'tags-found
-          (mapcar
-           (lambda (file-name)
-             (when (string-match-p ".*TAGS$" file-name)
-               (etu/visit-tags-table-new file-name)
-               (throw 'tags-found t)))
-           (directory-files ".")))))))
+  (if (project-root-fetch)
+      (let ((default-directory (cdr project-details)))
+        (if (file-exists-p (concat (car project-details) "-TAGS"))
+            (etu/visit-tags-table-new
+             (concat (car project-details) "-TAGS"))
+          (catch 'tags-found
+            (mapcar
+             (lambda (file-name)
+               (when (string-match-p ".*TAGS$" file-name)
+                 (etu/visit-tags-table-new file-name)
+                 (throw 'tags-found t)))
+             (directory-files ".")))))
+    (when (not quit-when-not-p)
+      (visit-tags-table (read-file-name "TAGS file name: ")))))
 
 (defun etu/update-tags-for-file ()
   "Update the TAGS file for the file of the current buffer. If
 the file is not already in TAGS, maybe add it."
   (interactive)
-  (etu/visit-tags-table)
+  (etu/visit-tags-table t)
   (when project-details
     (catch 'etu/update-tags-for-file
     (when tags-file-name

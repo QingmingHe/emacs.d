@@ -72,3 +72,11 @@ type(SomeType) :: atype ! object of SomeType"
 #+END_SRC
 
 
+** Use \-J to join lines in Fortran style
+#+BEGIN_SRC emacs-lisp
+(evil-leader/set-key-for-mode 'f90-mode
+  "J" '(lambda ()
+         (interactive)
+         (f90-join-lines t)))
+#+END_SRC
+

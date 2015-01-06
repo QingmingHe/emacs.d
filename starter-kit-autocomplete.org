@@ -22,7 +22,7 @@ Bind "M-/" to auto-complete
 #+END_SRC
 
 ** Backends
-   
+*** Clang for C and C++
 Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*, to
 ac-clang backend.
 #+BEGIN_SRC emacs-lisp
