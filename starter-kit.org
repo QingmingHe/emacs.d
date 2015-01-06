@@ -472,6 +472,7 @@ windows. Since Emacs-24.4 you can toggle full screen by <F11>.
 (setq inhibit-splash-screen t)
 (bookmark-bmenu-list)
 (switch-to-buffer "*Bookmark List*")
+(delete-other-windows)
 (split-window-right)
 (switch-to-buffer "*scratch*")
 #+END_SRC

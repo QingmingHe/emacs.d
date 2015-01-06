@@ -11,7 +11,6 @@ Use the default settings of auto complete but disable auto complete by default.
 (require 'auto-complete-clang)
 (require 'auto-complete-etags)
 (require 'pos-tip)
-(require 'fuzzy)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
@@ -46,15 +45,17 @@ Use the default settings of auto complete but disable auto complete by default.
 (setq ac-quick-help-delay 0.5)
 ;; use pos-tip instead of popup to show doc perfectly
 (setq ac-quick-help-prefer-pos-tip t)
+;; don't use fuzzy
+;; (require 'fuzzy)
 ;; fuzzy complete
-(setq ac-fuzzy-enable t)
+;; (setq ac-fuzzy-enable t)
 #+END_SRC
 
 ** Key bindings
 Bind "M-/" to auto-complete
 #+BEGIN_SRC emacs-lisp
-(define-key ac-mode-map (kbd "M-n") 'ac-fuzzy-complete)
-(define-key ac-mode-map (kbd "M-p") 'ac-fuzzy-complete)
+(define-key ac-mode-map (kbd "M-n") 'auto-complete)
+(define-key ac-mode-map (kbd "M-p") 'auto-complete)
 (define-key ac-mode-map (kbd "<S-tab>") 'ac-previous)
 #+END_SRC
 

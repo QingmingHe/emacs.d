@@ -70,6 +70,7 @@ ac-comphist.dat
 starter-kit*.el
 texput.log
 *stackdump
+recentf
 
 ## emacs bookmarks
 bookmarks

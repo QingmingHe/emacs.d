@@ -11,6 +11,7 @@ outline regexp of C language.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'c-mode-common-hook '(lambda ()
                           (flyspell-prog-mode)
+                          (yas-minor-mode)
                           (flycheck-mode)
                           (auto-fill-mode)
                           (project-minor-mode)

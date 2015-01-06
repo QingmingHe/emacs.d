@@ -59,7 +59,9 @@ Load the snippets defined in the =./snippets/= directory.
    :END:
 
 The latest version of yasnippets doesn't play well with Org-mode, the
-following function allows these two to play nicely together.
+following function allows these two to play nicely together. In Org-mode, use
+*C-c C-e* instead of *TAB* to expand yas, or yas-next-field-or-may-be-expand
+will not work well.
 #+begin_src emacs-lisp
   (defun yas/org-very-safe-expand ()
     (let ((yas/fallback-behavior 'return-nil)) (yas/expand)))
@@ -83,10 +85,3 @@ using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
 (define-key yas-minor-mode-map (kbd "TAB") nil)
 (define-key yas-minor-mode-map (kbd "C-c C-e") 'yas-expand)
 #+END_SRC
-
-** Yas everywhere
-   
-#+BEGIN_SRC emacs-lisp
-(yas-global-mode 1)
-#+END_SRC
-
