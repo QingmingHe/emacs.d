@@ -13,7 +13,6 @@
       (shell-command "make autoloads"))))
 #+END_SRC
 
-  
 ** Basic setup
 
 #+begin_src emacs-lisp
@@ -22,7 +21,8 @@
 (helm-mode 1)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
-(global-set-key (kbd "C-c h") 'helm-mini)
+(define-key helm-map (kbd "C-f") 'helm-next-page)
+(define-key helm-map (kbd "C-b") 'helm-previous-page)
 (setq
  helm-split-window-in-side-p t
  helm-move-to-line-cycle-in-source t
