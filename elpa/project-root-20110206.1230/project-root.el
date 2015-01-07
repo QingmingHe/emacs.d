@@ -503,19 +503,6 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
                                       (mapcar 'car project-files))))
         (find-file (cdr (assoc file project-files))))))
 
-(defun project-root-find-grep (grep-regexp)
-  "Run grep with find at project root"
-  (interactive (list
-                (read-string
-                 (format "grep regexp (default %s): " (word-at-point)))))
-  (with-project-root
-      (find-grep
-       (format "%s -exec grep -nH -e %s {} +"
-               (project-root-find-cmd)
-               (if (string-empty-p grep-regexp)
-                   (word-at-point)
-                 grep-regexp)))))
-
 (defun project-root-execute-extended-command ()
   "Run `execute-extended-command' after having set
 `default-directory' to the root of the current project."
@@ -659,21 +646,6 @@ this function."
         `(and ,project-root-extra-find-args
               (name ,(concat "*" pattern "*"))
               (type "f"))))))
-
-(defun project-root-generate-tags (dir tags-file)
-  "Make $PROJECT-TAGS at project root."
-  (interactive
-   (list
-    (read-directory-name "Generate tags at what directory: "
-                         (cdr (project-root-fetch)))
-    (read-string "Name of tags file: "
-                 (concat (car (project-root-fetch)) "-TAGS"))))
-  (let ((default-directory dir))
-    (when (file-exists-p tags-file)
-      (delete-file tags-file))
-    (shell-command
-     (format "%s | xargs ctags -e -f %s -a"
-             (project-root-find-cmd) tags-file))))
 
 (provide 'project-root)
 

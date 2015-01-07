@@ -76,10 +76,10 @@ You can delete a surrounding with ds<trigger>.
   "mn" 'multi-eshell-switch
   "ta" 'etags-select-find-tag
   "at" 'pop-tag-mark
-  "mt" 'project-root-generate-tags
+  "mt" 'prj/generate-tags
   "vt" 'etu/visit-tags-table
   "tl" 'taglist
-  "im" 'my-imenu
+  "im" 'helm-imenu
   "ne" 'flycheck-next-error
  )
 #+END_SRC
