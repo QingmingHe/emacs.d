@@ -71,6 +71,7 @@ starter-kit*.el
 texput.log
 *stackdump
 recentf
+*.pyc
 
 ## emacs bookmarks
 bookmarks

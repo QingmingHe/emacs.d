@@ -4,13 +4,15 @@
 * Starter Kit AC
 
 ** Basic setup
-Use the default settings of auto complete but disable auto complete by default.
+Use the default settings of auto complete but disable auto complete by
+default.
+1. When ac menu pop up, *C-s* can be used to search the menu, *C-g* to quit search.
+2. Use *M-n* or *M-p* to complete and also these keys to go up and down in menu.
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
 (require 'auto-complete-clang)
 (require 'auto-complete-etags)
-(require 'pos-tip)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
@@ -42,21 +44,22 @@ Use the default settings of auto complete but disable auto complete by default.
              (setq ac-sources
                    (append '(ac-source-files-in-current-dir ac-source-filename) ac-sources))))
 (ac-config-default)
-(setq ac-quick-help-delay 0.5)
-;; use pos-tip instead of popup to show doc perfectly
-(setq ac-quick-help-prefer-pos-tip t)
-;; don't use fuzzy
-;; (require 'fuzzy)
-;; fuzzy complete
-;; (setq ac-fuzzy-enable t)
-#+END_SRC
 
-** Key bindings
-Bind "M-/" to auto-complete
-#+BEGIN_SRC emacs-lisp
+(setq ac-use-menu-map t)
+
+;;; The author don't like quick help. If you want to use quick help, uncomment following codes.
+(setq ac-use-quick-help nil)
+;; use pos-tip instead of popup to show doc perfectly
+;; (require 'pos-tip)
+;; (setq ac-quick-help-prefer-pos-tip t)
+
+;; Don't use fuzzy complete.
+;; (require 'fuzzy)
+;; (setq ac-fuzzy-enable t)
+
+;;; Key bindings
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
 (define-key ac-mode-map (kbd "M-p") 'auto-complete)
-(define-key ac-mode-map (kbd "<S-tab>") 'ac-previous)
 #+END_SRC
 
 ** Set up for Backends

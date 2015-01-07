@@ -11,6 +11,7 @@
 (starter-kit-load "expand")
 (starter-kit-load "yasnippet")
 (starter-kit-load "autocomplete")
+;; the author don't use company
 (starter-kit-load "company")
 (starter-kit-load "bindings")
 (starter-kit-load "python")
