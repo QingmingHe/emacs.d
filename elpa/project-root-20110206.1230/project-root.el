@@ -495,15 +495,12 @@ directory they are found in so that they are unique."
 
 (defun project-root-find-file ()
   "Find a file from a list of those that exist in the current
-project."
+project. Use completing-read instead of ido-complete-read to make use of helm."
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
-             (file (if (functionp 'ido-completing-read)
-                       (ido-completing-read "Find file in project: "
-                                            (mapcar 'car project-files))
-                     (completing-read "Find file in project: "
-                                      (mapcar 'car project-files)))))
+             (file (completing-read "Find file in project: "
+                                      (mapcar 'car project-files))))
         (find-file (cdr (assoc file project-files))))))
 
 (defun project-root-find-grep (grep-regexp)
