@@ -78,7 +78,7 @@ You can delete a surrounding with ds<trigger>.
   "at" 'pop-tag-mark
   "mt" 'prj/generate-tags
   "vt" 'etu/visit-tags-table
-  "tl" 'taglist
+  "tl" 'helm-imenu
   "im" 'helm-imenu
   "ne" 'flycheck-next-error
  )

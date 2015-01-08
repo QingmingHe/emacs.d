@@ -22,6 +22,7 @@
 (require 'project-root)
 (require 'etags-update)
 (require 'flycheck)
+(require 'helm)
 
 (defvar project-minor-mode-map
   (let ((map (make-sparse-keymap)))
@@ -38,7 +39,7 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
-             (file (completing-read "Find file in project: "
+             (file (helm-com-read "Find file in project: "
                                       (mapcar 'car project-files))))
         (find-file (cdr (assoc file project-files))))))
 
@@ -61,7 +62,7 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
   (let ((pname
          (if p
              (format "%s: %s" (car p) (cdr p))
-           (completing-read
+           (helm-comp-read 
             "Enter name of project: "
             (mapcar
              (lambda (p)

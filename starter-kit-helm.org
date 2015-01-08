@@ -18,9 +18,11 @@
 #+begin_src emacs-lisp
 (require 'helm)
 (require 'helm-config)
-(helm-mode 1)
+;; do not use helm everywhere
+;; (helm-mode 1)
 (global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
+;; use ido to find file
+;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (define-key helm-map (kbd "C-f") 'helm-next-page)
 (define-key helm-map (kbd "C-b") 'helm-previous-page)
 (setq
@@ -30,3 +32,53 @@
  helm-scroll-amount 8
  helm-ff-file-name-history-use-recentf t)
 #+end_src
+   
+** Commands use helm, ido or native emacs
+   
+Helm or ido sometimes do wrong things.
+#+BEGIN_SRC emacs-lisp 
+(setq helm-completing-read-handlers-alist
+     '((describe-function . helm-completing-read-symbols)
+       (describe-variable . helm-completing-read-symbols)
+       (debug-on-entry . helm-completing-read-symbols)
+       (find-function . helm-completing-read-symbols)
+       (find-tag . helm-comp-read)
+       (ffap-alternate-file . nil)
+       (tmm-menubar . nil)
+       (find-file . ido)
+       (minibuffer-complete . nil)
+       (minibuffer-complete-help . nil)
+       (execute-extended-command . ido)
+       (read-directory-name . ido)
+       (read-file-name . ido)
+       (completion-at-point . nil)
+       (dired-do-copy . nil)
+       (dired-do-rename . nil)
+       (dired-create-directory . nil)
+       (w3m-goto-url . nil)
+       ))
+#+END_SRC
+
+** Disable helm for specific modes
+
+#+BEGIN_SRC emacs-lisp 
+(setq my-helm-en-dis-alist
+      '((shell-mode . nil)))
+
+(defun en-dis-helm (&optional mode)
+  (interactive)
+  (let* ((mode (or mode major-mode))
+         (mode-alist (or (assoc mode my-helm-en-dis-alist) '(mode . 0)))
+         (enable-helm (cdr mode-alist)))
+    (cond ((eq 0 enable-helm) nil)
+          (enable-helm (helm-mode 1))
+          ((not enable-helm) (helm-mode -1)))))
+
+;; (add-hook 'after-change-major-mode-hook 'en-dis-helm)
+#+END_SRC
+
+** Tips
+*** How to find file
+1. Basically you can use ido-find-file, which is binded to *C-x C-f*.
+2. To find a file recursively under path, use *helm-find* command.
+3. To find a file in project, use *prj/find-file*.
