@@ -68,7 +68,8 @@ type(SomeType) :: atype ! object of SomeType"
 (define-key f90-mode-map (kbd "C-c C-i") 'my-f90-align-declare)
 #+END_SRC
 
-** Use \-J to join lines in Fortran style
+** Easy Fortran
+*** Use \-J to join lines in Fortran style
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-key-for-mode 'f90-mode
   "J" '(lambda ()
@@ -76,3 +77,7 @@ type(SomeType) :: atype ! object of SomeType"
          (f90-join-lines t)))
 #+END_SRC
 
+*** Some commands
+1. f90-end-of-block
+2. f90-beginning-of-block
+3. ...

@@ -79,7 +79,8 @@ so on and you can add your own key words.
                               (my-jedi-setup)
                               (project-minor-mode)
                               (highlight-indentation-mode)
-                              (highlight-indentation-current-column-mode)
+                              ;; it's too heavy taste
+                              ;;(highlight-indentation-current-column-mode)
                               ))
 #+END_SRC
 

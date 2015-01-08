@@ -32,6 +32,16 @@ several years.
 (evil-mode 1)
 #+END_SRC
 
+** Evil matchit
+   
+Evil matchit enables powerful *%* jump. Sometimes evil-matchit blocks, just
+key in *C-g* to cancel jump.
+#+BEGIN_SRC emacs-lisp 
+(require 'evil-matchit)
+(global-evil-matchit-mode 1)
+;; (plist-put evilmi-plugins 'f90-mode '((evilmi-f90-get-tag evilmi-f90-jump)))
+#+END_SRC
+
 ** Go to change
 
 It is so happy to key in *g;* to go to last change and g, to com back.

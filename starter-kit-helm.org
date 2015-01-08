@@ -21,8 +21,8 @@
 ;; do not use helm everywhere
 ;; (helm-mode 1)
 (global-set-key (kbd "M-x") 'helm-M-x)
-;; use ido to find file
-;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-x b") 'helm-buffers-list)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
 (define-key helm-map (kbd "C-f") 'helm-next-page)
 (define-key helm-map (kbd "C-b") 'helm-previous-page)
 (setq
@@ -78,6 +78,10 @@ Helm or ido sometimes do wrong things.
 #+END_SRC
 
 ** Tips
+*** General
+1. use * to narrow by major mode and @ to grep.
+2. use *C-j* to perform action without quite helm.
+3. use *M-SPC* to mark current element, *M-a* mark all, *M-u* to unmark all.
 *** How to find file
 1. Basically you can use ido-find-file, which is binded to *C-x C-f*.
 2. To find a file recursively under path, use *helm-find* command.

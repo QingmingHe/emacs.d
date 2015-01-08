@@ -39,7 +39,7 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
-             (file (helm-com-read "Find file in project: "
+             (file (helm-comp-read "Find file in project: "
                                       (mapcar 'car project-files))))
         (find-file (cdr (assoc file project-files))))))
 
