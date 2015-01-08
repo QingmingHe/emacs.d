@@ -258,3 +258,10 @@ lines of codes.
 #+END_SRC
 
 
+** Highlight Indentation
+#+BEGIN_SRC emacs-lisp
+(require 'highlight-indentation)
+(set-face-background 'highlight-indentation-face "#e3e3d3")
+(set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
+#+END_SRC
+

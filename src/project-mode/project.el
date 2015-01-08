@@ -131,3 +131,5 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
       (remove-hook 'after-save-hook 'etu/update-tags-for-file))))
 
 (provide 'project)
+
+;;; project.el ends here
