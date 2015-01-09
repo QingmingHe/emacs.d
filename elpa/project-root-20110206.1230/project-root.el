@@ -524,12 +524,14 @@ then the current project-details are used."
 
 (defun project-root-file-is-project-file (filename &optional p)
   "Determine whether file is a project file. The difference between this
-function and project-root-file-is-project-file is that this function check
+function and project-root-file-in-project is that this function check
 whether a file is in project by checking paths, exclude paths and
 filename-regex."
-  (let ((p (or p (project-root-fetch))))
+  (let ((p (or p (project-root-fetch)))
+        (filename (ignore-errors (expand-file-name filename))))
     (and
      p
+     filename
      (file-exists-p filename)
      (string-match-p
       (or (project-root-data :filename-regex p) "") filename)
@@ -537,7 +539,7 @@ filename-regex."
        (mapcar
         (lambda (exclude-path)
           (if (eq 0
-                  (string-match-p exclude-path (buffer-file-name)))
+                  (string-match-p exclude-path filename))
               (throw 'under-due-path nil)
             t))
         (project-root-exclude-paths p))))))

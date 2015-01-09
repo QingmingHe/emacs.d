@@ -128,8 +128,7 @@ No such function in Emacs 24.4, so add it.
         (let ((docstring (ad-docstring definition)))
           (and (stringp docstring)
                (string-match
-                ad-advised-definition-docstring-regexp docstring)))))
-  )
+                ad-advised-definition-docstring-regexp docstring))))))
 #+END_SRC
 
 On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So

@@ -30,6 +30,7 @@ several years.
 #+BEGIN_SRC emacs-lisp
 (require 'evil)
 (evil-mode 1)
+(require 'project)
 #+END_SRC
 
 ** Evil matchit
@@ -84,12 +85,22 @@ You can delete a surrounding with ds<trigger>.
   "ln" 'linum-mode
   "me" 'multi-eshell
   "mn" 'multi-eshell-switch
-  "ta" 'etags-select-find-tag
-  "at" 'pop-tag-mark
+  "ta" '(lambda ()
+          (interactive)
+          (if prj/use-gtags
+              (helm-gtags-select)
+            (etags-select-find)))
+  "at" '(lambda ()
+          (interactive)
+          (if prj/use-gtags
+              (helm-gtags-pop-stack)
+            (pop-tag-mark)))
   "mt" 'prj/generate-tags
-  "vt" 'etu/visit-tags-table
+  "vt" '(lambda ()
+          (interactive)
+          (unless prj/use-gtags
+            (etu/visit-tags-table)))
   "tl" 'helm-imenu
-  "im" 'helm-imenu
   "ne" 'flycheck-next-error
  )
 #+END_SRC

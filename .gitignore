@@ -2,6 +2,9 @@
 .starter-kit-*.part.*.org
 ## tags
 *TAGS
+GPATH
+GRTAGS
+GTAGS
 ido.last
 .emacs-bmk-bmenu-state.el
 

@@ -33,6 +33,38 @@
 (defvar prj/update-tags t
   "Whether update tags file of the project after saving a file of the project")
 
+(defvar prj/use-gtags (if (executable-find "gtags")
+                          t
+                        nil)
+  "Use gtags or ctags?")
+
+(defvar prj/gtags-conf-file-choices
+  '("/usr/share/gtags/gtags.conf"
+    "/usr/local/share/gtags/gtags.conf"
+    "/opt/share/gtags/gtags.conf"
+    "/opt/gtags/share/gtags.conf")
+  "Default gtags configuration files.")
+
+(defvar prj/gtags-conf-file-dir nil
+  "Directory of gtags configuration file")
+
+(defvar prj/gtags-conf-file-name nil
+  "File name of gtags configuration file")
+
+(defvar prj/gtags-label-choices '("default" "ctags")
+  "Gtags label. If \"default\" gtags uses its built in parser; if \"ctags\"
+use ctags parser.")
+
+;; Get the gtags configuration file.
+(catch 'gtags-conf-file
+  (mapcar
+   '(lambda (file)
+      (when (file-exists-p file)
+        (setq prj/gtags-conf-file-dir (file-name-directory file))
+        (setq prj/gtags-conf-file-name (file-name-nondirectory file))
+        (throw 'gtags-conf-file file)))
+   prj/gtags-conf-file-choices))
+
 (defun prj/find-file ()
   "Find a file from a list of those that exist in the current
 project. Use completing-read instead of ido-complete-read to make use of helm."
@@ -40,7 +72,7 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
   (with-project-root
       (let* ((project-files (project-root-files))
              (file (helm-comp-read "Find file in project: "
-                                      (mapcar 'car project-files))))
+                                   (mapcar 'car project-files))))
         (find-file (cdr (assoc file project-files))))))
 
 (defun prj/find-grep (grep-regexp)
@@ -74,20 +106,64 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
          (string-match ".+: \\(.+\\)" pname)
          (match-string 1 pname))))))
 
-(defun prj/generate-tags (dir tags-file)
-  "Make $PROJECT-TAGS at project root."
-  (interactive
-   (list
-    (read-directory-name "Generate tags at what directory: "
-                         (cdr (project-root-fetch)))
-    (read-string "Name of tags file: "
-                 (concat (car (project-root-fetch)) "-TAGS"))))
-  (let ((default-directory dir))
+(defun prj/generate-etags ()
+  "Make $PROJECT-TAGS at project root. You'd better generate tags file at
+project root, otherwise prj can't update tags file."
+  (interactive)
+  (let* ((p (project-root-fetch))
+         (default-directory
+           (ido-read-directory-name
+            "Directory to run ctags: "
+            (when p (cdr p))))
+         (tags-file
+          (read-string
+           "Name of tags file: "
+           (concat (if p (concar (car p) "-") "") "TAGS"))))
     (when (file-exists-p tags-file)
       (delete-file tags-file))
     (shell-command
      (format "%s | xargs ctags -e -f %s -a"
              (project-root-find-cmd) tags-file))))
+
+(defun prj/generate-gtags ()
+  "Run gtags at user specified path."
+  (interactive)
+  (let* ((p (project-root-fetch))
+         (default-directory
+           (ido-read-directory-name
+            "Directory to run gtags: "
+            (when p (cdr p))))
+         (gtags-label
+          (ido-completing-read
+           "Gtags label: "
+           prj/gtags-label-choices))
+         (gtags-conf
+          (ido-read-file-name
+           "Gtags configuration file: "
+           prj/gtags-conf-file-dir
+           prj/gtags-conf-file-name)))
+    ;; TODO write gtagslabel and gtagsconf to file and load
+    (shell-command (format "gtags --gtagslabel=%s --gtagsconf=%s" gtags-label gtags-conf))))
+
+(defun prj/generate-tags ()
+  (interactive)
+  (if prj/use-gtags
+      (prj/generate-gtags)
+    (prj/generate-gtags)))
+
+(defun prj/update-gtags-single-file ()
+  "Update GTAGS for single file only when current buffer is a project file."
+  (let ((fname (buffer-file-name)))
+    (when (project-root-file-is-project-file fname)
+      (message "Updating GTAGS ...")
+      (shell-command
+       (format "global --single-update %s" fname))
+      (message "Done"))))
+
+(defun prj/update-tags-single-file ()
+  (if prj/use-gtags
+      (prj/update-gtags-single-file)
+    (etu/update-tags-for-file)))
 
 (defun prj/set-gfortran-compile-args (&optional p)
   "Set flycheck-gfortran-* variables."
@@ -127,9 +203,9 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
   (if project-minor-mode
       (progn
         (when prj/update-tags
-          (add-hook 'after-save-hook 'etu/update-tags-for-file)))
+          (add-hook 'after-save-hook 'prj/update-tags-single-file)))
     (progn
-      (remove-hook 'after-save-hook 'etu/update-tags-for-file))))
+      (remove-hook 'after-save-hook 'prj/update-tags-single-file))))
 
 (provide 'project)
 

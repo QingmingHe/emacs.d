@@ -13,6 +13,7 @@ default.
 (require 'auto-complete-config)
 (require 'auto-complete-clang)
 (require 'auto-complete-etags)
+(require 'auto-complete-gtags)
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
@@ -24,15 +25,15 @@ default.
 (add-hook 'f90-mode-hook
           '(lambda ()
              (setq ac-sources
-                   (append '(ac-source-etags ac-source-yasnippet) ac-sources))))
+                   (append '(ac-source-etags ac-source-yasnippet ac-source-gtags) ac-sources))))
 (add-hook 'python-mode-hook
           '(lambda ()
              (setq ac-sources
-                   (append '(ac-source-etags ac-source-yasnippet) ac-sources))))
+                   (append '(ac-source-etags ac-source-yasnippet ac-source-gtags) ac-sources))))
 (add-hook 'c-mode-common-hook
           '(lambda ()
              (setq ac-sources
-                   (append '(ac-source-etags ac-source-yasnippet ac-source-clang) ac-sources))))
+                   (append '(ac-source-etags ac-source-yasnippet ac-source-clang ac-source-gtags) ac-sources))))
 (add-hook 'org-mode-hook
           '(lambda ()
              (setq ac-sources
