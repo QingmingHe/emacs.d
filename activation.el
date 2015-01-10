@@ -3,12 +3,8 @@
 (starter-kit-load "misc-recommended")
 (starter-kit-load "windownumbering")
 (starter-kit-load "helm")
-(starter-kit-load "parens")
 (starter-kit-load "aspell")
-(starter-kit-load "colortheme")
-(starter-kit-load "undo")
 (starter-kit-load "evil")
-(starter-kit-load "expand")
 (starter-kit-load "yasnippet")
 (starter-kit-load "autocomplete")
 ;; the author don't use company

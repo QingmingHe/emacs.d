@@ -83,7 +83,6 @@ so on and you can add your own key words.
   ;; it's too heavy taste
   ;;(highlight-indentation-current-column-mode)
   )
-(define-key python-mode-map (kbd "RET") 'newline-and-indent)
 (add-hook 'python-mode-hook 'my-python-conf)
 #+END_SRC
 

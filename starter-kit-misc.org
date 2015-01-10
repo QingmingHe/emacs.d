@@ -14,17 +14,6 @@ install them. Other dependencies are provided by Emacs 24.
   (starter-kit-install-if-needed 'magit)
 #+end_src
 
-** Color Themes
-Emacs24 has build in support for saving and loading themes.
-
-A Theme builder is available at http://elpa.gnu.org/themes/ along with
-a list of pre-built themes at http://elpa.gnu.org/themes/view.html and
-themes are available through ELPA.
-
-Downloaded themes may be saved to the =themes/= directory in the base
-of the starter kit which ignored by git.  Once downloaded and
-evaluated a theme is activated using the =load-theme= function.
-
 ** Window systems
 #+srcname: starter-kit-window-view-stuff
 #+begin_src emacs-lisp 
@@ -155,12 +144,17 @@ it's possible aspell isn't in your path
     (delete 'try-expand-list hippie-expand-try-functions-list))
 #+end_src
 
-** Don't clutter up directories with files~
+** Backup files
 Rather than saving backup files scattered all over the file system,
 let them live in the =backups/= directory inside of the starter kit.
 #+begin_src emacs-lisp
 (setq backup-directory-alist `(("." . ,(expand-file-name
-                                        (concat starter-kit-dir "backups")))))
+                                        (concat starter-kit-dir "backups"))))
+      backup-by-copying t
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 2
+      version-control t)
 #+end_src
 
 ** Default to unified diffs
@@ -268,21 +262,60 @@ lines of codes.
 (setq scroll-margin 4)
 #+END_SRC
 
-** Highlight Indentation
-#+BEGIN_SRC emacs-lisp
-(require 'highlight-indentation)
-(set-face-background 'highlight-indentation-face "#e3e3d3")
-(set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
-#+END_SRC
-
 ** Color theme
-Default color scheme of GNU Emacs is not that pleasant and color-theme is
-applied.
+Emacs24 has build in support for saving and loading themes.
+
+A Theme builder is available at http://elpa.gnu.org/themes/ along with
+a list of pre-built themes at http://elpa.gnu.org/themes/view.html and
+themes are available through ELPA.
+
+Downloaded themes may be saved to the =themes/= directory in the base
+of the starter kit which ignored by git.  Once downloaded and
+evaluated a theme is activated using the =load-theme= function.
+
 #+BEGIN_SRC emacs-lisp
 (require 'color-theme)
 (require 'color-theme-molokai)
+(require 'highlight-indentation)
 (color-theme-initialize)
 (if *terminal*
-    (color-theme-solarized-dark)
-  (color-theme-solarized-dark))
+    (progn (color-theme-solarized-dark)
+           (set-face-background 'highlight-indentation-face "#073642")
+           (set-face-background 'highlight-indentation-current-column-face "#c3b3b3"))
+  (progn (color-theme-solarized-dark)
+         (set-face-background 'highlight-indentation-face "#073642")
+         (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")))
+;; Color for color-theme-solarized-light
+;; (set-face-background 'highlight-indentation-face "#e3e3d3")
+;; (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
 #+END_SRC
+** New line and indent
+#+BEGIN_SRC emacs-lisp 
+(define-key global-map (kbd "RET") 'newline-and-indent)
+#+END_SRC
+
+** Undo is needed by evil
+#+BEGIN_SRC emacs-lisp 
+(require 'undo-tree)
+(global-undo-tree-mode)
+#+END_SRC
+   
+** Expand region
+
+#+BEGIN_QUOTE
+Expand region increases the selected region by semantic units. Just keep
+pressing the key until it selects what you want.
+#+END_QUOTE
+
+#+BEGIN_SRC emacs-lisp
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+#+END_SRC
+** Garbage collection
+   
+Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We
+set it to be 20 MB to save time.
+#+BEGIN_SRC emacs-lisp 
+(setq gc-cons-threshold 20000000)
+#+END_SRC
+

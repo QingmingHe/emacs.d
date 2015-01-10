@@ -45,7 +45,6 @@ Default indentation for Fortran is not that friendly.
 (setq f90-structure-indent 2)
 (setq f90-continuation-indent 2)
 (setq f90-type-indent 2)
-(define-key f90-mode-map (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
 ** Declaration align

@@ -30,6 +30,9 @@
     nil
     map))
 
+(defvar prj/update-tags-verbose nil
+  "Whether message information about updating tags.")
+
 (defvar prj/update-tags t
   "Whether update tags file of the project after saving a file of the project")
 
@@ -91,20 +94,12 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
 (defun prj/goto-project (&optional p)
   "Goto a project root for a given project or a read project name."
   (interactive)
-  (let ((pname
-         (if p
-             (format "%s: %s" (car p) (cdr p))
-           (helm-comp-read 
-            "Enter name of project: "
-            (mapcar
-             (lambda (p)
-               (format "%s: %s" (car p) (cdr p)))
-             (or project-root-seen-projects '("None" . "No project root")))))))
-    (unless (string= "None: No project root" pname)
-      (find-file
-       (progn
-         (string-match ".+: \\(.+\\)" pname)
-         (match-string 1 pname))))))
+  (let ((path (if p
+                  (cdr p)
+                (helm-comp-read
+                 "Project: "
+                 project-root-seen-projects))))
+    (find-file path)))
 
 (defun prj/generate-etags ()
   "Make $PROJECT-TAGS at project root. You'd better generate tags file at
@@ -150,14 +145,10 @@ project root, otherwise prj can't update tags file."
                              "Directory to run gtags: "
                              (when p (cdr p))))
          (gtags-label (prj/get-gtags-label))
-         (gtags-conf (prj/get-gtags-conf))
-         (gtags-file "gtags.file"))
+         (gtags-conf (prj/get-gtags-conf)))
     (shell-command
-     (format "%s > %s" (project-root-find-cmd) gtags-file))
-    (shell-command
-     (format "gtags --gtagslabel=%s --gtagsconf=%s -f %s"
-             gtags-label gtags-conf gtags-file))
-    (delete-file gtags-file)))
+     (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
+             (project-root-find-cmd) gtags-label gtags-conf))))
 
 (defun prj/generate-tags ()
   (interactive)
@@ -172,19 +163,47 @@ project root, otherwise prj can't update tags file."
     (when (and
            p
            (project-root-file-is-project-file fname p))
-      (message "Updating GTAGS ...")
+      (unless prj/update-tags-verbose
+        (message "Updating GTAGS ..."))
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
         (shell-command
          (format
           "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
           gtags-label gtags-conf fname)))
-      (message "Done"))))
+      (unless prj/update-tags-verbose
+        (message "Done")))))
 
 (defun prj/update-tags-single-file ()
   (if prj/use-gtags
       (prj/update-gtags-single-file)
     (etu/update-tags-for-file)))
+
+(defun prj/kill-all-buffers (&optional p)
+  "Kill all opened buffers of project. The buffers are saved before killed."
+  (interactive)
+  (let* ((default-directory
+           (if p
+               (cdr p)
+             (helm-comp-read
+              "Project: "
+              project-root-seen-projects)))
+         (project-files (split-string
+                         (shell-command-to-string
+                          (project-root-find-cmd)))))
+    (mapcar
+     '(lambda (buffer)
+        (progn (set-buffer buffer)
+               (let ((fname (buffer-file-name)))
+                 (when (and
+                        fname
+                        (member fname project-files))
+                   (when (buffer-modified-p)
+                     (message (format "Save %s" (buffer-name)))
+                     (save-buffer))
+                   (message (format "Kill %s" (buffer-name)))
+                   (kill-buffer)))))
+     (buffer-list))))
 
 (defun prj/set-gfortran-compile-args (&optional p)
   "Set flycheck-gfortran-* variables."

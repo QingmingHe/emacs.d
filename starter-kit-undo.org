@@ -1,9 +1,0 @@
-#+TITLE: Emacs Starter Undo
-#+OPTIONS: toc:2 num:nil ^:nil
-
-GNU Emacs's *undo* is not easy to use and undo-tree, which provide similar
-experience in Vim, is used.
-#+BEGIN_SRC emacs-lisp
-(require 'undo-tree)
-(global-undo-tree-mode)
-#+END_SRC

@@ -17,5 +17,4 @@ outline regexp of C language.
   (project-minor-mode)
   (modify-syntax-entry ?_ "w"))
 (add-hook 'c-mode-common-hook 'my-cc-config)
-(define-key c-mode-map (kbd "RET") 'newline-and-indent)
 #+END_SRC
