@@ -66,26 +66,34 @@ evaluated a theme is activated using the =load-theme= function.
 (recentf-mode 1)
 #+end_src emacs-lisp
 
-** Highlight matching parentheses when the point is on them.
+** Handle parens
 #+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp 
+(require 'smartparens-config)
+(require 'rainbow-delimiters)
 (show-paren-mode 1)
+(smartparens-global-mode t)
+;; (show-smartparens-global-mode)
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 #+end_src
 
 ** ido mode
 ido-mode is like magic pixie dust!
 #+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp 
-(when (> emacs-major-version 21)
-  (ido-mode t)
-  (ido-everywhere t)
-  (setq ido-enable-prefix nil
-        ido-enable-flex-matching t
-        ido-create-new-buffer 'always
-        ido-use-filename-at-point nil
-        ido-use-virtual-buffers t
-        ido-auto-merge-work-directories-length -1
-        ido-max-prospects 10))
+(ido-mode t)
+(ido-everywhere t)
+(setq ido-enable-prefix nil
+      ido-enable-flex-matching t
+      ido-create-new-buffer 'always
+      ido-use-filename-at-point nil
+      ido-use-virtual-buffers t
+      ido-auto-merge-work-directories-length -1
+      ido-max-prospects 10)
+(require 'flx-ido)
+(flx-ido-mode 1)
+;; disable ido faces to see flx highlights.
+(setq ido-use-faces nil)
 #+end_src
 
 ** Other, spell checking, tabs, imenu and a coding hook
@@ -267,3 +275,14 @@ lines of codes.
 (set-face-background 'highlight-indentation-current-column-face "#c3b3b3")
 #+END_SRC
 
+** Color theme
+Default color scheme of GNU Emacs is not that pleasant and color-theme is
+applied.
+#+BEGIN_SRC emacs-lisp
+(require 'color-theme)
+(require 'color-theme-molokai)
+(color-theme-initialize)
+(if *terminal*
+    (color-theme-solarized-dark)
+  (color-theme-solarized-dark))
+#+END_SRC
