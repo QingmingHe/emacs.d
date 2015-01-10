@@ -58,8 +58,10 @@
   "Face for the etags selected candidate.")
 
 (defvar ac-source-etags
-  '((candidates . (lambda () 
-         (all-completions ac-target (tags-completion-table))))
+  '((candidates . (lambda ()
+                    (if tags-file-name
+                        (all-completions ac-target (tags-completion-table))
+                      nil)))
     (candidate-face . ac-etags-candidate-face)
     (selection-face . ac-etags-selection-face)
     (requires . 3))

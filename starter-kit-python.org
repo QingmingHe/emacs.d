@@ -12,7 +12,7 @@ Support for the Python programming language.
 Determine whether required packages are installed. If not, use ELPA to
 install them.
 #+begin_src emacs-lisp
-  (starter-kit-install-if-needed 'python-mode 'ipython)
+;;  (starter-kit-install-if-needed 'python-mode 'ipython)
 #+end_src
 
 ** Completion
@@ -34,7 +34,6 @@ To use my configuration, set JEDI_SERVER environment to be
   (jedi:setup)
   (setq jedi:setup-keys t)
   (setq jedi:complete-on-dot t)
-  (define-key python-mode-map (kbd "M-/") 'jedi:complete)
   )
 
 (defun my-jedi-setup ()
@@ -45,7 +44,7 @@ To use my configuration, set JEDI_SERVER environment to be
         (progn (setq jedi:server-command
                      `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
                (my-jedi-conf))
-      (when (executable-find "jediepcserver.py")
+      (if (executable-find "jediepcserver.py")
           (progn
             (setq jedi:server-command
                   `(,(executable-find "jediepcserver.py")))
@@ -59,9 +58,9 @@ To use my configuration, set JEDI_SERVER environment to be
 Replace the Python mode that comes with Emacs by the Python mode
 supplied by the Python distribution itself.
 #+begin_src emacs-lisp
-(require 'python-mode)
-(add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-(add-to-list 'interpreter-mode-alist '("python" . python-mode))
+;; (require 'python-mode)
+;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
 #+end_src
 
 ** Configuration for python mode
@@ -139,6 +138,5 @@ link *winpy* to Windows native Python and bind C-<F5> to run with winpy.
       (save-buffer)
       (shell-command (format "winpy %s" (buffer-name)))))
   )
-
 #+END_SRC
 

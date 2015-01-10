@@ -14,6 +14,10 @@ default.
 (require 'auto-complete-clang)
 (require 'auto-complete-etags)
 (require 'auto-complete-gtags)
+(mapcar
+ (lambda (mode)
+   (add-to-list 'ac-gtags-modes mode))
+ '(f90-mode python-mode))
 (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
@@ -51,8 +55,9 @@ default.
 (setq ac-use-quick-help t)
 (setq ac-quick-help-delay 2.0)
 ;; use pos-tip instead of popup to show doc perfectly
-(require 'pos-tip)
-(setq ac-quick-help-prefer-pos-tip t)
+(unless *terminal*
+  (require 'pos-tip)
+  (setq ac-quick-help-prefer-pos-tip t))
 
 ;; Don't use fuzzy complete.
 ;; (require 'fuzzy)
@@ -60,7 +65,6 @@ default.
 
 ;;; Key bindings
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
-(define-key ac-mode-map (kbd "M-p") 'auto-complete)
 #+END_SRC
 
 ** Set up for Backends
