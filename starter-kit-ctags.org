@@ -25,15 +25,14 @@ First define projects.
     defs))
 
 (setq project-roots
-      `(
-        ("CExamples"
+      `(("CExamples"
          :root-contains-files (".CExample-root.el")
-         :filename-regex ,(regexify-ext-list '(c h))
+         :filename-regex ,(regexify-ext-list '(c h org))
          :exclude-paths (".git")
          :gtags-label "default")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
-         :filename-regex ,(regexify-ext-list '(f90 for py))
+         :filename-regex ,(regexify-ext-list '(f90 for py org))
          :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :gfortran-include-paths ,(get-SUGAR-include-paths)
          :gfortran-definitions ,(get-SUGAR-definitions)
@@ -44,8 +43,11 @@ First define projects.
          :filename-regex ,(regexify-ext-list '(el pl py org))
          :exclude-paths (".git" "backups" "auto-save-list")
          :gtags-label "ctags")
-        )
-      )
+        ("pyPkgs"
+         :root-contains-files (".pyPkgs.el")
+         :filename-regex ,(regexify-ext-list '(py f90 org))
+         :exclude-paths (".git" "build")
+         :gtags-label "ctags")))
 #+END_SRC
   
 ** Don't ask yes or no when revert tags file

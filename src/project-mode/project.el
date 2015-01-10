@@ -150,10 +150,14 @@ project root, otherwise prj can't update tags file."
                              "Directory to run gtags: "
                              (when p (cdr p))))
          (gtags-label (prj/get-gtags-label))
-         (gtags-conf (prj/get-gtags-conf)))
-    ;; TODO write gtagslabel and gtagsconf to file and load
+         (gtags-conf (prj/get-gtags-conf))
+         (gtags-file "gtags.file"))
     (shell-command
-     (format "gtags --gtagslabel=%s --gtagsconf=%s" gtags-label gtags-conf))))
+     (format "%s > %s" (project-root-find-cmd) gtags-file))
+    (shell-command
+     (format "gtags --gtagslabel=%s --gtagsconf=%s -f %s"
+             gtags-label gtags-conf gtags-file))
+    (delete-file gtags-file)))
 
 (defun prj/generate-tags ()
   (interactive)
@@ -165,7 +169,9 @@ project root, otherwise prj can't update tags file."
   "Update GTAGS for single file only when current buffer is a project file."
   (let ((fname (buffer-file-name))
         (p (project-root-fetch)))
-    (when p
+    (when (and
+           p
+           (project-root-file-is-project-file fname p))
       (message "Updating GTAGS ...")
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
