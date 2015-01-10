@@ -29,18 +29,21 @@ First define projects.
         ("CExamples"
          :root-contains-files (".CExample-root.el")
          :filename-regex ,(regexify-ext-list '(c h))
-         :exclude-paths (".git"))
+         :exclude-paths (".git")
+         :gtags-label "default")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py))
          :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :gfortran-include-paths ,(get-SUGAR-include-paths)
          :gfortran-definitions ,(get-SUGAR-definitions)
-         :gfortran-language-standard "f2008")
+         :gfortran-language-standard "f2008"
+         :gtags-label "ctags")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))
-         :exclude-paths (".git" "backups" "auto-save-list"))
+         :exclude-paths (".git" "backups" "auto-save-list")
+         :gtags-label "ctags")
         )
       )
 #+END_SRC

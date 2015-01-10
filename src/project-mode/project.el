@@ -51,7 +51,7 @@
 (defvar prj/gtags-conf-file-name nil
   "File name of gtags configuration file")
 
-(defvar prj/gtags-label-choices '("default" "ctags")
+(defvar prj/gtags-label-choices '("default" "ctags" "pygments" "native")
   "Gtags label. If \"default\" gtags uses its built in parser; if \"ctags\"
 use ctags parser.")
 
@@ -125,25 +125,35 @@ project root, otherwise prj can't update tags file."
      (format "%s | xargs ctags -e -f %s -a"
              (project-root-find-cmd) tags-file))))
 
+(defun prj/get-gtags-label ()
+  "Get gtags label."
+  (or (getenv "GTAGSLABEL")
+      (project-root-data :gtags-label p)
+      (ido-completing-read
+       "Gtags label (You'd better set project-roots): "
+       prj/gtags-label-choices)))
+
+(defun prj/get-gtags-conf ()
+  "Get gtags conf."
+  (or (getenv "GTAGSCONF")
+      (project-root-data :gtags-conf p)
+      (ido-read-file-name
+       "Gtags configuration file (You'd better set GTAGSCONF env var): "
+       prj/gtags-conf-file-dir
+       prj/gtags-conf-file-name)))
+
 (defun prj/generate-gtags ()
   "Run gtags at user specified path."
   (interactive)
   (let* ((p (project-root-fetch))
-         (default-directory
-           (ido-read-directory-name
-            "Directory to run gtags: "
-            (when p (cdr p))))
-         (gtags-label
-          (ido-completing-read
-           "Gtags label: "
-           prj/gtags-label-choices))
-         (gtags-conf
-          (ido-read-file-name
-           "Gtags configuration file: "
-           prj/gtags-conf-file-dir
-           prj/gtags-conf-file-name)))
+         (default-directory (ido-read-directory-name
+                             "Directory to run gtags: "
+                             (when p (cdr p))))
+         (gtags-label (prj/get-gtags-label))
+         (gtags-conf (prj/get-gtags-conf)))
     ;; TODO write gtagslabel and gtagsconf to file and load
-    (shell-command (format "gtags --gtagslabel=%s --gtagsconf=%s" gtags-label gtags-conf))))
+    (shell-command
+     (format "gtags --gtagslabel=%s --gtagsconf=%s" gtags-label gtags-conf))))
 
 (defun prj/generate-tags ()
   (interactive)
@@ -153,11 +163,16 @@ project root, otherwise prj can't update tags file."
 
 (defun prj/update-gtags-single-file ()
   "Update GTAGS for single file only when current buffer is a project file."
-  (let ((fname (buffer-file-name)))
-    (when (project-root-file-is-project-file fname)
+  (let ((fname (buffer-file-name))
+        (p (project-root-fetch)))
+    (when p
       (message "Updating GTAGS ...")
-      (shell-command
-       (format "global --single-update %s" fname))
+      (let ((gtags-label (prj/get-gtags-label))
+            (gtags-conf (prj/get-gtags-conf)))
+        (shell-command
+         (format
+          "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
+          gtags-label gtags-conf fname)))
       (message "Done"))))
 
 (defun prj/update-tags-single-file ()
@@ -198,12 +213,12 @@ project root, otherwise prj can't update tags file."
   "Minor mode for handling project."
   nil
   :lighter " prj"
-  :after-hook (progn
-                (prj/set-compile-args))
   (if project-minor-mode
       (progn
-        (when prj/update-tags
-          (add-hook 'after-save-hook 'prj/update-tags-single-file)))
+        (let ((p (project-root-fetch)))
+          (when (and prj/update-tags p)
+            (add-hook 'after-save-hook 'prj/update-tags-single-file))
+          (prj/set-compile-args p)))
     (progn
       (remove-hook 'after-save-hook 'prj/update-tags-single-file))))
 

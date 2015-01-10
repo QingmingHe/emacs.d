@@ -48,11 +48,11 @@ default.
 
 (setq ac-use-menu-map t)
 
-;;; The author don't like quick help. If you want to use quick help, uncomment following codes.
-(setq ac-use-quick-help nil)
+(setq ac-use-quick-help t)
+(setq ac-quick-help-delay 2.0)
 ;; use pos-tip instead of popup to show doc perfectly
-;; (require 'pos-tip)
-;; (setq ac-quick-help-prefer-pos-tip t)
+(require 'pos-tip)
+(setq ac-quick-help-prefer-pos-tip t)
 
 ;; Don't use fuzzy complete.
 ;; (require 'fuzzy)

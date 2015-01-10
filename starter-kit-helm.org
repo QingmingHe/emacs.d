@@ -18,6 +18,7 @@
 #+begin_src emacs-lisp
 (require 'helm)
 (require 'helm-config)
+(require 'helm-gtags)
 ;; do not use helm everywhere
 ;; (helm-mode 1)
 (global-set-key (kbd "M-x") 'helm-M-x)
@@ -56,24 +57,6 @@ Helm or ido sometimes do wrong things.
        (dired-create-directory . nil)
        (w3m-goto-url . nil)
        ))
-#+END_SRC
-
-** Disable helm for specific modes
-
-#+BEGIN_SRC emacs-lisp 
-(setq my-helm-en-dis-alist
-      '((shell-mode . nil)))
-
-(defun en-dis-helm (&optional mode)
-  (interactive)
-  (let* ((mode (or mode major-mode))
-         (mode-alist (or (assoc mode my-helm-en-dis-alist) '(mode . 0)))
-         (enable-helm (cdr mode-alist)))
-    (cond ((eq 0 enable-helm) nil)
-          (enable-helm (helm-mode 1))
-          ((not enable-helm) (helm-mode -1)))))
-
-;; (add-hook 'after-change-major-mode-hook 'en-dis-helm)
 #+END_SRC
 
 ** Tips

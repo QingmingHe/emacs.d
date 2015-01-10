@@ -100,7 +100,7 @@ You can delete a surrounding with ds<trigger>.
           (interactive)
           (unless prj/use-gtags
             (etu/visit-tags-table)))
-  "tl" 'helm-imenu
+  "tl" 'helm-semantic-or-imenu
   "ne" 'flycheck-next-error
  )
 #+END_SRC

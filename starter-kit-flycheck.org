@@ -11,21 +11,13 @@ Don't always check buffer, it's too slow.
 
 ** Fortran
    
-Check all warnings. Set standard to be Fortran 2008.
-#+BEGIN_SRC emacs-lisp
-(setq flycheck-gfortran-warnings "all")
-(setq flycheck-gfortran-language-standard "f2008")
-#+END_SRC
-
 You may work on a large project and has complex dependencies, where module
 files may locate here and there. In these cases, gfortran can't find these
 module files and flycheck will always prompt errors like *No such file or
 directory*. The solution is to add a *.dir-locals.el* at current path and add
 codes:
 #+BEGIN_SRC emacs-lisp :tangle no
-(
- (f90-mode (flycheck-gfortran-include-path . ("path0" "other/path")))
- )
+((f90-mode . ((flycheck-gfortran-include-path . ("path0" "other/path")))))
 #+END_SRC
 
 ** Python
