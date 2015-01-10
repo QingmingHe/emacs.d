@@ -10,8 +10,7 @@ Auto load graphviz-dot-mode for *.gv.
 (setq auto-mode-alist (append '(("\\.gv\\'" . graphviz-dot-mode))
                               auto-mode-alist))
 (add-hook 'graphviz-dot-mode-hook '(lambda ()
-                                (yas-minor-mode)
-                                (auto-complete-mode)))
+                                (yas-minor-mode)))
 #+END_SRC
 
 ** Function to compile

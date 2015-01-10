@@ -20,16 +20,16 @@ use *display-message-or-buffer*.
 ** Fortran hooks
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'f90-mode-hook '(lambda ()
-                               (flyspell-prog-mode)
-                               (yas-minor-mode)
-                               (flycheck-mode)
-                               (outline-minor-mode)
-                               (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
-                               (auto-fill-mode)
-                               (project-minor-mode)
-                               (modify-syntax-entry ?_ "w")
-                          ))
+(defun my-f90-config ()
+  (flyspell-prog-mode)
+  (yas-minor-mode)
+  (flycheck-mode)
+  (outline-minor-mode)
+  (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
+  (auto-fill-mode)
+  (project-minor-mode)
+  (modify-syntax-entry ?_ "w"))
+(add-hook 'f90-mode-hook 'my-f90-config)
 #+END_SRC
 
 ** Fortran indent

@@ -68,19 +68,22 @@ Flyspell is used to check spelling in comment; outline mode is used to fold
 code blocks, which is realised by defining key words like *def*, *class* and
 so on and you can add your own key words.
 #+BEGIN_SRC emacs-lisp
-(add-hook 'python-mode-hook '(lambda ()
-                              (flyspell-prog-mode)
-                              (yas-minor-mode)
-                              (flycheck-mode)
-                              (outline-minor-mode)
-                              (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
-                              (auto-fill-mode)
-                              (my-jedi-setup)
-                              (project-minor-mode)
-                              (highlight-indentation-mode)
-                              ;; it's too heavy taste
-                              ;;(highlight-indentation-current-column-mode)
-                              ))
+(defun my-python-conf ()
+  (flyspell-prog-mode)
+  (yas-minor-mode)
+  (unless (member (file-name-nondirectory (buffer-file-name))
+                  '("SConstruct" "SConscript"))
+    (flycheck-mode))
+  (outline-minor-mode)
+  (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
+  (auto-fill-mode)
+  (my-jedi-setup)
+  (project-minor-mode)
+  (highlight-indentation-mode)
+  ;; it's too heavy taste
+  ;;(highlight-indentation-current-column-mode)
+  )
+(add-hook 'python-mode-hook 'my-python-conf)
 #+END_SRC
 
 ** Use Cython mode

@@ -25,25 +25,25 @@ at root of org package.
    :CUSTOM_ID: keybindings
    :END:
 #+begin_src emacs-lisp
-(add-hook 'org-mode-hook
-          (lambda ()
-            ;; other minor mode
-            (yas-minor-mode)
-            ;; math
-            (org-cdlatex-mode)
-            (local-set-key "\M-\C-n" 'outline-next-visible-heading)
-            (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
-            (local-set-key "\M-\C-u" 'outline-up-heading)
-            ;; table
-            (local-set-key "\M-\C-w" 'org-table-copy-region)
-            (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
-            (local-set-key "\M-\C-l" 'org-table-sort-lines)
-            ;; global key bindings
-            (define-key global-map "\C-cl" 'org-store-link)
-            (define-key global-map "\C-ca" 'org-agenda)
-            (global-set-key "\C-cc" 'org-capture)
-            ;; display images
-            (local-set-key "\M-I" 'org-toggle-iimage-in-org)))
+(defun my-org-config ()
+  ;; other minor mode
+  (yas-minor-mode)
+  ;; math
+  (org-cdlatex-mode)
+  (local-set-key "\M-\C-n" 'outline-next-visible-heading)
+  (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
+  (local-set-key "\M-\C-u" 'outline-up-heading)
+  ;; table
+  (local-set-key "\M-\C-w" 'org-table-copy-region)
+  (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
+  (local-set-key "\M-\C-l" 'org-table-sort-lines)
+  ;; global key bindings
+  (define-key global-map "\C-cl" 'org-store-link)
+  (define-key global-map "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  ;; display images
+  (local-set-key "\M-I" 'org-toggle-iimage-in-org))
+(add-hook 'org-mode-hook 'my-org-config)
 #+end_src
 
 ** Time and clock
