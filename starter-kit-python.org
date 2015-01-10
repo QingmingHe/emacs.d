@@ -83,6 +83,7 @@ so on and you can add your own key words.
   ;; it's too heavy taste
   ;;(highlight-indentation-current-column-mode)
   )
+(define-key python-mode-map (kbd "RET") 'newline-and-indent)
 (add-hook 'python-mode-hook 'my-python-conf)
 #+END_SRC
 
@@ -121,25 +122,6 @@ Activate IPython in ansi-term.
   ;; Create new ansi term
   (ansi-term "ipython" (format "IPython <%d>" my-ipython-shell-index))
   (switch-to-buffer (format "*IPython <%d>*" my-ipython-shell-index))
-  )
-#+END_SRC
-
-** Key bindings
-   
-Map <F5> to run python just as in spyder IDE. I always work in Cygwin so I
-link *winpy* to Windows native Python and bind C-<F5> to run with winpy.
-#+BEGIN_SRC emacs-lisp
-(define-key python-mode-map (kbd "<f5>")
-  (lambda ()
-    (interactive)
-    (save-buffer)
-    (shell-command (format "python %s" (buffer-name)))))
-(when *cygwin*
-  (define-key python-mode-map (kbd "C-<f5>")
-    (lambda ()
-      (interactive)
-      (save-buffer)
-      (shell-command (format "winpy %s" (buffer-name)))))
   )
 #+END_SRC
 
