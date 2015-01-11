@@ -21,11 +21,23 @@
 (setq powerline-color1 "grey22")
 (setq powerline-color2 "grey40")
 
+;; (set-face-attribute 'mode-line nil
+;;                     :background "OliveDrab3"
+;;                     :box nil)
+;; (set-face-attribute 'mode-line-inactive nil
+;;                     :box nil)
 (set-face-attribute 'mode-line nil
-                    :background "OliveDrab3"
-                    :box nil)
+                    :background "dim gray"
+                    :foreground "cyan"
+                    :inverse-video nil
+                    :box nil
+                    :underline nil)
 (set-face-attribute 'mode-line-inactive nil
-                    :box nil)
+                    :background "dim gray"
+                    :foreground "light gray"
+                    :inverse-video nil
+                    :box nil
+                    :underline nil)
 
 (defun get-arrow-dots
   (leftp width height)

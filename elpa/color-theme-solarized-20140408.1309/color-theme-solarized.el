@@ -31,7 +31,7 @@ Ported to Emacs by Greg Pfeil, http://ethanschoonover.com/solarized."
    (let* ((definitions (solarized-color-definitions mode))
           (faces (first definitions))
           (variables (second definitions)))
-       (solarized-color-definitions mode)
+     (solarized-color-definitions mode)
      `(,(intern (concat "color-theme-solarized-" (symbol-name mode)))
        ,variables
        ,@faces))))

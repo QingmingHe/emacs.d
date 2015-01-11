@@ -79,10 +79,8 @@ so on and you can add your own key words.
   (auto-fill-mode)
   (my-jedi-setup)
   (project-minor-mode)
-  (highlight-indentation-mode)
-  ;; it's too heavy taste
-  ;;(highlight-indentation-current-column-mode)
-  )
+  ;; (highlight-indentation-mode)
+  (highlight-indentation-current-column-mode))
 (add-hook 'python-mode-hook 'my-python-conf)
 #+END_SRC
 

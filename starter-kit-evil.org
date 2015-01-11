@@ -107,9 +107,12 @@ You can delete a surrounding with ds<trigger>.
    
 ** Ace jump
 
+Just press =SPC=, the first character of word where you want to go and select
+the pop up character. You can fly in current frame.
 #+BEGIN_SRC emacs-lisp 
 (require 'ace-jump-mode)
 (define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)
+(setq ace-jump-mode-scope 'frame)
 #+END_SRC
 
 ** Disable evil for some modes
