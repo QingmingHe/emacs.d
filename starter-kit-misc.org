@@ -65,6 +65,18 @@ install them. Other dependencies are provided by Emacs 24.
 ;; (show-smartparens-global-mode)
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 #+end_src
+   
+** Power line
+#+BEGIN_SRC emacs-lisp 
+(require 'powerline)
+(set-face-attribute 'mode-line nil :box nil)
+(set-face-attribute 'mode-line-inactive nil :box nil)
+#+END_SRC
+
+** Fringe
+#+BEGIN_SRC emacs-lisp 
+(fringe-mode 4)
+#+END_SRC
 
 ** ido mode
 ido-mode is like magic pixie dust!
@@ -223,7 +235,9 @@ The author use emacs by "emacs -nw" and let the terminal handle the fonts. Or
 the English font will be Consolas and Chinese font be Microsoft Yahei.
 
 #+BEGIN_SRC emacs-lisp
-(when (not *terminal*)
+(when (and
+       (not *terminal*)
+       (or *win32* *cygwin*))
   (progn
     (set-face-attribute
      'default nil :font "Consolas")

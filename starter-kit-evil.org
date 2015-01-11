@@ -105,6 +105,13 @@ You can delete a surrounding with ds<trigger>.
  )
 #+END_SRC
    
+** Ace jump
+
+#+BEGIN_SRC emacs-lisp 
+(require 'ace-jump-mode)
+(define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)
+#+END_SRC
+
 ** Disable evil for some modes
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'evil-emacs-state-modes 'taglist-mode)
