@@ -231,7 +231,7 @@ project root, otherwise prj can't update tags file."
         (setq flycheck-gfortran-include-path
               (mapcar
                #'(lambda (include-path)
-                   (if (eqal 0 (string-match-p "[/~]" include-path))
+                   (if (equal 0 (string-match-p "[/~]" include-path))
                        (expand-file-name include-path)
                      (expand-file-name (concat (cdr p) include-path))))
                (or (project-root-data :gfortran-include-paths p) '("."))))
