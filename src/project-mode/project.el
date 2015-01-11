@@ -61,11 +61,11 @@ use ctags parser.")
 ;; Get the gtags configuration file.
 (catch 'gtags-conf-file
   (mapcar
-   '(lambda (file)
-      (when (file-exists-p file)
-        (setq prj/gtags-conf-file-dir (file-name-directory file))
-        (setq prj/gtags-conf-file-name (file-name-nondirectory file))
-        (throw 'gtags-conf-file file)))
+   #'(lambda (file)
+       (when (file-exists-p file)
+         (setq prj/gtags-conf-file-dir (file-name-directory file))
+         (setq prj/gtags-conf-file-name (file-name-nondirectory file))
+         (throw 'gtags-conf-file file)))
    prj/gtags-conf-file-choices))
 
 (defun prj/find-file ()
@@ -96,9 +96,11 @@ project. Use completing-read instead of ido-complete-read to make use of helm."
   (interactive)
   (let ((path (if p
                   (cdr p)
-                (helm-comp-read
-                 "Project: "
-                 project-root-seen-projects))))
+                (cdr (assoc
+                      (ido-completing-read
+                       "Project: "
+                       (mapcar 'car project-root-seen-projects))
+                      project-root-seen-projects)))))
     (find-file path)))
 
 (defun prj/generate-etags ()
@@ -163,7 +165,7 @@ project root, otherwise prj can't update tags file."
     (when (and
            p
            (project-root-file-is-project-file fname p))
-      (unless prj/update-tags-verbose
+      (when prj/update-tags-verbose
         (message "Updating GTAGS ..."))
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
@@ -171,7 +173,7 @@ project root, otherwise prj can't update tags file."
          (format
           "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
           gtags-label gtags-conf fname)))
-      (unless prj/update-tags-verbose
+      (when prj/update-tags-verbose
         (message "Done")))))
 
 (defun prj/update-tags-single-file ()
@@ -179,42 +181,59 @@ project root, otherwise prj can't update tags file."
       (prj/update-gtags-single-file)
     (etu/update-tags-for-file)))
 
-(defun prj/kill-all-buffers (&optional p)
+(defun prj/kill-buffers-dir ()
+  "Kill all buffers under directory."
+  (interactive)
+  (let ((dir (ido-read-directory-name "Directory: ")))
+    (mapcar
+     #'(lambda (buffer)
+         (progn (set-buffer buffer)
+                (when (string-match-p dir default-directory)
+                  (when (and
+                         (buffer-file-name)
+                         (buffer-modified-p))
+                    (save-buffer))
+                  (message (format "Kill %s" (or (buffer-file-name) (buffer-name))))
+                  (kill-buffer buffer))))
+     (buffer-list))))
+
+(defun prj/kill-project-buffers (&optional p)
   "Kill all opened buffers of project. The buffers are saved before killed."
   (interactive)
   (let* ((default-directory
            (if p
                (cdr p)
-             (helm-comp-read
-              "Project: "
-              project-root-seen-projects)))
+             (cdr (assoc
+                   (ido-completing-read
+                    "Project: "
+                    (mapcar 'car project-root-seen-projects))
+                   project-root-seen-projects))))
          (project-files (split-string
                          (shell-command-to-string
                           (project-root-find-cmd)))))
     (mapcar
-     '(lambda (buffer)
-        (progn (set-buffer buffer)
-               (let ((fname (buffer-file-name)))
-                 (when (and
-                        fname
-                        (member fname project-files))
-                   (when (buffer-modified-p)
-                     (message (format "Save %s" (buffer-name)))
-                     (save-buffer))
-                   (message (format "Kill %s" (buffer-name)))
-                   (kill-buffer)))))
+     #'(lambda (buffer)
+         (progn (set-buffer buffer)
+                (let ((fname (buffer-file-name)))
+                  (when (and
+                         fname
+                         (member fname project-files))
+                    (when (buffer-modified-p)
+                      (save-buffer))
+                    (message (format "Kill %s" (buffer-file-name)))
+                    (kill-buffer buffer)))))
      (buffer-list))))
 
 (defun prj/set-gfortran-compile-args (&optional p)
   "Set flycheck-gfortran-* variables."
-  (when (string= "f90-mode" (format "%s" major-mode))
+  (when (equal 'f90-mode major-mode)
       (let ((p (or p (project-root-fetch))))
         (setq flycheck-gfortran-include-path
               (mapcar
-               (lambda (include-path)
-                 (if (eq 0 (string-match-p "[/~]" include-path))
-                     (expand-file-name include-path)
-                   (expand-file-name (concat (cdr p) include-path))))
+               #'(lambda (include-path)
+                   (if (eqal 0 (string-match-p "[/~]" include-path))
+                       (expand-file-name include-path)
+                     (expand-file-name (concat (cdr p) include-path))))
                (or (project-root-data :gfortran-include-paths p) '("."))))
         (when (project-root-data :gfortran-definitions p)
           (setq flycheck-gfortran-definitions
@@ -227,10 +246,10 @@ project root, otherwise prj can't update tags file."
   "Set flycheck-checker-* variables."
   (let ((p (or p (project-root-fetch))))
     (when p
-      (if (string= "f90-mode" (format "%s" major-mode))
-          (prj/set-gfortran-compile-args p)
-        (if (string= "cc-mode" (format "%s" major-mode))
-            ())))))
+      (cond ((equal 'f90-mode major-mode)
+             (prj/set-gfortran-compile-args p))
+            ((equal 'c-mode major-mode)
+             nil)))))
 
 (add-hook 'after-init-hook 'project-root-load-roots)
 

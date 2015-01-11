@@ -466,15 +466,21 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 This should be placed at end of starter kit and configures the initial
 windows. Since Emacs-24.4 you can toggle full screen by <F11>.
 #+BEGIN_SRC emacs-lisp
-;; Generate a temporary buffer for write something
-(generate-new-buffer "temporary")
-;; show bookmark and scratch at startup
-(setq inhibit-splash-screen t)
-(bookmark-bmenu-list)
-(switch-to-buffer "*Bookmark List*")
-(delete-other-windows)
-(split-window-right)
-(switch-to-buffer "*scratch*")
+(defun my-start-up-display ()
+  (let ((default-directory (getenv "HOME")))
+    ;; start eshell so helm-find-file can use pcomplete
+    (command-execute 'eshell)
+    (bury-buffer)
+    ;; Generate a temporary buffer for write something
+    (generate-new-buffer "temporary")
+    ;; show bookmark and scratch at startup
+    (setq inhibit-splash-screen t)
+    (bookmark-bmenu-list)
+    (switch-to-buffer "*Bookmark List*")
+    (delete-other-windows)
+    (split-window-right)
+    (switch-to-buffer "*scratch*")))
+(add-hook 'emacs-startup-hook 'my-start-up-display)
 #+END_SRC
 
 * Footnotes

@@ -17,6 +17,5 @@ Flyspell for checking spelling and outline mode for folding.
                            (flyspell-mode)
                            (outline-minor-mode)
                            (setq outline-regexp "\.\. _\\(CHAPTER\\|SECTION\\|SUBSECTION\\)")
-                           (hide-body)
-                           ))
+                           (hide-body)))
 #+END_SRC

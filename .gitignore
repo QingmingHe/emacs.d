@@ -28,7 +28,6 @@ tramp
 backups/*
 thumbs/*
 oddmuse/*
-eshell/*
 image-dired/*
 elim/*
 doc/*

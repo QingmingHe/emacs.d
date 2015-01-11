@@ -176,15 +176,30 @@ let them live in the =backups/= directory inside of the starter kit.
      (set-face-foreground 'magit-diff-del "red3")))
 #+end_src
 
-** Dired+ and bookmark+
+** Dired
+
+#+BEGIN_SRC emacs-lisp
+(require 'dired)
+(require 'dired-x)
+;; set diredp-hide-details-initially-flag before load dired+
+(setq diredp-hide-details-initially-flag t)
+(require 'dired+)
+;; use <f5> to toggle details
+(define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)
+;; try to guess destination
+(setq dired-dwim-target t)
+;; use the same buffer for viewing dir, instead of spawning many
+(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+(define-key dired-mode-map (kbd "^") #'(lambda ()
+                                         (interactive)
+                                         (find-alternate-file "..")))
+#+END_SRC
+
+** Bookmark
 
 #+BEGIN_SRC emacs-lisp
 (require 'bookmark+)
 (setq bmkp-bmenu-state-file (expand-file-name "~/.emacs.d/.emacs-bmk-bmenu-state.el"))
-;; set diredp-hide-details-initially-flag before load dired+
-(setq diredp-hide-details-initially-flag t)
-(require 'dired+)
-(define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)
 #+END_SRC
 
 ** Always auto revert file
@@ -319,3 +334,30 @@ set it to be 20 MB to save time.
 (setq gc-cons-threshold 20000000)
 #+END_SRC
 
+** Grep
+
+Don't grep repositories.
+#+BEGIN_SRC emacs-lisp 
+(eval-after-load 'grep
+  '(dolist (dir '(".git"
+                  ".cvs"
+                  ".svn"
+                  ".hg"))
+     (add-to-list 'grep-find-ignored-directories dir)))
+#+END_SRC
+** Multi shell
+   
+Multi eshell is not eshell but shell.
+#+BEGIN_SRC emacs-lisp
+(require 'multi-eshell)
+;;(require 'multi-term)
+;;(setq multi-term-program "/usr/bin/bash")
+#+END_SRC
+** Window numbering
+
+Changing from one window to another is so easy in Emacs with window number,
+you just key in *M-n* to jump to n-th window numbered by the plugin.
+#+BEGIN_SRC emacs-lisp
+(require 'window-numbering)
+(window-numbering-mode 1)
+#+END_SRC

@@ -5,10 +5,10 @@
 ;; This is the first thing to get loaded.
 ;;
 
-;; activate debugging
-;; (setq debug-on-error t
-;;       debug-on-signal nil
-;;       debug-on-quit nil)
+;; activate debugging, similar to emacs --debug-init
+(setq debug-on-error t
+      debug-on-signal nil
+      debug-on-quit nil)
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
@@ -32,3 +32,4 @@
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 
 ;;; init.el ends here
+(put 'dired-find-alternate-file 'disabled nil)
