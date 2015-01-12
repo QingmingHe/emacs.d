@@ -46,18 +46,20 @@
                                 (mode . scala-mode)
                                 (mode . go-mode)
                                 (mode . erlang-mode)
-                                ))
+                                (mode . f90-mode)
+                                (mode . fortran-mode)))
                     ("dired" (or (mode . dired-mode)
-                                 (mode . sr-mode)
-                                 ))
+                                 (mode . sr-mode)))
                     ("erc" (mode . erc-mode))
                     ("planner" (or
                                 (name . "^\\*Calendar\\*$")
                                 (name . "^diary$")
                                 (mode . muse-mode)
-                                (mode . org-mode)
-                                (mode . org-agenda-mode)
-                                ))
+                                (mode . org-agenda-mode)))
+                    ("docs" (or
+                             (mode . org-mode)
+                             (mode . rst-mode)
+                             (mode . markdown-mode)))
                     ("emacs" (or
                               (name . "^\\*scratch\\*$")
                               (name . "^\\*Messages\\*$")))
@@ -74,9 +76,7 @@
                                     (ibuffer-vc-set-filter-groups-by-vc-root)
                                     (unless (eq ibuffer-sorting-mode 'filename/process)
                                       (ibuffer-do-sort-by-filename/process))
-                                    (ibuffer-switch-to-saved-filter-groups "default")
-                                    ))
-     ))
+                                    (ibuffer-switch-to-saved-filter-groups "default")))))
 ;; Modify the default ibuffer-formats
 (setq ibuffer-formats
       '((mark modified read-only vc-status-mini " "

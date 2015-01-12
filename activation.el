@@ -1,4 +1,5 @@
 (starter-kit-load "eshell")
+(starter-kit-load "desktop")
 (starter-kit-load "ibuffer")
 (starter-kit-load "ctags")
 (starter-kit-load "flycheck")

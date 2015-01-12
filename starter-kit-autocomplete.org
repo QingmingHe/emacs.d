@@ -38,6 +38,10 @@ default.
           '(lambda ()
              (setq ac-sources
                    (append '(ac-source-etags ac-source-yasnippet ac-source-clang ac-source-gtags) ac-sources))))
+(add-hook 'emacs-lisp-mode-hook
+          '(lambda ()
+             (setq ac-sources
+                   (append '(ac-source-etags ac-source-yasnippet ac-source-gtags) ac-sources))))
 (add-hook 'org-mode-hook
           '(lambda ()
              (setq ac-sources

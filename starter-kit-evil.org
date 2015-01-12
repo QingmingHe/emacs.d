@@ -39,7 +39,7 @@ Evil matchit enables powerful *%* jump. Sometimes evil-matchit blocks, just
 key in *C-g* to cancel jump.
 #+BEGIN_SRC emacs-lisp 
 (require 'evil-matchit)
-(global-evil-matchit-mode 1)
+;; (global-evil-matchit-mode 1)
 ;; (plist-put evilmi-plugins 'f90-mode '((evilmi-f90-get-tag evilmi-f90-jump)))
 #+END_SRC
 
@@ -108,15 +108,24 @@ You can delete a surrounding with ds<trigger>.
 ** Ace jump
 
 Just press =SPC=, the first character of word where you want to go and select
-the pop up character. You can fly in current frame.
+the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
+back.
 #+BEGIN_SRC emacs-lisp 
 (require 'ace-jump-mode)
-(define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)
 (setq ace-jump-mode-scope 'frame)
+(ace-jump-mode-enable-mark-sync)
+(define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 #+END_SRC
 
 ** Disable evil for some modes
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'evil-emacs-state-modes 'taglist-mode)
+(dolist (mode '(taglist-mode
+                w3m-mode
+                eww-mode
+                dired-mode
+                ibuffer-mode))
+  (add-to-list 'evil-emacs-state-modes mode))
 #+END_SRC
 

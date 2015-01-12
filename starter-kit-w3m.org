@@ -24,6 +24,5 @@ versions to make it work, without any rational.
     (setq w3m-use-cookies t)
     (setq w3m-home-page "https://www.google.com.hk")
     )
-  (message "w3m is not installed!")
-  )
+  (message "w3m is not installed!"))
 #+END_SRC

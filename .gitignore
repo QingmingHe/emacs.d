@@ -6,7 +6,6 @@ GPATH
 GRTAGS
 GTAGS
 ido.last
-.emacs-bmk-bmenu-state.el
 
 # project root
 .project-roots
@@ -23,6 +22,8 @@ places
 .svn
 .DS_Store
 tramp
+.emacs-bmk-bmenu-state.el
+.emacs-desktop
 
 ## directories
 backups/*
