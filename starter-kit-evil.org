@@ -125,7 +125,8 @@ back.
                 w3m-mode
                 eww-mode
                 dired-mode
-                ibuffer-mode))
+                ibuffer-mode
+                help-mode))
   (add-to-list 'evil-emacs-state-modes mode))
 #+END_SRC
 

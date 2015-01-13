@@ -77,8 +77,10 @@ install them. Other dependencies are provided by Emacs 24.
 ido-mode is like magic pixie dust!
 #+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp 
-(ido-mode t)
-(ido-everywhere t)
+(require 'flx-ido)
+(ido-mode 1)
+(ido-everywhere 1)
+(flx-ido-mode 1)
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
       ido-create-new-buffer 'always
@@ -86,9 +88,8 @@ ido-mode is like magic pixie dust!
       ido-use-virtual-buffers t
       ido-auto-merge-work-directories-length -1
       ido-max-prospects 10)
-(require 'flx-ido)
-(flx-ido-mode 1)
 ;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
 #+end_src
 
@@ -321,14 +322,18 @@ The author have no idea why =custom-set-faces= doesn't work at all, so
 directly modify [[~/.emacs.d/src/emacs-powerline-master/powerline.el][Powerline]] source code. It is not a good idea.
 #+BEGIN_SRC emacs-lisp 
 (require 'powerline)
-
-;; (custom-set-faces
-;;  '(mode-line
-;;    ((t (:background "#073642" :foreground "cyan" :inverse-video nil
-;;                     :underline nil :slant normal :weight normal))))
-;;  '(mode-line-inactive
-;;    ((t (:background "#073642" :foreground "#657b83" :inverse-video nil
-;;                     :box nil :underline nil :slant normal :weight normal)))))
+(set-face-attribute 'mode-line nil
+                    :background "dim gray"
+                    :foreground "cyan"
+                    :inverse-video nil
+                    :box nil
+                    :underline nil)
+(set-face-attribute 'mode-line-inactive nil
+                    :background "dim gray"
+                    :foreground "light gray"
+                    :inverse-video nil
+                    :box nil
+                    :underline nil)
 #+END_SRC
 
 ** New line and indent

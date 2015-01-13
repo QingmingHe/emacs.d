@@ -24,8 +24,6 @@ codes:
 
 Select checker for that flake8 is not always available.
 #+BEGIN_SRC emacs-lisp
-;; (require 'python-mode)
-
 (defun select-python-checker ()
   (when (string= "python-mode" (format "%s" major-mode))
     (if (executable-find "flake8")

@@ -253,9 +253,9 @@ interested in the actual code implementing the starter kit.
 (setq *terminal* (eq window-system nil))
 
 (if (< emacs-major-version 24)
-    (error "Emacs major version should be >= 24.3")
+    (error "Emacs version should be >= 24.3")
   (when (< emacs-minor-version 3)
-    (error "Emacs minor version should be >= 24.3"))
+    (error "Emacs version should be >= 24.3"))
 )
 #+END_SRC
 

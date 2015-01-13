@@ -7,14 +7,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 Support for the Python programming language.
 
-** Check Dependencies
-
-Determine whether required packages are installed. If not, use ELPA to
-install them.
-#+begin_src emacs-lisp
-;;  (starter-kit-install-if-needed 'python-mode 'ipython)
-#+end_src
-
 ** Completion
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
 emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
@@ -33,8 +25,7 @@ To use my configuration, set JEDI_SERVER environment to be
 (defun my-jedi-conf ()
   (jedi:setup)
   (setq jedi:setup-keys t)
-  (setq jedi:complete-on-dot t)
-  )
+  (setq jedi:complete-on-dot t))
 
 (defun my-jedi-setup ()
   (interactive)
@@ -50,18 +41,6 @@ To use my configuration, set JEDI_SERVER environment to be
                   `(,(executable-find "jediepcserver.py")))
             (my-jedi-conf))))))
 #+END_SRC
-
-** Use Python's python-mode.el instead of Emacs' python.el
-   :PROPERTIES:
-   :CUSTOM_ID: python
-   :END:
-Replace the Python mode that comes with Emacs by the Python mode
-supplied by the Python distribution itself.
-#+begin_src emacs-lisp
-;; (require 'python-mode)
-;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
-#+end_src
 
 ** Configuration for python mode
 Flyspell is used to check spelling in comment; outline mode is used to fold

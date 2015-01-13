@@ -6,14 +6,13 @@
 Desktop will load, at startup, the buffers you were editing when you last quit
 Emacs.
 
-Set the file to save desktop variables and enable desktop mode.
+Set the file to save desktop variables and load desktop.
 #+BEGIN_SRC emacs-lisp 
 (setq desktop-path (list
                     starter-kit-dir)
       desktop-dirname starter-kit-dir
       desktop-base-file-name ".emacs-desktop")
 (desktop-read)
-(desktop-save-mode 1)
 #+END_SRC
 
 Then set variables to save.
@@ -24,22 +23,25 @@ Then set variables to save.
 (setq desktop-restore-frames nil)
 (setq history-length 128)
 (setq desktop-globals-to-save
-      (append '((extended-command-history . history-length)
-                (file-name-history        . history-length)
-                (ido-last-directory-list  . history-length)
-                (ido-work-file-list       . history-length)
-                (ido-work-directory-list  . history-length)
-                (grep-history             . history-length)
-                (compile-history          . history-length)
-                (minibuffer-history       . history-length)
-                (query-replace-history    . history-length)
-                (read-expression-history  . history-length)
-                (regexp-history           . history-length)
-                (regexp-search-ring       . history-length)
-                (search-ring              . history-length)
-                (shell-command-history    . history-length)
+      (append '((extended-command-history    . history-length)
+                (file-name-history           . history-length)
+                (ido-last-directory-list     . history-length)
+                (ido-work-file-list          . history-length)
+                (ido-work-directory-list     . history-length)
+                (grep-history                . history-length)
+                (compile-history             . history-length)
+                (minibuffer-history          . history-length)
+                (query-replace-history       . history-length)
+                (read-expression-history     . history-length)
+                (regexp-history              . history-length)
+                (regexp-search-ring          . history-length)
+                (search-ring                 . history-length)
+                (shell-command-history       . history-length)
+                (dired-regexp-history        . history-length)
+                (dired-shell-command-history . history-length)
                 desktop-missing-file-warning
                 register-alist)))
+(desktop-save-mode 1)
 #+END_SRC
 
 
