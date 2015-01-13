@@ -306,15 +306,12 @@ evaluated a theme is activated using the =load-theme= function.
 (require 'highlight-indentation)
 (color-theme-initialize)
 (if *terminal*
-    (progn (color-theme-solarized-dark)
+    (progn (color-theme-solarized-light)
            (set-face-background 'highlight-indentation-face "#073642")
-           (set-face-background 'highlight-indentation-current-column-face "#073642"))
+           (set-face-background 'highlight-indentation-current-column-face "#eee8d5"))
   (progn (color-theme-solarized-dark)
          (set-face-background 'highlight-indentation-face "#073642")
          (set-face-background 'highlight-indentation-current-column-face "#073642")))
-;; Color for color-theme-solarized-light.
-;; (set-face-background 'highlight-indentation-face "#e3e3d3")
-;; (set-face-background 'highlight-indentation-current-column-face "#eee8d5")
 #+END_SRC
 ** Power line
    
