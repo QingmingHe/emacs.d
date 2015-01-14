@@ -97,7 +97,6 @@ Activate IPython in ansi-term.
     (setq my-ipython-shell-index (+ 1 my-ipython-shell-index)))
   ;; Create new ansi term
   (ansi-term "ipython" (format "IPython <%d>" my-ipython-shell-index))
-  (switch-to-buffer (format "*IPython <%d>*" my-ipython-shell-index))
-  )
+  (switch-to-buffer (format "*IPython <%d>*" my-ipython-shell-index)))
 #+END_SRC
 
