@@ -42,10 +42,12 @@
   "Use gtags or ctags?")
 
 (defvar prj/gtags-conf-file-choices
-  '("/usr/share/gtags/gtags.conf"
+  `("/usr/share/gtags/gtags.conf"
     "/usr/local/share/gtags/gtags.conf"
     "/opt/share/gtags/gtags.conf"
-    "/opt/gtags/share/gtags.conf")
+    "/opt/gtags/share/gtags.conf"
+    ,(expand-file-name "~/.globalrc")
+    "/etc/gtags.conf")
   "Default gtags configuration files.")
 
 (defvar prj/gtags-conf-file-dir nil
