@@ -14,8 +14,6 @@ inspired by TextMate's templating syntax.
    :CUSTOM_ID: install
    :END:
 #+begin_src emacs-lisp
-  (starter-kit-install-if-needed 'yasnippet)
-
   ;; If `yasnippet-bundle' has previously been installed through ELPA,
   ;; delete it before installing the new `yasnippet'
   (let ((yas-bundle-desc (assq 'yasnippet-bundle package-alist)))

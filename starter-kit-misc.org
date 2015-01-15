@@ -6,14 +6,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 * Starter Kit Misc
 Things that don't fit anywhere else.
 
-** Check Dependencies
-
-Determine whether required packages are installed. If not, use ELPA to
-install them. Other dependencies are provided by Emacs 24.
-#+begin_src emacs-lisp
-  (starter-kit-install-if-needed 'magit)
-#+end_src
-
 ** Window systems
 #+srcname: starter-kit-window-view-stuff
 #+begin_src emacs-lisp 
@@ -154,10 +146,9 @@ it's possible aspell isn't in your path
 
 ** Backup files
 Rather than saving backup files scattered all over the file system,
-let them live in the =backups/= directory inside of the starter kit.
+let them live in the =~/.emacs-backups/= directory.
 #+begin_src emacs-lisp
-(setq backup-directory-alist `(("." . ,(expand-file-name
-                                        (concat starter-kit-dir "backups"))))
+(setq backup-directory-alist `(("." . ,(expand-file-name "~/.emacs-backups")))
       backup-by-copying t
       delete-old-versions t
       kept-new-versions 6
@@ -197,6 +188,7 @@ let them live in the =backups/= directory inside of the starter kit.
 ;; try to guess destination
 (setq dired-dwim-target t)
 ;; use the same buffer for viewing dir, instead of spawning many
+(put 'dired-find-alternate-file 'disabled nil)
 (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
 (define-key dired-mode-map (kbd "^") #'(lambda ()
                                          (interactive)

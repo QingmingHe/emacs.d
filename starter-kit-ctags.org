@@ -76,7 +76,7 @@ First define projects.
     (shell-command (format "mkdir %s" (expand-file-name "~/bin"))))
   (shell-command
    (format "cp -f %s %s"
-           (format "%s/src/etags-update/etags-update.pl" starter-kit-dir)
+           (format "%s/src/project-mode/etags-update.pl" starter-kit-dir)
            (expand-file-name "~/bin/etags-update.pl")))
   (shell-command
    (format "chmod 755 %s"
