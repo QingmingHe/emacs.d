@@ -17,25 +17,6 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 (define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
 #+end_src
 
-** Paredit
-   :PROPERTIES:
-   :CUSTOM_ID: paredit
-   :END:
-[[http://www.emacswiki.org/emacs/ParEdit][Paredit]] might seem weird at first, but it really makes writing lisp a
-much more comfortable experience.  This is especially useful in
-combination with the sexp movement functions (=C-M-f= forward, =C-M-b=
-back, =C-M-u= up, =C-M-d= down)
-
-#+begin_src emacs-lisp
-(require 'paredit)
-(defun turn-on-paredit ()
-  (paredit-mode +1))
-#+end_src
-
-: ;; (eval-after-load 'paredit
-: ;;      ;; Not sure why paredit behaves this way with comments; it's annoying
-: ;;   '(define-key paredit-mode-map (kbd ";")   'self-insert-command))
-
 ** Non-obtrusive parenthesis faces
    :PROPERTIES:
    :CUSTOM_ID: parenthesis-faces
@@ -56,6 +37,7 @@ back, =C-M-u= up, =C-M-d= down)
    :END:
 
 #+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("Cask\\'" . emacs-lisp-mode))
 (defun my-emacs-lisp-config ()
   (modify-syntax-entry ?_ "w")
   (modify-syntax-entry ?- "w")
@@ -86,7 +68,6 @@ back, =C-M-u= up, =C-M-d= down)
    :END:
 
 #+begin_src emacs-lisp
-  (require 'clojure-mode)
 
   (add-hook 'clojure-mode-hook 'run-starter-kit-coding-hook)
   
@@ -143,9 +124,6 @@ back, =C-M-u= up, =C-M-d= down)
   
   (eval-after-load 'find-file-in-project
     '(add-to-list 'ffip-patterns "*.clj"))
-  
-  ;; You might like this, but it's a bit disorienting at first:
-  (add-hook 'clojure-mode-hook 'turn-on-paredit)
   
   (defun clojure-project (path)
     "Setup classpaths for a clojure project and starts a new SLIME session.
@@ -210,7 +188,6 @@ pretty \lambda's in clojure
 #+begin_src emacs-lisp
 (add-hook 'lisp-mode-hook 'run-starter-kit-coding-hook)
 ;; (add-hook 'lisp-mode-hook 'idle-highlight)
-(add-hook 'lisp-mode-hook 'turn-on-paredit)
 (font-lock-add-keywords 'lisp-mode
 			'(("(\\|)" . 'starter-kit-paren-face)))
 #+end_src

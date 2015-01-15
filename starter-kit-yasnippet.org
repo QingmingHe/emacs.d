@@ -34,14 +34,6 @@ inspired by TextMate's templating syntax.
                                                     starter-kit-dir)))
 #+end_src
 
-** Load Yasnippet
-   :PROPERTIES:
-   :CUSTOM_ID: load
-   :END:
-#+begin_src emacs-lisp
-(require 'yasnippet)
-#+end_src
-
 ** Load Snippets Distributed with the Starter Kit
    :PROPERTIES:
    :CUSTOM_ID: default-snippets

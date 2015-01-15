@@ -7,9 +7,6 @@
 
 First define projects.
 #+BEGIN_SRC emacs-lisp
-(require 'project-root)
-(require 'project)
-(require 'etags-update)
 (defun get-SUGAR-include-paths ()
   (let ((paths '("../BUILD_RELEASE/include")))
     (when (getenv "HDF5_ROOT")
@@ -87,18 +84,8 @@ First define projects.
                               (setq tags-file-name nil)))
 #+END_SRC
    
-** etags select
-
-#+BEGIN_SRC emacs-lisp
-(require 'etags-select)
-#+END_SRC
-   
 ** taglist
 
-#+BEGIN_SRC emacs-lisp
-(require 'taglist)
-#+END_SRC
-   
 #+BEGIN_SRC emacs-lisp
 (defun my-taglist ()
   (interactive)

@@ -16,6 +16,7 @@ versions to make it work, without any rational.
 #+BEGIN_SRC emacs-lisp
 (if (executable-find "w3m")
   (progn
+    (require 'w3m)
     (require 'w3m-load)
     (setq w3m-command "w3m")
     (setq browse-url-browser-function 'w3m-browse-url)

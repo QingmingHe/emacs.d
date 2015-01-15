@@ -279,12 +279,7 @@ interested in the actual code implementing the starter kit.
   session.
   #+name: starter-kit-load-on-startup
   #+begin_src emacs-lisp
-    (require 'cl)
-    (require 'saveplace)
-    (require 'ffap)
-    (require 'uniquify)
-    (require 'ansi-color)
-    (require 'recentf)
+  (load (concat starter-kit-dir "depends.el"))
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be
@@ -304,7 +299,6 @@ interested in the actual code implementing the starter kit.
 
 - ELPA archive repositories.
   #+begin_src emacs-lisp
-  (require 'package)
   (setq package-archives
         '(("gnu"         . "http://elpa.gnu.org/packages/")
           ("org"         . "http://orgmode.org/elpa/")
@@ -326,12 +320,6 @@ interested in the actual code implementing the starter kit.
           (package-install package)))))
   #+end_src
   
-Packages to be installed.
-#+BEGIN_SRC emacs-lisp
-;; TODO
-#+END_SRC
-
-
 - Function for loading other parts of the starter kit
   #+name: starter-kit-load
   #+begin_src emacs-lisp

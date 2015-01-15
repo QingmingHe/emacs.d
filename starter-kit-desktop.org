@@ -29,6 +29,7 @@ Then set variables to save.
                 (ido-work-file-list          . history-length)
                 (ido-work-directory-list     . history-length)
                 (grep-history                . history-length)
+                (grep-find-history           . history-length)
                 (compile-history             . history-length)
                 (minibuffer-history          . history-length)
                 (query-replace-history       . history-length)

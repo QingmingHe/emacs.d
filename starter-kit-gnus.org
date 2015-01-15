@@ -53,7 +53,6 @@ to use this file:
 *** saving mail locally
 Where your mail will be saved locally default value will be =~/gmail=.
 #+begin_src emacs-lisp
-  (require 'gnus)
   (setq nnml-directory "~/gmail")
   (setq message-directory "~/gmail")
 #+end_src
@@ -113,7 +112,7 @@ you can add the following line to your =~/.authinfo=.
 ** Pop
   :PROPERTIES:
   :CUSTOM_ID: pop
-  :END:
+  :END:      
 This file can be used to jump start a working Gnus instillation.  The
 following steps will result in a working vanilla Gnus POP
 instillation.
@@ -125,10 +124,6 @@ instillation.
 (if you run into any problems -- the [[http://www.gnus.org/manual.html][gnus manual]] is very thorough)
 
 *** Basic configuration
-First off, load up =gnus=
-#+begin_src emacs-lisp
-  (require 'gnus)
-#+end_src
 
 Tell gnus that your mainly going to be using it for email not as a
 news reader -- after all it's not longer the late 80s.

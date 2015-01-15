@@ -3,5 +3,4 @@
 
 Setup for Cmake.
 #+BEGIN_SRC emacs-lisp
-(require 'cmake-mode)
 #+END_SRC

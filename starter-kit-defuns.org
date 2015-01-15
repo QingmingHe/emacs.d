@@ -136,7 +136,6 @@ No such function in Emacs 24.4, so add it.
 On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
 redefine server-ensure-safe-dir function to suppress this kind of error.
 #+BEGIN_SRC emacs-lisp
-(require 'server)
 (when (or *win32* *cygwin*)
   (defun server-ensure-safe-dir (dir) "Noop" t)
   )

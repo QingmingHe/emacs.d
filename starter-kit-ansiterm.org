@@ -8,7 +8,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 You can do key in command in char mode and copy/paste in line mode. The follow
 function and kbd provide easy toggling.
 #+BEGIN_SRC emacs-lisp
-(require 'term)
 
 (defun my-toggle-term-line-char-mode ()
   "Toggle term between line mode and char mode"

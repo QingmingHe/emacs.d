@@ -16,9 +16,6 @@
 ** Basic setup
 
 #+begin_src emacs-lisp
-(require 'helm)
-(require 'helm-config)
-(require 'helm-gtags)
 ;; do not use helm everywhere
 ;; (helm-mode 1)
 (global-set-key (kbd "M-x") 'helm-M-x)

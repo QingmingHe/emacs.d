@@ -10,28 +10,6 @@ Fortran is a major language for scientific computation but a minor for other.
 Interfaces are heavily used since Fortran 90 and Emacs provide a minor mode
 for browsing these interfaces easily.
 
-#+BEGIN_SRC emacs-lisp
-(require 'f90-interface-browser)
-#+END_SRC
-
-** Display function data
-TODO
-use *display-message-or-buffer*.
-** Fortran hooks
-
-#+BEGIN_SRC emacs-lisp
-(defun my-f90-config ()
-  (flyspell-prog-mode)
-  (yas-minor-mode)
-  (flycheck-mode)
-  (outline-minor-mode)
-  (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
-  (auto-fill-mode)
-  (project-minor-mode)
-  (modify-syntax-entry ?_ "w"))
-(add-hook 'f90-mode-hook 'my-f90-config)
-#+END_SRC
-
 ** Fortran indent
    
 Default indentation for Fortran is not that friendly.

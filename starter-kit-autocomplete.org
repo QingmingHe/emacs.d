@@ -5,11 +5,6 @@
 
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
-(require 'auto-complete)
-(require 'auto-complete-config)
-(require 'auto-complete-clang)
-(require 'auto-complete-etags)
-(require 'auto-complete-gtags)
 (mapcar
  (lambda (mode)
    (add-to-list 'ac-gtags-modes mode))

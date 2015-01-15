@@ -68,10 +68,9 @@ so on and you can add your own key words.
    :CUSTOM_ID: cython
    :END:
 #+begin_src emacs-lisp
-  (when (require 'cython-mode nil 'no-error)
     (add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
     (add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
-    (add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode)))
+    (add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode))
 #+end_src
 
 ** Set up for Sconstruct

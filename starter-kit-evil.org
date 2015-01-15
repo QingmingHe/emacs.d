@@ -30,7 +30,6 @@ several years.
 #+BEGIN_SRC emacs-lisp
 (require 'evil)
 (evil-mode 1)
-(require 'project)
 #+END_SRC
 
 ** Evil matchit
@@ -45,10 +44,8 @@ key in *C-g* to cancel jump.
 
 ** Go to change
 
-It is so happy to key in *g;* to go to last change and g, to com back.
-#+BEGIN_SRC emacs-lisp
-(require 'goto-chg)
-#+END_SRC
+It is so happy to key in *g;* or *C-o* to go to last change and *g* or *C-i*,
+to com back.
 
 ** Surround
 This package emulates surround.vim by Tim Pope. The functionality is wrapped
@@ -56,6 +53,7 @@ into a minor mode.
 
 #+BEGIN_SRC emacs-lisp
 (require 'surround)
+(global-surround-mode 1)
 #+END_SRC
 
 To activate it, *M-x surround-mode*.
@@ -111,7 +109,6 @@ Just press =SPC=, the first character of word where you want to go and select
 the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
 back.
 #+BEGIN_SRC emacs-lisp 
-(require 'ace-jump-mode)
 (setq ace-jump-mode-scope 'frame)
 (ace-jump-mode-enable-mark-sync)
 (define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)

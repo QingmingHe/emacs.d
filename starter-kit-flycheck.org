@@ -5,7 +5,6 @@
   
 Don't always check buffer, it's too slow.
 #+BEGIN_SRC emacs-lisp
-(require 'flycheck)
 (setq flycheck-check-syntax-automatically '(save mode-enabled))
 #+END_SRC
 

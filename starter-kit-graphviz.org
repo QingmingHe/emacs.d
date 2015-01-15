@@ -6,7 +6,6 @@
 ** Basic Set up
 Auto load graphviz-dot-mode for *.gv.
 #+BEGIN_SRC emacs-lisp
-(require 'graphviz-dot-mode)
 (setq auto-mode-alist (append '(("\\.gv\\'" . graphviz-dot-mode))
                               auto-mode-alist))
 (add-hook 'graphviz-dot-mode-hook '(lambda ()

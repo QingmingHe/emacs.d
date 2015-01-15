@@ -51,8 +51,6 @@ Things that don't fit anywhere else.
 ** Handle parens
 #+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp 
-(require 'smartparens-config)
-(require 'rainbow-delimiters)
 ;; (show-paren-mode 1)
 (smartparens-global-mode t)
 (show-smartparens-global-mode t)
@@ -69,7 +67,6 @@ Things that don't fit anywhere else.
 ido-mode is like magic pixie dust!
 #+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp 
-(require 'flx-ido)
 (ido-mode 1)
 (ido-everywhere 1)
 (flx-ido-mode 1)
@@ -178,8 +175,6 @@ let them live in the =~/.emacs-backups/= directory.
 ** Dired
 
 #+BEGIN_SRC emacs-lisp
-(require 'dired)
-(require 'dired-x)
 ;; set diredp-hide-details-initially-flag before load dired+
 (setq diredp-hide-details-initially-flag t)
 (require 'dired+)
@@ -198,7 +193,6 @@ let them live in the =~/.emacs-backups/= directory.
 ** Bookmark
 
 #+BEGIN_SRC emacs-lisp
-(require 'bookmark+)
 (setq bmkp-bmenu-state-file (expand-file-name "~/.emacs.d/.emacs-bmk-bmenu-state.el"))
 #+END_SRC
 
@@ -257,7 +251,6 @@ vertically by default.
 Use relative line number. Set linum-relative-current-symbol to be empty string
 so that linum-relative will show the real line number at current line.
 #+BEGIN_SRC emacs-lisp
-(require 'linum-relative)
 (setq linum-relative-current-symbol "")
 #+END_SRC
 
@@ -291,11 +284,6 @@ of the starter kit which ignored by git.  Once downloaded and
 evaluated a theme is activated using the =load-theme= function.
 
 #+BEGIN_SRC emacs-lisp
-(require 'color-theme)
-(require 'color-theme-molokai)
-(require 'color-theme-solarized)
-
-(require 'highlight-indentation)
 (color-theme-initialize)
 (if *terminal*
     (progn (color-theme-solarized-light)
@@ -332,7 +320,6 @@ directly modify [[~/.emacs.d/src/emacs-powerline-master/powerline.el][Powerline]
 
 ** Undo is needed by evil
 #+BEGIN_SRC emacs-lisp 
-(require 'undo-tree)
 (global-undo-tree-mode)
 #+END_SRC
    
@@ -344,7 +331,6 @@ pressing the key until it selects what you want.
 #+END_QUOTE
 
 #+BEGIN_SRC emacs-lisp
-(require 'expand-region)
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
 ** Garbage collection
@@ -370,7 +356,6 @@ Don't grep repositories.
    
 Multi eshell is not eshell but shell.
 #+BEGIN_SRC emacs-lisp
-(require 'multi-eshell)
 ;;(require 'multi-term)
 ;;(setq multi-term-program "/usr/bin/bash")
 #+END_SRC
@@ -379,6 +364,5 @@ Multi eshell is not eshell but shell.
 Changing from one window to another is so easy in Emacs with window number,
 you just key in *M-n* to jump to n-th window numbered by the plugin.
 #+BEGIN_SRC emacs-lisp
-(require 'window-numbering)
 (window-numbering-mode 1)
 #+END_SRC
