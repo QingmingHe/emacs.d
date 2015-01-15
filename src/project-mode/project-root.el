@@ -146,9 +146,7 @@
 ;; (add-to-list 'anything-sources
 ;;              project-root-anything-config-files)
 
-(require 'find-cmd)
 (require 'cl)
-(require 'flycheck)
 
 (eval-when-compile
   (defvar anything-project-root)
