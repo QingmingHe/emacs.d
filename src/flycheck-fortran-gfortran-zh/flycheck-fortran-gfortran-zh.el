@@ -1,5 +1,5 @@
 ;;; flycheck-fortran-gfortran-zh.el --- A plugin for flycheck.el to check
-;;; Fortran with gfortran.
+;;; Fortran with gfortran, 并支持中文的报错信息。
 
 ;; Copyright (c) 2015 Qingming He <906459647@qq.com>
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
@@ -23,6 +23,14 @@
 
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; A flycheck plugin to support gfortran 中文报错信息. To use it, add to your
+;; init.el:
+;; (require 'flycheck-fortran-gfortran-zh)
+;; (add-hook 'f90-mode-hook #'(lambda ()
+;;           (flycheck-select-checker 'fortran-gfortran-zh)))
 
 ;;; Code:
 
