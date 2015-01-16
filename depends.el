@@ -45,6 +45,7 @@
         dictionary
         no-word
         remember
+        quickrun
 
         ;; eshell, term
         em-cmpl
@@ -52,6 +53,7 @@
         em-term
         term
         multi-term
+        multi-eshell
 
         ;; my own package for handling projects, including project.el,
         ;; project-root.el, etags-update.el

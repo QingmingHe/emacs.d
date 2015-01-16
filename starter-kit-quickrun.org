@@ -1,0 +1,16 @@
+#+TITLE: Starter Kit Quickrun
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit QuickRun
+
+** Windows Python
+   
+=#!/usr/bin/python= at file header should be removed or winpy command will be
+overwritten.
+#+BEGIN_SRC emacs-lisp
+(quickrun-add-command "winpy"
+                      '((:command . "winpy")
+                        (:description . "Run Python script with Python installed in Windows"))
+                      :mode 'python-mode)
+#+END_SRC
+

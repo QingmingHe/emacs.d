@@ -52,11 +52,19 @@ it. If *M-x* is bound to *helm-M-x*, run *M-x C-u 2 eshell* instead.
 
 ** Term
    
-Use =multi-term= to handle multiple terms. Use *\-mn* to create new term or
+*** Multi eshell
+
+Use =multi-eshell= to handle multiple terms. Use *\-mn* to create new term or
 switch to anther existing term.
+
+*** Term and ansi-term
+    
+In most cases, shell is in my favour. Only when I want to run another app
+inside emacs, I will resort to to awkward term or ansi-term.
 
 You can key in command in char mode and copy/paste in line mode. The follow
 function and kbd provide easy toggling.
+
 #+BEGIN_SRC emacs-lisp
 (defun my-toggle-term-line-char-mode ()
   "Toggle term between line mode and char mode"

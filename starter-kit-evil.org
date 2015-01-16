@@ -81,7 +81,8 @@ You can delete a surrounding with ds<trigger>.
   "zc" 'hide-entry
   "zC" 'hide-body
   "ln" 'linum-mode
-  "mn" 'multi-term-next
+  "mn" 'multi-eshell-switch
+  "me" 'multi-eshell
   "ta" '(lambda ()
           (interactive)
           (if prj/use-gtags

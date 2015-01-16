@@ -244,8 +244,7 @@ interested in the actual code implementing the starter kit.
 #+BEGIN_SRC emacs-lisp
 (defun my-system-type ()
   "Get system type by Python."
-  (shell-command-to-string "python -c 'import sys; print(sys.platform)'")
-  )
+  (shell-command-to-string "python -c 'import sys; print(sys.platform)'"))
 
 (setq *win32* (string-match-p "win[0-9]+" (my-system-type)))
 (setq *cygwin* (string-match-p "cygwin" (my-system-type)))
@@ -425,6 +424,7 @@ everyone using the starter kit.
 (starter-kit-load "dictionary")
 (starter-kit-load "bindings")
 (starter-kit-load "term")
+(starter-kit-load "quickrun")
 ;; prog mode should be loaded finally
 (starter-kit-load "python")
 (starter-kit-load "nxml")

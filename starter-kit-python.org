@@ -99,3 +99,5 @@ Activate IPython in ansi-term.
   (switch-to-buffer (format "*IPython <%d>*" my-ipython-shell-index)))
 #+END_SRC
 
+Or you can use *M-x C-u run-python* command to run Python interpreter. Here
+*C-u* prefix enables you input the Python interpreter such IPython.
