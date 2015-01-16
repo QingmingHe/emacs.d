@@ -3,7 +3,6 @@
 ;; Configure org 8.* bundled with Emacs 24.4
 (when (> emacs-minor-version 3)
   (starter-kit-load "org"))
-(starter-kit-load "eshell")
 (starter-kit-load "ibuffer")
 (starter-kit-load "ctags")
 (starter-kit-load "flycheck")
@@ -17,7 +16,7 @@
 (starter-kit-load "dictionary")
 (starter-kit-load "company")
 (starter-kit-load "bindings")
-(starter-kit-load "ansiterm")
+(starter-kit-load "term")
 ;; prog mode should be loaded finally
 (starter-kit-load "python")
 (starter-kit-load "nxml")

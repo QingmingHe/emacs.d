@@ -50,7 +50,7 @@
 (require 'em-prompt)
 (require 'em-term)
 (require 'term)
-(require 'multi-eshell)
+(require 'multi-term)
 
 ;; my own package for handling projects, including project.el,
 ;; project-root.el, etags-update.el

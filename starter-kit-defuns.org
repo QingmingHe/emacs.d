@@ -86,10 +86,7 @@ a lambda doesn't already exist in the list.
     (progn
       (shell-command
        (format "antiword -m UTF-8 %s > %s" fname tmp-file-name))
-      (find-file tmp-file-name)
-      )
-    )
-  )
+      (find-file tmp-file-name))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -108,11 +105,7 @@ a lambda doesn't already exist in the list.
       (setq remainder (- default-fill-column line-position))
       (while (< i remainder)
         (setq i (+ 1 i))
-        (insert l-filling)
-        )
-      )
-    )
-  )
+        (insert l-filling)))))
 #+END_SRC
 
 No such function in Emacs 24.4, so add it.
@@ -137,8 +130,7 @@ On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
 redefine server-ensure-safe-dir function to suppress this kind of error.
 #+BEGIN_SRC emacs-lisp
 (when (or *win32* *cygwin*)
-  (defun server-ensure-safe-dir (dir) "Noop" t)
-  )
+  (defun server-ensure-safe-dir (dir) "Noop" t))
 #+END_SRC
 
 Map Cygwin path to Windows path. For example: map =/usr/bin/python= to

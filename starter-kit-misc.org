@@ -252,6 +252,8 @@ Use relative line number. Set linum-relative-current-symbol to be empty string
 so that linum-relative will show the real line number at current line.
 #+BEGIN_SRC emacs-lisp
 (setq linum-relative-current-symbol "")
+(add-hook 'prog-mode-hook (lambda ()
+                            (linum-mode)))
 #+END_SRC
 
 ** 80 Column Rule
@@ -329,6 +331,9 @@ directly modify [[~/.emacs.d/src/emacs-powerline-master/powerline.el][Powerline]
 Expand region increases the selected region by semantic units. Just keep
 pressing the key until it selects what you want.
 #+END_QUOTE
+   
+In terminal, *C-=* may not work. You may have to run extended-command-history
+to expand or contract region.
 
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-=") 'er/expand-region)
@@ -351,13 +356,6 @@ Don't grep repositories.
                   ".svn"
                   ".hg"))
      (add-to-list 'grep-find-ignored-directories dir)))
-#+END_SRC
-** Multi shell
-   
-Multi eshell is not eshell but shell.
-#+BEGIN_SRC emacs-lisp
-;;(require 'multi-term)
-;;(setq multi-term-program "/usr/bin/bash")
 #+END_SRC
 ** Window numbering
 

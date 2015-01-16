@@ -1,12 +1,14 @@
-#+TITLE: Starter Kit Eshell
+#+TITLE: Starter Kit Shell
 #+OPTIONS: toc:nil num:nil ^:nil
 
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
-* Starter Kit Eshell
+* Starter Kit Shell
+  
+** Eshell
 [[http://www.emacswiki.org/emacs/CategoryEshell][Eshell]] is a great shell.
 
-** Configurations
+*** Configurations
 
 #+begin_src emacs-lisp
   (setq eshell-cmpl-cycle-completions nil
@@ -43,8 +45,28 @@ is pre-populated with some generally applicable aliases.
         (expand-file-name "./" (expand-file-name "eshell" starter-kit-dir)))
 #+end_src
 
-** Tips
 *** Multiple eshells
 You can create eshell by just *M-x eshell*, or if can run *C-u 2 M-x eshell*
 to create a eshell numbered 2. If eshell 2 already exists, you will switch to
 it. If *M-x* is bound to *helm-M-x*, run *M-x C-u 2 eshell* instead.
+
+** Term
+   
+Use =multi-term= to handle multiple terms. Use *\-mn* to create new term or
+switch to anther existing term.
+
+You can key in command in char mode and copy/paste in line mode. The follow
+function and kbd provide easy toggling.
+#+BEGIN_SRC emacs-lisp
+(defun my-toggle-term-line-char-mode ()
+  "Toggle term between line mode and char mode"
+  (interactive)
+  (if (term-in-line-mode)
+      (term-char-mode)
+    (term-line-mode)))
+;; use key alist defined in multi-term.el to define key
+(add-to-list 'term-bind-key-alist
+             '("C-c C-j" . my-toggle-term-line-char-mode))
+(add-to-list 'term-bind-key-alist
+             '("C-c C-k" . my-toggle-term-line-char-mode))
+#+END_SRC
