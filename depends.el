@@ -17,6 +17,7 @@
 (require 'company)
 (require 'gnus)
 (require 'flycheck)
+(require 'flycheck-fortran-gfortran-zh)
 (require 'smartparens)
 (require 'smartparens-config)
 (require 'rainbow-delimiters)

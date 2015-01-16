@@ -1,4 +1,4 @@
-;; desktop should be the first
+;; desktop should be the first one to load
 (starter-kit-load "desktop")
 ;; Configure org 8.* bundled with Emacs 24.4
 (when (> emacs-minor-version 3)

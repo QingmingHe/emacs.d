@@ -19,18 +19,27 @@ codes:
 ((f90-mode . ((flycheck-gfortran-include-path . ("path0" "other/path")))))
 #+END_SRC
 
+The built in fortran-gfortran doesn't support Chinese errors and
+warnings. An =flycheck-fortran-gfortran-zh= plugin is used.
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'f90-mode-hook #'(lambda ()
+                             (flycheck-select-checker 'fortran-gfortran-zh)))
+#+END_SRC
+
+
 ** Python
 
 Select checker for that flake8 is not always available.
 #+BEGIN_SRC emacs-lisp
 (defun select-python-checker ()
-  (when (string= "python-mode" (format "%s" major-mode))
+  (when (equal 'python-mode major-mode)
     (if (executable-find "flake8")
         (flycheck-select-checker 'python-flake8)
       (flycheck-select-checker 'python-pycompile))))
 
-(add-hook 'python-mode-hook '(lambda ()
-                               (select-python-checker)))
+(add-hook 'python-mode-hook #'(lambda ()
+                                (select-python-checker)))
 #+END_SRC
 
 You can install flake8 with its dependencies without direct Internet

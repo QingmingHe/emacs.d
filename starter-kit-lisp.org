@@ -13,22 +13,8 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
    :END:
 #+name: starter-kit-define-lisp-keys
 #+begin_src emacs-lisp 
-(define-key lisp-mode-shared-map (kbd "RET") 'reindent-then-newline-and-indent)
 (define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
-#+end_src
-
-** Non-obtrusive parenthesis faces
-   :PROPERTIES:
-   :CUSTOM_ID: parenthesis-faces
-   :END:
-#+begin_src emacs-lisp
-(defface starter-kit-paren-face
-   '((((class color) (background dark))
-      (:foreground "grey50"))
-     (((class color) (background light))
-      (:foreground "grey55")))
-   "Face used to dim parentheses."
-   :group 'starter-kit-faces)
+(define-key emacs-lisp-mode-map (kbd "C-x C-j") 'eval-last-sexp)
 #+end_src
 
 ** Emacs Lisp
@@ -47,8 +33,6 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
   (run-starter-kit-coding-hook)
   (starter-kit-remove-elc-on-save)
   (project-minor-mode))
-(add-hook 'emacs-lisp-mode-hook 'my-emacs-lisp-config)
-;; (add-hook 'emacs-lisp-mode-hook 'idle-highlight)
 
 (defun starter-kit-remove-elc-on-save ()
   "If you're saving an elisp file, likely the .elc is no longer valid."
@@ -58,8 +42,7 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
               (if (file-exists-p (concat buffer-file-name "c"))
                   (delete-file (concat buffer-file-name "c"))))))
 
-(font-lock-add-keywords 'emacs-lisp-mode
-                        '(("(\\|)" . 'starter-kit-paren-face)))
+(add-hook 'emacs-lisp-mode-hook 'my-emacs-lisp-config)
 #+end_src
 
 ** Clojure
@@ -70,9 +53,6 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 #+begin_src emacs-lisp
 
   (add-hook 'clojure-mode-hook 'run-starter-kit-coding-hook)
-  
-  (font-lock-add-keywords 'clojure-mode
-                          '(("(\\|)" . 'starter-kit-paren-face)))
   
   (define-key clojure-mode-map (kbd "C-c v") 'slime-eval-buffer)
   (define-key clojure-mode-map (kbd "C-c C-v") 'slime-eval-buffer)
@@ -175,9 +155,6 @@ pretty \lambda's in clojure
 
 #+begin_src emacs-lisp
 (add-hook 'scheme-mode-hook 'run-starter-kit-coding-hook)
-;; (add-hook 'scheme-mode-hook 'idle-highlight)
-(font-lock-add-keywords 'scheme-mode
-			'(("(\\|)" . 'starter-kit-paren-face)))
 #+end_src
 
 ** Common Lisp
@@ -187,7 +164,4 @@ pretty \lambda's in clojure
 
 #+begin_src emacs-lisp
 (add-hook 'lisp-mode-hook 'run-starter-kit-coding-hook)
-;; (add-hook 'lisp-mode-hook 'idle-highlight)
-(font-lock-add-keywords 'lisp-mode
-			'(("(\\|)" . 'starter-kit-paren-face)))
 #+end_src

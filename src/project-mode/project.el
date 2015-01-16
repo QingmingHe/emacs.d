@@ -242,7 +242,7 @@ project root, otherwise prj can't update tags file."
                 (project-root-data :gfortran-definitions p)))
         (when (project-root-data :gfortran-language-standard p)
           (setq flycheck-gfortran-language-standard
-                (project-root-data :gfortran-language-standard p))))))
+                (or (project-root-data :gfortran-language-standard p) "f2008"))))))
 
 (defun prj/set-compile-args (&optional p)
   "Set flycheck-checker-* variables."
@@ -263,6 +263,7 @@ project root, otherwise prj can't update tags file."
       (progn
         (let ((p (project-root-fetch)))
           (when (and prj/update-tags p)
+            (make-local-variable 'after-save-hook)
             (add-hook 'after-save-hook 'prj/update-tags-single-file))
           (prj/set-compile-args p)))
     (progn
