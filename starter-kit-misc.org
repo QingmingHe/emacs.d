@@ -59,8 +59,10 @@ Things that don't fit anywhere else.
 #+end_src
    
 ** Fringe
+   
+Don't show fringe in GUI, it's too ugly.
 #+BEGIN_SRC emacs-lisp 
-(fringe-mode 4)
+(fringe-mode 0)
 #+END_SRC
 
 ** ido mode
