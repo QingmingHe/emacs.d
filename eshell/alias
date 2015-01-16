@@ -1,3 +1,4 @@
-alias dd dired-other-window $1
-alias ll ls -l $*
+alias ctw cygwin-to-win-path $1
 alias ff find-file-other-window $1
+alias ll ls -l $*
+alias dd dired-other-window $1

@@ -147,7 +147,7 @@ it's possible aspell isn't in your path
 Rather than saving backup files scattered all over the file system,
 let them live in the =~/.emacs-backups/= directory.
 #+begin_src emacs-lisp
-(setq backup-directory-alist `(("." . ,(expand-file-name "~/.emacs-backups")))
+(setq backup-directory-alist `(("." . ,(expand-file-name "~/.backups-emacs")))
       backup-by-copying t
       delete-old-versions t
       kept-new-versions 6
