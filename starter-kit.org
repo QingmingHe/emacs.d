@@ -404,6 +404,39 @@ everyone using the starter kit.
   #+begin_src emacs-lisp
   (starter-kit-load "starter-kit-registers.org")
   #+end_src
+  
+- Others
+#+BEGIN_SRC emacs-lisp
+;; desktop should be the first one to load
+(starter-kit-load "desktop")
+;; Configure org 8.* bundled with Emacs 24.4
+(when (> emacs-minor-version 3)
+  (starter-kit-load "org"))
+(starter-kit-load "ibuffer")
+(starter-kit-load "ctags")
+(starter-kit-load "flycheck")
+(starter-kit-load "misc-recommended")
+(starter-kit-load "helm")
+(starter-kit-load "aspell")
+(starter-kit-load "evil")
+(starter-kit-load "yasnippet")
+(starter-kit-load "autocomplete")
+(starter-kit-load "w3m")
+(starter-kit-load "dictionary")
+(starter-kit-load "bindings")
+(starter-kit-load "term")
+;; prog mode should be loaded finally
+(starter-kit-load "python")
+(starter-kit-load "nxml")
+(starter-kit-load "lisp")
+(starter-kit-load "cmake")
+(starter-kit-load "rst")
+(starter-kit-load "fortran")
+(starter-kit-load "latex")
+(starter-kit-load "graphviz")
+(starter-kit-load "rnc")
+(starter-kit-load "cc")
+#+END_SRC
 
 ** Load User/System Specific Files
 *** System/User specific customizations
@@ -438,8 +471,6 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
     (sk-load system-name)
     ;; load user-specific config
     (sk-load user-login-name)
-    ;; activation
-    (sk-load "activation")
     ;; load any files in the user's directory
     (when (file-exists-p user-dir)
       (add-to-list 'load-path user-dir)

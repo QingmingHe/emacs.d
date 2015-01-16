@@ -23,6 +23,7 @@ places
 tramp
 .emacs-bmk-bmenu-state.el
 .emacs-desktop
+Cask
 
 ## directories
 backups/*
@@ -33,6 +34,7 @@ elim/*
 doc/*
 themes/*
 url/*
+.cask/
 
 ## exported and encrypted files
 *gpg

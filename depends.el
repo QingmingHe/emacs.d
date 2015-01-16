@@ -1,107 +1,135 @@
-;; the basics
-(require 'cl)
-(require 'saveplace)
-(require 'ffap)
-(require 'uniquify)
-(require 'ansi-color)
-(require 'recentf)
-(require 'popup)
-(require 'ido)
-(require 'smex)
-(require 'dash)
-(unless *terminal*
-  (require 'pos-tip))
+(setq starter-kit-required-pkgs
+      `(
+        ;; the basics
+        cl
+        saveplace
+        ffap
+        uniquify
+        ansi-color
+        recentf
+        popup
+        ido
+        smex
+        dash
+        ,(unless *terminal*
+           'pos-tip)
 
-(require 'server)
-(require 'package)
-(require 'company)
-(require 'gnus)
-(require 'flycheck)
-(require 'flycheck-fortran-gfortran-zh)
-(require 'smartparens)
-(require 'smartparens-config)
-(require 'rainbow-delimiters)
-(require 'flx-ido)
-(require 'dired)
-(require 'dired-x)
-(require 'ibuffer-vc)
-;; dired+ is required in starter-kit-misc.org for that something should be set
-;; before loading dired+
-(require 'bookmark+)
-(require 'linum-relative)
-(require 'undo-tree)
-(require 'expand-region)
-(require 'window-numbering)
-(require 'yasnippet)
-(require 'goto-chg)
-(require 'etags-select)
-(require 'imenu)
-(require 'imenu+)
-(require 'ace-jump-mode)
-(require 'git-rebase-mode)
-(require 'git-commit-mode)
-(require 'magit)
-(require 'dictionary)
-(require 'no-word)
-(require 'remember)
+        server
+        package
+        gnus
+        flycheck
+        flycheck-fortran-gfortran-zh
+        smartparens
+        smartparens-config
+        rainbow-delimiters
+        flx-ido
+        dired
+        dired-x
+        ibuffer-vc
+        ;; dired+ is required in starter-kit-misc.org for that something
+        ;; should be set before loading dired+
+        bookmark+
+        linum-relative
+        undo-tree
+        expand-region
+        window-numbering
+        yasnippet
+        goto-chg
+        etags-select
+        imenu
+        imenu+
+        ace-jump-mode
+        git-rebase-mode
+        git-commit-mode
+        magit
+        dictionary
+        no-word
+        remember
 
-;; eshell, term
-(require 'em-cmpl)
-(require 'em-prompt)
-(require 'em-term)
-(require 'term)
-(require 'multi-term)
+        ;; eshell, term
+        em-cmpl
+        em-prompt
+        em-term
+        term
+        multi-term
 
-;; my own package for handling projects, including project.el,
-;; project-root.el, etags-update.el
-(require 'project)
-;; downloaded somewhere
-(require 'taglist)
+        ;; my own package for handling projects, including project.el,
+        ;; project-root.el, etags-update.el
+        project
+        ;; downloaded somewhere
+        taglist
 
-;; color theme, font ...
-(require 'color-theme)
-(require 'color-theme-molokai)
-(require 'color-theme-solarized)
-(require 'highlight-indentation)
-; powerline is loaded after setting color-theme, otherwise some errors occur
+        ;; color theme, font ...
+        color-theme
+        color-theme-molokai
+        color-theme-solarized
+        highlight-indentation
+        ;; powerline is loaded after setting color-theme, otherwise some
+        ;; errors occur
 
-;; auto complete
-(require 'auto-complete)
-(require 'auto-complete-config)
-(require 'auto-complete-clang)
-; I've done some hack on etags
-(require 'auto-complete-etags)
-(require 'auto-complete-gtags)
-(require 'ring)
-(require 'epc)
-(require 'python-environment)
-(require 'jedi)
+        ;; auto complete
+        auto-complete
+        auto-complete-config
+        auto-complete-clang
+        ;; I've done some hack on etags
+        auto-complete-etags
+        auto-complete-gtags
+        ring
+        epc
+        python-environment
+        jedi
 
-;; helm
-(require 'helm)
-(require 'helm-config)
-(require 'helm-gtags)
+        ;; helm
+        helm
+        helm-config
+        helm-gtags
 
-;; prog mode
-(require 'cmake-mode)
-(require 'cython-mode)
-(require 'clojure-mode)
-(require 'graphviz-dot-mode)
-(require 'f90-interface-browser)
-(require 'clojure-mode)
-(require 'csv-mode)
-(require 'gnuplot)
-(require 'matlab)
-(require 'rnc-mode)
+        ;; prog mode
+        cmake-mode
+        cython-mode
+        clojure-mode
+        graphviz-dot-mode
+        f90-interface-browser
+        clojure-mode
+        csv-mode
+        gnuplot
+        rnc-mode
 
-;; docs modes
-(require 'markdown-mode)
-(require 'markdown-mode+)
-(require 'rst)
+        ;; docs modes
+        markdown-mode
+        markdown-mode+
+        rst
 
-;;TODO auctex
-(require 'cdlatex)
+        ;;TODO auctex
+        cdlatex
 
-;; org is loaded in init.el or starter-kit-org.org
-;; w3m is loaded optionally in starter-kit-w3m.org
-;; evil and evil-* are handled in starter-kit-evil.org
+        ;; org is loaded in init.el or starter-kit-org.org w3m is loaded
+        ;; optionally in starter-kit-w3m.org evil and evil-* are handled in
+        ;; starter-kit-evil.org
+        ))
+(setq starter-kit-required-pkgs (remove nil starter-kit-required-pkgs))
+
+
+;; require all pkgs
+(mapcar (lambda (pkg)
+          (require pkg))
+        starter-kit-required-pkgs)
+
+
+(defun my-gen-Cask (&optional cask-file)
+  "Generate Cask from starter-kit-required-pkgs."
+  (interactive)
+  (unless cask-file
+    (setq cask-file (format "%s%s"
+                            (ido-read-directory-name "Directory: " "~/.emacs.d/")
+                            (read-string "Cask file: " "Cask")))
+    (when (file-exists-p cask-file)
+      (unless (yes-or-no-p (format "%s exists. Overwrite it? " cask-file))
+        (setq cask-file nil))))
+  (when cask-file
+    (with-temp-buffer
+      (insert "(source gnu)\n(source melpa)\n\n")
+      (mapcar (lambda (pkg)
+                (insert (format "(depends-on \"%s\")\n" (symbol-name pkg))))
+              starter-kit-required-pkgs)
+      (write-file cask-file))))
