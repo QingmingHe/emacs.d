@@ -1,7 +1,9 @@
-#+TITLE: Starter Kit Ctags
+#+TITLE: Starter Kit Project
 #+OPTIONS: toc:nil num:nil ^:nil
 
-* Starter Kit Ctags
+* Starter Kit Project
+
+Use gtags, etags, imenu ... to handle projects.
   
 ** Define project
 

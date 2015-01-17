@@ -413,7 +413,7 @@ everyone using the starter kit.
   (starter-kit-load "org"))
 (starter-kit-load "ibuffer")
 (starter-kit-load "dired")
-(starter-kit-load "ctags")
+(starter-kit-load "project")
 (starter-kit-load "flycheck")
 (starter-kit-load "misc-recommended")
 (starter-kit-load "helm")

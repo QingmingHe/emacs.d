@@ -164,9 +164,7 @@ project root, otherwise prj can't update tags file."
   "Update GTAGS for single file only when current buffer is a project file."
   (let ((fname (buffer-file-name))
         (p (project-root-fetch)))
-    (when (and
-           p
-           (project-root-file-is-project-file fname p))
+    (when (and p fname)
       (when prj/update-tags-verbose
         (message "Updating GTAGS ..."))
       (let ((gtags-label (prj/get-gtags-label))
@@ -190,7 +188,10 @@ project root, otherwise prj can't update tags file."
     (mapcar
      #'(lambda (buffer)
          (progn (set-buffer buffer)
-                (when (string-match-p dir default-directory)
+                (when (equal
+                       0
+                       (string-match-p
+                        dir (expand-file-name default-directory)))
                   (when (and
                          (buffer-file-name)
                          (buffer-modified-p))
@@ -261,8 +262,14 @@ project root, otherwise prj can't update tags file."
   :lighter " prj"
   (if project-minor-mode
       (progn
-        (let ((p (project-root-fetch)))
-          (when (and prj/update-tags p)
+        (let ((p (project-root-fetch))
+              (fname (buffer-file-name)))
+          (when (and
+                 prj/update-tags
+                 p
+                 fname
+                 (file-exists-p fname)
+                 (project-root-file-is-project-file fname p))
             (make-local-variable 'after-save-hook)
             (add-hook 'after-save-hook 'prj/update-tags-single-file))
           (prj/set-compile-args p)))
