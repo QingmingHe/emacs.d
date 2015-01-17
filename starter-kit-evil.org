@@ -71,16 +71,27 @@ You can change a surrounding with cs<old-trigger><new-trigger>.
 
 You can delete a surrounding with ds<trigger>.
 
+** Ace jump
+
+Just press =SPC-w=, the first character of word where you want to go and select
+the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
+back.
+#+BEGIN_SRC emacs-lisp 
+(setq ace-jump-mode-scope 'frame)
+(ace-jump-mode-enable-mark-sync)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+#+END_SRC
+
 ** Set Vim like Key Bindings
 
 #+BEGIN_SRC emacs-lisp
-;; global key bindings
+(evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
   "zo" 'show-entry
   "zO" 'show-all
   "zc" 'hide-entry
   "zC" 'hide-body
-  "ln" 'linum-mode
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
   "ta" '(lambda ()
@@ -100,22 +111,11 @@ You can delete a surrounding with ds<trigger>.
             (etu/visit-tags-table)))
   "tl" 'helm-semantic-or-imenu
   "ne" 'flycheck-next-error
- )
+  "w" 'ace-jump-word-mode
+  "l" 'ace-jump-line-mode
+  )
 #+END_SRC
    
-** Ace jump
-
-Just press =SPC=, the first character of word where you want to go and select
-the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
-back.
-#+BEGIN_SRC emacs-lisp 
-(setq ace-jump-mode-scope 'frame)
-(ace-jump-mode-enable-mark-sync)
-(define-key evil-normal-state-map (kbd "SPC") 'ace-jump-mode)
-(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
-(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
-#+END_SRC
-
 ** Disable evil for some modes
 #+BEGIN_SRC emacs-lisp
 (dolist (mode '(taglist-mode

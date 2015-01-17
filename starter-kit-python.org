@@ -101,3 +101,34 @@ Activate IPython in ansi-term.
 
 Or you can use *M-x C-u run-python* command to run Python interpreter. Here
 *C-u* prefix enables you input the Python interpreter such IPython.
+** Run Windows Python interpreter in Cygwin platform
+Don't do this. You will fall into a pit. If you have to, there are several
+ways:
+- You are under directory where script to run exists ::
+  #+BEGIN_SRC sh
+    /path/to/windows/python script.py [args]
+  #+END_SRC
+  
+- You are not there ::
+     #+BEGIN_SRC sh
+     cat /path/to/script.py | /path/to/windows/python - [args]
+     #+END_SRC
+     =-= means python interpreter will read from stdin. Note that you can't do
+     this in eshell for that eshell can't handle stdin redirection.
+  
+- You are editing the script ::
+     Make a symbolic to Windows Python:
+     #+BEGIN_SRC sh
+     ln -s /path/to/windows/python ~/bin/winpy
+     #+END_SRC
+     Then define quickrun like [[~/.emacs.d/starter-kit-quickrun.org][this]]. Finally run quickrun.
+     
+- You are in dired ::
+     Run *M-x dired-open-w32-prog-at-point* or *C-u M-x
+     dired-open-w32-prog-at-point* as defined [[~/.emacs.d/starter-kit-dired.org][here]].
+
+There is no perfect way. The first and second are tricky to handle the
+path. The quickrun will be confused by *#!/usr/bin/env python* and have no
+idea whether to run winpy or python. The path problems also exist for
+quickrun. The dired way is perfect only if you don't use
+matplotlib. Matplotlib can not create configuration directory for some reason.

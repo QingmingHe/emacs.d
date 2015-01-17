@@ -14,3 +14,9 @@ overwritten.
                       :mode 'python-mode)
 #+END_SRC
 
+To run Windows Python under Cygwin manually.
+#+BEGIN_SRC sh
+cat /path/to/script.py | /path/to/windows/python [options] - [args]
+#+END_SRC
+
+

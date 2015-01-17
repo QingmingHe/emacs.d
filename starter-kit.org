@@ -254,8 +254,7 @@ interested in the actual code implementing the starter kit.
 (if (< emacs-major-version 24)
     (error "Emacs version should be >= 24.3")
   (when (< emacs-minor-version 3)
-    (error "Emacs version should be >= 24.3"))
-)
+    (error "Emacs version should be >= 24.3")))
 #+END_SRC
 
 - Load path etc.
@@ -405,6 +404,7 @@ everyone using the starter kit.
   #+end_src
   
 - Others
+
 #+BEGIN_SRC emacs-lisp
 ;; desktop should be the first one to load
 (starter-kit-load "desktop")
@@ -412,6 +412,7 @@ everyone using the starter kit.
 (when (> emacs-minor-version 3)
   (starter-kit-load "org"))
 (starter-kit-load "ibuffer")
+(starter-kit-load "dired")
 (starter-kit-load "ctags")
 (starter-kit-load "flycheck")
 (starter-kit-load "misc-recommended")
