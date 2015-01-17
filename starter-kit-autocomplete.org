@@ -5,57 +5,84 @@
 
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
+;; enable ac-gtags in several modes
 (mapcar
  (lambda (mode)
    (add-to-list 'ac-gtags-modes mode))
- '(f90-mode python-mode))
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20140322.321/dict")
+ '(f90-mode python-mode emacs-lisp-mode))
+
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
 (mapcar
  (lambda (mode)
    (add-to-list 'ac-modes mode))
  '(org-mode text-mode))
+
 ;; ac-sources for different languages
+(setq-default
+ ac-sources
+ '(ac-source-abbrev
+   ac-source-dictionary
+   ac-source-words-in-same-mode-buffers))
 (add-hook 'f90-mode-hook
-          '(lambda ()
-             (setq ac-sources
-                   (append
-                    '(ac-source-yasnippet ac-source-gtags ac-source-etags)
-                    ac-sources))))
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-yasnippet
+                     ac-source-gtags
+                     ac-source-etags)
+                   ac-sources))))
 (add-hook 'python-mode-hook
-          '(lambda ()
-             (setq ac-sources
-                   (append
-                    '(ac-source-yasnippet ac-source-gtags ac-source-etags)
-                    ac-sources))))
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-yasnippet
+                     ac-source-gtags
+                     ac-source-etags)
+                   ac-sources))))
 (add-hook 'c-mode-common-hook
-          '(lambda ()
-             (setq ac-sources
-                   (append
-                    '(ac-source-yasnippet ac-source-gtags ac-source-etags)
-                    ac-sources))
-             (when (executable-find "clang")
-               (add-to-list 'ac-sources 'ac-source-clang))))
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-yasnippet
+                     ac-source-gtags
+                     ac-source-etags)
+                   ac-sources))
+            (when (executable-find "clang")
+              (add-to-list 'ac-sources 'ac-source-clang))))
 (add-hook 'emacs-lisp-mode-hook
-          '(lambda ()
-             (setq ac-sources
-                   (append
-                    '(ac-source-yasnippet ac-source-gtags ac-source-etags)
-                    ac-sources))))
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-features
+                     ac-source-functions
+                     ac-source-variables
+                     ac-source-symbols
+                     ac-source-yasnippet
+                     ac-source-gtags
+                     ac-source-etags)
+                   ac-sources))))
 (add-hook 'org-mode-hook
-          '(lambda ()
-             (setq ac-sources
-                   (append
-                    '(ac-source-yasnippet ac-source-files-in-current-dir ac-source-filename)
-                    ac-sources))))
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-yasnippet
+                     ac-source-files-in-current-dir
+                     ac-source-filename)
+                   ac-sources))))
 (add-hook 'text-mode-hook
-          '(lambda ()
-             (setq ac-sources
-                   (append
-                    '(ac-source-files-in-current-dir ac-source-filename)
-                    ac-sources))))
-(ac-config-default)
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-files-in-current-dir
+                     ac-source-filename)
+                   ac-sources))))
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (setq ac-sources '(ac-source-pcomplete))))
+
+;; enable auto complete in all modes
+(global-auto-complete-mode t)
 
 (setq ac-use-menu-map t)
 (setq ac-use-quick-help t)
@@ -65,7 +92,6 @@
 (ac-set-trigger-key "TAB")
 ;; use pos-tip instead of popup to show doc perfectly
 (unless *terminal*
-  (require 'pos-tip)
   (setq ac-quick-help-prefer-pos-tip t))
 
 ;; Don't use fuzzy complete.

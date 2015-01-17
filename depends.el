@@ -76,6 +76,7 @@
         ;; I've done some hack on etags
         auto-complete-etags
         auto-complete-gtags
+        auto-complete-pcomplete
         ring
         epc
         python-environment
