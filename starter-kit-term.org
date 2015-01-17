@@ -1,9 +1,9 @@
-#+TITLE: Starter Kit Shell
+#+TITLE: Starter Kit Term
 #+OPTIONS: toc:nil num:nil ^:nil
 
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
-* Starter Kit Shell
+* Starter Kit Term
   
 ** Eshell
 [[http://www.emacswiki.org/emacs/CategoryEshell][Eshell]] is a great shell.
@@ -24,6 +24,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
        ; (set-face-attribute 'eshell-prompt nil :foreground "turquoise1")
        (add-hook 'eshell-mode-hook ;; for some reason this needs to be a hook
                  '(lambda () (define-key eshell-mode-map "\C-a" 'eshell-bol)))
+       (add-hook 'eshell-mode-hook 'turn-on-eldoc-mode)
        (add-to-list 'eshell-visual-commands "ssh")
        (add-to-list 'eshell-visual-commands "tail")
        (add-to-list 'eshell-command-completions-alist
