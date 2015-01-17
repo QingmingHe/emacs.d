@@ -6,6 +6,7 @@
 ;;
 
 ;; activate debugging, similar to emacs --debug-init
+;; if debug-on-error is nil, helm-M-x will not work. don't know why.
 (setq debug-on-error t
       debug-on-signal nil
       debug-on-quit nil)
@@ -30,8 +31,5 @@
        '(require 'org))
     ;; load up the starter kit
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
-
-;; do not debug on error after emacs startup
-(setq debug-on-error nil)
 
 ;;; init.el ends here

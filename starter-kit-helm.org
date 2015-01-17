@@ -5,13 +5,10 @@
   
 ** Install helm
 
-#+BEGIN_SRC emacs-lisp
-(let* ((helm-dir (concat starter-kit-dir "src/helm-master/"))
-       (helm-autoloads-file (concat helm-dir "helm-autoloads.el")))
-  (when (not (file-exists-p helm-autoloads-file))
-    (let ((default-directory helm-dir))
-      (shell-command "make autoloads"))))
-#+END_SRC
+   #+BEGIN_SRC sh :tangle no
+     cd /path/to/helm-dir
+     make autoloads
+   #+END_SRC
 
 ** Basic setup
 
