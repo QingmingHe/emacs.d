@@ -33,9 +33,19 @@ Things that don't fit anywhere else.
         whitespace-line-column 100
         ediff-window-setup-function 'ediff-setup-windows-plain
         oddmuse-directory (concat starter-kit-dir "oddmuse")
-        xterm-mouse-mode t
-        save-place-file (concat starter-kit-dir "places"))
+        xterm-mouse-mode t)
 #+end_src
+   
+** Save places in opened files
+
+When you visit a file, point goes to the last place where it was when you
+previously visited the same file.
+#+BEGIN_SRC emacs-lisp
+(setq-default save-place t)
+(setq save-place-file (concat starter-kit-dir ".saved-places"))
+(require 'saveplace)
+#+END_SRC
+
 
 ** Transparently open compressed files
 #+begin_src emacs-lisp
@@ -66,7 +76,9 @@ Don't show fringe in GUI, it's too ugly.
 #+END_SRC
 
 ** ido mode
-ido-mode is like magic pixie dust!
++ ido-mode is like magic pixie dust! 
++ Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
+  *C-l* in minibuffer to refresh ido candidates.
 #+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp 
 (ido-mode 1)

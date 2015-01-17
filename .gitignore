@@ -5,6 +5,7 @@ GPATH
 GRTAGS
 GTAGS
 ido.last
+.saved-places
 
 # project root
 .project-roots
@@ -12,6 +13,7 @@ ido.last
 ## zip and tar
 *.zip
 *.tar
+*.tar.bz2
 
 ## misc
 loaddefs.el*

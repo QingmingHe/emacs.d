@@ -2,6 +2,8 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Dired
+  
+** Open w32 prog at point
 
 #+BEGIN_SRC emacs-lisp
 (defun dired-open-w32-prog-at-point (arg)
@@ -23,3 +25,9 @@
 
 (define-key dired-mode-map "/" 'dired-open-w32-prog-at-point)
 #+END_SRC
+
+** Tips
+*** key bindings
+- *w* copies file name to ring. *C-u 0 w* copies full path.
+- *!* run shell command, *&* run shell command synchronously.
+
