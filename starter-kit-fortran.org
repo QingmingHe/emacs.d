@@ -15,7 +15,6 @@ Fortran is a major language for scientific computation but a minor for other.
 (add-hook 'f90-mode-hook 'my-f90-config)
 #+END_SRC
 
-
 ** Fortran indent
    
 Default indentation for Fortran is not that friendly.

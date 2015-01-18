@@ -16,7 +16,8 @@ start.
   (defun server-ensure-safe-dir (dir) "Noop" t)
   (unless (file-exists-p "/tmp/emacs500")
     (mkdir "/tmp/emacs500")))
-(server-start)
+(unless (server-running-p)
+  (server-start))
 #+END_SRC
 
 ** Diminish minor modes
@@ -92,13 +93,6 @@ previously visited the same file.
 (setq recentf-max-saved-items 128)
 (recentf-mode 1)
 #+end_src
-
-** Fringe
-   
-Don't show fringe in GUI, it's too ugly.
-#+BEGIN_SRC emacs-lisp 
-(fringe-mode 0)
-#+END_SRC
 
 ** ido mode
 + ido-mode is like magic pixie dust! 
@@ -224,44 +218,6 @@ let them live in the =~/.emacs-backups/= directory.
 (put 'erase-buffer 'disabled nil)
 #+END_SRC
 
-** Font size
-#+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default (selected-frame) :height 120)
-#+END_SRC
-   
-** Font for English and Chinese
-  
-The author use emacs by "emacs -nw" and let the terminal handle the fonts. Or
-the English font will be Consolas and Chinese font be Microsoft Yahei.
-
-#+BEGIN_SRC emacs-lisp
-(when (and
-       (not *terminal*)
-       (or *win32* *cygwin*))
-  (progn
-    (set-face-attribute
-     'default nil :font "Consolas")
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font)
-                        charset
-                        (font-spec :family "Microsoft Yahei" :size 14)))))
-#+END_SRC
-
-** Emacs Layout
-The toolbar and scroll bar are too ugly and disable it.
-#+BEGIN_SRC emacs-lisp
-(scroll-bar-mode 0)
-(column-number-mode 1)
-#+END_SRC
-
-It's not easy to recognise the completion words in horizontally split window
-if two windows are already split horizontally. Therefore set Emacs to split
-vertically by default.
-#+BEGIN_SRC emacs-lisp
-(setq split-height-threshold nil)
-(setq split-width-threshold 160)
-#+END_SRC
-
 ** 80 Column Rule
 It's a good habit to obey to 80 column rule. In the convenience of adding
 continuation marker in code such as Fortran, two columns are spared.
@@ -278,46 +234,6 @@ lines of codes.
       scroll-conservatively 10000
       auto-window-vscroll nil)
 (setq scroll-margin 4)
-#+END_SRC
-
-** Color theme , highlight indent and powerline
-Emacs24 has build in support for saving and loading themes.
-
-A Theme builder is available at http://elpa.gnu.org/themes/ along with
-a list of pre-built themes at http://elpa.gnu.org/themes/view.html and
-themes are available through ELPA.
-
-Downloaded themes may be saved to the =themes/= directory in the base
-of the starter kit which ignored by git.  Once downloaded and
-evaluated a theme is activated using the =load-theme= function.
-
-#+BEGIN_SRC emacs-lisp
-(color-theme-initialize)
-(if (or *terminal* (string= "light" (getenv "EMACS_COLOR_THEME")))
-    (progn (color-theme-solarized-light)
-           (set-face-background 'highlight-indentation-face "#073642")
-           (set-face-background 'highlight-indentation-current-column-face "#eee8d5"))
-  (progn (color-theme-solarized-dark)
-         (set-face-background 'highlight-indentation-face "#073642")
-         (set-face-background 'highlight-indentation-current-column-face "#073642")))
-#+END_SRC
-   
-Load powerline after color theme is set. If you change the color theme in
-running emacs, the expressions as follows should be re-evaluated.
-#+BEGIN_SRC emacs-lisp 
-(require 'powerline)
-(set-face-attribute 'mode-line nil
-                    :background "dim gray"
-                    :foreground "cyan"
-                    :inverse-video nil
-                    :box nil
-                    :underline nil)
-(set-face-attribute 'mode-line-inactive nil
-                    :background "dim gray"
-                    :foreground "light gray"
-                    :inverse-video nil
-                    :box nil
-                    :underline nil)
 #+END_SRC
 
 ** New line and indent

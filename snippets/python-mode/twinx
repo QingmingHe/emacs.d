@@ -1,5 +1,5 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: twinx
+# name: matplotlib twinx
 # key: twinx
 # --
 # Before plotting, you should import matplotlib.pyplot as plt

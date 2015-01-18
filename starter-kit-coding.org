@@ -51,10 +51,6 @@ a lambda doesn't already exist in the list.
   (linum-mode 1))
 (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-linum)
 
-(defun starter-kit-turn-on-rainbow ()
-  (rainbow-delimiters-mode 1))
-(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-rainbow)
-
 (when (window-system)
   (add-hook 'starter-kit-coding-hook 'starter-kit-pretty-lambdas))
 
@@ -68,9 +64,9 @@ a lambda doesn't already exist in the list.
 ** Handle parens
 #+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp 
-;; (show-paren-mode 1)
+(show-paren-mode 1)
 (smartparens-global-mode t)
-(show-smartparens-global-mode t)
+;; (show-smartparens-global-mode t)
 (smartparens-global-strict-mode t)
 #+end_src
    

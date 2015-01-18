@@ -408,6 +408,7 @@ everyone using the starter kit.
 ;; Configure org 8.* bundled with Emacs 24.4
 (when (> emacs-minor-version 3)
   (starter-kit-load "org"))
+(starter-kit-load "theme")
 (starter-kit-load "ibuffer")
 (starter-kit-load "dired")
 (starter-kit-load "project")

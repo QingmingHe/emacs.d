@@ -9,31 +9,6 @@ inspired by TextMate's templating syntax.
 - watch the [[http://www.youtube.com/watch?v=vOj7btx3ATg][video on YouTube]]
 - see the [[http://yasnippet.googlecode.com/svn/trunk/doc/index.html][intro and tutorial]]
 
-** Install Yasnippet
-   :PROPERTIES:
-   :CUSTOM_ID: install
-   :END:
-#+begin_src emacs-lisp
-  ;; If `yasnippet-bundle' has previously been installed through ELPA,
-  ;; delete it before installing the new `yasnippet'
-  (let ((yas-bundle-desc (assq 'yasnippet-bundle package-alist)))
-    (when yas-bundle-desc
-      (package-delete "yasnippet-bundle"
-                      (package-version-join
-                       (package-desc-vers (cdr yas-bundle-desc))))))
-#+end_src
-
-** Put yasnippet directories on the load path
-   :PROPERTIES:
-   :CUSTOM_ID: snippet-paths
-   :END:
-#+begin_src emacs-lisp
-  (add-to-list 'load-path
-               (expand-file-name  "yasnippet"
-                                  (expand-file-name "src"
-                                                    starter-kit-dir)))
-#+end_src
-
 ** Load Snippets Distributed with the Starter Kit
    :PROPERTIES:
    :CUSTOM_ID: default-snippets
@@ -66,6 +41,16 @@ white space should be spared or yas-next-field will not work.
   (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
+** Configure for Python mode
+   
+Indent in Python mode may be confusing. Set fixed so yas will not indent
+automatically, but just as in snippet.
+#+begin_src emacs-lisp
+(defun yas-py-conf ()
+  (setq-local yas-indent-line 'fixd))
+(add-hook 'python-mode-hook 'yas-py-conf)
+#+end_src
+
 ** Rebind key of yas
    
 using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
@@ -75,6 +60,36 @@ using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
 (define-key yas-minor-mode-map (kbd "TAB") nil)
 (define-key yas-minor-mode-map (kbd "C-c C-e") 'yas-expand)
 #+END_SRC
+
+** Use popup
+#+begin_src emacs-lisp
+(eval-after-load 'popup
+  '(progn
+     (define-key popup-menu-keymap (kbd "M-n") 'popup-next)
+     (define-key popup-menu-keymap (kbd "TAB") 'popup-next)
+     (define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
+     (define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
+     (define-key popup-menu-keymap (kbd "M-p") 'popup-previous)))
+
+(defun yas-popup-isearch-prompt (prompt choices &optional display-fn)
+  (when (featurep 'popup)
+    (popup-menu*
+     (mapcar
+      (lambda (choice)
+        (popup-make-item
+         (or (and display-fn (funcall display-fn choice))
+             choice)
+         :value choice))
+      choices)
+     :prompt prompt
+     ;; start isearch mode immediately
+     :isearch t)))
+
+(setq yas-prompt-functions
+      '(yas-popup-isearch-prompt
+        yas-no-prompt))
+#+end_src
+
 ** yas everywhere
 #+BEGIN_SRC emacs-lisp
 (yas-global-mode 1)

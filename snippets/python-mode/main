@@ -1,16 +1,16 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: main
+# name: main with argparse
 # key: main
 # --
 def main():
     import argparse
     parser = argparse.ArgumentParser(
-    description="${1}",
-    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        description="${1}",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    
+
     parser.add_argument(${2})
     args = parser.parse_args()
 
 if __name__ == "__main__":
-   main()    
+    main()
