@@ -37,6 +37,7 @@ doc/*
 themes/*
 url/*
 .cask/
+elpa/archives/
 
 ## exported and encrypted files
 *gpg
