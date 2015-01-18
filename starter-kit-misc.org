@@ -36,6 +36,12 @@ Things that don't fit anywhere else.
         xterm-mouse-mode t)
 #+end_src
    
+** Winner mode
+Winner mode enables you goto previous windows configuration easily.
+#+BEGIN_SRC emacs-lisp
+(winner-mode 1)
+#+END_SRC
+
 ** Save places in opened files
 
 When you visit a file, point goes to the last place where it was when you
@@ -45,7 +51,6 @@ previously visited the same file.
 (setq save-place-file (concat starter-kit-dir ".saved-places"))
 (require 'saveplace)
 #+END_SRC
-
 
 ** Transparently open compressed files
 #+begin_src emacs-lisp
@@ -377,4 +382,14 @@ Changing from one window to another is so easy in Emacs with window number,
 you just key in *M-n* to jump to n-th window numbered by the plugin.
 #+BEGIN_SRC emacs-lisp
 (window-numbering-mode 1)
+#+END_SRC
+** Ediff
+Recover previous windows configuration when quitting ediff.
+#+BEGIN_SRC emacs-lisp
+(add-hook 'ediff-after-quit-hook-internal 'winner-undo)
+#+END_SRC
+** Compile
+Save buffers before compile automatically.
+#+BEGIN_SRC emacs-lisp
+(setq compilation-ask-about-save nil)
 #+END_SRC

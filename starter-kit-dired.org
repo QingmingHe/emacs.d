@@ -26,6 +26,20 @@
 (define-key dired-mode-map "/" 'dired-open-w32-prog-at-point)
 #+END_SRC
 
+** How dired presents
+#+BEGIN_SRC emacs-lisp
+(setq dired-listing-switches "-lah1v --group-directories-first")
+#+END_SRC
+
+- l: Is the only mandatory one.
+- a: Means to list invisible files.
+- G: Don't show group information. These days, when there are more laptops
+  than people, the group info is rarely useful.
+- h: Human readable sizes, such as M for mebibytes.
+- 1v: Affects the sorting of digits, hopefully in a positive way.
+- --group-directories-first: self-explanatory, I like to have the directories
+  on the top, separate from the files.
+
 ** Tips
 *** key bindings
 - *w* copies file name to ring. *C-u 0 w* copies full path.
