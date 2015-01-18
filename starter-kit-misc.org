@@ -19,6 +19,23 @@ start.
 (server-start)
 #+END_SRC
 
+** Diminish minor modes
+   
+The minor mode list is too long and occupy all the mode line. I want to know
+other data on the mode line.
+#+BEGIN_SRC emacs-lisp
+(eval-after-load "undo-tree"     '(diminish 'undo-tree-mode))
+(eval-after-load "flyspell"      '(diminish 'flyspell-mode))
+(eval-after-load "auto-complete" '(diminish 'auto-complete-mode))
+(eval-after-load "eldoc"         '(diminish 'eldoc-mode))
+(eval-after-load "magit"         '(diminish 'magit-auto-revert-mode))
+(eval-after-load "smartparens"   '(diminish 'smartparens-mode))
+(eval-after-load "cdlatex"       '(diminish 'org-cdlatex-mode))
+(eval-after-load "outline"       '(diminish 'outline-minor-mode))
+(eval-after-load "yasnippet"     '(diminish 'yas-minor-mode))
+(diminish 'auto-fill-function)
+#+END_SRC
+
 ** Window systems
 #+srcname: starter-kit-window-view-stuff
 #+begin_src emacs-lisp 
@@ -76,16 +93,6 @@ previously visited the same file.
 (recentf-mode 1)
 #+end_src
 
-** Handle parens
-#+srcname: starter-kit-match-parens
-#+begin_src emacs-lisp 
-;; (show-paren-mode 1)
-(smartparens-global-mode t)
-(show-smartparens-global-mode t)
-(smartparens-global-strict-mode t)
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-#+end_src
-   
 ** Fringe
    
 Don't show fringe in GUI, it's too ugly.
@@ -114,7 +121,7 @@ Don't show fringe in GUI, it's too ugly.
 (setq ido-use-faces nil)
 #+end_src
 
-** Other, spell checking, tabs, imenu and a coding hook
+** Other, spell checking, tabs, imenu
 #+begin_src emacs-lisp 
   (set-default 'indent-tabs-mode nil)
   (set-default 'indicate-empty-lines t)
@@ -122,9 +129,6 @@ Don't show fringe in GUI, it's too ugly.
   
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (add-hook 'text-mode-hook 'turn-on-flyspell)
-  
-  (defvar starter-kit-coding-hook nil
-    "Hook that gets run on activation of any programming mode.")
   
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; Seed the random-number generator
@@ -204,24 +208,6 @@ let them live in the =~/.emacs-backups/= directory.
      (set-face-foreground 'magit-diff-del "red3")))
 #+end_src
 
-** Dired
-
-#+BEGIN_SRC emacs-lisp
-;; set diredp-hide-details-initially-flag before load dired+
-(setq diredp-hide-details-initially-flag t)
-(require 'dired+)
-;; use <f5> to toggle details
-(define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)
-;; try to guess destination
-(setq dired-dwim-target t)
-;; use the same buffer for viewing dir, instead of spawning many
-(put 'dired-find-alternate-file 'disabled nil)
-(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-(define-key dired-mode-map (kbd "^") #'(lambda ()
-                                         (interactive)
-                                         (find-alternate-file "..")))
-#+END_SRC
-
 ** Bookmark
 
 #+BEGIN_SRC emacs-lisp
@@ -258,9 +244,7 @@ the English font will be Consolas and Chinese font be Microsoft Yahei.
     (dolist (charset '(kana han symbol cjk-misc bopomofo))
       (set-fontset-font (frame-parameter nil 'font)
                         charset
-                        (font-spec :family "Microsoft Yahei" :size 14)))
-    )
-  )
+                        (font-spec :family "Microsoft Yahei" :size 14)))))
 #+END_SRC
 
 ** Emacs Layout
@@ -276,16 +260,6 @@ vertically by default.
 #+BEGIN_SRC emacs-lisp
 (setq split-height-threshold nil)
 (setq split-width-threshold 160)
-#+END_SRC
-
-** Line number
-
-Use relative line number. Set linum-relative-current-symbol to be empty string
-so that linum-relative will show the real line number at current line.
-#+BEGIN_SRC emacs-lisp
-(setq linum-relative-current-symbol "")
-(add-hook 'prog-mode-hook (lambda ()
-                            (linum-mode)))
 #+END_SRC
 
 ** 80 Column Rule
@@ -369,6 +343,7 @@ to expand or contract region.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
+
 ** Garbage collection
    
 Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We
@@ -388,6 +363,7 @@ Don't grep repositories.
                   ".hg"))
      (add-to-list 'grep-find-ignored-directories dir)))
 #+END_SRC
+
 ** Window numbering
 
 Changing from one window to another is so easy in Emacs with window number,
@@ -395,12 +371,16 @@ you just key in *M-n* to jump to n-th window numbered by the plugin.
 #+BEGIN_SRC emacs-lisp
 (window-numbering-mode 1)
 #+END_SRC
+
 ** Ediff
+
 Recover previous windows configuration when quitting ediff.
 #+BEGIN_SRC emacs-lisp
 (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
+
 ** Compile
+
 Save buffers before compile automatically.
 #+BEGIN_SRC emacs-lisp
 (setq compilation-ask-about-save nil)

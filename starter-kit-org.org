@@ -27,7 +27,6 @@ at root of org package.
 #+begin_src emacs-lisp
 (defun my-org-config ()
   ;; other minor mode
-  (yas-minor-mode)
   (eldoc-mode)
   ;; math
   (org-cdlatex-mode)

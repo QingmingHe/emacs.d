@@ -46,6 +46,7 @@
         no-word
         remember
         quickrun
+        diminish
 
         ;; eshell, term
         em-cmpl

@@ -48,16 +48,12 @@ code blocks, which is realised by defining key words like *def*, *class* and
 so on and you can add your own key words.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
-  (flyspell-prog-mode)
-  (yas-minor-mode)
   (unless (member (file-name-nondirectory (buffer-file-name))
                   '("SConstruct" "SConscript"))
     (flycheck-mode))
-  (outline-minor-mode)
+  (make-local-variable 'outline-regexp)
   (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
-  (auto-fill-mode)
   (my-jedi-setup)
-  (project-minor-mode)
   ;; (highlight-indentation-mode)
   (highlight-indentation-current-column-mode))
 (add-hook 'python-mode-hook 'my-python-conf)

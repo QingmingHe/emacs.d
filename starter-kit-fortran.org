@@ -5,10 +5,16 @@
 
 Fortran is a major language for scientific computation but a minor for other.
 
-** Fortran interface
+** Fortran config
+#+BEGIN_SRC emacs-lisp
+(defun my-f90-config ()
+  (flycheck-mode)
+  (make-local-variable 'outline-regexp)
+  (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
+  (modify-syntax-entry ?_ "w"))
+(add-hook 'f90-mode-hook 'my-f90-config)
+#+END_SRC
 
-Interfaces are heavily used since Fortran 90 and Emacs provide a minor mode
-for browsing these interfaces easily.
 
 ** Fortran indent
    

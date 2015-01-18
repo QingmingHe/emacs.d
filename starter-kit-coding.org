@@ -1,0 +1,76 @@
+#+TITLE: Starter Kit Coding
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Coding
+
+** Prog mode hooks
+A single hook holding those functions which should be run in *every*
+code buffer.
+
+We have a number of turn-on-* functions since it's advised that lambda
+functions not go in hooks. Repeatedly evaling an add-to-list with a
+hook value will repeatedly add it since there's no way to ensure that
+a lambda doesn't already exist in the list.
+
+#+name: starter-kit-hook-functions
+#+begin_src emacs-lisp
+(defvar starter-kit-coding-hook nil
+  "Hook that gets run on activation of any programming mode.")
+
+(defun starter-kit-local-column-number-mode ()
+  (make-local-variable 'column-number-mode)
+  (column-number-mode t))
+(add-hook 'starter-kit-coding-hook 'starter-kit-local-column-number-mode)
+
+(defun starter-kit-local-comment-auto-fill ()
+  (set (make-local-variable 'comment-auto-fill-only-comments) t)
+  (auto-fill-mode t))
+(add-hook 'starter-kit-coding-hook 'starter-kit-local-comment-auto-fill)
+
+(defun starter-kit-turn-on-whitespace ()
+  (whitespace-mode t))
+
+(defun starter-kit-turn-on-flyspell ()
+  (flyspell-prog-mode))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-flyspell)
+
+(defun starter-kit-turn-on-outline ()
+  (outline-minor-mode 1))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-outline)
+
+(defun starter-kit-turn-on-project ()
+  (project-minor-mode t))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-project)
+
+;; Use relative line number. Set linum-relative-current-symbol to be empty
+;; string so that linum-relative will show the real line number at current
+;; line.
+(defun starter-kit-turn-on-linum ()
+  (make-local-variable 'linum-relative-current-symbol)
+  (setq linum-relative-current-symbol "")
+  (linum-mode 1))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-linum)
+
+(defun starter-kit-turn-on-rainbow ()
+  (rainbow-delimiters-mode 1))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-rainbow)
+
+(when (window-system)
+  (add-hook 'starter-kit-coding-hook 'starter-kit-pretty-lambdas))
+
+(defun run-starter-kit-coding-hook ()
+  "Enable things that are convenient across all coding buffers."
+  (run-hooks 'starter-kit-coding-hook))
+
+(add-hook 'prog-mode-hook 'run-starter-kit-coding-hook)
+#+end_src
+
+** Handle parens
+#+srcname: starter-kit-match-parens
+#+begin_src emacs-lisp 
+;; (show-paren-mode 1)
+(smartparens-global-mode t)
+(show-smartparens-global-mode t)
+(smartparens-global-strict-mode t)
+#+end_src
+   

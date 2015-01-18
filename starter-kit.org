@@ -427,6 +427,7 @@ everyone using the starter kit.
 (starter-kit-load "term")
 (starter-kit-load "quickrun")
 ;; prog mode should be loaded finally
+(starter-kit-load "coding")
 (starter-kit-load "python")
 (starter-kit-load "nxml")
 (starter-kit-load "lisp")

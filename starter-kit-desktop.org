@@ -15,7 +15,7 @@ Set the file to save desktop variables and load desktop.
 (desktop-read)
 #+END_SRC
 
-Then set variables to save.
+Then set variables to save. Save no buffer and file.
 #+BEGIN_SRC emacs-lisp 
 (setq desktop-buffers-not-to-save ".*")
 (setq desktop-files-not-to-save ".*")

@@ -10,11 +10,7 @@ outline regexp of C language.
 
 #+BEGIN_SRC emacs-lisp
 (defun my-cc-config ()
-  (flyspell-prog-mode)
-  (yas-minor-mode)
   (flycheck-mode)
-  (auto-fill-mode)
-  (project-minor-mode)
   (modify-syntax-entry ?_ "w"))
 (add-hook 'c-mode-common-hook 'my-cc-config)
 #+END_SRC

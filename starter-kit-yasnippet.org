@@ -75,3 +75,8 @@ using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
 (define-key yas-minor-mode-map (kbd "TAB") nil)
 (define-key yas-minor-mode-map (kbd "C-c C-e") 'yas-expand)
 #+END_SRC
+** yas everywhere
+#+BEGIN_SRC emacs-lisp
+(yas-global-mode 1)
+#+END_SRC
+

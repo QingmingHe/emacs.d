@@ -51,28 +51,21 @@ within TeX-command-list.
 To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
 
 #+BEGIN_SRC emacs-lisp
-(add-hook 'LaTeX-mode-hook 
-    (lambda()
-        (setq-default TeX-master nil)
-        (add-to-list 'TeX-command-list 
-                     '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"
-                       TeX-run-TeX nil TeX-master))
-        (setq TeX-command-default "XeLaTeX")
-        (setq TeX-save-query nil)
-        (setq TeX-show-compilation t)
-        (company-mode)
-        (yas-minor-mode)
-        (flyspell-mode)
-        (LaTeX-math-mode)
-        (reftex-mode)
-        (cdlatex-mode)))
+(defun my-latex-config ()
+  (setq-default TeX-master nil)
+  (add-to-list
+   'TeX-command-list 
+   '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"
+     TeX-run-TeX nil TeX-master))
+  (setq TeX-command-default "XeLaTeX")
+  (setq TeX-save-query nil)
+  (setq TeX-show-compilation t)
+  (turn-on-flyspell)
+  (LaTeX-math-mode)
+  (reftex-mode)
+  (cdlatex-mode))
+(add-hook 'LaTeX-mode-hook 'my-latex-config)
 #+END_SRC
-
-*** other modes
-
-company for completion, along with yas minor mode. Flyspell for checking
-spelling. LaTeX-math-mode and cdlatex-mode for easy math. Reftex-mode to
-handle references.
 
 ** RefTeX
 
@@ -95,4 +88,3 @@ in this structure quickly.
       (quote
        ("~/share/bib/My_Collection.bib"))) 
 #+END_SRC
-
