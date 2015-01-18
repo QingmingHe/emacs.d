@@ -1,0 +1,14 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: com
+# key: com
+# --
+$1
+
+Why:
+$2
+
+How:
+$3
+
+Maybe (side effects, TODOs ...):
+$4

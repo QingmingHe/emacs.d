@@ -6,6 +6,19 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 * Starter Kit Misc
 Things that don't fit anywhere else.
 
+** Ensure server safe in windows
+On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
+redefine server-ensure-safe-dir function to suppress this kind of error.
+Besides, you should make "/tmp/emacs500" directory manually or server cannot
+start.
+#+BEGIN_SRC emacs-lisp
+(when (or *win32* *cygwin*)
+  (defun server-ensure-safe-dir (dir) "Noop" t)
+  (unless (file-exists-p "/tmp/emacs500")
+    (mkdir "/tmp/emacs500")))
+(server-start)
+#+END_SRC
+
 ** Window systems
 #+srcname: starter-kit-window-view-stuff
 #+begin_src emacs-lisp 
