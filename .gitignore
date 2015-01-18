@@ -79,6 +79,7 @@ texput.log
 *stackdump
 recentf
 *.pyc
+setup.log*
 
 ## emacs bookmarks
 bookmarks

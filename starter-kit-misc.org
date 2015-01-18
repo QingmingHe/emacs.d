@@ -293,7 +293,7 @@ lines of codes.
 (setq scroll-margin 4)
 #+END_SRC
 
-** Color theme and highlight indent
+** Color theme , highlight indent and powerline
 Emacs24 has build in support for saving and loading themes.
 
 A Theme builder is available at http://elpa.gnu.org/themes/ along with
@@ -306,7 +306,7 @@ evaluated a theme is activated using the =load-theme= function.
 
 #+BEGIN_SRC emacs-lisp
 (color-theme-initialize)
-(if *terminal*
+(if (or *terminal* (string= "light" (getenv "EMACS_COLOR_THEME")))
     (progn (color-theme-solarized-light)
            (set-face-background 'highlight-indentation-face "#073642")
            (set-face-background 'highlight-indentation-current-column-face "#eee8d5"))
@@ -314,10 +314,9 @@ evaluated a theme is activated using the =load-theme= function.
          (set-face-background 'highlight-indentation-face "#073642")
          (set-face-background 'highlight-indentation-current-column-face "#073642")))
 #+END_SRC
-** Power line
    
-The author have no idea why =custom-set-faces= doesn't work at all, so
-directly modify [[~/.emacs.d/src/emacs-powerline-master/powerline.el][Powerline]] source code. It is not a good idea.
+Load powerline after color theme is set. If you change the color theme in
+running emacs, the expressions as follows should be re-evaluated.
 #+BEGIN_SRC emacs-lisp 
 (require 'powerline)
 (set-face-attribute 'mode-line nil

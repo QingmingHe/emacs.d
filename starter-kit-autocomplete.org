@@ -9,7 +9,7 @@
 (mapcar
  (lambda (mode)
    (add-to-list 'ac-gtags-modes mode))
- '(f90-mode python-mode emacs-lisp-mode))
+ '(f90-mode python-mode))
 
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
@@ -58,9 +58,7 @@
                      ac-source-functions
                      ac-source-variables
                      ac-source-symbols
-                     ac-source-yasnippet
-                     ac-source-gtags
-                     ac-source-etags)
+                     ac-source-yasnippet)
                    ac-sources))))
 (add-hook 'org-mode-hook
           (lambda ()
