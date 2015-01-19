@@ -148,10 +148,8 @@ return: Windows path.
      (make-indirect-buffer (current-buffer) indirect-buffer-name))
     (funcall mode)
     (narrow-to-region start end)
-    (goto-char (point-min))
-    (shrink-window-if-larger-than-buffer)
     (setq-local
      header-line-format
-     '(:eval (format "Edit. Finish by kill the buffer.")))))
+     '(:eval (format "Edit. Finish by killing the buffer.")))))
 #+end_src
 
