@@ -44,12 +44,11 @@ a lambda doesn't already exist in the list.
 
 ;; Use relative line number. Set linum-relative-current-symbol to be empty
 ;; string so that linum-relative will show the real line number at current
-;; line.
+;; line. Linum mode is too slow.
 (defun starter-kit-turn-on-linum ()
   (make-local-variable 'linum-relative-current-symbol)
   (setq linum-relative-current-symbol "")
   (linum-mode 1))
-(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-linum)
 
 (when (window-system)
   (add-hook 'starter-kit-coding-hook 'starter-kit-pretty-lambdas))
