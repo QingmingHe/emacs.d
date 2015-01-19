@@ -127,3 +127,31 @@ return: Windows path.
 	  (error (beep)))))
     (message "Done.")))
 #+END_SRC
+** Indirect region
+#+begin_src emacs-lisp
+(defun indirect-region (start end &optional mode)
+  "Edit the current region in another buffer with `mode'."
+  (interactive "r")
+  (let ((indirect-buffer-name
+         (generate-new-buffer-name
+          (format "*Indirect %s*" (buffer-name))))
+        (mode (or
+               mode
+               (intern
+                (ido-completing-read
+                 "Mode: "
+                 (mapcar (lambda (e) 
+                           (list (symbol-name e)))
+                         (apropos-internal "-mode$" 'commandp))
+                 nil t)))))
+    (pop-to-buffer
+     (make-indirect-buffer (current-buffer) indirect-buffer-name))
+    (funcall mode)
+    (narrow-to-region start end)
+    (goto-char (point-min))
+    (shrink-window-if-larger-than-buffer)
+    (setq-local
+     header-line-format
+     '(:eval (format "Edit. Finish by kill the buffer.")))))
+#+end_src
+

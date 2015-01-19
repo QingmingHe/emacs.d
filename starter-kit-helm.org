@@ -62,3 +62,5 @@ Helm or ido sometimes do wrong things.
 1. Basically you can use ido-find-file, which is binded to *C-x C-f*.
 2. To find a file recursively under path, use *helm-find* command.
 3. To find a file in project, use *prj/find-file*.
+*** M-x doesn't work
+Run dired and M-x works. I don't known why.

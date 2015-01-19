@@ -6,7 +6,6 @@
 ;;
 
 ;; activate debugging, similar to emacs --debug-init
-;; if debug-on-error is nil, helm-M-x will not work. don't know why.
 (setq debug-on-error t
       debug-on-signal nil
       debug-on-quit nil)
