@@ -2,16 +2,15 @@
 
 ;; 1. Define hostmode object
 (defcustom pm-host/python
-  (pm-bchunkmode "Python"
+  (pm-bchunkmode "python"
                  :mode 'python-mode)
   "Python host chunkmode"
   :group 'hostmodes
   :type 'object)
 
 ;; 2. Define innermode object
-(defcustom  pm-inner/python+rst
-  (pm-hbtchunkmode "python+rst"
-                   :mode 'rst-mode
+(defcustom  pm-inner/rst
+  (pm-hbtchunkmode "rst"
                    :head-reg "^[ \t]*\"\"\"{rst}$"
                    :tail-reg "^[ \t]*{rst}\"\"\"\"$"
                    :head-mode 'host
@@ -23,9 +22,9 @@
 
 ;; 3. Define polymode object
 (defcustom pm-poly/python+rst
-  (pm-polymode-one "python+rst"
+  (pm-polymode-one "rst"
                    :hostmode 'pm-host/python
-                   :innermode 'pm-inner/python+rst)
+                   :innermode 'pm-inner/rst)
   "Python typical configuration"
   :group 'polymodes
   :type 'object)
