@@ -9,21 +9,24 @@ w3m you can browse web pages through a terminal emulator window (xterm, rxvt
 or something like that). Moreover, w3m can be used as a text formatting tool
 which typesets HTML into plain text.
 #+END_QUOTE
-
-Svn version of Emacs w3m does not work and the author combined several
-versions to make it work, without any rational.
+  
+** Basic configuration
 
 #+BEGIN_SRC emacs-lisp
 (if (executable-find "w3m")
   (progn
     (require 'w3m)
-    (require 'w3m-load)
     (setq w3m-command "w3m")
     (setq browse-url-browser-function 'w3m-browse-url)
     (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
-    (global-set-key "\C-xm" 'browse-url-at-point)
     (setq w3m-use-cookies t)
-    (setq w3m-home-page "https://www.google.com.hk")
-    )
+    (setq w3m-home-page "https://www.google.com.hk"))
   (message "w3m is not installed!"))
 #+END_SRC
+
+** How to install
+
+- Install mew, apel and flim from melpa.
+- Install w3m form melpa.
+- Error during compilation for lack of Mule-UCS. Don't care it, Mule-UCS is
+  obsolete.
