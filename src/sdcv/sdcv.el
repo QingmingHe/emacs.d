@@ -15,7 +15,7 @@
 ;;
 ;; Features that might be required by this library:
 ;;
-;; `showtip' `outline' `cl'
+;; `popup' `outline' `cl'
 ;;
 
 ;;; This file is NOT part of GNU Emacs
@@ -164,7 +164,7 @@
 (require 'outline)
 (eval-when-compile
   (require 'cl))
-(require 'showtip)
+(require 'popup)
 
 ;;; Code:
 
@@ -369,7 +369,7 @@ The result will be displayed in buffer named with
 
 (defun sdcv-search-simple (&optional word)
   "Search WORD simple translate result."
-  (showtip
+  (popup-tip
    (sdcv-search-witch-dictionary word sdcv-dictionary-simple-list)))
 
 (defun sdcv-search-witch-dictionary (word dictionary-list)

@@ -302,3 +302,16 @@ Save buffers before compile automatically.
 #+BEGIN_SRC emacs-lisp
 (setq compilation-ask-about-save nil)
 #+END_SRC
+** sdcv
+sdcv is a command-line version of stardict.
+*** Install sdcv
++ Google =sdcv= and download the source code.
++ Install glib2, readline.
++ Generate Makefile with CMake.
++ Open =/path/to/CMakeFiles/sdcv.dir/flags.make= and add *-U__STRICT_ANSI__*
+  command to *CXX_DEFINES*.
++ make.
++ Copy sdcv to $PATH.
+*** Install dictionary
++ Download from ...
++ Decompress and copy to =~/.stardict/dic=.

@@ -47,6 +47,8 @@
         remember
         quickrun
         diminish
+        ,(unless (executable-find "sdcv")
+           'sdcv)
 
         ;; eshell, term
         em-cmpl
