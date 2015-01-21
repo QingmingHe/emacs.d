@@ -55,8 +55,14 @@ it. If *M-x* is bound to *helm-M-x*, run *M-x C-u 2 eshell* instead.
    
 *** Multi eshell
 
-Use =multi-eshell= to handle multiple terms. Use *\-mn* to create new term or
-switch to anther existing term.
+Use =multi-eshell= to handle multiple shells. Use *\-mn* to create new shell or
+switch to anther existing shell. Shell doesn't support zsh well, so specify
+shell file name to be bash.
+#+begin_src emacs-lisp
+(setq shell-file-name "/usr/bin/bash")
+(setq explicit-bash-args '("--noediting" "--login" "-i"))
+#+end_src
+
 
 *** Term and ansi-term
     

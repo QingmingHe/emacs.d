@@ -1,7 +1,9 @@
 #+TITLE: Starter Kit Dictionary
 #+OPTIONS: toc:nil num:nil ^:nil
 
-Use dictionary in Emacs.
+* Starter Kit Dictionary
+
+** Dictionary.el
 
 #+BEGIN_SRC emacs-lisp
 (autoload 'dictionary-search "dictionary"
@@ -20,3 +22,18 @@ Use dictionary in Emacs.
   "Display tooltips for the current word" t)
 #+END_SRC
 
+** sdcv
+sdcv is a command-line version of stardict.
+*** Install sdcv
++ Google =sdcv= and download the source code.
++ Install glib2, readline.
++ Generate Makefile with CMake.
++ Open =/path/to/CMakeFiles/sdcv.dir/flags.make= and add *-U__STRICT_ANSI__*
+  command to *CXX_DEFINES*.
++ make.
++ Copy sdcv to $PATH.
+*** Install dictionary
++ Download from http://abloz.com/huzheng/stardict-dic/
++ Decompress and copy to =~/.stardict/dic=.
+*** Use sdcv.el
+*helm-M-x ^sdcv* and you know what it means.

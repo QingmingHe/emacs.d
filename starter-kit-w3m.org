@@ -30,3 +30,6 @@ which typesets HTML into plain text.
 - Install w3m form melpa.
 - Error during compilation for lack of Mule-UCS. Don't care it, Mule-UCS is
   obsolete.
+  
+** Usage
++ To copy url: *w3m-print-current-url*

@@ -111,6 +111,7 @@ back.
             (etu/visit-tags-table)))
   "tl" 'helm-semantic-or-imenu
   "ne" 'flycheck-next-error
+  "sd" 'sdcv-search-input
   "w" 'ace-jump-word-mode
   "l" 'ace-jump-line-mode
   )
