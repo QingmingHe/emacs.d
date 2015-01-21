@@ -110,6 +110,7 @@ previously visited the same file.
       ido-use-filename-at-point nil
       ido-use-virtual-buffers t
       ido-auto-merge-work-directories-length -1
+      ido-save-directory-list-file (concat starter-kit-dir ".ido.last")
       ido-max-prospects 10)
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
