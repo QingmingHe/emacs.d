@@ -98,6 +98,7 @@
         csv-mode
         gnuplot
         rnc-mode
+	vimrc-mode
 
         ;; docs modes
         markdown-mode
