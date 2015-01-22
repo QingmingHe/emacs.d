@@ -27,19 +27,17 @@ warnings. An =flycheck-fortran-gfortran-zh= plugin is used.
                              (flycheck-select-checker 'fortran-gfortran-zh)))
 #+END_SRC
 
-
 ** Python
 
 Select checker for that flake8 is not always available.
 #+BEGIN_SRC emacs-lisp
-(defun select-python-checker ()
+(defun my-select-python-checker ()
   (when (equal 'python-mode major-mode)
     (if (executable-find "flake8")
         (flycheck-select-checker 'python-flake8)
       (flycheck-select-checker 'python-pycompile))))
 
-(add-hook 'python-mode-hook #'(lambda ()
-                                (select-python-checker)))
+(add-hook 'python-mode-hook 'my-select-python-checker)
 #+END_SRC
 
 You can install flake8 with its dependencies without direct Internet
@@ -48,3 +46,12 @@ connection this way:
    --download=/path/to/download*.
 2. Move all the packages where you want.
 3. Install the packages in a dependent sequence *pip install /path/to/package*.
+
+** C
+TODO. Add include path, select checker ...
+#+begin_src emacs-lisp
+(defun my-flycheck-c-setup ()
+  (flycheck-select-checker 'c/c++-gcc))
+(add-hook 'c-mode-common-hook 'my-flycheck-c-setup)
+#+end_src
+

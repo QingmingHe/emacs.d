@@ -156,18 +156,20 @@ return: Windows path.
 ** C include paths
 #+begin_src emacs-lisp
 (defun get-c-include-paths-general ()
-  (with-temp-buffer
-    (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
-    (goto-char (point-min))
-    (search-forward "#include <...>")
-    (next-line)
-    (setq p1 (line-beginning-position))
-    (search-forward "# 1")
-    (previous-line)
-    (previous-line)
-    (setq p2 (line-end-position))
-    (setq c-include-paths (split-string (buffer-substring-no-properties p1 p2)))
-    (add-to-list 'c-include-paths ".")))
+  (let (p1 p2 c-include-paths)
+    (with-temp-buffer
+      (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
+      (goto-char (point-min))
+      (search-forward "#include <...>")
+      (next-line)
+      (setq p1 (line-beginning-position))
+      (search-forward "# 1")
+      (previous-line)
+      (previous-line)
+      (setq p2 (line-end-position))
+      (setq c-include-paths (split-string (buffer-substring-no-properties p1 p2)))
+      (add-to-list 'c-include-paths "."))
+    c-include-paths))
 
 (defun get-c-include-paths-pkgs (pkgs)
   "Get c include flags for `pkgs'. `pkgs' should be string or list of string.
