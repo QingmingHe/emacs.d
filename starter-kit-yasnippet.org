@@ -9,13 +9,18 @@ inspired by TextMate's templating syntax.
 - watch the [[http://www.youtube.com/watch?v=vOj7btx3ATg][video on YouTube]]
 - see the [[http://yasnippet.googlecode.com/svn/trunk/doc/index.html][intro and tutorial]]
 
+** yas everywhere
+#+BEGIN_SRC emacs-lisp
+(yas-global-mode 1)
+#+END_SRC
+
 ** Load Snippets Distributed with the Starter Kit
    :PROPERTIES:
    :CUSTOM_ID: default-snippets
    :END:
 Load the snippets defined in the =./snippets/= directory.
 #+begin_src emacs-lisp
-(yas/load-directory "~/.emacs.d/snippets")
+(yas-load-directory "~/.emacs.d/snippets")
 #+end_src
 
 ** Configure Yasnippets for Org Mode
@@ -59,6 +64,7 @@ using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
 (define-key yas-minor-mode-map (kbd "<tab>") nil)
 (define-key yas-minor-mode-map (kbd "TAB") nil)
 (define-key yas-minor-mode-map (kbd "C-c C-e") 'yas-expand)
+(define-key yas-minor-mode-map (kbd "C-c C-i") 'yas-insert-snippet)
 #+END_SRC
 
 ** Use popup
@@ -89,9 +95,4 @@ using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
       '(yas-popup-isearch-prompt
         yas-no-prompt))
 #+end_src
-
-** yas everywhere
-#+BEGIN_SRC emacs-lisp
-(yas-global-mode 1)
-#+END_SRC
 

@@ -23,29 +23,27 @@
  ac-sources
  '(ac-source-abbrev
    ac-source-dictionary
-   ac-source-words-in-same-mode-buffers))
+   ac-source-words-in-buffer
+   ac-source-filename))
 (add-hook 'f90-mode-hook
           (lambda ()
             (setq ac-sources
                   (append
-                   '(ac-source-yasnippet
-                     ac-source-gtags
+                   '(ac-source-gtags
                      ac-source-etags)
                    ac-sources))))
 (add-hook 'python-mode-hook
           (lambda ()
             (setq ac-sources
                   (append
-                   '(ac-source-yasnippet
-                     ac-source-gtags
+                   '(ac-source-gtags
                      ac-source-etags)
                    ac-sources))))
 (add-hook 'c-mode-common-hook
           (lambda ()
             (setq ac-sources
                   (append
-                   '(ac-source-yasnippet
-                     ac-source-gtags
+                   '(ac-source-gtags
                      ac-source-etags)
                    ac-sources))
             (when (executable-find "clang")
@@ -57,23 +55,7 @@
                    '(ac-source-features
                      ac-source-functions
                      ac-source-variables
-                     ac-source-symbols
-                     ac-source-yasnippet)
-                   ac-sources))))
-(add-hook 'org-mode-hook
-          (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-yasnippet
-                     ac-source-files-in-current-dir
-                     ac-source-filename)
-                   ac-sources))))
-(add-hook 'text-mode-hook
-          (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-files-in-current-dir
-                     ac-source-filename)
+                     ac-source-symbols)
                    ac-sources))))
 (add-hook 'eshell-mode-hook
           (lambda ()
@@ -105,21 +87,16 @@
 Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*, to
 ac-clang backend.
 #+BEGIN_SRC emacs-lisp
-(defun get-c-include-path ()
-  (with-temp-buffer
-    (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
-    (goto-char (point-min))
-    (search-forward "#include <...>")
-    (next-line)
-    (setq p1 (line-beginning-position))
-    (search-forward "# 1")
-    (previous-line)
-    (previous-line)
-    (setq p2 (line-end-position))
-    (setq c-include-paths (split-string (buffer-substring-no-properties p1 p2)))
-    (add-to-list 'c-include-paths ".")))
+(defun add-ac-clang-include-flags-pkgs (&rest pkgs)
+  "Add c include flags to ac-clang-flags for given pkgs."
+  (make-local-variable 'ac-clang-flags)
+  (mapc
+   (lambda (inc)
+     (add-to-list 'ac-clang-flags (concat "-I" inc)))
+   (get-c-include-paths-pkgs pkgs))
+  ac-clang-flags)
 
 (setq ac-clang-flags
-      (mapcar (lambda (item)(concat "-I" item))
-              (get-c-include-path)))
+      (mapcar (lambda (item) (concat "-I" item))
+              (get-c-include-paths-general)))
 #+END_SRC

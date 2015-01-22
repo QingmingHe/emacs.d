@@ -33,7 +33,6 @@ other data on the mode line.
 (eval-after-load "smartparens"           '(diminish 'smartparens-mode))
 (eval-after-load "cdlatex"               '(diminish 'org-cdlatex-mode))
 (eval-after-load "outline"               '(diminish 'outline-minor-mode))
-(eval-after-load "yasnippet"             '(diminish 'yas-minor-mode))
 (eval-after-load "highlight-indentation" '(diminish 'highlight-indentation-current-column-mode))
 (diminish 'auto-fill-function)
 #+END_SRC
