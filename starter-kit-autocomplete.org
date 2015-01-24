@@ -2,7 +2,7 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit AC
-
+  
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
 ;; enable ac-gtags in several modes
@@ -23,43 +23,8 @@
  ac-sources
  '(ac-source-abbrev
    ac-source-dictionary
-   ac-source-words-in-buffer
+   ac-source-words-in-same-mode-buffers
    ac-source-filename))
-(add-hook 'f90-mode-hook
-          (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-gtags
-                     ac-source-etags)
-                   ac-sources))))
-(add-hook 'python-mode-hook
-          (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-gtags
-                     ac-source-etags)
-                   ac-sources))))
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-gtags
-                     ac-source-etags)
-                   ac-sources))
-            (when (executable-find "clang")
-              (add-to-list 'ac-sources 'ac-source-clang))))
-(add-hook 'emacs-lisp-mode-hook
-          (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-features
-                     ac-source-functions
-                     ac-source-variables
-                     ac-source-symbols)
-                   ac-sources))))
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (setq ac-sources '(ac-source-pcomplete))))
 
 ;; enable auto complete in all modes
 (global-auto-complete-mode t)
@@ -82,21 +47,96 @@
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
 #+END_SRC
 
-** Set up for Backends
-*** Clang for C and C++
-Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*, to
-ac-clang backend.
-#+BEGIN_SRC emacs-lisp
-(defun add-ac-clang-include-flags-pkgs (&rest pkgs)
-  "Add c include flags to ac-clang-flags for given pkgs."
-  (make-local-variable 'ac-clang-flags)
-  (mapc
-   (lambda (inc)
-     (add-to-list 'ac-clang-flags (concat "-I" inc)))
-   (get-c-include-paths-pkgs pkgs))
-  ac-clang-flags)
+** Fortran
 
-(setq ac-clang-flags
-      (mapcar (lambda (item) (concat "-I" item))
-              (get-c-include-paths-general)))
-#+END_SRC
+#+begin_src emacs-lisp
+(add-hook 'f90-mode-hook
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-gtags
+                     ac-source-etags)
+                   ac-sources))))
+#+end_src
+   
+** Python
+
+#+begin_src emacs-lisp
+(add-hook 'python-mode-hook
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-gtags
+                     ac-source-etags)
+                   ac-sources))))
+#+end_src
+
+** Emacs lisp
+   
+#+begin_src emacs-lisp
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (setq ac-sources
+                  (append
+                   '(ac-source-features
+                     ac-source-functions
+                     ac-source-variables
+                     ac-source-symbols)
+                   ac-sources))))
+#+end_src
+
+** Eshell
+
+#+begin_src emacs-lisp
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (setq ac-sources '(ac-source-pcomplete))))
+#+end_src
+
+** CC
+#+begin_src emacs-lisp
+(defun my-update-c-headers-symbols ()
+  "Update ac-c-headers--symbols-cache after saving header file."
+  (when (featurep 'ac-c-headers)
+    (let ((header (file-name-nondirectory (buffer-file-name))))
+      (when (and
+             header
+             (string-match-p "\\.\\(h\\|hpp\\)$" header))
+        (mapc
+         (lambda (h)
+           (when (string-match-p (concat header "$") (car h))
+             (remove-alist 'ac-c-headers--symbols-cache (car h))
+             (ac-c-headers--symbols-update (car h))))
+         ac-c-headers--symbols-cache)))))
+
+(defun my-c-c++-ac-setup ()
+  (when (derived-mode-p 'c-mode 'c++-mode)
+    (setq ac-sources
+          (append
+           '(ac-source-gtags
+             ac-source-etags
+             ac-source-c-headers
+             ac-source-c-header-symbols)
+           ac-sources))
+    (when (executable-find "clang")
+      (add-to-list 'ac-sources 'ac-source-clang))
+    ;; ac-c-headers use cc-search-directories to get the searching paths
+    (setq cc-search-directories '("." "/usr/include"))
+    (when (file-exists-p "/usr/local/include")
+      (add-to-list 'cc-search-directories "/usr/local/include"))
+    (when (file-exists-p "/opt/include")
+      (add-to-list 'cc-search-directories "/opt/include"))
+    (make-local-variable 'after-save-hook)
+    (add-hook 'after-save-hook 'my-update-c-headers-symbols)))
+(add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
+
+;; Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*
+(setq ac-clang-flags '("-I."))
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (make-local-variable 'ac-clang-flags)
+            (mapc
+             (lambda (item)
+               (add-to-list 'ac-clang-flags (concat "-I" item)))
+             (prj/c-include-paths-general))))
+#+end_src

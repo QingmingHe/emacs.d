@@ -19,12 +19,15 @@ codes:
 ((f90-mode . ((flycheck-gfortran-include-path . ("path0" "other/path")))))
 #+END_SRC
 
-The built in fortran-gfortran doesn't support Chinese errors and
-warnings. An =flycheck-fortran-gfortran-zh= plugin is used.
+The built in fortran-gfortran doesn't support Chinese errors and warnings. An
+=flycheck-fortran-gfortran-zh= plugin is used.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'f90-mode-hook #'(lambda ()
-                             (flycheck-select-checker 'fortran-gfortran-zh)))
+                             (when (executable-find "gfortran")
+                               (flycheck-mode)
+                               (flycheck-select-checker 'fortran-gfortran-zh)
+                               (setq flycheck-gfortran-language-standard "f2008"))))
 #+END_SRC
 
 ** Python
@@ -32,7 +35,12 @@ warnings. An =flycheck-fortran-gfortran-zh= plugin is used.
 Select checker for that flake8 is not always available.
 #+BEGIN_SRC emacs-lisp
 (defun my-select-python-checker ()
-  (when (equal 'python-mode major-mode)
+  (when (and
+         (equal 'python-mode major-mode)
+         (not
+          (member (file-name-nondirectory (buffer-file-name))
+                  '("SConstruct" "SConscript"))))
+    (flycheck-mode)
     (if (executable-find "flake8")
         (flycheck-select-checker 'python-flake8)
       (flycheck-select-checker 'python-pycompile))))
@@ -48,10 +56,17 @@ connection this way:
 3. Install the packages in a dependent sequence *pip install /path/to/package*.
 
 ** C
-TODO. Add include path, select checker ...
++ Clang is very good at auto completion but doesn't support OpenMP as well as
+  GCC.
++ Clang always can't find the default include paths. Maybe the author is not
+  familiar with Clang.
++ Use GCC as the default checker.
 #+begin_src emacs-lisp
 (defun my-flycheck-c-setup ()
-  (flycheck-select-checker 'c/c++-gcc))
+  (when (executable-find "gcc")
+    (progn
+      (flycheck-mode)
+      (flycheck-select-checker 'c/c++-gcc))))
 (add-hook 'c-mode-common-hook 'my-flycheck-c-setup)
 #+end_src
 

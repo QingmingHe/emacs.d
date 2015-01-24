@@ -21,8 +21,6 @@
 
 (require 'project-root)
 (require 'etags-update)
-(require 'flycheck)
-(require 'helm)
 
 (defvar project-minor-mode-map
   (let ((map (make-sparse-keymap)))
@@ -32,9 +30,6 @@
 
 (defvar prj/update-tags-verbose nil
   "Whether message information about updating tags.")
-
-(defvar prj/update-tags t
-  "Whether update tags file of the project after saving a file of the project")
 
 (defvar prj/use-gtags (if (executable-find "gtags")
                           t
@@ -71,13 +66,15 @@ use ctags parser.")
    prj/gtags-conf-file-choices))
 
 (defun prj/find-file ()
-  "Find a file from a list of those that exist in the current
-project. Use completing-read instead of ido-complete-read to make use of helm."
+  "Find a file from a list of those that exist in the current project."
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
-             (file (helm-comp-read "Find file in project: "
-                                   (mapcar 'car project-files))))
+             (file (if (featurep 'helm)
+                       (helm-comp-read "Find file in project: "
+                                       (mapcar 'car project-files))
+                     (ido-completing-read "Find file in project: "
+                                          (mapcar 'car project-files)))))
         (find-file (cdr (assoc file project-files))))))
 
 (defun prj/find-grep (grep-regexp)
@@ -165,16 +162,12 @@ project root, otherwise prj can't update tags file."
   (let ((fname (buffer-file-name))
         (p (project-root-fetch)))
     (when (and p fname)
-      (when prj/update-tags-verbose
-        (message "Updating GTAGS ..."))
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
         (shell-command
          (format
           "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
-          gtags-label gtags-conf fname)))
-      (when prj/update-tags-verbose
-        (message "Done")))))
+          gtags-label gtags-conf fname))))))
 
 (defun prj/update-tags-single-file ()
   (if prj/use-gtags
@@ -229,24 +222,81 @@ project root, otherwise prj can't update tags file."
 
 (defun prj/set-gfortran-compile-args (&optional p)
   "Set flycheck-gfortran-* variables."
-  (when (equal 'f90-mode major-mode)
+  (when (and
+         (equal 'f90-mode major-mode)
+         (featurep 'flycheck))
       (let ((p (or p (project-root-fetch))))
-        (setq flycheck-gfortran-include-path
-              (mapcar
-               #'(lambda (include-path)
-                   (if (equal 0 (string-match-p "[/~]" include-path))
-                       (expand-file-name include-path)
-                     (expand-file-name (concat (cdr p) include-path))))
-               (or (project-root-data :gfortran-include-paths p) '("."))))
+        ;; user gfortran include paths
+        (mapc
+         #'(lambda (include-path)
+             (add-to-list 'flycheck-gfortran-include-path
+                          (if (equal 0 (string-match-p "[/~]" include-path))
+                              (expand-file-name include-path)
+                            (expand-file-name (concat (cdr p) include-path)))))
+         (or (project-root-data :gfortran-include-paths p) '(".")))
+        ;; user gfortran pre-definitions
         (when (project-root-data :gfortran-definitions p)
           (setq flycheck-gfortran-definitions
                 (project-root-data :gfortran-definitions p)))
+        ;; user gfortran language standard
         (when (project-root-data :gfortran-language-standard p)
           (setq flycheck-gfortran-language-standard
-                (or (project-root-data :gfortran-language-standard p) "f2008"))))))
+                (or (project-root-data :gfortran-language-standard p) "f2008")))
+        ;; whether use hdf5 library
+        (when (project-root-data :use-hdf5 p)
+          (let ((hdf5-root (getenv "HDF5_ROOT")))
+            (when hdf5-root
+              (add-to-list 'flycheck-gfortran-include-path
+                           (concat hdf5-root "/include"))))))))
+
+(defun prj/c-include-paths-general ()
+  "Get general C include paths."
+  (let (p1 p2 c-include-paths)
+    (with-temp-buffer
+      (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
+      (goto-char (point-min))
+      (search-forward "#include <...>")
+      (next-line)
+      (setq p1 (line-beginning-position))
+      (search-forward "# 1")
+      (previous-line)
+      (previous-line)
+      (setq p2 (line-end-position))
+      (setq c-include-paths (split-string (buffer-substring-no-properties p1 p2)))
+      (add-to-list 'c-include-paths "."))
+    c-include-paths))
+
+(defun prj/c-include-paths-pkgs (pkgs)
+  "Get c include pahts for `pkgs'. `pkgs' should be string or list of string.
+
+Valid form of `pkgs':
+\"glib\", \"glib python-2.7\", '(\"glib\" \"python-2.7\")
+
+Returns:
+Include paths of `pkgs'"
+  (when (and pkgs (executable-find "pkg-config"))
+    (let ((c-include-paths nil)
+          (pkgs (cond ((listp pkgs) pkgs)
+                      ((stringp pkgs) (split-string pkgs)))))
+      (mapc
+       (lambda (pkg)
+         (mapc
+          (lambda (inc)
+            (when (and
+                   (> (length inc) 2)
+                   (string= "-I" (substring inc 0 2)))
+              (add-to-list 'c-include-paths (substring inc 2))))
+          (split-string (shell-command-to-string
+                         (format "pkg-config --cflags-only-I %s" pkg)))))
+       pkgs)
+      c-include-paths)))
+
+(defun prj/set-c-args (&optional p)
+  "Set flycheck-*-include-path and ac-clang-flags."
+  )
 
 (defun prj/set-compile-args (&optional p)
-  "Set flycheck-checker-* variables."
+  "Set flycheck-checker-* variables and ac-clang-flags."
   (let ((p (or p (project-root-fetch))))
     (when p
       (cond ((equal 'f90-mode major-mode)
@@ -259,22 +309,29 @@ project root, otherwise prj can't update tags file."
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
   nil
-  :lighter " prj"
-  (if project-minor-mode
-      (progn
-        (let ((p (project-root-fetch))
-              (fname (buffer-file-name)))
-          (when (and
-                 prj/update-tags
-                 p
-                 fname
-                 (file-exists-p fname)
-                 (project-root-file-is-project-file fname p))
-            (make-local-variable 'after-save-hook)
-            (add-hook 'after-save-hook 'prj/update-tags-single-file))
-          (prj/set-compile-args p)))
+  :lighter (:eval (let ((p (project-root-fetch))
+                        (fname (buffer-file-name))
+                        lght)
+                    (when (and
+                           p
+                           fname
+                           (file-exists-p fname)
+                           (project-root-file-is-project-file fname p))
+                      (setq lght " prj"))
+                    lght))
+
+  (when project-minor-mode
     (progn
-      (remove-hook 'after-save-hook 'prj/update-tags-single-file))))
+      (let ((p (project-root-fetch))
+            (fname (buffer-file-name)))
+        (when (and
+               p
+               fname
+               (file-exists-p fname)
+               (project-root-file-is-project-file fname p))
+          (make-local-variable 'after-save-hook)
+          (add-hook 'after-save-hook 'prj/update-tags-single-file)
+          (prj/set-compile-args p))))))
 
 (provide 'project)
 

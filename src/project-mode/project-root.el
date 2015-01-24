@@ -55,11 +55,6 @@
 ;;          :filename-regex ,(regexify-ext-list '(py f90 f))
 ;;          :exclude-paths (".git" "tests")
 ;;          :gfortran-include-paths ("../BUILD_DEBUG/include"))))
-;; properties:
-;;   :root-contains-files
-;;   :filename-regex
-;;   :exclude-paths
-;;   :gfortran-include-paths
 ;;
 ;; I bind the following:
 ;;

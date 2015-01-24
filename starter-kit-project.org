@@ -9,12 +9,6 @@ Use gtags, etags, imenu ... to handle projects.
 
 First define projects.
 #+BEGIN_SRC emacs-lisp
-(defun get-SUGAR-include-paths ()
-  (let ((paths '("../BUILD_RELEASE/include")))
-    (when (getenv "HDF5_ROOT")
-      (add-to-list 'paths (format "%s/include" (getenv "HDF5_ROOT"))))
-    paths))
-
 (defun get-SUGAR-definitions ()
   (let ((defs '("F08_GNU")))
     (when (getenv "HDF5_ROOT")
@@ -33,10 +27,10 @@ First define projects.
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py org))
          :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
-         :gfortran-include-paths ,(get-SUGAR-include-paths)
+         :gfortran-include-paths ("../BUILD_RELEASE/include")
          :gfortran-definitions ,(get-SUGAR-definitions)
-         :gfortran-language-standard "f2008"
-         :gtags-label "ctags")
+         :gtags-label "ctags"
+         :use-hdf5 ,(getenv "HDF5_ROOT"))
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))

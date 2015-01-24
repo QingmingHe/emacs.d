@@ -28,9 +28,6 @@ and then change directory to ~/.emacs.d.
         [http]
               postBuffer = 524288000
               
-    * file of **~/.c-include-path** should be provided, with each path split
-      by spaces
-
 .. _SECTION-dependencies:              
 
 ---------------------------------
@@ -43,29 +40,32 @@ Third Party Packages Dependencies
   * Add **lang en** to **/etc/aspell.conf** to set default language to
     be English for Chinese OS.
     
-* `Ctags`_ for code navigation.
+* `Ctags`_ and gtags for code navigation.
 * `w3m`_ text-based web browser.
-* `jedi`_. To install **jedi**, follow the instructions given in **jedi** 's
-  home page.
 * `Evince`_ for pdf preview.
 * Fonts: Consolas for English and Microsoft Yahei for Chinese
 * `LaTeX`_ packages collections such as `TEX live`_  
-* `Python`_ and `IPython`_
-* **clang** for completion. 
+* `Python`_, `IPython`_, flake8, jedi, numpy, h5py
+* Tool chain for coding: cmake, make, automake, autoconf, gcc, clang,
+  libclang, llvm, gdb
+* Git for version control
+* zip, unzip, unrar, xz
+* wget, curl
+* ssh
+* tmux
+* fontconfig, ghostscript
+* antiword transforms *.doc
+* xpdf for DocViewMode
 * **perl** for updating tags file
+* May be vim
+* pkg-config
+* sdcv command line dictionary
   
 .. _SECTION-bugs-and-problems:
 
 ----------------
 Bugs or Problems
 ----------------
-
-el-get
-------
-
-el-get can not install several packages like `dash`_, `flyspell`_,
-`evil`_ and so on. To fix it, you have to download them manually and
-add the path to emacs load path.
 
 flyspell
 --------
@@ -74,16 +74,16 @@ Add flyspell mode to other mode hook will cause error: "Autoloading
 failed to define function turn-on-flyspell". You have to activate
 flyspell mode manually.
 
-eshell
-------
-
-Starter-kit-eshell does not work.
-
 w3m
 ---
 
 Sometimes error of *apply: Setting current directory: permission denied,
 ~/.w3m/* occurs and you should remove ~/.w3m.
+
+Emacs-GTK
+---------
+
+May a bug of GTK or Emacs.
 
 .. _dash: https://github.com/magnars/dash.el
 .. _flyspell: http://www-sop.inria.fr/members/Manuel.Serrano/flyspell/flyspell.html

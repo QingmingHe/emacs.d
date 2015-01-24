@@ -2,15 +2,33 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit CC
-
-** Minor mode
+  
+** ff-find-other-file
    
-auto complete needs *clang* to be installed. The author has no idea how to set
-outline regexp of C language.
++ Use ff-find-other-file command to goto header file quickly.
++ The search dirs are defined at [[~/.emacs.d/starter-kit-autocomplete.org][starter-kit-autocomplete]].
++ Do some hack to locate symbol at point after loading header file.
 
+#+begin_src emacs-lisp
+(defun my-ff-get-symbol ()
+  (setq __c-symbol-at-point (thing-at-point-no-properties 'word)))
+(add-hook 'ff-pre-find-hook 'my-ff-get-symbol)
+
+(defun my-ff-locate-symbol ()
+  (when (and
+         __c-symbol-at-point
+         (string-match-p "\\.\\(h\\|hpp\\)" (buffer-name)))
+    (goto-char (point-min))
+    (re-search-forward (format "\\_<%s\\_>" __c-symbol-at-point) nil t)))
+(add-hook 'ff-post-load-hook 'my-ff-locate-symbol)
+#+end_src
+  
+** Configurations
+   
 #+BEGIN_SRC emacs-lisp
-(defun my-cc-config ()
-  (flycheck-mode)
-  (modify-syntax-entry ?_ "w"))
-(add-hook 'c-mode-common-hook 'my-cc-config)
+(defun my-c-common-config ()
+  (modify-syntax-entry ?_ "w")
+  (c-set-offset 'substatement-open 0)
+  (local-set-key (kbd "C-x C-o") 'ff-find-other-file))
+(add-hook 'c-mode-common-hook 'my-c-common-config)
 #+END_SRC

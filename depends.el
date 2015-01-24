@@ -11,6 +11,7 @@
         ido
         smex
         dash
+        find-file
         ,(unless *terminal*
            'pos-tip)
 
@@ -75,10 +76,14 @@
         ;; auto complete
         auto-complete
         auto-complete-config
-        auto-complete-clang
+        ,(unless (executable-find "clang")
+           'auto-complete-clang)
+        ac-c-headers
         ;; I've done some hack on etags
-        auto-complete-etags
-        auto-complete-gtags
+        ,(unless (executable-find "ctags")
+           'auto-complete-etags)
+        ,(unless (executable-find "gtags")
+           'auto-complete-gtags)
         auto-complete-pcomplete
         ring
         epc
@@ -110,9 +115,9 @@
         ;;TODO auctex
         cdlatex
 
-        ;; org is loaded in init.el or starter-kit-org.org w3m is loaded
-        ;; optionally in starter-kit-w3m.org evil and evil-* are handled in
-        ;; starter-kit-evil.org
+        ;; org is loaded in init.el or starter-kit-org.org
+        ;; w3m is loaded optionally in starter-kit-w3m.org
+        ;; evil and evil-* are handled in starter-kit-evil.org
         ))
 (setq starter-kit-required-pkgs (remove nil starter-kit-required-pkgs))
 

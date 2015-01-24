@@ -1,0 +1,12 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: cpph
+# key: cpph
+# --
+// <${1:`(file-name-nondirectory (file-name-sans-extension (buffer-file-name)))`}> -*- C++ -*-
+
+#ifndef ${2:_`(upcase (file-name-nondirectory (file-name-sans-extension (buffer-file-name))))`_H_}
+#define $2
+
+$0
+
+#endif /* $2 */
