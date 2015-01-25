@@ -6,10 +6,11 @@
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
 ;; enable ac-gtags in several modes
-(mapcar
- (lambda (mode)
-   (add-to-list 'ac-gtags-modes mode))
- '(f90-mode python-mode))
+(when (featurep 'auto-complete-gtags)
+  (mapcar
+   (lambda (mode)
+     (add-to-list 'ac-gtags-modes mode))
+   '(f90-mode python-mode)))
 
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
@@ -52,11 +53,10 @@
 #+begin_src emacs-lisp
 (add-hook 'f90-mode-hook
           (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-gtags
-                     ac-source-etags)
-                   ac-sources))))
+            (when (featurep 'auto-complete-etags)
+              (add-to-list 'ac-sources 'ac-source-etags))
+            (when (featurep 'auto-complete-gtags)
+              (add-to-list 'ac-sources 'ac-source-gtags))))
 #+end_src
    
 ** Python
@@ -66,11 +66,10 @@ Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
 #+begin_src emacs-lisp
 (add-hook 'python-mode-hook
           (lambda ()
-            (setq ac-sources
-                  (append
-                   '(ac-source-gtags
-                     ac-source-etags)
-                   ac-sources))))
+            (when (featurep 'auto-complete-etags)
+              (add-to-list 'ac-sources 'ac-source-etags))
+            (when (featurep 'auto-complete-gtags)
+              (add-to-list 'ac-sources 'ac-source-gtags))))
 #+end_src
 
 ** Emacs lisp
@@ -158,14 +157,15 @@ added.
       (add-to-list 'c++-include-paths "."))
     c++-include-paths))
 
-(setq ac-clang-flags '("-I."))
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (make-local-variable 'ac-clang-flags)
-            (mapc
-             (lambda (item)
-               (add-to-list 'ac-clang-flags (concat "-I" item)))
-             (c++-include-paths-general))))
+(when (featurep 'auto-complete-clang)
+  (setq ac-clang-flags '("-I."))
+  (add-hook 'c++-mode-hook
+            (lambda ()
+              (make-local-variable 'ac-clang-flags)
+              (mapc
+               (lambda (item)
+                 (add-to-list 'ac-clang-flags (concat "-I" item)))
+               (c++-include-paths-general)))))
 #+end_src
 
 *** ac-sources
@@ -175,12 +175,14 @@ added.
   (when (derived-mode-p 'c-mode 'c++-mode)
     (setq ac-sources
           (append
-           '(ac-source-gtags
-             ac-source-etags
-             ac-source-c-headers
+           '(ac-source-c-headers
              ac-source-c-header-symbols)
            ac-sources))
-    (when (executable-find "clang")
+    (when (featurep 'auto-complete-etags)
+      (add-to-list 'ac-sources 'ac-source-etags))
+    (when (featurep 'auto-complete-gtags)
+      (add-to-list 'ac-sources 'ac-source-gtags))
+    (when (featurep 'auto-complete-clang)
       (add-to-list 'ac-sources 'ac-source-clang))))
 (add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
 #+end_src

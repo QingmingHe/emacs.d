@@ -92,6 +92,54 @@ running emacs, the expressions as follows should be re-evaluated.
                     :underline nil)
 #+END_SRC
 
+** Power line
+#+begin_src emacs-lisp
+(defun powerline-my-theme ()
+  "Setup my mode-line."
+  (interactive)
+  (setq-default mode-line-format
+                '("%e"
+                  (:eval
+                   (let* ((active (powerline-selected-window-active))
+                          (mode-line (if active 'mode-line 'mode-line-inactive))
+                          (face2 (if active 'powerline-active1 'powerline-inactive1))
+                          (face1 (if active 'powerline-active2 'powerline-inactive2))
+                          (separator-left (intern (format "powerline-%s-%s"
+                                                          powerline-default-separator
+                                                          (car powerline-default-separator-dir))))
+                          (separator-right (intern (format "powerline-%s-%s"
+                                                           powerline-default-separator
+                                                           (cdr powerline-default-separator-dir))))
+                          (lhs (list (powerline-raw "%*" face2 'l)
+                                     (powerline-buffer-size face2 'l)
+                                     (powerline-raw mode-line-mule-info face2 'l)
+                                     (powerline-buffer-id face2 'l)
+                                     (when (and (boundp 'which-func-mode) which-func-mode)
+                                       (powerline-raw which-func-format face2 'l))
+                                     (powerline-raw " " face2)
+                                     (funcall separator-left face2 face1)
+                                     (when (boundp 'erc-modified-channels-object)
+                                       (powerline-raw erc-modified-channels-object face1 'l))
+                                     (powerline-major-mode face1 'l)
+                                     (powerline-process face1)
+                                     (powerline-minor-modes face1 'l)
+                                     (powerline-narrow face1 'l)
+                                     (powerline-raw " " face1)
+                                     (funcall separator-left face1 face2)
+                                     (powerline-vc face2 'r)))
+                          (rhs (list (powerline-raw global-mode-string face2 'r)
+                                     (funcall separator-right face2 face1)
+                                     (powerline-raw "%4l" face1 'l)
+                                     (powerline-raw ":" face1 'l)
+                                     (powerline-raw "%3c" face1 'r)
+                                     (funcall separator-right face1 face2)
+                                     (powerline-raw " " face2)
+                                     (powerline-raw "%6p" face2 'r))))
+                     (concat (powerline-render lhs)
+                             (powerline-fill face2 (powerline-width rhs))
+                             (powerline-render rhs)))))))
+#+end_src
+
 ** New
    
 [[https://github.com/bbatsov/solarized-emacs][Solarized theme here]] seems better than [[https://github.com/sellout/emacs-color-theme-solarized][this one]].
@@ -99,17 +147,12 @@ running emacs, the expressions as follows should be re-evaluated.
 (defadvice load-theme (around starter-kit-load-theme disable)
   ad-do-it
   (set-face-attribute 'mode-line nil
-                      :background "dim gray"
                       :foreground "cyan"
-                      :inverse-video nil
-                      :box nil
-                      :underline nil)
+                      :inverse-video nil)
   (set-face-attribute 'mode-line-inactive nil
-                      :background "dim gray"
-                      :foreground "light gray"
-                      :inverse-video nil
-                      :box nil
-                      :underline nil))
+                      :inverse-video nil)
+  (require 'powerline)
+  (powerline-my-theme))
 
 (defun starter-kit-solarized-emacs-setup ()
   ;; make the fringe stand out from the background
@@ -128,6 +171,5 @@ running emacs, the expressions as follows should be re-evaluated.
 
   (load-theme 'solarized-dark t))
 
-;; (require 'powerline)
 (starter-kit-solarized-emacs-setup)
 #+end_src

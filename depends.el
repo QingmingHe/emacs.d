@@ -76,13 +76,13 @@
         ;; auto complete
         auto-complete
         auto-complete-config
-        ,(unless (executable-find "clang")
+        ,(when (executable-find "clang")
            'auto-complete-clang)
         ac-c-headers
         ;; I've done some hack on etags
-        ,(unless (executable-find "ctags")
+        ,(when (executable-find "ctags")
            'auto-complete-etags)
-        ,(unless (executable-find "gtags")
+        ,(when (executable-find "gtags")
            'auto-complete-gtags)
         auto-complete-pcomplete
         ring
