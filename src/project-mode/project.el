@@ -294,7 +294,7 @@ Include paths of `pkgs', including \"-I\" flag."
                       (setq lght " prj")
                       (setq plght (project-root-data :lighter p))
                       (when plght
-                        (setq lght (format "%s(%s)" lght plght))))
+                        (setq lght (format "%s:%s" lght plght))))
                     lght))
   (if project-minor-mode
       (progn

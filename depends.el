@@ -48,7 +48,7 @@
         remember
         quickrun
         diminish
-        ,(unless (executable-find "sdcv")
+        ,(when (executable-find "sdcv")
            'sdcv)
 
         ;; eshell, term
