@@ -284,13 +284,17 @@ Include paths of `pkgs', including \"-I\" flag."
   "Minor mode for handling project."
   :lighter (:eval (let ((p (project-root-fetch))
                         (fname (buffer-file-name))
-                        lght)
+                        lght
+                        plght)
                     (when (and
                            p
                            fname
                            (file-exists-p fname)
                            (project-root-file-is-project-file fname p))
-                      (setq lght " prj"))
+                      (setq lght " prj")
+                      (setq plght (project-root-data :lighter p))
+                      (when plght
+                        (setq lght (format "%s(%s)" lght plght))))
                     lght))
   (if project-minor-mode
       (progn
@@ -305,6 +309,22 @@ Include paths of `pkgs', including \"-I\" flag."
             (prj/set-compile-args p))))
     (progn
       (remove-hook 'after-save-hook 'prj/update-tags-single-file t))))
+
+(defun project-mode-on-safe ()
+  "Enable `project-mode' if it is safe to do so."
+  (let ((p (project-root-fetch))
+        (fname (buffer-file-name)))
+    (when (and
+           p
+           fname
+           (file-exists-p fname)
+           (project-root-file-is-project-file fname p))
+      (project-minor-mode))))
+
+(define-globalized-minor-mode global-project-mode project-minor-mode
+  project-mode-on-safe
+  :init-value nil
+  :require 'project)
 
 (provide 'project)
 
