@@ -22,15 +22,6 @@
 (require 'project-root)
 (require 'etags-update)
 
-(defvar project-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    ;; (define-key map (kbd "SomeKey") 'some-function)
-    nil
-    map))
-
-(defvar prj/update-tags-verbose nil
-  "Whether message information about updating tags.")
-
 (defvar prj/use-gtags (if (executable-find "gtags")
                           t
                         nil)
@@ -308,7 +299,6 @@ Include paths of `pkgs'"
 
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
-  nil
   :lighter (:eval (let ((p (project-root-fetch))
                         (fname (buffer-file-name))
                         lght)
@@ -319,19 +309,19 @@ Include paths of `pkgs'"
                            (project-root-file-is-project-file fname p))
                       (setq lght " prj"))
                     lght))
-
-  (when project-minor-mode
+  (if project-minor-mode
+      (progn
+        (let ((p (project-root-fetch))
+              (fname (buffer-file-name)))
+          (when (and
+                 p
+                 fname
+                 (file-exists-p fname)
+                 (project-root-file-is-project-file fname p))
+            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
+            (prj/set-compile-args p))))
     (progn
-      (let ((p (project-root-fetch))
-            (fname (buffer-file-name)))
-        (when (and
-               p
-               fname
-               (file-exists-p fname)
-               (project-root-file-is-project-file fname p))
-          (make-local-variable 'after-save-hook)
-          (add-hook 'after-save-hook 'prj/update-tags-single-file)
-          (prj/set-compile-args p))))))
+      (remove-hook 'after-save-hook 'prj/update-tags-single-file))))
 
 (provide 'project)
 

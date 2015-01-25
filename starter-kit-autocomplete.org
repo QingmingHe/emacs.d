@@ -126,8 +126,7 @@
       (add-to-list 'cc-search-directories "/usr/local/include"))
     (when (file-exists-p "/opt/include")
       (add-to-list 'cc-search-directories "/opt/include"))
-    (make-local-variable 'after-save-hook)
-    (add-hook 'after-save-hook 'my-update-c-headers-symbols)))
+    (add-hook 'after-save-hook 'my-update-c-headers-symbols nil t)))
 (add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
 
 ;; Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*
