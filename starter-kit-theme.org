@@ -93,6 +93,8 @@ running emacs, the expressions as follows should be re-evaluated.
 #+END_SRC
 
 ** Power line
+   
+My powerline theme based on powerline-default-theme.
 #+begin_src emacs-lisp
 (defun powerline-my-theme ()
   "Setup my mode-line."

@@ -20,14 +20,16 @@ codes:
 #+END_SRC
 
 The built in fortran-gfortran doesn't support Chinese errors and warnings. An
-=flycheck-fortran-gfortran-zh= plugin is used.
+=flycheck-fortran-gfortran-zh= plugin is used. Note that flycheck options
+should be set before enabling flycheck or it will check syntax with default
+options at flycheck mode being enabled.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'f90-mode-hook #'(lambda ()
                              (when (executable-find "gfortran")
+                               (setq flycheck-gfortran-language-standard "f2008")
                                (flycheck-mode)
-                               (flycheck-select-checker 'fortran-gfortran-zh)
-                               (setq flycheck-gfortran-language-standard "f2008"))))
+                               (flycheck-select-checker 'fortran-gfortran-zh))))
 #+END_SRC
 
 ** Python

@@ -32,16 +32,6 @@ several years.
 (evil-mode 1)
 #+END_SRC
 
-** Evil matchit
-   
-Evil matchit enables powerful *%* jump. Sometimes evil-matchit blocks, just
-key in *C-g* to cancel jump.
-#+BEGIN_SRC emacs-lisp 
-(require 'evil-matchit)
-;; (global-evil-matchit-mode 1)
-;; (plist-put evilmi-plugins 'f90-mode '((evilmi-f90-get-tag evilmi-f90-jump)))
-#+END_SRC
-
 ** Go to change
 
 It is so happy to key in *g;* or *C-o* to go to last change and *g* or *C-i*,
@@ -83,40 +73,68 @@ back.
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 #+END_SRC
 
-** Set Vim like Key Bindings
-
+** Set Vim Bindings
+*** Fold and unfold
++ evil has *zo* and *zc* command only support hs-minor-mode and hide-ifdef-mode
++ evil has no *zO* or *zC*
++ Define *<leader>-z?* to support both hs-minor-mode and outline-minor-mode
+*** Key bindings with leader
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  "zo" 'show-entry
-  "zO" 'show-all
-  "zc" 'hide-entry
-  "zC" 'hide-body
+  "zo" (lambda ()
+         (interactive)
+         (cond (outline-minor-mode (show-entry))
+               (hs-minor-mode (hs-show-block))))
+  "zO" (lambda ()
+         (interactive)
+         (cond (outline-minor-mode (show-all))
+               (hs-minor-mode (hs-show-all))))
+  "zc" (lambda ()
+         (interactive)
+         (cond (outline-minor-mode (hide-entry))
+               (hs-minor-mode (hs-hide-block))))
+  "zC" (lambda ()
+         (interactive)
+         (cond (outline-minor-mode (hide-body))
+               (hs-minor-mode (hs-hide-all))))
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
-  "ta" '(lambda ()
-          (interactive)
-          (if prj/use-gtags
-              (helm-gtags-select)
-            (etags-select-find)))
-  "at" '(lambda ()
-          (interactive)
-          (if prj/use-gtags
-              (helm-gtags-pop-stack)
-            (pop-tag-mark)))
+  "ta" (lambda ()
+         (interactive)
+         (if prj/use-gtags
+             (helm-gtags-select)
+           (etags-select-find)))
+  "at" (lambda ()
+         (interactive)
+         (if prj/use-gtags
+             (helm-gtags-pop-stack)
+           (pop-tag-mark)))
   "mt" 'prj/generate-tags
-  "vt" '(lambda ()
-          (interactive)
-          (unless prj/use-gtags
-            (etu/visit-tags-table)))
+  "vt" (lambda ()
+         (interactive)
+         (unless prj/use-gtags
+           (etu/visit-tags-table)))
   "tl" 'helm-semantic-or-imenu
   "ne" 'flycheck-next-error
   "sd" 'sdcv-search-input
   "w" 'ace-jump-word-mode
-  "l" 'ace-jump-line-mode
-  )
+  "l" 'ace-jump-line-mode)
 #+END_SRC
    
+*** Insert state map
+#+begin_src emacs-lisp
+(define-key evil-insert-state-map (kbd "C-a") 'move-beginning-of-line)
+(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-insert-state-map (kbd "C-y") 'yank)
+#+end_src
+*** Ex completion map
+#+begin_src emacs-lisp
+(define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
+(define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
+#+end_src
+
+
 ** Disable evil for some modes
 #+BEGIN_SRC emacs-lisp
 (dolist (mode '(taglist-mode

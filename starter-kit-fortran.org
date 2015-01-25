@@ -8,8 +8,7 @@ Fortran is a major language for scientific computation but a minor for other.
 ** Fortran config
 #+BEGIN_SRC emacs-lisp
 (defun my-f90-config ()
-  (make-local-variable 'outline-regexp)
-  (setq outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
+  (setq-local outline-regexp " *\\(function \\|subroutine \\|type[, ]\\|module \\|interface \\|program \\|recursive \\)")
   (modify-syntax-entry ?_ "w"))
 (add-hook 'f90-mode-hook 'my-f90-config)
 #+END_SRC

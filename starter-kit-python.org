@@ -48,8 +48,7 @@ code blocks, which is realised by defining key words like *def*, *class* and
 so on and you can add your own key words.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
-  (make-local-variable 'outline-regexp)
-  (setq outline-regexp " *\\(def \\|class \\|if __name__\\)")
+  (setq-local outline-regexp " *\\(def \\|class \\|if __name__\\)")
   (my-jedi-setup)
   ;; (highlight-indentation-mode)
   (highlight-indentation-current-column-mode))

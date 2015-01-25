@@ -67,8 +67,6 @@
 
         ;; color theme, font ...
         color-theme
-        color-theme-molokai
-        color-theme-solarized
         highlight-indentation
         ;; powerline is loaded after setting color-theme, otherwise some
         ;; errors occur
