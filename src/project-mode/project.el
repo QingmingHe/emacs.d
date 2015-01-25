@@ -321,7 +321,7 @@ Include paths of `pkgs'"
             (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
             (prj/set-compile-args p))))
     (progn
-      (remove-hook 'after-save-hook 'prj/update-tags-single-file))))
+      (remove-hook 'after-save-hook 'prj/update-tags-single-file t))))
 
 (provide 'project)
 
