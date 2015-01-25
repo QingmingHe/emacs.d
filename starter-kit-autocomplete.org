@@ -60,6 +60,8 @@
 #+end_src
    
 ** Python
+   
+Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
 
 #+begin_src emacs-lisp
 (add-hook 'python-mode-hook
@@ -94,6 +96,11 @@
 #+end_src
 
 ** CC
+*** ac-c-headers
+
+ac-c-headers provide an ac-source for header files and header symbols
+completion. Problem with ac-c-headers is it never updates symbols of a
+header. So I write a function to update the symbols of a header after saving.
 #+begin_src emacs-lisp
 (defun my-update-c-headers-symbols ()
   "Update ac-c-headers--symbols-cache after saving header file."
@@ -108,7 +115,62 @@
              (remove-alist 'ac-c-headers--symbols-cache (car h))
              (ac-c-headers--symbols-update (car h))))
          ac-c-headers--symbols-cache)))))
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (add-hook 'after-save-hook 'my-update-c-headers-symbols nil t)))
+#+end_src
 
+*** cc-search-directories
+
+cc-search-directories are used by find-file.el to find corresponding header of
+current source file and ac-c-header to determine where to search the header
+files.
+#+begin_src emacs-lisp
+(setq cc-search-directories '("." "/usr/include"))
+(when (file-exists-p "/usr/local/include")
+  (add-to-list 'cc-search-directories "/usr/local/include"))
+(when (file-exists-p "/opt/include")
+  (add-to-list 'cc-search-directories "/opt/include"))
+#+end_src
+
+*** ac-clang-flags
+
+ac-clang-flags are extra flags used by ac-source-clang passed to clang to
+accomplish completion. Typically include paths. For C, current path is
+adequate for most of the cases. For C++, path of standard libraries should be
+added.
+
+#+begin_src emacs-lisp
+(defun c++-include-paths-general ()
+  "Get general C++ include paths."
+  (let (p1 p2 c++-include-paths)
+    (with-temp-buffer
+      (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
+      (goto-char (point-min))
+      (search-forward "#include <...>")
+      (next-line)
+      (setq p1 (line-beginning-position))
+      (search-forward "# 1")
+      (previous-line)
+      (previous-line)
+      (setq p2 (line-end-position))
+      (setq c++-include-paths (split-string (buffer-substring-no-properties p1 p2)))
+      (add-to-list 'c++-include-paths "."))
+    c++-include-paths))
+
+(setq ac-clang-flags '("-I."))
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (make-local-variable 'ac-clang-flags)
+            (mapc
+             (lambda (item)
+               (add-to-list 'ac-clang-flags (concat "-I" item)))
+             (c++-include-paths-general))))
+#+end_src
+
+*** ac-sources
+
+#+begin_src emacs-lisp
 (defun my-c-c++-ac-setup ()
   (when (derived-mode-p 'c-mode 'c++-mode)
     (setq ac-sources
@@ -119,23 +181,6 @@
              ac-source-c-header-symbols)
            ac-sources))
     (when (executable-find "clang")
-      (add-to-list 'ac-sources 'ac-source-clang))
-    ;; ac-c-headers use cc-search-directories to get the searching paths
-    (setq cc-search-directories '("." "/usr/include"))
-    (when (file-exists-p "/usr/local/include")
-      (add-to-list 'cc-search-directories "/usr/local/include"))
-    (when (file-exists-p "/opt/include")
-      (add-to-list 'cc-search-directories "/opt/include"))
-    (add-hook 'after-save-hook 'my-update-c-headers-symbols nil t)))
+      (add-to-list 'ac-sources 'ac-source-clang))))
 (add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
-
-;; Add include path, which can be obtained by *echo "" | g++ -v -x c++ -E -*
-(setq ac-clang-flags '("-I."))
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (make-local-variable 'ac-clang-flags)
-            (mapc
-             (lambda (item)
-               (add-to-list 'ac-clang-flags (concat "-I" item)))
-             (prj/c-include-paths-general))))
 #+end_src

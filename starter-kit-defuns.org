@@ -153,7 +153,7 @@ return: Windows path.
      '(:eval (format "Edit. Finish by killing the buffer.")))))
 #+end_src
 
-** Word at point
+** Thing at point
 #+begin_src emacs-lisp
 (defun thing-at-point-no-properties (thing)
   "Get thing at point without properties."

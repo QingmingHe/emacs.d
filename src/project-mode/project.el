@@ -219,11 +219,11 @@ project root, otherwise prj can't update tags file."
       (let ((p (or p (project-root-fetch))))
         ;; user gfortran include paths
         (mapc
-         #'(lambda (include-path)
-             (add-to-list 'flycheck-gfortran-include-path
-                          (if (equal 0 (string-match-p "[/~]" include-path))
-                              (expand-file-name include-path)
-                            (expand-file-name (concat (cdr p) include-path)))))
+         (lambda (include-path)
+           (add-to-list 'flycheck-gfortran-include-path
+                        (if (equal 0 (string-match-p "[/~]" include-path))
+                            (expand-file-name include-path)
+                          (expand-file-name (concat (cdr p) include-path)))))
          (or (project-root-data :gfortran-include-paths p) '(".")))
         ;; user gfortran pre-definitions
         (when (project-root-data :gfortran-definitions p)
@@ -240,23 +240,6 @@ project root, otherwise prj can't update tags file."
               (add-to-list 'flycheck-gfortran-include-path
                            (concat hdf5-root "/include"))))))))
 
-(defun prj/c-include-paths-general ()
-  "Get general C include paths."
-  (let (p1 p2 c-include-paths)
-    (with-temp-buffer
-      (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
-      (goto-char (point-min))
-      (search-forward "#include <...>")
-      (next-line)
-      (setq p1 (line-beginning-position))
-      (search-forward "# 1")
-      (previous-line)
-      (previous-line)
-      (setq p2 (line-end-position))
-      (setq c-include-paths (split-string (buffer-substring-no-properties p1 p2)))
-      (add-to-list 'c-include-paths "."))
-    c-include-paths))
-
 (defun prj/c-include-paths-pkgs (pkgs)
   "Get c include pahts for `pkgs'. `pkgs' should be string or list of string.
 
@@ -264,7 +247,7 @@ Valid form of `pkgs':
 \"glib\", \"glib python-2.7\", '(\"glib\" \"python-2.7\")
 
 Returns:
-Include paths of `pkgs'"
+Include paths of `pkgs', including \"-I\" flag."
   (when (and pkgs (executable-find "pkg-config"))
     (let ((c-include-paths nil)
           (pkgs (cond ((listp pkgs) pkgs)
@@ -283,7 +266,7 @@ Include paths of `pkgs'"
       c-include-paths)))
 
 (defun prj/set-c-args (&optional p)
-  "Set flycheck-*-include-path and ac-clang-flags."
+  "Set flycheck-*-include-path, ac-clang-flags, cc-search-directories."
   )
 
 (defun prj/set-compile-args (&optional p)

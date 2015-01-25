@@ -29,17 +29,17 @@ To use my configuration, set JEDI_SERVER environment to be
 
 (defun my-jedi-setup ()
   (interactive)
-  (if (file-directory-p "~/.emacs.d/.python-environments")
-      (my-jedi-conf)
-    (if (getenv "JEDI_SERVER")
-        (progn (setq jedi:server-command
-                     `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
-               (my-jedi-conf))
-      (if (executable-find "jediepcserver.py")
-          (progn
-            (setq jedi:server-command
-                  `(,(executable-find "jediepcserver.py")))
-            (my-jedi-conf))))))
+  (cond ((file-directory-p "~/.emacs.d/.python-environments")
+         (my-jedi-conf))
+        ((getenv "JEDI_SERVER")
+         (progn (setq jedi:server-command
+                      `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
+                (my-jedi-conf))) 
+        ((executable-find "jediepcserver.py")
+         (progn
+           (setq jedi:server-command
+                 `(,(executable-find "jediepcserver.py")))
+           (my-jedi-conf)))))
 #+END_SRC
 
 ** Configuration for python mode
@@ -125,3 +125,21 @@ path. The quickrun will be confused by *#!/usr/bin/env python* and have no
 idea whether to run winpy or python. The path problems also exist for
 quickrun. The dired way is perfect only if you don't use
 matplotlib. Matplotlib can not create configuration directory for some reason.
+** Rst in Python doc
+#+begin_src emacs-lisp
+(defun indirect-region-py-rst ()
+  "Edit doc string in indirect buffer in rst-mode."
+  (interactive)
+  (let (start end)
+    (save-excursion
+      (setq start (search-backward-regexp "[\"']\\{3\\}" nil t)))
+    (when start
+      (setq start (+ start 3)))
+    (save-excursion
+      (setq end (search-forward-regexp "[\"']\\{3\\}" nil t)))
+    (when end
+      (setq end (- end 3)))
+    (when (and start end)
+      (indirect-region start end 'rst-mode))))
+(define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst)
+#+end_src
