@@ -5,6 +5,8 @@
   
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
+;; add dictionary-dirs
+(add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
 ;; enable ac-gtags in several modes
 (when (featurep 'auto-complete-gtags)
   (mapcar
@@ -17,7 +19,7 @@
 (mapcar
  (lambda (mode)
    (add-to-list 'ac-modes mode))
- '(org-mode text-mode))
+ '(org-mode text-mode cmake-mode))
 
 ;; ac-sources for different languages
 (setq-default
@@ -147,27 +149,32 @@ added.
 #+begin_src emacs-lisp
 (defun c++-include-paths-general ()
   "Get general C++ include paths."
-  (let (p1 p2 c++-include-paths)
-    (with-temp-buffer
-      (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
-      (goto-char (point-min))
-      (search-forward "#include <...>")
-      (next-line)
-      (setq p1 (line-beginning-position))
-      (search-forward "# 1")
-      (previous-line)
-      (previous-line)
-      (setq p2 (line-end-position))
-      (setq c++-include-paths (split-string (buffer-substring-no-properties p1 p2)))
-      (add-to-list 'c++-include-paths "."))
+  (let (p1
+        p2
+        (c++-include-paths '(".")))
+    (when (executable-find "g++")
+      (with-temp-buffer
+        (insert (shell-command-to-string "echo \"\" | g++ -v -x c++ -E -"))
+        (goto-char (point-min))
+        (search-forward "#include <...>")
+        (next-line)
+        (setq p1 (line-beginning-position))
+        (search-forward "# 1")
+        (previous-line)
+        (previous-line)
+        (setq p2 (line-end-position))
+        (setq c++-include-paths
+              (split-string (buffer-substring-no-properties p1 p2)))))
     c++-include-paths))
 
+(setq __c++-ac-clang-flags nil)
+(mapc
+ (lambda (item)
+   (add-to-list '__c++-ac-clang-flags (concat "-I" item)))
+ (c++-include-paths-general))
+
 (defun my-add-c++-ac-clang-flags ()
-  (make-local-variable 'ac-clang-flags)
-  (mapc
-   (lambda (item)
-     (add-to-list 'ac-clang-flags (concat "-I" item)))
-   (c++-include-paths-general)))
+  (setq-local ac-clang-flags __c++-ac-clang-flags))
 
 (when (featurep 'auto-complete-clang)
   (setq ac-clang-flags '("-I."))
@@ -192,6 +199,51 @@ added.
       (add-to-list 'ac-sources 'ac-source-clang))))
 (add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
 #+end_
+** CMake
+
+#+begin_src emacs-lisp
+(defun my-gen-ac-cmake-dict (dict-file)
+  "Generate CMake dictionary for auto-complete."
+  (interactive
+   (list
+    (ido-read-file-name
+     "cmake dictionary file: "
+     (concat starter-kit-dir "ac-dict")
+     "cmake-mode"
+     nil)))
+  (with-temp-buffer
+    (erase-buffer)
+    (goto-char (point-min))
+    (mapc
+     (lambda (command)
+       (mapc
+        (lambda (keyword)
+          (cond ((string-match "<LANG>" keyword)
+                 (mapc
+                  (lambda (language)
+                    (insert (replace-match language t nil keyword))
+                    (insert "\n"))
+                  '("Fortran" "CXX" "C")))
+                ((string-match "\\[CMAKE_BUILD_TYPE\\]" keyword)
+                 (mapc
+                  (lambda (type)
+                    (insert (replace-match type t nil keyword))
+                    (insert "\n"))
+                  '("DEBUG" "RELEASE" "RELWITHDEBINFO" "MINSIZEREL")))
+                ((string-match "\\[Project name\\]" keyword) nil)
+                ((string-match "<CONFIG>" keyword) nil)
+                ((string-match "<PackageName>" keyword) nil)
+                ((string-match "<NNNN>" keyword) nil)
+                ((string= "" keyword) nil)
+                (t (insert (concat keyword "\n")))))
+        (cdr (split-string (shell-command-to-string command) "\n"))))
+     '("cmake --help-command-list"
+       "cmake --help-module-list"
+       "cmake --help-variable-list"))
+    (write-file dict-file))
+  (ac-clear-dictionary-cache))
+#+end_src
+
 ** Comment
 *** Key bindings
 + After completion menu popped up, use *C-s* to search in candidates.
