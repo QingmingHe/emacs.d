@@ -203,9 +203,10 @@ added.
 ** CMake
 
 #+begin_src emacs-lisp
-(add-hook 'cmake-mode-hook
-          (lambda ()
-            (add-to-list 'ac-sources 'ac-source-cmake)))
+(when (featurep 'auto-complete-cmake)
+  (add-hook 'cmake-mode-hook
+            (lambda ()
+              (add-to-list 'ac-sources 'ac-source-cmake))))
 #+end_src
 
 ** Comment

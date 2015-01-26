@@ -1,8 +1,10 @@
 ;;; project.el --- minor mode for handling projects
 ;;
-;; Minor mode to update TAGS when a file is saved
-
-;; Copyright (C) 2009  Matt Keller <mattkeller at gmail dot com>
+;; Copyright (C) 2015  Qingming He
+;;
+;; Author: Qingming He <906459647@qq.com>
+;; Keywords: completion, convenience
+;; Version: dev
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -15,9 +17,7 @@
 ;; General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-;; Boston, MA 02111-1307, USA.
+;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
 
 (require 'project-root)
 (require 'etags-update)
@@ -278,8 +278,6 @@ Include paths of `pkgs', including \"-I\" flag."
             ((equal 'c-mode major-mode)
              nil)))))
 
-(add-hook 'after-init-hook 'project-root-load-roots)
-
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
   :lighter (:eval (let ((p (project-root-fetch))
@@ -325,6 +323,9 @@ Include paths of `pkgs', including \"-I\" flag."
   project-mode-on-safe
   :init-value nil
   :require 'project)
+
+(add-hook 'after-init-hook 'project-root-load-roots)
+(add-hook 'kill-emacs-hook 'project-root-save-roots)
 
 (provide 'project)
 
