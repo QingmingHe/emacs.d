@@ -1,6 +1,7 @@
-#+TITLE: Starter Kit Cmake
+#+TITLE: Starter Kit CMake
 #+OPTIONS: toc:nil num:nil ^:nil
 
-Setup for Cmake.
+Setup for CMake.
 #+BEGIN_SRC emacs-lisp
+
 #+END_SRC

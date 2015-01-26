@@ -50,7 +50,7 @@ First define projects.
          :lighter "pyPkgs")))
 #+END_SRC
   
-** Don't ask yes or no when revert tags file
+** Don't ask yes or no when reverting tags file
 
 #+BEGIN_SRC emacs-lisp
 (setq tags-revert-without-query t)

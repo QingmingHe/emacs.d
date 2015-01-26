@@ -16,10 +16,10 @@
 
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
-(mapcar
+(mapc
  (lambda (mode)
    (add-to-list 'ac-modes mode))
- '(org-mode text-mode cmake-mode))
+ '(org-mode text-mode cmake-mode eshell-mode))
 
 ;; ac-sources for different languages
 (setq-default
@@ -95,7 +95,7 @@ Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
           (lambda ()
             (setq ac-sources '(ac-source-pcomplete))))
 #+end_src
-
+   
 ** CC
 *** ac-c-headers
 
@@ -182,7 +182,7 @@ added.
 #+end_src
 
 *** ac-sources
-
+    
 #+begin_src emacs-lisp
 (defun my-c-c++-ac-setup ()
   (when (derived-mode-p 'c-mode 'c++-mode)
@@ -198,8 +198,12 @@ added.
     (when (featurep 'auto-complete-clang)
       (add-to-list 'ac-sources 'ac-source-clang))))
 (add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
-#+end_
+#+end_src
+
 ** CMake
+   
+Company mode has backend for cmake-mode, but auto-complete doesn't. The
+simplest way to add an ac-source for cmake-mode is to add a dictionary.
 
 #+begin_src emacs-lisp
 (defun my-gen-ac-cmake-dict (dict-file)
@@ -218,24 +222,30 @@ added.
      (lambda (command)
        (mapc
         (lambda (keyword)
-          (cond ((string-match "<LANG>" keyword)
-                 (mapc
-                  (lambda (language)
-                    (insert (replace-match language t nil keyword))
-                    (insert "\n"))
-                  '("Fortran" "CXX" "C")))
-                ((string-match "\\[CMAKE_BUILD_TYPE\\]" keyword)
-                 (mapc
-                  (lambda (type)
-                    (insert (replace-match type t nil keyword))
-                    (insert "\n"))
-                  '("DEBUG" "RELEASE" "RELWITHDEBINFO" "MINSIZEREL")))
-                ((string-match "\\[Project name\\]" keyword) nil)
-                ((string-match "<CONFIG>" keyword) nil)
-                ((string-match "<PackageName>" keyword) nil)
-                ((string-match "<NNNN>" keyword) nil)
-                ((string= "" keyword) nil)
-                (t (insert (concat keyword "\n")))))
+          (cond
+           ((string-match "\\(.+GNU\\)<LANG>" keyword)
+            (mapc
+             (lambda (language)
+               (insert (concat (match-string 1 keyword) language))
+               (insert "\n"))
+             '("CXX" "C")))
+           ((string-match "<LANG>" keyword)
+            (mapc
+             (lambda (language)
+               (insert (replace-match language t nil keyword))
+               (insert "\n"))
+             '("Fortran" "CXX" "C")))
+           ((string-match "\\(\\[CMAKE_BUILD_TYPE\\]\\|<CONFIG>\\)" keyword)
+            (mapc
+             (lambda (type)
+               (insert (replace-match type t nil keyword))
+               (insert "\n"))
+             '("DEBUG" "RELEASE" "RELWITHDEBINFO" "MINSIZEREL")))
+           ((string-match "\\[Project name\\]" keyword) nil)
+           ((string-match "<PackageName>" keyword) nil)
+           ((string-match "<NNNN>" keyword) nil)
+           ((string= "" keyword) nil)
+           (t (insert (concat keyword "\n")))))
         (cdr (split-string (shell-command-to-string command) "\n"))))
      '("cmake --help-command-list"
        "cmake --help-module-list"
