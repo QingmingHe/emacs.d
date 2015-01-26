@@ -102,21 +102,26 @@ completion. Problem with ac-c-headers is it never updates symbols of a
 header. So I write a function to update the symbols of a header after saving.
 #+begin_src emacs-lisp
 (defun my-update-c-headers-symbols ()
-  "Update ac-c-headers--symbols-cache after saving header file."
-  (when (featurep 'ac-c-headers)
-    (let ((header (file-name-nondirectory (buffer-file-name))))
-      (when (and
-             header
-             (string-match-p "\\.\\(h\\|hpp\\)$" header))
-        (mapc
-         (lambda (h)
-           (when (string-match-p (concat header "$") (car h))
-             (remove-alist 'ac-c-headers--symbols-cache (car h))
-             (ac-c-headers--symbols-update (car h))))
-         ac-c-headers--symbols-cache)))))
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (add-hook 'after-save-hook 'my-update-c-headers-symbols nil t)))
+  "Update ac-c-headers--symbols-cache for headers that match current buffer."
+  (mapc
+   (lambda (h)
+     (when (string-match-p
+            (concat (file-name-nondirectory (buffer-file-name)) "\\'")
+            (car h))
+       (remove-alist 'ac-c-headers--symbols-cache (car h))
+       (ac-c-headers--symbols-update (car h))))
+   ac-c-headers--symbols-cache))
+
+(defun my-add-c-h-to-hook ()
+  "Add my-update-c-headers-symbols to after-save-hook if is header file."
+  (let ((fname (buffer-file-name)))
+    (when (and
+           fname
+           (derived-mode-p 'c-mode 'c++-mode)
+           (string-match-p "\\.\\(h\\|hpp\\)\\'" fname))
+      (add-hook 'after-save-hook 'my-update-c-headers-symbols nil t))))
+
+(add-hook 'c-mode-common-hook 'my-add-c-h-to-hook)
 #+end_src
 
 *** cc-search-directories
@@ -157,15 +162,16 @@ added.
       (add-to-list 'c++-include-paths "."))
     c++-include-paths))
 
+(defun my-add-c++-ac-clang-flags ()
+  (make-local-variable 'ac-clang-flags)
+  (mapc
+   (lambda (item)
+     (add-to-list 'ac-clang-flags (concat "-I" item)))
+   (c++-include-paths-general)))
+
 (when (featurep 'auto-complete-clang)
   (setq ac-clang-flags '("-I."))
-  (add-hook 'c++-mode-hook
-            (lambda ()
-              (make-local-variable 'ac-clang-flags)
-              (mapc
-               (lambda (item)
-                 (add-to-list 'ac-clang-flags (concat "-I" item)))
-               (c++-include-paths-general)))))
+  (add-hook 'c++-mode-hook 'my-add-c++-ac-clang-flags))
 #+end_src
 
 *** ac-sources
@@ -185,4 +191,10 @@ added.
     (when (featurep 'auto-complete-clang)
       (add-to-list 'ac-sources 'ac-source-clang))))
 (add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
-#+end_src
+#+end_
+** Comment
+*** Key bindings
++ After completion menu popped up, use *C-s* to search in candidates.
++ Use *C-M-n* and *C-M-p* to scroll down and up in quick help.
++ *C-M-?* to persist ac-help which may be useful when help page is too long or
+  you want to get help when filling arguments of the function.

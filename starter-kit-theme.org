@@ -48,50 +48,6 @@ Don't show fringe in GUI, it's too ugly.
 (fringe-mode 0)
 #+END_SRC
 
-** Old
-   :PROPERTIES:
-   :tangle: no
-   :END:
-
-Emacs24 has build in support for saving and loading themes.
-
-A Theme builder is available at http://elpa.gnu.org/themes/ along with
-a list of pre-built themes at http://elpa.gnu.org/themes/view.html and
-themes are available through ELPA.
-
-Downloaded themes may be saved to the =themes/= directory in the base
-of the starter kit which ignored by git.  Once downloaded and
-evaluated a theme is activated using the =load-theme= function.
-
-#+BEGIN_SRC emacs-lisp
-(color-theme-initialize)
-(if (or *terminal* (string= "light" (getenv "EMACS_COLOR_THEME")))
-    (progn (color-theme-solarized-light)
-           (set-face-background 'highlight-indentation-face "#073642")
-           (set-face-background 'highlight-indentation-current-column-face "#eee8d5"))
-  (progn (color-theme-solarized-dark)
-         (set-face-background 'highlight-indentation-face "#073642")
-         (set-face-background 'highlight-indentation-current-column-face "#073642")))
-#+END_SRC
-   
-Load powerline after color theme is set. If you change the color theme in
-running emacs, the expressions as follows should be re-evaluated.
-#+BEGIN_SRC emacs-lisp 
-(require 'powerline)
-(set-face-attribute 'mode-line nil
-                    :background "dim gray"
-                    :foreground "cyan"
-                    :inverse-video nil
-                    :box nil
-                    :underline nil)
-(set-face-attribute 'mode-line-inactive nil
-                    :background "dim gray"
-                    :foreground "light gray"
-                    :inverse-video nil
-                    :box nil
-                    :underline nil)
-#+END_SRC
-
 ** Power line
    
 My powerline theme based on powerline-default-theme.
@@ -150,8 +106,12 @@ My powerline theme based on powerline-default-theme.
   ad-do-it
   (set-face-attribute 'mode-line nil
                       :foreground "cyan"
+                      :box nil
+                      :underline nil
                       :inverse-video nil)
   (set-face-attribute 'mode-line-inactive nil
+                      :box nil
+                      :underline nil
                       :inverse-video nil)
   (require 'powerline)
   (powerline-my-theme))
@@ -159,14 +119,24 @@ My powerline theme based on powerline-default-theme.
 (defun starter-kit-solarized-emacs-setup ()
   ;; make the fringe stand out from the background
   (setq solarized-distinct-fringe-background t)
-  ;; make the modeline high contrast
-  (setq solarized-high-contrast-mode-line t)
+  ;; not make the modeline high contrast
+  (setq solarized-high-contrast-mode-line nil)
   ;; Use less bolding
   (setq solarized-use-less-bold t)
   ;; Use more italics
   (setq solarized-use-more-italic t)
   ;; Use less colors for indicators such as git:gutter, flycheck and similar.
   (setq solarized-emphasize-indicators nil)
+
+  ;; avoid font-size changes
+  (setq solarized-scale-org-headlines nil)
+  (setq solarized-height-minus-1 1)
+  (setq solarized-height-plus-1 1)
+  (setq solarized-height-plus-2 1)
+  (setq solarized-height-plus-3 1)
+  (setq solarized-height-plus-4 1)
+
+  (setq x-underline-at-descent-line t)
 
   (ad-enable-advice 'load-theme 'around 'starter-kit-load-theme)
   (ad-activate 'load-theme)
@@ -175,3 +145,47 @@ My powerline theme based on powerline-default-theme.
 
 (starter-kit-solarized-emacs-setup)
 #+end_src
+** Old
+   :PROPERTIES:
+   :tangle: no
+   :END:
+
+Emacs24 has build in support for saving and loading themes.
+
+A Theme builder is available at http://elpa.gnu.org/themes/ along with
+a list of pre-built themes at http://elpa.gnu.org/themes/view.html and
+themes are available through ELPA.
+
+Downloaded themes may be saved to the =themes/= directory in the base
+of the starter kit which ignored by git.  Once downloaded and
+evaluated a theme is activated using the =load-theme= function.
+
+#+BEGIN_SRC emacs-lisp
+(color-theme-initialize)
+(if (or *terminal* (string= "light" (getenv "EMACS_COLOR_THEME")))
+    (progn (color-theme-solarized-light)
+           (set-face-background 'highlight-indentation-face "#073642")
+           (set-face-background 'highlight-indentation-current-column-face "#eee8d5"))
+  (progn (color-theme-solarized-dark)
+         (set-face-background 'highlight-indentation-face "#073642")
+         (set-face-background 'highlight-indentation-current-column-face "#073642")))
+#+END_SRC
+   
+Load powerline after color theme is set. If you change the color theme in
+running emacs, the expressions as follows should be re-evaluated.
+#+BEGIN_SRC emacs-lisp 
+(require 'powerline)
+(set-face-attribute 'mode-line nil
+                    :background "dim gray"
+                    :foreground "cyan"
+                    :inverse-video nil
+                    :box nil
+                    :underline nil)
+(set-face-attribute 'mode-line-inactive nil
+                    :background "dim gray"
+                    :foreground "light gray"
+                    :inverse-video nil
+                    :box nil
+                    :underline nil)
+#+END_SRC
+
