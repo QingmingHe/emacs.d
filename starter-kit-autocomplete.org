@@ -201,57 +201,11 @@ added.
 #+end_src
 
 ** CMake
-   
-Company mode has backend for cmake-mode, but auto-complete doesn't. The
-simplest way to add an ac-source for cmake-mode is to add a dictionary.
 
 #+begin_src emacs-lisp
-(defun my-gen-ac-cmake-dict (dict-file)
-  "Generate CMake dictionary for auto-complete."
-  (interactive
-   (list
-    (ido-read-file-name
-     "cmake dictionary file: "
-     (concat starter-kit-dir "ac-dict")
-     "cmake-mode"
-     nil)))
-  (with-temp-buffer
-    (erase-buffer)
-    (goto-char (point-min))
-    (mapc
-     (lambda (command)
-       (mapc
-        (lambda (keyword)
-          (cond
-           ((string-match "\\(.+GNU\\)<LANG>" keyword)
-            (mapc
-             (lambda (language)
-               (insert (concat (match-string 1 keyword) language))
-               (insert "\n"))
-             '("CXX" "C")))
-           ((string-match "<LANG>" keyword)
-            (mapc
-             (lambda (language)
-               (insert (replace-match language t nil keyword))
-               (insert "\n"))
-             '("Fortran" "CXX" "C")))
-           ((string-match "\\(\\[CMAKE_BUILD_TYPE\\]\\|<CONFIG>\\)" keyword)
-            (mapc
-             (lambda (type)
-               (insert (replace-match type t nil keyword))
-               (insert "\n"))
-             '("DEBUG" "RELEASE" "RELWITHDEBINFO" "MINSIZEREL")))
-           ((string-match "\\[Project name\\]" keyword) nil)
-           ((string-match "<PackageName>" keyword) nil)
-           ((string-match "<NNNN>" keyword) nil)
-           ((string= "" keyword) nil)
-           (t (insert (concat keyword "\n")))))
-        (cdr (split-string (shell-command-to-string command) "\n"))))
-     '("cmake --help-command-list"
-       "cmake --help-module-list"
-       "cmake --help-variable-list"))
-    (write-file dict-file))
-  (ac-clear-dictionary-cache))
+(add-hook 'cmake-mode-hook
+          (lambda ()
+            (add-to-list 'ac-sources 'ac-source-cmake)))
 #+end_src
 
 ** Comment

@@ -83,6 +83,7 @@
         ,(when (executable-find "gtags")
            'auto-complete-gtags)
         auto-complete-pcomplete
+        auto-complete-cmake
         ring
         epc
         python-environment
