@@ -127,6 +127,7 @@ return: Windows path.
 	  (error (beep)))))
     (message "Done.")))
 #+END_SRC
+
 ** Indirect region
 #+begin_src emacs-lisp
 (defun indirect-region (start end &optional mode)

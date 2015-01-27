@@ -19,6 +19,10 @@ minibuffer.
 (hydra-create "?"
   hydra-occur
   occur-mode-map)
+
+(define-key occur-mode-map (kbd "j") 'occur-next)
+(define-key occur-mode-map (kbd "k") 'occur-prev)
+(define-key occur-mode-map (kbd "d") 'occur-mode-display-occurrence)
 #+end_src
 
 ** Occur do what I mean
@@ -30,15 +34,24 @@ minibuffer.
   occur to summon the hydra by performing =hydra-?-occur-next=.
   
 #+begin_src emacs-lisp
-(defadvice occur (around occur-dwim activate)
-  (push (if (region-active-p)
-            (buffer-substring-no-properties
-             (region-beginning)
-             (region-end))
-          (thing-at-point-no-properties 'symbol))
-        regexp-history)
+(defun occur-dwim ()
+  (interactive)
+  (let (thing)
+    (setq thing
+          (if (region-active-p)
+              (buffer-substring-no-properties
+               (region-beginning)
+               (region-end))
+            (thing-at-point-no-properties 'symbol)))
+    (when thing
+      (push thing regexp-history)))
+  (call-interactively 'occur))
+(defadvice occur (around hydra-occur-dwim activate)
   ad-do-it
-  (switch-to-buffer-other-window "*Occur*")
+  (pop-to-buffer "*Occur*")
   (hydra-?-occur-next))
 #+end_src
    
+** Helm occur
+
+Helm occur is great!

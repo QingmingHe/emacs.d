@@ -134,15 +134,19 @@ back.
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
 #+end_src
 
-
 ** Disable evil for some modes
 #+BEGIN_SRC emacs-lisp
-(dolist (mode '(taglist-mode
+(dolist (mode '(minibuffer-inactive-mode
+                grep-mode
+                compilation-mode
+                taglist-mode
                 w3m-mode
                 eww-mode
                 dired-mode
                 ibuffer-mode
-                help-mode))
-  (add-to-list 'evil-emacs-state-modes mode))
+                help-mode
+                info-mode
+                occur-mode))
+  (evil-set-initial-state mode 'emacs))
 #+END_SRC
 

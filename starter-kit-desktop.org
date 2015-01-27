@@ -6,43 +6,50 @@
 Desktop will load, at startup, the buffers you were editing when you last quit
 Emacs.
 
-Set the file to save desktop variables and load desktop.
++ Set the file to save desktop variables and load desktop. 
++ Save no buffer and file.
++ Set variables (list) along with max length to save. 
++ Delete duplicates before save.
 #+BEGIN_SRC emacs-lisp 
 (setq desktop-path (list
                     starter-kit-dir)
       desktop-dirname starter-kit-dir
       desktop-base-file-name ".emacs-desktop")
-(desktop-read)
-#+END_SRC
 
-Then set variables to save. Save no buffer and file.
-#+BEGIN_SRC emacs-lisp 
 (setq desktop-buffers-not-to-save ".*")
 (setq desktop-files-not-to-save ".*")
 (setq desktop-load-locked-desktop nil)
 (setq desktop-restore-frames nil)
 (setq history-length 128)
+(setq desktop-auto-save-timeout 120)
 (setq desktop-globals-to-save
-      (append '((extended-command-history    . history-length)
-                (file-name-history           . history-length)
-                (ido-last-directory-list     . history-length)
-                (ido-work-file-list          . history-length)
-                (ido-work-directory-list     . history-length)
-                (grep-history                . history-length)
-                (grep-find-history           . history-length)
-                (compile-history             . history-length)
-                (minibuffer-history          . history-length)
-                (query-replace-history       . history-length)
-                (read-expression-history     . history-length)
-                (regexp-history              . history-length)
-                (regexp-search-ring          . history-length)
-                (search-ring                 . history-length)
-                (shell-command-history       . history-length)
-                (dired-regexp-history        . history-length)
-                (dired-shell-command-history . history-length)
-                desktop-missing-file-warning
-                register-alist)))
+      '((extended-command-history     . history-length)
+        (file-name-history            . history-length)
+        (ido-last-directory-list      . history-length)
+        (ido-work-file-list           . history-length)
+        (ido-work-directory-list      . history-length)
+        (grep-history                 . history-length)
+        (grep-find-history            . history-length)
+        (compile-history              . history-length)
+        (minibuffer-history           . history-length)
+        (query-replace-history        . history-length)
+        (read-expression-history      . history-length)
+        (regexp-history               . history-length)
+        (regexp-search-ring           . history-length)
+        (search-ring                  . history-length)
+        (shell-command-history        . history-length)
+        (dired-regexp-history         . history-length)
+        (dired-shell-command-history  . history-length)
+        (desktop-missing-file-warning . history-length)
+        (register-alist               . history-length)))
+
+(defadvice desktop-save (around del-dup-desktop-save activate)
+  (mapc
+   (lambda (l)
+     (delete-dups (eval (car l))))
+   desktop-globals-to-save)
+  ad-do-it)
+
+(desktop-read)
 (desktop-save-mode 1)
 #+END_SRC
-
-
