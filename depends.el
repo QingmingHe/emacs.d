@@ -50,6 +50,8 @@
         diminish
         ,(when (executable-find "sdcv")
            'sdcv)
+        occur
+        hydra
 
         ;; eshell, term
         em-cmpl

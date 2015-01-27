@@ -53,14 +53,6 @@ I NEVER use hippie.
                  (regexp-quote isearch-string))))))
 #+end_src
 
-** Occur
-#+begin_src emacs-lisp
-(define-key occur-mode-map (kbd "n") 'next-line)
-(define-key occur-mode-map (kbd "j") 'next-line)
-(define-key occur-mode-map (kbd "p") 'previous-line)
-(define-key occur-mode-map (kbd "k") 'previous-line)
-#+end_src
-
 ** File finding
 #+begin_src emacs-lisp 
 (global-set-key (kbd "C-x M-f") 'ido-find-file-other-window)
