@@ -27,7 +27,7 @@ start.
 #+END_SRC
 
 ** Diminish minor modes
-   
+
 The minor mode list is too long and occupy all the mode line. I want to know
 other data on the mode line.
 #+BEGIN_SRC emacs-lisp
@@ -47,16 +47,16 @@ other data on the mode line.
 
 ** Window systems
 #+srcname: starter-kit-window-view-stuff
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (when window-system
     (setq frame-title-format '(buffer-file-name "%f" ("%b")))
     (blink-cursor-mode -1)
     (when (require 'mwheel nil 'no-error) (mouse-wheel-mode t)))
-  
+
   (set-terminal-coding-system 'utf-8)
   (set-keyboard-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
-  
+
   (setq visible-bell t
         echo-keystrokes 0.1
         font-lock-maximum-decoration t
@@ -74,7 +74,7 @@ other data on the mode line.
         oddmuse-directory (concat starter-kit-dir "oddmuse")
         xterm-mouse-mode t)
 #+end_src
-   
+
 ** Winner mode
 Winner mode enables you goto previous windows configuration easily.
 #+BEGIN_SRC emacs-lisp
@@ -97,17 +97,17 @@ previously visited the same file.
 #+end_src
 
 ** Save a list of recent files visited.
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (setq recentf-max-saved-items 128)
 (recentf-mode 1)
 #+end_src
 
 ** ido mode
-+ ido-mode is like magic pixie dust! 
++ ido-mode is like magic pixie dust!
 + Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
   *C-l* in minibuffer to refresh ido candidates.
 #+srcname: starter-kit-loves-ido-mode
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (ido-mode 1)
 (ido-everywhere 1)
 (flx-ido-mode 1)
@@ -125,14 +125,14 @@ previously visited the same file.
 #+end_src
 
 ** Other, spell checking, tabs, imenu
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (set-default 'indent-tabs-mode nil)
   (set-default 'indicate-empty-lines t)
   (set-default 'imenu-auto-rescan t)
-  
+
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
   (add-hook 'text-mode-hook 'turn-on-flyspell)
-  
+
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; Seed the random-number generator
   (random t)
@@ -246,22 +246,22 @@ lines of codes.
 #+END_SRC
 
 ** New line and indent
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (define-key global-map (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
 ** Undo is needed by evil
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (global-undo-tree-mode)
 #+END_SRC
-   
+
 ** Expand region
 
 #+BEGIN_QUOTE
 Expand region increases the selected region by semantic units. Just keep
 pressing the key until it selects what you want.
 #+END_QUOTE
-   
+
 In terminal, *C-=* may not work. You may have to run extended-command-history
 to expand or contract region.
 
@@ -270,17 +270,17 @@ to expand or contract region.
 #+END_SRC
 
 ** Garbage collection
-   
+
 Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We
 set it to be 20 MB to save time.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (setq gc-cons-threshold 20000000)
 #+END_SRC
 
 ** Grep
 
 Don't grep repositories.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (eval-after-load 'grep
   '(dolist (dir '(".git"
                   ".cvs"
@@ -311,3 +311,15 @@ Save buffers before compile automatically.
 (setq compilation-ask-about-save nil)
 #+END_SRC
 
+** Delete trailing white space
+
+#+begin_src emacs-lisp
+(defun del-white-spaces-after-save ()
+  (when (and
+         (not (buffer-modified-p))
+         (buffer-file-name)
+         (file-exists-p (buffer-file-name)))
+    (delete-trailing-whitespace)
+    (save-buffer)))
+(add-hook 'kill-buffer-hook 'del-white-spaces-after-save)
+#+end_src
