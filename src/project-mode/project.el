@@ -69,18 +69,17 @@ use ctags parser.")
                                   :marked-candidates t))
             (setq buffers (mapcar
                            (lambda (f)
-                             (buffer-name
-                              (find-file-noselect
-                               (cdr (assoc f prj-files)))))
+                             (find-file-noselect
+                              (cdr (assoc f prj-files))))
                            selected-files))
             (if (featurep 'helm-swoop)
-                (helm-multi-swoop nil buffers)
+                (helm-multi-swoop nil (mapcar 'buffer-name buffers))
               (multi-occur buffers (read-string "List lines matching: ")))))
     (message "Helm is required!")))
 
 (defun prj/find-occur ()
-  "Run multiple occur on found files. `grep-find-ignored-directories' will be
-ignored by default."
+  "Run multiple occur on found files. `grep-find-ignored-directories' and
+`grep-find-ignored-files' will be ignored by default."
   (interactive)
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
@@ -95,12 +94,12 @@ ignored by default."
           '("*")))
         find-file-cmd
         files
-        buffers
-        buffers-1)
+        buffers)
     (setq find-file-cmd
           (find-cmd `(prune (name ,@grep-find-ignored-directories ,@cycles))
-                    `(and (name ,@regexp)
-                          (type "f"))))
+                    `(not (name ,@grep-find-ignored-files))
+                    `(and (name ,@regexp))
+                    '(type "f")))
     (setq files
           (split-string (shell-command-to-string find-file-cmd) "\n"))
     (when (featurep 'helm)
@@ -110,12 +109,9 @@ ignored by default."
              files
              :marked-candidates t)))
     (setq buffers
-          (mapcar
-           (lambda (f)
-             (buffer-name (find-file-noselect f)))
-           files))
+          (mapcar 'find-file-noselect files))
     (if (featurep 'helm-swoop)
-        (helm-multi-swoop nil buffers)
+        (helm-multi-swoop nil (mapcar 'buffer-name buffers))
       (multi-occur buffers (read-string "List lines matching: ")))))
 
 (defun prj/find-file ()
@@ -134,7 +130,7 @@ ignored by default."
   "Run grep with find at project root."
   (interactive (list
                 (read-string
-                 (format "grep regexp (default %s): " (word-at-point)))))
+                 (format "grep regexp (default %s): " (symbol-at-point)))))
   (with-project-root
       (find-grep
        (format "%s -exec grep -nH -e %s {} +"

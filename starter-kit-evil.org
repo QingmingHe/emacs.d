@@ -14,7 +14,7 @@ to bind keys under a variable prefix key. For an experienced Emacs User it is
 nothing more than a convoluted key map, but for a Evil user coming from Vim it
 means an easier start. The default escape is *\*.
 #+END_QUOTE
- 
+
 You should enable global-evil-leader-mode before you enable evil-mode,
 otherwise evil-leader won't be enabled in initial buffers (*scratch*,
 *Messages*, ...)
@@ -66,7 +66,7 @@ You can delete a surrounding with ds<trigger>.
 Just press =SPC-w=, the first character of word where you want to go and select
 the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
 back.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (setq ace-jump-mode-scope 'window)
 (ace-jump-mode-enable-mark-sync)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
@@ -122,7 +122,7 @@ back.
   "l" 'ace-jump-line-mode
   "sw" 'helm-swoop)
 #+END_SRC
-   
+
 *** Insert state map
 #+begin_src emacs-lisp
 (define-key evil-insert-state-map (kbd "C-a") 'move-beginning-of-line)
@@ -150,4 +150,3 @@ back.
                 occur-mode))
   (evil-set-initial-state mode 'emacs))
 #+END_SRC
-

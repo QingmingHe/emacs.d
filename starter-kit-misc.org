@@ -181,20 +181,18 @@ it's possible aspell isn't in your path
 #+end_src
 
 ** Backup files
+
 Rather than saving backup files scattered all over the file system,
 let them live in the =~/.emacs-backups/= directory.
 #+begin_src emacs-lisp
+(when (not (file-exists-p (expand-file-name "~/.backups-emacs")))
+  (make-directory (expand-file-name "~/.backups-emacs")))
 (setq backup-directory-alist `(("." . ,(expand-file-name "~/.backups-emacs")))
       backup-by-copying t
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2
       version-control t)
-#+end_src
-
-** Default to unified diffs
-#+begin_src emacs-lisp
-(setq diff-switches "-u")
 #+end_src
 
 ** Cosmetics
@@ -279,7 +277,7 @@ set it to be 20 MB to save time.
 
 ** Grep
 
-Don't grep repositories.
+Don't grep repositories and some files.
 #+BEGIN_SRC emacs-lisp
 (eval-after-load 'grep
   '(dolist (dir '(".git"
@@ -287,6 +285,10 @@ Don't grep repositories.
                   ".svn"
                   ".hg"))
      (add-to-list 'grep-find-ignored-directories dir)))
+(eval-after-load 'grep
+  '(dolist (file '("#*"
+                   "*.mod"))
+     (add-to-list 'grep-find-ignored-files file)))
 #+END_SRC
 
 ** Window numbering
@@ -301,6 +303,7 @@ you just key in *M-n* to jump to n-th window numbered by the plugin.
 
 Recover previous windows configuration when quitting ediff.
 #+BEGIN_SRC emacs-lisp
+(setq diff-switches "-u")
 (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
 
@@ -322,4 +325,11 @@ Save buffers before compile automatically.
     (delete-trailing-whitespace)
     (ignore-errors (save-buffer))))
 (add-hook 'kill-buffer-hook 'del-white-spaces-after-save)
+#+end_src
+** Don't disable narrowing commands
+
+#+begin_src emacs-lisp
+(put 'narrow-to-page 'disable nil)
+(put 'narrow-to-defun 'disable nil)
+(put 'narrow-to-region 'disable nil)
 #+end_src

@@ -487,13 +487,12 @@ directory they are found in so that they are unique."
     (mapconcat 'identity (reverse (split-string name "/")) "\\")))
 
 (defun project-root-find-file ()
-  "Find a file from a list of those that exist in the current
-project. Use completing-read instead of ido-complete-read to make use of helm."
+  "Find a file from a list of those that exist in the current project."
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
-             (file (completing-read "Find file in project: "
-                                      (mapcar 'car project-files))))
+             (file (ido-completing-read "Find file in project: "
+                                        (mapcar 'car project-files))))
         (find-file (cdr (assoc file project-files))))))
 
 (defun project-root-execute-extended-command ()
