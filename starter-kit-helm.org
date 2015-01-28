@@ -69,3 +69,9 @@ Helm or ido sometimes do wrong things.
 3. To find a file in project, use *prj/find-file*.
 *** M-x doesn't work
 Run dired and M-x works. I don't known why.
+*** Query replace in multiple files
++ Open files in dired or use *M-x helm-find*
++ *M-x helm-multi-swoop* and select buffers
++ type key words
++ *C-c C-e* enter edit mode in swoop buffer
++ run evil command *:%s/word0/word1/gc*

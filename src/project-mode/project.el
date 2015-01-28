@@ -56,6 +56,48 @@ use ctags parser.")
          (throw 'gtags-conf-file file)))
    prj/gtags-conf-file-choices))
 
+(defun prj/occur ()
+  "Run multiple occur on selected project files."
+  (interactive)
+  (if (featurep 'helm)
+      (with-project-root
+          (let (prj-files selected-files buffers)
+            (setq prj-files (project-root-files))
+            (setq selected-files (helm-comp-read
+                                  "Select files to run occur: "
+                                  (mapcar 'car prj-files)
+                                  :marked-candidates t))
+            (setq buffers (mapcar
+                           (lambda (f)
+                             (find-file-noselect (cdr (assoc f prj-files))))
+                           selected-files))
+            (multi-occur buffers (read-string "List lines matching: "))))
+    (message "Helm is required!")))
+
+(defun prj/find-occur ()
+  "Run multiple occur on found files."
+  (interactive)
+  (let ((default-directory
+          (ido-read-directory-name "Dir to run find: " default-directory))
+        (cycles
+         (split-string (read-string "Dirs to cycle (split by spaces): ")))
+        (regexp
+         (split-string
+          (read-string "Find file matching (such as \"*.el *.org\"): ")))
+        find-file-cmd
+        files
+        buffers)
+    (setq find-file-cmd
+          (find-cmd `(prune (name ".git" ".svn" ".hg" ".cvs" ,@cycles))
+                    `(and (name ,@regexp))))
+    (setq files
+          (split-string (shell-command-to-string find-file-cmd) "\n"))
+    (setq buffers (mapcar
+                   (lambda (f)
+                     (find-file-noselect f))
+                   files))
+    (multi-occur buffers (read-string "List lines matching: "))))
+
 (defun prj/find-file ()
   "Find a file from a list of those that exist in the current project."
   (interactive)
