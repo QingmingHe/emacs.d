@@ -182,17 +182,13 @@ it's possible aspell isn't in your path
 
 ** Backup files
 
-Rather than saving backup files scattered all over the file system,
-let them live in the =~/.emacs-backups/= directory.
+Rather than saving backup files scattered all over the file system, let them
+live in the =/tmp= directory.
 #+begin_src emacs-lisp
-(when (not (file-exists-p (expand-file-name "~/.backups-emacs")))
-  (make-directory (expand-file-name "~/.backups-emacs")))
-(setq backup-directory-alist `(("." . ,(expand-file-name "~/.backups-emacs")))
-      backup-by-copying t
-      delete-old-versions t
-      kept-new-versions 6
-      kept-old-versions 2
-      version-control t)
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 #+end_src
 
 ** Cosmetics
@@ -251,6 +247,9 @@ lines of codes.
 ** Undo is needed by evil
 #+BEGIN_SRC emacs-lisp
 (global-undo-tree-mode)
+(setq undo-tree-history-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq undo-tree-auto-save-history t)
 #+END_SRC
 
 ** Expand region

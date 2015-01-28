@@ -147,6 +147,7 @@ back.
                 ibuffer-mode
                 help-mode
                 info-mode
-                occur-mode))
+                occur-mode
+                undo-tree-visualizer-mode))
   (evil-set-initial-state mode 'emacs))
 #+END_SRC
