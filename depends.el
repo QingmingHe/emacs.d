@@ -51,6 +51,7 @@
         ,(when (executable-find "sdcv")
            'sdcv)
         hydra
+        multiple-cursors
 
         ;; eshell, term
         em-cmpl

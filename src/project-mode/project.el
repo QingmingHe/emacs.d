@@ -69,34 +69,54 @@ use ctags parser.")
                                   :marked-candidates t))
             (setq buffers (mapcar
                            (lambda (f)
-                             (find-file-noselect (cdr (assoc f prj-files))))
+                             (buffer-name
+                              (find-file-noselect
+                               (cdr (assoc f prj-files)))))
                            selected-files))
-            (multi-occur buffers (read-string "List lines matching: "))))
+            (if (featurep 'helm-swoop)
+                (helm-multi-swoop nil buffers)
+              (multi-occur buffers (read-string "List lines matching: ")))))
     (message "Helm is required!")))
 
 (defun prj/find-occur ()
-  "Run multiple occur on found files."
+  "Run multiple occur on found files. `grep-find-ignored-directories' will be
+ignored by default."
   (interactive)
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
         (cycles
-         (split-string (read-string "Dirs to cycle (split by spaces): ")))
-        (regexp
          (split-string
-          (read-string "Find file matching (such as \"*.el *.org\"): ")))
+          (read-string "Dirs to cycle (split by spaces): ")))
+        (regexp
+         (or
+          (split-string
+           (read-string
+            "Find file matching (such as \"*.el *.org\", default \"*\"): "))
+          '("*")))
         find-file-cmd
         files
-        buffers)
+        buffers
+        buffers-1)
     (setq find-file-cmd
-          (find-cmd `(prune (name ".git" ".svn" ".hg" ".cvs" ,@cycles))
-                    `(and (name ,@regexp))))
+          (find-cmd `(prune (name ,@grep-find-ignored-directories ,@cycles))
+                    `(and (name ,@regexp)
+                          (type "f"))))
     (setq files
           (split-string (shell-command-to-string find-file-cmd) "\n"))
-    (setq buffers (mapcar
-                   (lambda (f)
-                     (find-file-noselect f))
-                   files))
-    (multi-occur buffers (read-string "List lines matching: "))))
+    (when (featurep 'helm)
+      (setq files
+            (helm-comp-read
+             "Select files to run occur. [M-a] to mark all: "
+             files
+             :marked-candidates t)))
+    (setq buffers
+          (mapcar
+           (lambda (f)
+             (buffer-name (find-file-noselect f)))
+           files))
+    (if (featurep 'helm-swoop)
+        (helm-multi-swoop nil buffers)
+      (multi-occur buffers (read-string "List lines matching: ")))))
 
 (defun prj/find-file ()
   "Find a file from a list of those that exist in the current project."
@@ -212,18 +232,18 @@ project root, otherwise prj can't update tags file."
   (interactive)
   (let ((dir (ido-read-directory-name "Directory: ")))
     (mapcar
-     #'(lambda (buffer)
-         (progn (set-buffer buffer)
-                (when (equal
-                       0
-                       (string-match-p
-                        dir (expand-file-name default-directory)))
-                  (when (and
-                         (buffer-file-name)
-                         (buffer-modified-p))
-                    (save-buffer))
-                  (message (format "Kill %s" (or (buffer-file-name) (buffer-name))))
-                  (kill-buffer buffer))))
+     (lambda (buffer)
+       (progn (set-buffer buffer)
+              (when (equal
+                     0
+                     (string-match-p
+                      dir (expand-file-name default-directory)))
+                (when (and
+                       (buffer-file-name)
+                       (buffer-modified-p))
+                  (save-buffer))
+                (message (format "Kill %s" (or (buffer-file-name) (buffer-name))))
+                (kill-buffer buffer))))
      (buffer-list))))
 
 (defun prj/kill-project-buffers (&optional p)
@@ -241,16 +261,16 @@ project root, otherwise prj can't update tags file."
                          (shell-command-to-string
                           (project-root-find-cmd)))))
     (mapcar
-     #'(lambda (buffer)
-         (progn (set-buffer buffer)
-                (let ((fname (buffer-file-name)))
-                  (when (and
-                         fname
-                         (member fname project-files))
-                    (when (buffer-modified-p)
-                      (save-buffer))
-                    (message (format "Kill %s" (buffer-file-name)))
-                    (kill-buffer buffer)))))
+     (lambda (buffer)
+       (progn (set-buffer buffer)
+              (let ((fname (buffer-file-name)))
+                (when (and
+                       fname
+                       (member fname project-files))
+                  (when (buffer-modified-p)
+                    (save-buffer))
+                  (message (format "Kill %s" (buffer-file-name)))
+                  (kill-buffer buffer)))))
      (buffer-list))))
 
 (defun prj/set-gfortran-compile-args (&optional p)
