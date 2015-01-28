@@ -320,6 +320,6 @@ Save buffers before compile automatically.
          (buffer-file-name)
          (file-exists-p (buffer-file-name)))
     (delete-trailing-whitespace)
-    (save-buffer)))
+    (ignore-errors (save-buffer))))
 (add-hook 'kill-buffer-hook 'del-white-spaces-after-save)
 #+end_src

@@ -57,10 +57,12 @@ it. If *M-x* is bound to *helm-M-x*, run *M-x C-u 2 eshell* instead.
 
 Use =multi-eshell= to handle multiple shells. Use *\-mn* to create new shell or
 switch to anther existing shell. Shell doesn't support zsh well, so specify
-shell file name to be bash.
+shell file name to be bash. Don't add =--login= to explicit-bash-args, or
+shell will run at =~/= path with the =default-directory= to be that of
+previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
 (setq explicit-shell-file-name "/usr/bin/bash")
-(setq explicit-bash-args '("--noediting" "--login" "-i"))
+(setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
 
 *** Term and ansi-term

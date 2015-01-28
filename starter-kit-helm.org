@@ -2,7 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Helm
-  
+
 ** Install helm
 
    #+BEGIN_SRC sh :tangle no
@@ -26,11 +26,11 @@
  helm-scroll-amount 8
  helm-ff-file-name-history-use-recentf t)
 #+end_src
-   
+
 ** Commands use helm, ido or native emacs
-   
+
 Helm or ido sometimes do wrong things.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (setq helm-completing-read-handlers-alist
      '((describe-function . helm-completing-read-symbols)
        (describe-variable . helm-completing-read-symbols)
