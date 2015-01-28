@@ -25,6 +25,11 @@
  helm-ff-search-library-in-sexp t
  helm-scroll-amount 8
  helm-ff-file-name-history-use-recentf t)
+
+;; helm swoop
+(setq helm-multi-swoop-edit-save t
+      helm-swoop-split-with-multiple-windows nil
+      helm-swoop-move-to-line-cycle t)
 #+end_src
 
 ** Commands use helm, ido or native emacs

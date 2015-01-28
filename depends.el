@@ -95,6 +95,7 @@
         helm
         helm-config
         helm-gtags
+        helm-swoop
 
         ;; prog mode
         cmake-mode

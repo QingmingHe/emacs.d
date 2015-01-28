@@ -67,7 +67,7 @@ Just press =SPC-w=, the first character of word where you want to go and select
 the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
 back.
 #+BEGIN_SRC emacs-lisp 
-(setq ace-jump-mode-scope 'frame)
+(setq ace-jump-mode-scope 'window)
 (ace-jump-mode-enable-mark-sync)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
@@ -119,7 +119,8 @@ back.
   "ne" 'flycheck-next-error
   "sd" 'sdcv-search-input
   "w" 'ace-jump-word-mode
-  "l" 'ace-jump-line-mode)
+  "l" 'ace-jump-line-mode
+  "sw" 'helm-swoop)
 #+END_SRC
    
 *** Insert state map
