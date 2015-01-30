@@ -58,9 +58,12 @@ type(SomeType) :: atype ! object of SomeType"
          (if (region-active-p)
              (let* ((beg (region-beginning))
                     (end (region-end))
-                    (nlines (1- (count-lines beg end))))
+                    (nlines (1- (count-lines beg end)))
+                    arg)
+               (when (equal (region-beginning) (point))
+                 (setq arg t))
                (dotimes (var nlines)
-                 (f90-join-lines t)))
+                 (f90-join-lines arg)))
            (f90-join-lines t))))
 #+END_SRC
 
