@@ -269,6 +269,13 @@ project root, otherwise prj can't update tags file."
                   (kill-buffer buffer)))))
      (buffer-list))))
 
+(defun prj/rel-or-abs-path (path p)
+  (if (or
+       (= ?/ (string-to-char path))
+       (= ?~ (string-to-char path)))
+      (expand-file-name path)
+    (expand-file-name (concat (cdr p) path))))
+
 (defun prj/set-gfortran-compile-args (&optional p)
   "Set flycheck-gfortran-* variables."
   (when (and
@@ -279,9 +286,7 @@ project root, otherwise prj can't update tags file."
         (mapc
          (lambda (include-path)
            (add-to-list 'flycheck-gfortran-include-path
-                        (if (equal 0 (string-match-p "[/~]" include-path))
-                            (expand-file-name include-path)
-                          (expand-file-name (concat (cdr p) include-path)))))
+                        (prj/rel-or-abs-path include-path p)))
          (or (project-root-data :gfortran-include-paths p) '(".")))
         ;; user gfortran pre-definitions
         (when (project-root-data :gfortran-definitions p)
@@ -296,7 +301,11 @@ project root, otherwise prj can't update tags file."
           (let ((hdf5-root (getenv "HDF5_ROOT")))
             (when hdf5-root
               (add-to-list 'flycheck-gfortran-include-path
-                           (concat hdf5-root "/include"))))))))
+                           (concat hdf5-root "/include")))))
+        ;; where to generate module files
+        (when (project-root-data :gfortran-J p)
+          (setq flycheck-gfortran-J-path
+                (prj/rel-or-abs-path (project-root-data :gfortran-J p) p))))))
 
 (defun prj/c-include-paths-pkgs (pkgs)
   "Get c include pahts for `pkgs'. `pkgs' should be string or list of string.

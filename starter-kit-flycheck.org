@@ -24,19 +24,23 @@ The built in fortran-gfortran doesn't support Chinese errors and warnings. An
 should be set before enabling flycheck or it will check syntax with default
 options at flycheck mode being enabled.
 
+flycheck should be append to the hook for that some options should be set
+before checking the buffer.
+
 #+BEGIN_SRC emacs-lisp
-(add-hook 'f90-mode-hook #'(lambda ()
-                             (when (executable-find "gfortran")
-                               (setq flycheck-gfortran-language-standard "f2008")
-                               (flycheck-mode)
-                               (flycheck-select-checker 'fortran-gfortran-zh))))
+(defun my-flycheck-fortran-setup ()
+  (when (executable-find "gfortran")
+    (setq flycheck-gfortran-language-standard "f2008")
+    (flycheck-mode)
+    (flycheck-select-checker 'fortran-gfortran-zh)))
+(add-hook 'f90-mode-hook 'my-flycheck-fortran-setup t)
 #+END_SRC
 
 ** Python
 
 Select checker for that flake8 is not always available.
 #+BEGIN_SRC emacs-lisp
-(defun my-select-python-checker ()
+(defun my-flycheck-python-setup ()
   (when (and
          (equal 'python-mode major-mode)
          (not
@@ -47,7 +51,7 @@ Select checker for that flake8 is not always available.
         (flycheck-select-checker 'python-flake8)
       (flycheck-select-checker 'python-pycompile))))
 
-(add-hook 'python-mode-hook 'my-select-python-checker)
+(add-hook 'python-mode-hook 'my-flycheck-python-setup t)
 #+END_SRC
 
 You can install flake8 with its dependencies without direct Internet
@@ -69,6 +73,6 @@ connection this way:
     (progn
       (flycheck-mode)
       (flycheck-select-checker 'c/c++-gcc))))
-(add-hook 'c-mode-common-hook 'my-flycheck-c-setup)
+(add-hook 'c-mode-common-hook 'my-flycheck-c-setup t)
 #+end_src
 

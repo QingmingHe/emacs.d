@@ -1,5 +1,5 @@
 ;;; flycheck-fortran-gfortran-zh.el --- A plugin for flycheck.el to check
-;;; Fortran with gfortran, 并支持中文的报错信息。
+;;; Fortran with gfortran. Error messages in Chinese are supported.
 
 ;; Copyright (c) 2015 Qingming He <906459647@qq.com>
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
@@ -26,10 +26,11 @@
 
 ;;; Commentary:
 
-;; A flycheck plugin to support gfortran 中文报错信息. To use it, add to your
-;; init.el:
+;; A flycheck plugin to support gfortran Chinese error messages. To use it,
+;; add to your init.el:
 ;; (require 'flycheck-fortran-gfortran-zh)
 ;; (add-hook 'f90-mode-hook #'(lambda ()
+;;           (flycheck-mode)
 ;;           (flycheck-select-checker 'fortran-gfortran-zh)))
 
 ;;; Code:
@@ -43,6 +44,15 @@ The value of this variable is a list of strings, each of which predefines
 name as a macro. Default nil."
   :type '(repeat (string :tag "Definition"))
   :safe #'flycheck-string-list-p)
+
+(flycheck-def-option-var flycheck-gfortran-J-path nil fortran-gfortran
+  "Path to generate modules files.
+
+The value of this variable is a string which specifies where to generate
+module files. This path will also be added to include path by gfortran by
+default. Default nil."
+  :type 'string
+  :safe #'stringp)
 
 (flycheck-define-checker fortran-gfortran-zh
   "An Fortran syntax checker using GCC. Support Chinese error and warning.
@@ -60,6 +70,7 @@ Uses GCC's Fortran compiler gfortran."
             (option "-std=" flycheck-gfortran-language-standard concat)
             (option "-f" flycheck-gfortran-layout concat
                     flycheck-option-gfortran-layout)
+            (option "-J" flycheck-gfortran-J-path concat)
             (option-list "-W" flycheck-gfortran-warnings concat)
             (option-list "-I" flycheck-gfortran-include-path concat)
             (option-list "-D" flycheck-gfortran-definitions concat)

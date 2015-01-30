@@ -31,7 +31,7 @@ First define projects.
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py org))
          :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
-         :gfortran-include-paths ("../BUILD_RELEASE/include")
+         :gfortran-J "../BUILD_RELEASE/include"
          :gfortran-definitions ,(get-SUGAR-definitions)
          :gtags-label "ctags"
          :use-hdf5 ,(getenv "HDF5_ROOT")
