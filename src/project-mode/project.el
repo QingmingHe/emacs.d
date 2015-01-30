@@ -3,7 +3,7 @@
 ;; Copyright (C) 2015  Qingming He
 ;;
 ;; Author: Qingming He <906459647@qq.com>
-;; Keywords: completion, convenience
+;; Keywords: convenience
 ;; Version: dev
 ;;
 ;; This program is free software; you can redistribute it and/or
@@ -60,7 +60,9 @@ use ctags parser.")
    prj/gtags-conf-file-choices))
 
 (defun prj/occur (arg)
-  "Run multiple occur on selected project files."
+  "Run multiple occur on selected project files.
+
+If arg is nil, run `helm-multi-swoop', otherwise run `multi-occur'."
   (interactive "P")
   (if (featurep 'helm)
       (with-project-root
@@ -84,8 +86,11 @@ use ctags parser.")
     (message "Helm is required!")))
 
 (defun prj/occur-dir (arg)
-  "Run multiple occur on found files. `grep-find-ignored-directories' and
-`grep-find-ignored-files' will be ignored by default."
+  "Run multiple occur on found files under given directory..
+
+`grep-find-ignored-directories' and `grep-find-ignored-files' will be ignored
+by default.  If arg is nil, run `helm-multi-swoop', otherwise run
+`multi-occur'."
   (interactive "P")
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
@@ -124,7 +129,7 @@ use ctags parser.")
       (multi-occur buffers (read-string "List lines matching: ")))))
 
 (defun prj/find-file ()
-  "Find a file from a list of those that exist in the current project."
+  "Find a project file."
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
@@ -136,7 +141,7 @@ use ctags parser.")
         (find-file (cdr (assoc file project-files))))))
 
 (defun prj/find-grep (grep-regexp)
-  "Run grep with find at project root."
+  "Run grep at all project files."
   (interactive (list
                 (read-string
                  (format "grep regexp (default %s): " (symbol-at-point)))))
@@ -179,7 +184,7 @@ use ctags parser.")
                grep-regexp)))))
 
 (defun prj/goto-project (&optional p)
-  "Goto a project root for a given project or a read project name."
+  "Go to root of a selected project in Dired."
   (interactive)
   (let ((path (if p
                   (cdr p)
@@ -240,13 +245,14 @@ project root, otherwise prj can't update tags file."
              (project-root-find-cmd) gtags-label gtags-conf))))
 
 (defun prj/generate-tags ()
+  "Generate tags file by ctags or gtags."
   (interactive)
   (if prj/use-gtags
       (prj/generate-gtags)
     (prj/generate-gtags)))
 
 (defun prj/update-gtags-single-file ()
-  "Update GTAGS for single file only when current buffer is a project file."
+  "Update GTAGS for current project file."
   (let ((fname (buffer-file-name))
         (p (project-root-fetch)))
     (when (and p fname)
@@ -258,12 +264,14 @@ project root, otherwise prj can't update tags file."
           gtags-label gtags-conf fname))))))
 
 (defun prj/update-tags-single-file ()
+  "Update tags for single file by ctags or gtags."
   (if prj/use-gtags
       (prj/update-gtags-single-file)
     (etu/update-tags-for-file)))
 
 (defun prj/kill-buffers-dir ()
-  "Kill all buffers under directory."
+  "Kill all buffers under directory, Dired buffers included. The buffers are
+saved before killed."
   (interactive)
   (let ((dir (ido-read-directory-name "Directory: ")))
     (mapcar
@@ -309,6 +317,10 @@ project root, otherwise prj can't update tags file."
      (buffer-list))))
 
 (defun prj/rel-or-abs-path (path p)
+  "Get path.
+
+Path begin with \"/\" or \"~\" will be recognized as absolute path and be
+expanded.  Otherwise will be recognized as path relative to project root."
   (if (or
        (= ?/ (string-to-char path))
        (= ?~ (string-to-char path)))
@@ -321,17 +333,17 @@ project root, otherwise prj can't update tags file."
          (equal 'f90-mode major-mode)
          (featurep 'flycheck))
       (let ((p (or p (project-root-fetch))))
-        ;; user gfortran include paths
+        ;; gfortran include paths
         (mapc
          (lambda (include-path)
            (add-to-list 'flycheck-gfortran-include-path
                         (prj/rel-or-abs-path include-path p)))
          (or (project-root-data :gfortran-include-paths p) '(".")))
-        ;; user gfortran pre-definitions
+        ;; gfortran pre-definitions
         (when (project-root-data :gfortran-definitions p)
           (setq flycheck-gfortran-definitions
                 (project-root-data :gfortran-definitions p)))
-        ;; user gfortran language standard
+        ;; gfortran language standard
         (when (project-root-data :gfortran-language-standard p)
           (setq flycheck-gfortran-language-standard
                 (or (project-root-data :gfortran-language-standard p) "f2008")))

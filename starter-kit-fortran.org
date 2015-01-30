@@ -55,7 +55,13 @@ type(SomeType) :: atype ! object of SomeType"
 (evil-leader/set-key-for-mode 'f90-mode
   "J" '(lambda ()
          (interactive)
-         (f90-join-lines t)))
+         (if (region-active-p)
+             (let* ((beg (region-beginning))
+                    (end (region-end))
+                    (nlines (1- (count-lines beg end))))
+               (dotimes (var nlines)
+                 (f90-join-lines t)))
+           (f90-join-lines t))))
 #+END_SRC
 
 *** Some commands
