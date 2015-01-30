@@ -2,14 +2,14 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Flycheck
-  
+
 Don't always check buffer, it's too slow.
 #+BEGIN_SRC emacs-lisp
 (setq flycheck-check-syntax-automatically '(save mode-enabled))
 #+END_SRC
 
 ** Fortran
-   
+
 You may work on a large project and has complex dependencies, where module
 files may locate here and there. In these cases, gfortran can't find these
 module files and flycheck will always prompt errors like *No such file or
@@ -75,4 +75,3 @@ connection this way:
       (flycheck-select-checker 'c/c++-gcc))))
 (add-hook 'c-mode-common-hook 'my-flycheck-c-setup t)
 #+end_src
-

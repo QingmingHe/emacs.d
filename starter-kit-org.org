@@ -171,7 +171,7 @@ file using the `org-babel-lob-ingest' function.
 #+END_SRC
 
 ** Org export to PDF
-   
+
 *** XeLaTeX
 Use XeLaTeX to export PDF and compile two times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
@@ -231,13 +231,13 @@ work items. This allows one to focus attention on taking action on tasks,
 instead of on recalling them.
 #+END_QUOTE
 *** GTD root
-GTD root is defined by *GTD_ROOT* environment variable.    
+GTD root is defined by *GTD_ROOT* environment variable.
 #+BEGIN_SRC emacs-lisp
 (if (getenv "GTD_ROOT")
     (setq gtd-root (getenv "GTD_ROOT"))
   (setq gtd-root nil))
 #+END_SRC
-   
+
 *** Org TODO #+KEYWORDS: 0
 
 
@@ -289,7 +289,7 @@ Set files where org agenda will extract from.
 
 #+BEGIN_SRC emacs-lisp
 (when gtd-root
-  (setq org-agenda-files 
+  (setq org-agenda-files
         (list org-default-notes-file
               (concat org-directory "/projects.org")
               ))
@@ -376,7 +376,7 @@ idea what it means.
 #                                   (setq evil-auto-indent nil)
 #                                   (soft-wrap-lines)
 #                                   ))))
-# 
+#
 # (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
 #   (let ((browse-url-browser-function
 #          (cond ((equal (ad-get-arg 0) '(4))

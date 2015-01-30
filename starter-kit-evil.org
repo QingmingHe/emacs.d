@@ -120,7 +120,9 @@ back.
   "sd" 'sdcv-search-input
   "w" 'ace-jump-word-mode
   "l" 'ace-jump-line-mode
-  "sw" 'helm-swoop)
+  "sw" 'helm-swoop
+  "hr" 'helm-resume
+  "oc" 'occur-dwim)
 #+END_SRC
 
 *** Insert state map

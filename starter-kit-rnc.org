@@ -24,10 +24,9 @@ for these files.
 (autoload 'rnc-mode "rnc-mode")
 (add-to-list 'auto-mode-alist '("\\.rnc\\'" . rnc-mode))
 #+END_SRC
-   
+
 ** rnc along with imemu
 
 #+BEGIN_SRC emacs-lisp
 (setq rnc-enable-imenu t)
 #+END_SRC
-

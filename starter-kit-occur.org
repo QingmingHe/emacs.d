@@ -2,9 +2,9 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Occur
-  
+
 ** Key bindings
-   
+
 Use hydra to set key bindings for that help message will be shown in
 minibuffer.
 
@@ -26,13 +26,13 @@ minibuffer.
 #+end_src
 
 ** Occur do what I mean
-   
+
 + Push region or symbol at point to regexp-history so that occur will set the
   default regexp as what's been pushed.
 + The hydra has to be summoned with a prefix body key and any one head
   key. But I want the hydra summoned immediately I call =occur=. So advice
   occur to summon the hydra by performing =hydra-?-occur-next=.
-  
+
 #+begin_src emacs-lisp
 (defun occur-dwim ()
   (interactive)
@@ -51,7 +51,7 @@ minibuffer.
   (pop-to-buffer "*Occur*")
   (hydra-?-occur-next))
 #+end_src
-   
+
 ** Helm occur
 
 Helm occur is great!

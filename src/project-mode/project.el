@@ -22,6 +22,9 @@
 (require 'project-root)
 (require 'etags-update)
 
+(defvar prj/use-helm-if-possible t
+  "Use helm for completing if possible.")
+
 (defvar prj/use-gtags (if (executable-find "gtags")
                           t
                         nil)
@@ -56,9 +59,9 @@ use ctags parser.")
          (throw 'gtags-conf-file file)))
    prj/gtags-conf-file-choices))
 
-(defun prj/occur ()
+(defun prj/occur (arg)
   "Run multiple occur on selected project files."
-  (interactive)
+  (interactive "P")
   (if (featurep 'helm)
       (with-project-root
           (let (prj-files selected-files buffers)
@@ -72,15 +75,18 @@ use ctags parser.")
                              (find-file-noselect
                               (cdr (assoc f prj-files))))
                            selected-files))
-            (if (featurep 'helm-swoop)
+            (if (and
+                 (featurep 'helm-swoop)
+                 prj/use-helm-if-possible
+                 (not arg))
                 (helm-multi-swoop nil (mapcar 'buffer-name buffers))
               (multi-occur buffers (read-string "List lines matching: ")))))
     (message "Helm is required!")))
 
-(defun prj/find-occur ()
+(defun prj/occur-dir (arg)
   "Run multiple occur on found files. `grep-find-ignored-directories' and
 `grep-find-ignored-files' will be ignored by default."
-  (interactive)
+  (interactive "P")
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
         (cycles
@@ -102,7 +108,7 @@ use ctags parser.")
                     '(type "f")))
     (setq files
           (split-string (shell-command-to-string find-file-cmd) "\n"))
-    (when (featurep 'helm)
+    (when (and (featurep 'helm) prj/use-helm-if-possible)
       (setq files
             (helm-comp-read
              "Select files to run occur. [M-a] to mark all: "
@@ -110,7 +116,10 @@ use ctags parser.")
              :marked-candidates t)))
     (setq buffers
           (mapcar 'find-file-noselect files))
-    (if (featurep 'helm-swoop)
+    (if (and
+         (featurep 'helm-swoop)
+         prj/use-helm-if-possible
+         (not arg))
         (helm-multi-swoop nil (mapcar 'buffer-name buffers))
       (multi-occur buffers (read-string "List lines matching: ")))))
 
@@ -119,7 +128,7 @@ use ctags parser.")
   (interactive)
   (with-project-root
       (let* ((project-files (project-root-files))
-             (file (if (featurep 'helm)
+             (file (if (and (featurep 'helm) prj/use-helm-if-possible)
                        (helm-comp-read "Find file in project: "
                                        (mapcar 'car project-files))
                      (ido-completing-read "Find file in project: "

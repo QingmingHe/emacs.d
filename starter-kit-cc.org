@@ -2,9 +2,9 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit CC
-  
+
 ** ff-find-other-file
-   
+
 + Use ff-find-other-file command to goto header file quickly.
 + The search dirs are defined at [[~/.emacs.d/starter-kit-autocomplete.org][starter-kit-autocomplete]].
 + Do some hack to locate symbol at point after loading header file.
@@ -22,9 +22,9 @@
     (re-search-forward (format "\\_<%s\\_>" __c-symbol-at-point) nil t)))
 (add-hook 'ff-post-load-hook 'my-ff-locate-symbol)
 #+end_src
-  
+
 ** Configurations
-   
+
 #+BEGIN_SRC emacs-lisp
 (defun my-c-common-config ()
   (modify-syntax-entry ?_ "w")

@@ -2,7 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Theme
-  
+
 ** Emacs Layout
 The toolbar and scroll bar are too ugly and disable it.
 #+BEGIN_SRC emacs-lisp
@@ -17,14 +17,14 @@ vertically by default.
 (setq split-height-threshold nil)
 (setq split-width-threshold 160)
 #+END_SRC
-  
+
 ** Font size
 #+begin_src emacs-lisp
 (set-face-attribute 'default (selected-frame) :height 120)
 #+end_src
 
 ** Font for English and Chinese
-  
+
 The author use emacs by "emacs -nw" and let the terminal handle the fonts. Or
 the English font will be Consolas and Chinese font be Microsoft Yahei.
 
@@ -42,14 +42,14 @@ the English font will be Consolas and Chinese font be Microsoft Yahei.
 #+END_SRC
 
 ** Fringe
-   
+
 Don't show fringe in GUI, it's too ugly.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (fringe-mode 0)
 #+END_SRC
 
 ** Power line
-   
+
 My powerline theme based on powerline-default-theme.
 #+begin_src emacs-lisp
 (defun powerline-my-theme ()
@@ -99,7 +99,7 @@ My powerline theme based on powerline-default-theme.
 #+end_src
 
 ** New
-   
+
 [[https://github.com/bbatsov/solarized-emacs][Solarized theme here]] seems better than [[https://github.com/sellout/emacs-color-theme-solarized][this one]].
 #+begin_src emacs-lisp
 (defadvice load-theme (around starter-kit-load-theme disable)
@@ -170,10 +170,10 @@ evaluated a theme is activated using the =load-theme= function.
          (set-face-background 'highlight-indentation-face "#073642")
          (set-face-background 'highlight-indentation-current-column-face "#073642")))
 #+END_SRC
-   
+
 Load powerline after color theme is set. If you change the color theme in
 running emacs, the expressions as follows should be re-evaluated.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (require 'powerline)
 (set-face-attribute 'mode-line nil
                     :background "dim gray"
@@ -188,4 +188,3 @@ running emacs, the expressions as follows should be re-evaluated.
                     :box nil
                     :underline nil)
 #+END_SRC
-

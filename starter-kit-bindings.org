@@ -8,35 +8,35 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 Key Bindings.
 
 ** You know, like Readline.
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "C-M-h") 'backward-kill-word)
 #+end_src
 
 ** Align your code in a pretty way.
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "C-x \\") 'align-regexp)
 #+end_src
 
 ** Completion that uses many different methods to find options.
-   
+
 I NEVER use hippie.
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "M-/") 'hippie-expand)
 #+end_src
 
 ** Turn on the menu bar for exploring new modes
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key [f1] 'menu-bar-mode)
 #+end_src
 
 ** Incremental search
-   
+
 *** Use regexp search by default
 + *C-s* to repeat search
 + *C-w* to select or append word at point
 + *C-y* to yank and *M-y* to cycle kill ring
 + *C-o* to call occur
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "\C-r") 'isearch-backward-regexp)
 (global-set-key (kbd "C-M-s") 'isearch-forward)
@@ -44,7 +44,7 @@ I NEVER use hippie.
 #+end_src
 
 *** Activate occur easily inside isearch
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (define-key isearch-mode-map (kbd "C-o")
     (lambda () (interactive)
       (let ((case-fold-search isearch-case-fold-search))
@@ -54,7 +54,7 @@ I NEVER use hippie.
 #+end_src
 
 ** File finding
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "C-x M-f") 'ido-find-file-other-window)
 (global-set-key (kbd "C-x C-p") 'find-file-at-point)
 (global-set-key (kbd "C-c y") 'bury-buffer)
@@ -62,21 +62,21 @@ I NEVER use hippie.
 (global-set-key (kbd "C-c r") 'revert-buffer)
 (global-set-key (kbd "M-`") 'file-cache-minibuffer-complete)
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-x f") 'recentf-ido-find-file)  
+(global-set-key (kbd "C-x f") 'recentf-ido-find-file)
 #+end_src
 
 ** Indentation help
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "C-x ^") 'join-line)
 #+end_src
 
 ** If you want to be able to M-x without meta
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (global-set-key (kbd "C-x C-m") 'execute-extended-command)
 #+end_src
 
 ** Help should search more than just commands
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (global-set-key (kbd "C-h a") 'apropos)
 #+end_src
 

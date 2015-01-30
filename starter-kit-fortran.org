@@ -14,7 +14,7 @@ Fortran is a major language for scientific computation but a minor for other.
 #+END_SRC
 
 ** Fortran indent
-   
+
 Default indentation for Fortran is not that friendly.
 #+BEGIN_SRC emacs-lisp
 (setq fortran-do-indent 2)
@@ -29,7 +29,7 @@ Default indentation for Fortran is not that friendly.
 #+END_SRC
 
 ** Declaration align
-   
+
 Align variable declaration. Key binding is *C-c C-i*.
 
 #+BEGIN_SRC emacs-lisp

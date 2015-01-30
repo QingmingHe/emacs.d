@@ -34,7 +34,7 @@ To use my configuration, set JEDI_SERVER environment to be
         ((getenv "JEDI_SERVER")
          (progn (setq jedi:server-command
                       `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
-                (my-jedi-conf))) 
+                (my-jedi-conf)))
         ((executable-find "jediepcserver.py")
          (progn
            (setq jedi:server-command
@@ -76,7 +76,7 @@ so on and you can add your own key words.
 #+END_SRC
 
 ** IPython set up
-   
+
 Activate IPython in ansi-term.
 #+BEGIN_SRC emacs-lisp
 (defun my-ipython ()
@@ -100,21 +100,21 @@ ways:
   #+BEGIN_SRC sh
     /path/to/windows/python script.py [args]
   #+END_SRC
-  
+
 - You are not there ::
      #+BEGIN_SRC sh
      cat /path/to/script.py | /path/to/windows/python - [args]
      #+END_SRC
      =-= means python interpreter will read from stdin. Note that you can't do
      this in eshell for that eshell can't handle stdin redirection.
-  
+
 - You are editing the script ::
      Make a symbolic to Windows Python:
      #+BEGIN_SRC sh
      ln -s /path/to/windows/python ~/bin/winpy
      #+END_SRC
      Then define quickrun like [[~/.emacs.d/starter-kit-quickrun.org][this]]. Finally run quickrun.
-     
+
 - You are in dired ::
      Run *M-x dired-open-w32-prog-at-point* or *C-u M-x
      dired-open-w32-prog-at-point* as defined [[~/.emacs.d/starter-kit-dired.org][here]].

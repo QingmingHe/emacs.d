@@ -47,7 +47,7 @@ white space should be spared or yas-next-field will not work.
 #+end_src
 
 ** Configure for Python mode
-   
+
 Indent in Python mode may be confusing. Set fixed so yas will not indent
 automatically, but just as in snippet.
 #+begin_src emacs-lisp
@@ -57,7 +57,7 @@ automatically, but just as in snippet.
 #+end_src
 
 ** Rebind key of yas
-   
+
 using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
 
 #+BEGIN_SRC emacs-lisp
@@ -95,4 +95,3 @@ using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
       '(yas-popup-isearch-prompt
         yas-no-prompt))
 #+end_src
-

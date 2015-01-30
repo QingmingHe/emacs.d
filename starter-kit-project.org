@@ -4,7 +4,7 @@
 * Starter Kit Project
 
 Use gtags, etags, imenu ... to handle projects.
-  
+
 ** Define project
 
 First define projects.
@@ -49,13 +49,13 @@ First define projects.
          :gtags-label "ctags"
          :lighter "pyPkgs")))
 #+END_SRC
-  
+
 ** Don't ask yes or no when reverting tags file
 
 #+BEGIN_SRC emacs-lisp
 (setq tags-revert-without-query t)
 #+END_SRC
-   
+
 ** Function to generate tags file
 #+BEGIN_SRC emacs-lisp
 (defun my-make-tags (dir-name project-name)
@@ -67,7 +67,7 @@ First define projects.
   )
 )
 #+END_SRC
-   
+
 ** Install etags update
 
 #+BEGIN_SRC emacs-lisp
@@ -86,7 +86,7 @@ First define projects.
 (add-hook 'kill-emacs-hook (lambda ()
                              (setq tags-file-name nil)))
 #+END_SRC
-   
+
 ** taglist
 
 #+BEGIN_SRC emacs-lisp
@@ -94,7 +94,7 @@ First define projects.
   (interactive)
   (list-tags (buffer-file-name)))
 #+END_SRC
-   
+
 ** imenu with ido
 
 #+BEGIN_SRC emacs-lisp
@@ -146,7 +146,7 @@ First define projects.
               (add-to-list 'symbol-names name)
               (add-to-list 'name-and-pos (cons name position))))))))
 #+END_SRC
-   
+
 ** How to use imenu, ctags and taglist
 
 *** Key bindings
@@ -157,17 +157,17 @@ See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
 *M-x my-imenu* use imenu with ido
 
 *** Make and update tags file
-    
+
 + Define project in project-roots.
 + *M-x my-make-tags* to make tags file for the project. Note that path to make
   tags should be the root of project.
 + *M-x etags-update-mode* to activate etags update mode.
 + Emacs will update tags file automatically.
 + Answer *n* to "keep current list of tags table also?"
-  
+
 *** find tag
 *\ta* and chose a key word. If multiple tags exist, etags-select will work and
  pop a buffer for tags selecting.
- 
+
 *** taglist
 *\tl* opens taglist and navigate with *jk*.

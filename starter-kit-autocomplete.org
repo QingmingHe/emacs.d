@@ -2,7 +2,7 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit AC
-  
+
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
 ;; add dictionary-dirs
@@ -60,9 +60,9 @@
             (when (featurep 'auto-complete-gtags)
               (add-to-list 'ac-sources 'ac-source-gtags))))
 #+end_src
-   
+
 ** Python
-   
+
 Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
 
 #+begin_src emacs-lisp
@@ -75,7 +75,7 @@ Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
 #+end_src
 
 ** Emacs lisp
-   
+
 #+begin_src emacs-lisp
 (add-hook 'emacs-lisp-mode-hook
           (lambda ()
@@ -95,7 +95,7 @@ Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
           (lambda ()
             (setq ac-sources '(ac-source-pcomplete))))
 #+end_src
-   
+
 ** CC
 *** ac-c-headers
 
@@ -182,7 +182,7 @@ added.
 #+end_src
 
 *** ac-sources
-    
+
 #+begin_src emacs-lisp
 (defun my-c-c++-ac-setup ()
   (when (derived-mode-p 'c-mode 'c++-mode)

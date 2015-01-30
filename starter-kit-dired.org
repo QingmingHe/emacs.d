@@ -2,7 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Dired
-  
+
 ** Basic settings
 
 #+BEGIN_SRC emacs-lisp
@@ -62,4 +62,3 @@
 *** key bindings
 - *w* copies file name to ring. *C-u 0 w* copies full path.
 - *!* run shell command, *&* run shell command synchronously.
-

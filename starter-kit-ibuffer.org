@@ -3,7 +3,7 @@
 
 * Starter Kit ibuffer
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (eval-after-load 'ibuffer
   '(progn
      ;; Use human readable Size column instead of original one

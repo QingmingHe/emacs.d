@@ -6,11 +6,11 @@
 Desktop will load, at startup, the buffers you were editing when you last quit
 Emacs.
 
-+ Set the file to save desktop variables and load desktop. 
++ Set the file to save desktop variables and load desktop.
 + Save no buffer and file.
-+ Set variables (list) along with max length to save. 
++ Set variables (list) along with max length to save.
 + Delete duplicates before save.
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
 (setq desktop-path (list
                     starter-kit-dir)
       desktop-dirname starter-kit-dir

@@ -12,4 +12,3 @@ Ropemacs is too slow and I never use it.
 #+BEGIN_SRC emacs-lisp
 (setq company-backends (delete 'company-ropemacs company-backends))
 #+END_SRC
-

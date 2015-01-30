@@ -156,7 +156,7 @@ general starter-kit updates without conflict.
      #+begin_src emacs-lisp
        (starter-kit-load "gnus" "pretty-summary")
      #+end_src
-     
+
      Finally you can load just those subsections of a file which have
      a specific tag, so to load just the two sections of
      =starter-kit-misc-recommended.org= which are tagged =visual= add
@@ -239,7 +239,7 @@ is probably safe to stop reading at this point unless you are
 interested in the actual code implementing the starter kit.
 
 ** Starter kit basics
-   
+
 - Determine system type and emacs version
 #+BEGIN_SRC emacs-lisp
 (defun my-system-type ()
@@ -276,7 +276,7 @@ interested in the actual code implementing the starter kit.
   #+begin_src emacs-lisp
   (add-to-list 'custom-theme-load-path (concat starter-kit-dir "themes"))
   #+end_src
-  
+
 - Ubiquitous Packages which should be loaded on startup rather than
   autoloaded on demand since they are likely to be used in every
   session.
@@ -319,7 +319,7 @@ interested in the actual code implementing the starter kit.
                     (package-installed-p package))
           (package-install package)))))
   #+end_src
-  
+
 - Function for loading other parts of the starter kit
   #+name: starter-kit-load
   #+begin_src emacs-lisp
@@ -329,10 +329,10 @@ interested in the actual code implementing the starter kit.
     configuration from within that subtree will be loaded.  If it is
     not an id then it will be interpreted as a tag, and only subtrees
     marked with the given tag will be loaded.
-    
+
     For example, to load all of starter-kit-lisp.org simply
     add (starter-kit-load \"lisp\") to your configuration.
-    
+
     To load only the 'window-system' config from
     starter-kit-misc-recommended.org add
      (starter-kit-load \"misc-recommended\" \"window-system\")
@@ -404,7 +404,7 @@ everyone using the starter kit.
   #+begin_src emacs-lisp
   (starter-kit-load "starter-kit-registers.org")
   #+end_src
-  
+
 - Others
 
 #+BEGIN_SRC emacs-lisp
@@ -492,9 +492,9 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 #+begin_src emacs-lisp
   (load custom-file 'noerror)
 #+end_src
-    
+
 ** Starter kit initial display
-   
+
 This should be placed at end of starter kit and configures the initial
 windows. Since Emacs-24.4 you can toggle full screen by <F11>.
 #+BEGIN_SRC emacs-lisp

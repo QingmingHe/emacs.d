@@ -7,26 +7,26 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 ** Use ido to find recentf
 
 #+srcname: starter-kit-recentf-ido-find-file
-#+begin_src emacs-lisp 
-  (defun recentf-ido-find-file () 
-    "Find a recent file using Ido." 
-    (interactive) 
-    (let* ((file-assoc-list 
-            (mapcar (lambda (x) 
-                      (cons (file-name-nondirectory x) 
-                            x)) 
-                    recentf-list)) 
-           (filename-list 
-            (remove-duplicates (mapcar #'car file-assoc-list) 
-                               :test #'string=)) 
-           (filename (ido-completing-read "Choose recent file: " 
-                                          filename-list 
-                                          nil 
-                                          t))) 
-      (when filename 
-        (find-file (cdr (assoc filename 
-                               file-assoc-list)))))) 
- #+end_src 
+#+begin_src emacs-lisp
+  (defun recentf-ido-find-file ()
+    "Find a recent file using Ido."
+    (interactive)
+    (let* ((file-assoc-list
+            (mapcar (lambda (x)
+                      (cons (file-name-nondirectory x)
+                            x))
+                    recentf-list))
+           (filename-list
+            (remove-duplicates (mapcar #'car file-assoc-list)
+                               :test #'string=))
+           (filename (ido-completing-read "Choose recent file: "
+                                          filename-list
+                                          nil
+                                          t)))
+      (when filename
+        (find-file (cdr (assoc filename
+                               file-assoc-list))))))
+ #+end_src
 
 ** MS word to other format
 #+BEGIN_SRC emacs-lisp
@@ -69,7 +69,7 @@ No such function in Emacs 24.4, so add it.
   (defmacro ad-macro-p (definition)
     ;;"non-nil if DEFINITION is a macro."
     (` (eq (car-safe (, definition)) 'macro)))
-  
+
   (defun ad-advised-definition-p (definition)
     ;;"non-nil if DEFINITION was generated from advice information."
     (if (or (ad-lambda-p definition)
@@ -141,7 +141,7 @@ return: Windows path.
                (intern
                 (ido-completing-read
                  "Mode: "
-                 (mapcar (lambda (e) 
+                 (mapcar (lambda (e)
                            (list (symbol-name e)))
                          (apropos-internal "-mode$" 'commandp))
                  nil t)))))
@@ -175,10 +175,9 @@ return: Windows path.
        ,@body))
     ,alist))
 #+end_src
-   
+
 Simple usage:
 #+begin_src emacs-lisp :tangle no
 (--for i in '(1 2 3)
        (print i))
 #+end_src
-

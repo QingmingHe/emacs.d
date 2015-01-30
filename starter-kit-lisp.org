@@ -12,7 +12,7 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
    :CUSTOM_ID: keys
    :END:
 #+name: starter-kit-define-lisp-keys
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
 (define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
 (define-key emacs-lisp-mode-map (kbd "C-x C-j") 'eval-last-sexp)
 (define-key org-mode-map (kbd "C-x C-j") 'eval-last-sexp)
@@ -50,7 +50,7 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 #+begin_src emacs-lisp
   (define-key clojure-mode-map (kbd "C-c v") 'slime-eval-buffer)
   (define-key clojure-mode-map (kbd "C-c C-v") 'slime-eval-buffer)
-  
+
   (defface starter-kit-clojure-trace-face
      '((((class color) (background dark))
         (:foreground "grey50"))
@@ -58,9 +58,9 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
         (:foreground "grey55")))
      "Face used to dim parentheses."
      :group 'starter-kit-faces)
-  
+
   (setq starter-kit-clojure-trace-face 'starter-kit-clojure-trace-face)
-  
+
   ;; This will make relevant lines stand out more in stack traces
   (defun sldb-font-lock ()
     (font-lock-add-keywords nil
@@ -72,9 +72,9 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
                                1 starter-kit-clojure-trace-face)
                               ("\\[\\([A-Z]+\\)\\]"
                                1 font-lock-function-name-face))))
-  
+
   (add-hook 'sldb-mode-hook 'sldb-font-lock)
-  
+
   (defun slime-jump-to-trace (&optional on)
     "Jump to the file/line that the current stack trace line references.
   Only works with files in your project root's src/, not in dependencies."
@@ -88,20 +88,20 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
         (find-file (format "%s/src/%s.clj" project-root
                            (mapconcat 'identity ns-path "/")))
         (goto-line line))))
-  
+
   (eval-after-load 'slime
     '(progn
        (defalias 'sldb-toggle-details 'slime-jump-to-trace)
        (defun sldb-prune-initial-frames (frames)
          "Show all stack trace lines by default."
          frames)))
-  
+
   (eval-after-load 'find-file-in-project
     '(add-to-list 'ffip-patterns "*.clj"))
-  
+
   (defun clojure-project (path)
     "Setup classpaths for a clojure project and starts a new SLIME session.
-  
+
   Kills existing SLIME session, if any."
     (interactive (list
                   (ido-read-directory-name
@@ -126,7 +126,7 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
                            slime-lisp-implementations)))
     (save-window-excursion
       (slime)))
-  
+
 #+end_src
 
 #+results:
@@ -146,7 +146,7 @@ pretty \lambda's in clojure
    :PROPERTIES:
    :CUSTOM_ID: scheme
    :END:
-   
+
 TODO
 
 ** Common Lisp

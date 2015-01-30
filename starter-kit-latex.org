@@ -2,7 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit LaTeX
-  
+
 ** Customary Customization
 
 #+BEGIN_QUOTE
@@ -54,7 +54,7 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
 (defun my-latex-config ()
   (setq-default TeX-master nil)
   (add-to-list
-   'TeX-command-list 
+   'TeX-command-list
    '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"
      TeX-run-TeX nil TeX-master))
   (setq TeX-command-default "XeLaTeX")
@@ -86,5 +86,5 @@ in this structure quickly.
 (setq reftex-plug-into-AUCTeX t)
 (setq reftex-default-bibliography
       (quote
-       ("~/share/bib/My_Collection.bib"))) 
+       ("~/share/bib/My_Collection.bib")))
 #+END_SRC
