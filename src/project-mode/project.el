@@ -94,22 +94,22 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
   (interactive "P")
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
-        (cycles
-         (split-string
-          (read-string "Dirs to cycle (split by spaces): ")))
-        (regexp
-         (or
-          (split-string
-           (read-string
-            "Find file matching (such as \"*.el *.org\", default \"*\"): "))
-          '("*")))
+        cycles
+        find-regexp
         find-file-cmd
         files
-        buffers)
+        buffers
+        str)
+    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
+      (add-to-list 'cycles str))
+    (while (not (string-empty-p (setq str (read-string "File name regexp: "))))
+      (add-to-list 'find-regexp str))
+    (unless find-regexp
+      (setq find-regexp '("*")))
     (setq find-file-cmd
           (find-cmd `(prune (name ,@grep-find-ignored-directories ,@cycles))
                     `(not (name ,@grep-find-ignored-files))
-                    `(name ,@regexp)
+                    `(name ,@find-regexp)
                     '(type "f")))
     (setq files
           (split-string (shell-command-to-string find-file-cmd) "\n"))
@@ -158,18 +158,18 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
   (interactive)
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
-        (cycles
-         (split-string
-          (read-string "Dirs to cycle (split by spaces): ")))
-        (find-regexp
-         (or
-          (split-string
-           (read-string
-            "Find file matching (such as \"*.el *.org\", default \"*\"): "))
-          '("*")))
         (grep-regexp
          (read-string (format "Grep regexp (default %s): " (symbol-at-point))))
-        find-file-cmd)
+        find-file-cmd
+        cycles
+        find-regexp
+        str)
+    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
+      (add-to-list 'cycles str))
+    (while (not (string-empty-p (setq str (read-string "File name regexp: "))))
+      (add-to-list 'find-regexp str))
+    (unless find-regexp
+      (setq find-regexp '("*")))
     (setq find-file-cmd
           (find-cmd
            `(prune (name ,@grep-find-ignored-directories ,@cycles))
@@ -182,6 +182,41 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
              (if (string-empty-p grep-regexp)
                  (symbol-at-point)
                grep-regexp)))))
+
+(defun prj/find-dired ()
+  "Run find and go into Dired mode on a buffer of the output."
+  (interactive)
+  (let ((dir
+         (ido-read-directory-name "Dir to run find: " default-directory))
+        (find-cmd-prune
+         (when (y-or-n-p "Ignore grep-find-ignored-directories?")
+           grep-find-ignored-directories))
+        (find-cmd-not
+         (when (y-or-n-p "Ignore grep-find-ignored-files?")
+           grep-find-ignored-files))
+        find-cmd-name
+        str)
+    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
+      (add-to-list 'find-cmd-prune str))
+    (when find-cmd-prune
+      (setq find-cmd-prune `(prune (name ,@find-cmd-prune))))
+    (while (not (string-empty-p (setq str (read-string "files to ignore: "))))
+      (add-to-list 'find-cmd-not str))
+    (when find-cmd-not
+      (setq find-cmd-not `(not (name ,@find-cmd-not))))
+    (while (not (string-empty-p (setq str (read-string "file name regexp: "))))
+      (add-to-list 'find-cmd-name str))
+    (when find-cmd-name
+      (setq find-cmd-name `(name ,@find-cmd-name)))
+    (find-dired
+     dir
+     (mapconcat
+      'concat
+      (cdr
+       (cdr
+        (split-string
+         (find-cmd find-cmd-prune find-cmd-not find-cmd-name))))
+      " "))))
 
 (defun prj/goto-project (&optional p)
   "Go to root of a selected project in Dired."
