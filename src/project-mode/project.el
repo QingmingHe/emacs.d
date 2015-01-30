@@ -82,7 +82,11 @@ If arg is nil, run `helm-multi-swoop', otherwise run `multi-occur'."
                  prj/use-helm-if-possible
                  (not arg))
                 (helm-multi-swoop nil (mapcar 'buffer-name buffers))
-              (multi-occur buffers (read-string "List lines matching: ")))))
+              (multi-occur
+               buffers
+               (read-string
+                (format "List lines matching (default \"%s\"): " (symbol-at-point))
+                nil nil (symbol-at-point))))))
     (message "Helm is required!")))
 
 (defun prj/occur-dir (arg)
@@ -126,7 +130,11 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
          prj/use-helm-if-possible
          (not arg))
         (helm-multi-swoop nil (mapcar 'buffer-name buffers))
-      (multi-occur buffers (read-string "List lines matching: ")))))
+      (multi-occur
+       buffers
+       (read-string
+        (format "List lines matching (default \"%s\"): " (symbol-at-point))
+        nil nil (symbol-at-point))))))
 
 (defun prj/find-file ()
   "Find a project file."
@@ -144,14 +152,13 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
   "Run grep at all project files."
   (interactive (list
                 (read-string
-                 (format "grep regexp (default %s): " (symbol-at-point)))))
+                 (format "grep regexp (default \"%s\"): " (symbol-at-point))
+                 nil nil (symbol-at-point))))
   (with-project-root
       (find-grep
        (format "%s -exec grep -nH -e %s {} +"
                (project-root-find-cmd)
-               (if (string-empty-p grep-regexp)
-                   (word-at-point)
-                 grep-regexp)))))
+               grep-regexp))))
 
 (defun prj/find-grep-dir ()
   "Run grep with find under certain directory."
@@ -159,7 +166,9 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
   (let ((default-directory
           (ido-read-directory-name "Dir to run find: " default-directory))
         (grep-regexp
-         (read-string (format "Grep regexp (default %s): " (symbol-at-point))))
+         (read-string
+          (format "grep regexp (default \"%s\"): " (symbol-at-point))
+          nil nil (symbol-at-point)))
         find-file-cmd
         cycles
         find-regexp
@@ -179,9 +188,7 @@ by default.  If arg is nil, run `helm-multi-swoop', otherwise run
     (find-grep
      (format "%s -exec grep -nH -e %s {} +"
              find-file-cmd
-             (if (string-empty-p grep-regexp)
-                 (symbol-at-point)
-               grep-regexp)))))
+             grep-regexp))))
 
 (defun prj/find-dired ()
   "Run find and go into Dired mode on a buffer of the output."
@@ -241,7 +248,7 @@ project root, otherwise prj can't update tags file."
             (when p (cdr p))))
          (tags-file
           (read-string
-           "Name of tags file: "
+           "Name of tags file: " nil nil
            (concat (if p (concar (car p) "-") "") "TAGS"))))
     (when (file-exists-p tags-file)
       (delete-file tags-file))
@@ -442,7 +449,7 @@ Include paths of `pkgs', including \"-I\" flag."
                            fname
                            (file-exists-p fname)
                            (project-root-file-is-project-file fname p))
-                      (setq lght " prj")
+                      (setq lght " Prj")
                       (setq plght (project-root-data :lighter p))
                       (when plght
                         (setq lght (format "%s:%s" lght plght))))
