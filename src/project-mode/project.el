@@ -98,7 +98,7 @@ use ctags parser.")
     (setq find-file-cmd
           (find-cmd `(prune (name ,@grep-find-ignored-directories ,@cycles))
                     `(not (name ,@grep-find-ignored-files))
-                    `(and (name ,@regexp))
+                    `(name ,@regexp)
                     '(type "f")))
     (setq files
           (split-string (shell-command-to-string find-file-cmd) "\n"))
@@ -138,6 +138,36 @@ use ctags parser.")
                (if (string-empty-p grep-regexp)
                    (word-at-point)
                  grep-regexp)))))
+
+(defun prj/find-grep-dir ()
+  "Run grep with find under certain directory."
+  (interactive)
+  (let ((default-directory
+          (ido-read-directory-name "Dir to run find: " default-directory))
+        (cycles
+         (split-string
+          (read-string "Dirs to cycle (split by spaces): ")))
+        (find-regexp
+         (or
+          (split-string
+           (read-string
+            "Find file matching (such as \"*.el *.org\", default \"*\"): "))
+          '("*")))
+        (grep-regexp
+         (read-string (format "Grep regexp (default %s): " (symbol-at-point))))
+        find-file-cmd)
+    (setq find-file-cmd
+          (find-cmd
+           `(prune (name ,@grep-find-ignored-directories ,@cycles))
+           `(not (name ,@grep-find-ignored-files))
+           `(name ,@find-regexp)
+           '(type "f")))
+    (find-grep
+     (format "%s -exec grep -nH -e %s {} +"
+             find-file-cmd
+             (if (string-empty-p grep-regexp)
+                 (symbol-at-point)
+               grep-regexp)))))
 
 (defun prj/goto-project (&optional p)
   "Goto a project root for a given project or a read project name."
