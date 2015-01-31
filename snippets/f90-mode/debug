@@ -3,6 +3,6 @@
 # key: debug
 # --
 !#BEGIN_DEBUG
-write(*,*) $1
+write(*,*) $0
 read(*,*)
 !#END_DEBUG

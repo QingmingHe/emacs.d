@@ -1,0 +1,11 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: program
+# key: prog
+# --
+program ${1:main}
+
+  implicit none
+
+  $0
+
+end program $1

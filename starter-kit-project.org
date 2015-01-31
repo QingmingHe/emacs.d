@@ -11,6 +11,7 @@ First define projects.
 #+BEGIN_SRC emacs-lisp
 ;; project mode everywhere
 (global-project-mode 1)
+(prj/setup)
 
 (setq project-roots
       `(("CExamples"

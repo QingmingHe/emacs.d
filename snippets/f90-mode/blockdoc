@@ -3,5 +3,5 @@
 # key: blockdoc
 # --
 !${1:`(my-fill-line "-")`}
-! $2
+! $0
 !$1

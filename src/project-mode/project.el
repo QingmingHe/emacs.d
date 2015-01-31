@@ -540,8 +540,7 @@ Enable `global-project-mode' only when all following conditions are meet:
            fname
            (file-exists-p fname)
            (project-root-file-is-project-file fname p))
-      (project-minor-mode)
-      (prj/setup))))
+      (project-minor-mode))))
 
 (define-globalized-minor-mode global-project-mode project-minor-mode
   project-mode-on-safe
