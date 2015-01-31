@@ -2,6 +2,20 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit QuickRun
+  
+** Fortran
+   
+Add compile-only option to fortran/gfortran.
+
+#+begin_src emacs-lisp
+(quickrun-add-command "fortran/gfortran"
+                      '((:command . "gfortran")
+                        (:exec    . ("%c %o -o %e %s" "%e %a"))
+                        (:compile-only . "%c -cpp -Wall -g %o -o %e %s")
+                        (:remove  . ("%e"))
+                        (:description . "Compile Fortran file with gfortran and execute")))
+#+end_src
+
 
 ** Windows Python
 

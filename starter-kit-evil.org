@@ -122,7 +122,8 @@ back.
   "l" 'ace-jump-line-mode
   "sw" 'helm-swoop
   "hr" 'helm-resume
-  "oc" 'occur-dwim)
+  "oc" 'occur-dwim
+  "qr" 'quickrun)
 #+END_SRC
 
 *** Insert state map
