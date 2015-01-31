@@ -68,20 +68,9 @@ First define projects.
 )
 #+END_SRC
 
-** Install etags update
+** Set tags file name nil
 
 #+BEGIN_SRC emacs-lisp
-(when (not (executable-find "etags-update.pl"))
-  (when (not (file-exists-p (expand-file-name "~/bin")))
-    (shell-command (format "mkdir %s" (expand-file-name "~/bin"))))
-  (shell-command
-   (format "cp -f %s %s"
-           (format "%s/src/project-mode/etags-update.pl" starter-kit-dir)
-           (expand-file-name "~/bin/etags-update.pl")))
-  (shell-command
-   (format "chmod 755 %s"
-           (expand-file-name "~/bin/etags-update.pl"))))
-
 ;; set tags-file-name to be nil so no error in writing .ido.last
 (add-hook 'kill-emacs-hook (lambda ()
                              (setq tags-file-name nil)))
