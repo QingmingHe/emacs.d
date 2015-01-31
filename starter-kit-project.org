@@ -12,14 +12,6 @@ First define projects.
 ;; project mode everywhere
 (global-project-mode 1)
 
-(defun get-SUGAR-definitions ()
-  (let ((defs '("F08_GNU")))
-    (when (getenv "HDF5_ROOT")
-      (add-to-list 'defs "HDF5"))
-    (when *win32*
-      (add-to-list 'defs "IS_WIN"))
-    defs))
-
 (setq project-roots
       `(("CExamples"
          :root-contains-files (".CExample-root.el")
@@ -31,10 +23,7 @@ First define projects.
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py org))
          :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
-         :gfortran-J "../BUILD_RELEASE/include"
-         :gfortran-definitions ,(get-SUGAR-definitions)
          :gtags-label "ctags"
-         :use-hdf5 ,(getenv "HDF5_ROOT")
          :lighter "SUGAR")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")

@@ -5,7 +5,7 @@
 
 Don't always check buffer, it's too slow.
 #+BEGIN_SRC emacs-lisp
-(setq flycheck-check-syntax-automatically '(save mode-enabled))
+(setq flycheck-check-syntax-automatically '(mode-enabled save))
 #+END_SRC
 
 ** Fortran
@@ -20,20 +20,17 @@ codes:
 #+END_SRC
 
 The built in fortran-gfortran doesn't support Chinese errors and warnings. An
-=flycheck-fortran-gfortran-zh= plugin is used. Note that flycheck options
-should be set before enabling flycheck or it will check syntax with default
-options at flycheck mode being enabled.
-
-flycheck should be append to the hook for that some options should be set
-before checking the buffer.
+=flycheck-fortran-gfortran-zh= plugin is used. Note that flycheck checker and
+options should be set before enabling flycheck or it will check syntax with
+default checker and options at flycheck mode being enabled.
 
 #+BEGIN_SRC emacs-lisp
 (defun my-flycheck-fortran-setup ()
   (when (executable-find "gfortran")
     (setq flycheck-gfortran-language-standard "f2008")
-    (flycheck-mode)
-    (flycheck-select-checker 'fortran-gfortran-zh)))
-(add-hook 'f90-mode-hook 'my-flycheck-fortran-setup t)
+    (flycheck-select-checker 'fortran-gfortran-zh)
+    (flycheck-mode)))
+(add-hook 'f90-mode-hook 'my-flycheck-fortran-setup)
 #+END_SRC
 
 ** Python
@@ -46,12 +43,12 @@ Select checker for that flake8 is not always available.
          (not
           (member (file-name-nondirectory (buffer-file-name))
                   '("SConstruct" "SConscript"))))
-    (flycheck-mode)
     (if (executable-find "flake8")
         (flycheck-select-checker 'python-flake8)
-      (flycheck-select-checker 'python-pycompile))))
+      (flycheck-select-checker 'python-pycompile))
+    (flycheck-mode)))
 
-(add-hook 'python-mode-hook 'my-flycheck-python-setup t)
+(add-hook 'python-mode-hook 'my-flycheck-python-setup)
 #+END_SRC
 
 You can install flake8 with its dependencies without direct Internet
@@ -71,7 +68,7 @@ connection this way:
 (defun my-flycheck-c-setup ()
   (when (executable-find "gcc")
     (progn
-      (flycheck-mode)
-      (flycheck-select-checker 'c/c++-gcc))))
-(add-hook 'c-mode-common-hook 'my-flycheck-c-setup t)
+      (flycheck-select-checker 'c/c++-gcc)
+      (flycheck-mode))))
+(add-hook 'c-mode-common-hook 'my-flycheck-c-setup)
 #+end_src

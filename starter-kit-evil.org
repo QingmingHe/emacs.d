@@ -150,6 +150,7 @@ back.
                 help-mode
                 info-mode
                 occur-mode
-                undo-tree-visualizer-mode))
+                undo-tree-visualizer-mode
+                flycheck-error-list-mode))
   (evil-set-initial-state mode 'emacs))
 #+END_SRC
