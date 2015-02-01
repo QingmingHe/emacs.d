@@ -22,13 +22,13 @@ and then change directory to ~/.emacs.d.
         [http]
               sslVerify = false
               proxy = http://127.0.0.1:8087
-              
+
     * If encounter **RPC failed ...**, add to **~/.gitconfig**::
 
         [http]
               postBuffer = 524288000
-              
-.. _SECTION-dependencies:              
+
+.. _SECTION-dependencies:
 
 ---------------------------------
 Third Party Packages Dependencies
@@ -39,12 +39,12 @@ Third Party Packages Dependencies
   * Needed by flyspell-mode;
   * Add **lang en** to **/etc/aspell.conf** to set default language to
     be English for Chinese OS.
-    
+
 * `Ctags`_ and gtags for code navigation.
 * `w3m`_ text-based web browser.
 * `Evince`_ for pdf preview.
 * Fonts: Consolas for English and Microsoft Yahei for Chinese
-* `LaTeX`_ packages collections such as `TEX live`_  
+* `LaTeX`_ packages collections such as `TEX live`_
 * `Python`_, `IPython`_, flake8, jedi, numpy, h5py
 * Tool chain for coding: cmake, make, automake, autoconf, gcc, clang,
   libclang, llvm, gdb
@@ -60,7 +60,7 @@ Third Party Packages Dependencies
 * May be vim
 * pkg-config
 * sdcv command line dictionary
-  
+
 .. _SECTION-bugs-and-problems:
 
 ----------------
@@ -97,7 +97,7 @@ May a bug of GTK or Emacs.
 .. _ropemode: https://pypi.python.org/pypi/ropemode
 .. _Pymacs: https://github.com/pinard/Pymacs
 .. _jedi: http://tkf.github.io/emacs-jedi/latest/#pyinstall
-.. _Evince: https://wiki.gnome.org/Apps/Evince  
+.. _Evince: https://wiki.gnome.org/Apps/Evince
 .. _python: https://www.python.org/
 .. _IPython: http://ipython.org/
 .. _LaTeX: http://www.latex-project.org/

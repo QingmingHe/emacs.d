@@ -33,7 +33,6 @@ I NEVER use hippie.
 
 *** Use regexp search by default
 + *C-s* to repeat search
-+ *C-w* to select or append word at point
 + *C-y* to yank and *M-y* to cycle kill ring
 + *C-o* to call occur
 #+begin_src emacs-lisp
@@ -51,6 +50,22 @@ I NEVER use hippie.
         (occur (if isearch-regexp
                    isearch-string
                  (regexp-quote isearch-string))))))
+#+end_src
+    
+*** Isearch yank do what I meam
+    
+*C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
+yank thing after cursor. This is always not I mean. What I want is to yank
+selected region or symbol at point.
+
+#+begin_src emacs-lisp
+(defun isearch-yank-dwim ()
+  (interactive)
+  (isearch-yank-string
+   (if (region-active-p)
+       (buffer-substring (region-beginning) (region-end))
+     (thing-at-point-no-properties'symbol))))
+(define-key isearch-mode-map (kbd "C-w") 'isearch-yank-dwim)
 #+end_src
 
 ** File finding
@@ -87,4 +102,9 @@ Rgrep is infinitely useful in multi-file projects.
 
 #+begin_src emacs-lisp
   (define-key global-map "\C-x\C-r" 'rgrep)
+#+end_src
+** Hungry delete
+
+#+begin_src emacs-lisp
+(hungry-keyboard global-map)
 #+end_src

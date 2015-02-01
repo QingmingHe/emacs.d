@@ -52,6 +52,9 @@
            'sdcv)
         hydra
         multiple-cursors
+        hideshowvis
+        whitespace-cleanup-mode
+        hungry-delete
 
         ;; eshell, term
         em-cmpl

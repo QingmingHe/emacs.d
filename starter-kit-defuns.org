@@ -181,3 +181,12 @@ Simple usage:
 (--for i in '(1 2 3)
        (print i))
 #+end_src
+** Compile
+
+#+begin_src emacs-lisp
+(defun my-compile ()
+  (interactive)
+  (let ((default-directory
+          (ido-read-directory-name "Dir: ")))
+    (call-interactively 'compile)))
+#+end_src

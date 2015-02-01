@@ -425,37 +425,6 @@ saved before killed."
                   (kill-buffer buffer)))))
      (buffer-list))))
 
-(defun prj/set-gfortran-compile-args (&optional p)
-  "Set flycheck-gfortran-* variables."
-  (when (and
-         (equal 'f90-mode major-mode)
-         (featurep 'flycheck))
-      (let ((p (or p (project-root-fetch))))
-        ;; gfortran include paths
-        (mapc
-         (lambda (include-path)
-           (add-to-list 'flycheck-gfortran-include-path
-                        (prj/rel-or-abs-path include-path p)))
-         (or (project-root-data :gfortran-include-paths p) '(".")))
-        ;; gfortran pre-definitions
-        (when (project-root-data :gfortran-definitions p)
-          (setq flycheck-gfortran-definitions
-                (project-root-data :gfortran-definitions p)))
-        ;; gfortran language standard
-        (when (project-root-data :gfortran-language-standard p)
-          (setq flycheck-gfortran-language-standard
-                (or (project-root-data :gfortran-language-standard p) "f2008")))
-        ;; whether use hdf5 library
-        (when (project-root-data :use-hdf5 p)
-          (let ((hdf5-root (getenv "HDF5_ROOT")))
-            (when hdf5-root
-              (add-to-list 'flycheck-gfortran-include-path
-                           (concat hdf5-root "/include")))))
-        ;; where to generate module files
-        (when (project-root-data :gfortran-J p)
-          (setq flycheck-gfortran-J-path
-                (prj/rel-or-abs-path (project-root-data :gfortran-J p) p))))))
-
 (defun prj/c-include-paths-pkgs (pkgs)
   "Get c include pahts for \"pkgs\". \"pkgs\" should be string or list of
   string.
@@ -482,19 +451,6 @@ Include paths of \"pkgs\", including \"-I\" flag."
        pkgs)
       c-include-paths)))
 
-(defun prj/set-c-args (&optional p)
-  "Set flycheck-*-include-path, ac-clang-flags, cc-search-directories."
-  )
-
-(defun prj/set-compile-args (&optional p)
-  "Set flycheck-checker-* variables and ac-clang-flags."
-  (let ((p (or p (project-root-fetch))))
-    (when p
-      (cond ((equal 'f90-mode major-mode)
-             (prj/set-gfortran-compile-args p))
-            ((equal 'c-mode major-mode)
-             nil)))))
-
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
   :lighter (:eval (let ((p (project-root-fetch))
@@ -520,8 +476,7 @@ Include paths of \"pkgs\", including \"-I\" flag."
                  fname
                  (file-exists-p fname)
                  (project-root-file-is-project-file fname p))
-            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
-            (prj/set-compile-args p))))
+            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t))))
     (progn
       (remove-hook 'after-save-hook 'prj/update-tags-single-file t))))
 

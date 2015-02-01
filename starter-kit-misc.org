@@ -31,17 +31,18 @@ start.
 The minor mode list is too long and occupy all the mode line. I want to know
 other data on the mode line.
 #+BEGIN_SRC emacs-lisp
-(eval-after-load "undo-tree"             '(diminish 'undo-tree-mode))
-(eval-after-load "flyspell"              '(diminish 'flyspell-mode))
-(eval-after-load "auto-complete"         '(diminish 'auto-complete-mode))
-(eval-after-load "eldoc"                 '(diminish 'eldoc-mode))
-(eval-after-load "magit"                 '(diminish 'magit-auto-revert-mode))
-(eval-after-load "smartparens"           '(diminish 'smartparens-mode))
-(eval-after-load "cdlatex"               '(diminish 'org-cdlatex-mode))
-(eval-after-load "outline"               '(diminish 'outline-minor-mode))
-(eval-after-load "abbrev"                '(diminish 'abbrev-mode))
-(eval-after-load "highlight-indentation" '(diminish 'highlight-indentation-current-column-mode))
-(eval-after-load "hideshow"              '(diminish 'hs-minor-mode))
+(eval-after-load "undo-tree"               '(diminish 'undo-tree-mode))
+(eval-after-load "flyspell"                '(diminish 'flyspell-mode))
+(eval-after-load "auto-complete"           '(diminish 'auto-complete-mode))
+(eval-after-load "eldoc"                   '(diminish 'eldoc-mode))
+(eval-after-load "magit"                   '(diminish 'magit-auto-revert-mode))
+(eval-after-load "smartparens"             '(diminish 'smartparens-mode))
+(eval-after-load "cdlatex"                 '(diminish 'org-cdlatex-mode))
+(eval-after-load "outline"                 '(diminish 'outline-minor-mode))
+(eval-after-load "abbrev"                  '(diminish 'abbrev-mode))
+(eval-after-load "highlight-indentation"   '(diminish 'highlight-indentation-current-column-mode))
+(eval-after-load "hideshow"                '(diminish 'hs-minor-mode))
+(eval-after-load "whitespace-cleanup-mode" '(diminish 'whitespace-cleanup-mode))
 (diminish 'auto-fill-function)
 #+END_SRC
 
@@ -68,7 +69,8 @@ other data on the mode line.
         truncate-partial-width-windows nil
         uniquify-buffer-name-style 'forward
         whitespace-style '(trailing lines space-before-tab
-                                    indentation space-after-tab)
+                                    indentation space-after-tab
+                                    empty)
         whitespace-line-column 100
         ediff-window-setup-function 'ediff-setup-windows-plain
         oddmuse-directory (concat starter-kit-dir "oddmuse")
@@ -313,21 +315,6 @@ Save buffers before compile automatically.
 (setq compilation-ask-about-save nil)
 #+END_SRC
 
-** Delete trailing white space
-
-#+begin_src emacs-lisp
-(defun del-white-spaces-after-save ()
-  (let ((fname (buffer-file-name)))
-    (when (and
-           (not (buffer-modified-p))
-           fname
-           (file-exists-p fname)
-           (file-writable-p fname)
-           (not buffer-read-only))
-      (delete-trailing-whitespace)
-      (ignore-errors (save-buffer)))))
-(add-hook 'kill-buffer-hook 'del-white-spaces-after-save)
-#+end_src
 ** Don't disable narrowing commands
 
 #+begin_src emacs-lisp
@@ -340,4 +327,16 @@ Save buffers before compile automatically.
 #+begin_src emacs-lisp
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
+#+end_src
+** Cleanup whitespaces
+
+#+begin_src emacs-lisp
+(defun turn-on-whitespace-cleanup-mode ()
+  "Rewrite `turn-on-whitespace-cleanup-mode' of `whitespace-cleanup-mode' so
+that `whitespace-cleanup-mode' will not turn on for large files."
+  (unless (or (minibufferp)
+              (apply 'derived-mode-p whitespace-cleanup-mode-ignore-modes)
+              (>= (buffer-size) large-file-warning-threshold))
+    (whitespace-cleanup-mode 1)))
+(global-whitespace-cleanup-mode)
 #+end_src

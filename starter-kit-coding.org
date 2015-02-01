@@ -38,7 +38,8 @@ a lambda doesn't already exist in the list.
   (outline-minor-mode 1))
 
 (defun starter-kit-turn-on-hs ()
-  (hs-minor-mode))
+  (hs-minor-mode)
+  (hideshowvis-enable))
 (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs)
 
 (defun starter-kit-turn-on-project ()
