@@ -191,6 +191,11 @@ live in the =/tmp= directory.
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
+(setq version-control t
+      delete-old-versions t
+      backup-by-copying t
+      kept-old-versions 2
+      kept-new-versions 6)
 #+end_src
 
 ** Cosmetics
@@ -339,4 +344,17 @@ that `whitespace-cleanup-mode' will not turn on for large files."
               (>= (buffer-size) large-file-warning-threshold))
     (whitespace-cleanup-mode 1)))
 (global-whitespace-cleanup-mode)
+#+end_src
+
+** Tramp
+
+Unfortunately currently Cygwin doesn't support file descriptor passing via
+unix-domain sockets and it's not possible to enable ControlMaster (Google
+=Cygwin ssh ControlMaster=).
+
+#+begin_src emacs-lisp
+(when *cygwin*
+  (setq tramp-ssh-controlmaster-options ""))
+(when (executable-find "rsync")
+  (setq tramp-default-method "rsync"))
 #+end_src
