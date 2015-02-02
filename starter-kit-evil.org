@@ -124,7 +124,9 @@ back.
   "hr" 'helm-resume
   "oc" 'occur-dwim
   "qr" 'quickrun
-  "iw" 'ispell-word)
+  "iw" 'ispell-word
+  "pf" 'prj/find-file
+  "pg" 'prj/grep)
 #+END_SRC
 
 *** Insert state map

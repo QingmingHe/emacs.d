@@ -113,7 +113,7 @@ name], <PackageName> and <NNNN> will not."
 SYMBOL: CMake variable/module/command.
 INDEX: Index of CMake help command which is passed to
 `ac-cmake-executable'. All of the commands are defined in
-`ac-cmake-help-commands'. If INDEX is not given, it will be get from
+`ac-cmake-help-commands'. If INDEX is not given, it will be gotten from
 `ac-cmake-help-command-candidates' or scan all the `ac-cmake-help-commands' and
 determine which one is the correct.
 

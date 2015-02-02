@@ -3,6 +3,43 @@
 
 * Starter Kit Occur
 
+** Occur do what I mean
+
++ Push region or symbol at point to regexp-history so that occur will set the
+  default regexp as what's been pushed.
++ The hydra has to be summoned with a prefix body key and any one head
+  key. But I want the hydra summoned immediately I call =occur=. So advice
+  occur to summon the hydra by performing =hydra-?-occur-next=.
++ It's better recenter window after goto or display occur. Just do a little
+  hack by =defadvice=.
+
+#+begin_src emacs-lisp
+(defun occur-dwim ()
+  (interactive)
+  (let (thing)
+    (setq thing
+          (if (region-active-p)
+              (buffer-substring-no-properties
+               (region-beginning)
+               (region-end))
+            (thing-at-point-no-properties 'symbol)))
+    (when thing
+      (push thing regexp-history)))
+  (call-interactively 'occur))
+(defadvice occur (around hydra-occur-dwim activate)
+  ad-do-it
+  (pop-to-buffer "*Occur*")
+  (ignore-errors (hydra-?-occur-next)))
+(defadvice occur-mode-goto-occurrence (after omgo-after activate)
+  (recenter))
+(defadvice occur-mode-goto-occurrence-other-window (after omgoow-after activate)
+  (recenter))
+(defun occur-display-dwim ()
+  (interactive)
+  (occur-mode-goto-occurrence-other-window)
+  (other-window -1))
+#+end_src
+
 ** Key bindings
 
 Use hydra to set key bindings for that help message will be shown in
@@ -22,34 +59,7 @@ minibuffer.
 
 (define-key occur-mode-map (kbd "j") 'occur-next)
 (define-key occur-mode-map (kbd "k") 'occur-prev)
-(define-key occur-mode-map (kbd "d") 'occur-mode-display-occurrence)
-#+end_src
-
-** Occur do what I mean
-
-+ Push region or symbol at point to regexp-history so that occur will set the
-  default regexp as what's been pushed.
-+ The hydra has to be summoned with a prefix body key and any one head
-  key. But I want the hydra summoned immediately I call =occur=. So advice
-  occur to summon the hydra by performing =hydra-?-occur-next=.
-
-#+begin_src emacs-lisp
-(defun occur-dwim ()
-  (interactive)
-  (let (thing)
-    (setq thing
-          (if (region-active-p)
-              (buffer-substring-no-properties
-               (region-beginning)
-               (region-end))
-            (thing-at-point-no-properties 'symbol)))
-    (when thing
-      (push thing regexp-history)))
-  (call-interactively 'occur))
-(defadvice occur (around hydra-occur-dwim activate)
-  ad-do-it
-  (pop-to-buffer "*Occur*")
-  (hydra-?-occur-next))
+(define-key occur-mode-map (kbd "d") 'occur-display-dwim)
 #+end_src
 
 ** Helm occur
