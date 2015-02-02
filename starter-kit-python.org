@@ -8,6 +8,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 Support for the Python programming language.
 
 ** Jedi Completion
+   
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
 emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
 manually. Or you can just enable company mode or auto-complete instead of
@@ -22,6 +23,21 @@ To install jedi manually:
 To use my configuration, set JEDI_SERVER environment to be
 /path/to/jediepcserver.py.
 #+BEGIN_SRC emacs-lisp
+;; show doc by popup is too annoying, just show in minibuffer
+(setq jedi:tooltip-method nil)
+
+(defun my-jedi-install ()
+  "Install jeciepcserver.py to ~/bin."
+  (interactive)
+  (unless (executable-find "jediepcserver.py")
+    (unless (file-directory-p (expand-file-name "~/bin"))
+      (mkdir (expand-file-name "~/bin")))
+    (copy-file
+     (concat (file-name-directory (locate-library "jedi")) "jediepcserver.py")
+     (expand-file-name "~/bin/jediepcserver.py"))
+    (chmod (expand-file-name "~/bin/jediepcserver.py") 755)))
+(my-jedi-install)
+
 (defun my-jedi-conf ()
   (jedi:setup)
   (setq jedi:setup-keys t)
@@ -43,15 +59,19 @@ To use my configuration, set JEDI_SERVER environment to be
 #+END_SRC
 
 ** Configuration for python mode
-Flyspell is used to check spelling in comment; outline mode is used to fold
-code blocks, which is realised by defining key words like *def*, *class* and
-so on and you can add your own key words.
+   
++ Python uses indentation instead of braces to structure programs so that it's
+  crucial to determine at which level of indentation the cursor is. Use
+  highlight-indentation-current-column-mode to fulfil this purpose. Another
+  minor mode highlight-indentation-mode is too heavy taste and not use it.
++ I don't whether it's a bug or not python.el integrated with Emacs can't
+  create imenu index automatically. I have to set imenu-create-index-function
+  myself.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
-  (setq-local outline-regexp " *\\(def \\|class \\|if __name__\\)")
   (my-jedi-setup)
-  ;; (highlight-indentation-mode)
-  (highlight-indentation-current-column-mode))
+  (highlight-indentation-current-column-mode)
+  (setq imenu-create-index-function 'python-imenu-create-index))
 (add-hook 'python-mode-hook 'my-python-conf)
 #+END_SRC
 
