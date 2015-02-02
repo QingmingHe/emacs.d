@@ -201,3 +201,28 @@ Simple usage:
   (interactive)
   (nth 4 (syntax-ppss)))
 #+end_src
+** re-evaluate region or buffer
+   
+=eval-buffer=, =eval-region=, =eval-last-sexp= and =eval-print-last-sexp=
+don't re-evaluate =defvar= and =defcustom=. To re-evaluate, replace =defvar=
+or =defcustom= with =setq= or use =eval-defun=.
+
+#+begin_src emacs-lisp
+(defun re-eval-buffer ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (not (eobp))
+      (forward-sexp)
+      (eval-defun nil))))
+
+(defun re-eval-region ()
+  (interactive)
+  (when (region-active-p)
+    (save-excursion
+      (goto-char (region-beginning))
+      (while (and (< (point) (region-end))
+                  (not (eobp)))
+        (forward-sexp)
+        (eval-defun nil)))))
+#+end_src

@@ -49,7 +49,7 @@ minibuffer.
 (defvar hydra-occur
   '(("j" occur-next "next")
     ("k" occur-prev "previous")
-    ("d" occur-mode-display-occurrence "display")
+    ("d" occur-display-dwim "display")
     ("o" occur-mode-goto-occurrence-other-window "goto"))
   "A hydra for `occur'.")
 
