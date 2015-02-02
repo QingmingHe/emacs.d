@@ -420,7 +420,6 @@ everyone using the starter kit.
 (starter-kit-load "flycheck")
 (starter-kit-load "misc-recommended")
 (starter-kit-load "helm")
-(starter-kit-load "aspell")
 (starter-kit-load "evil")
 (starter-kit-load "yasnippet")
 (starter-kit-load "autocomplete")

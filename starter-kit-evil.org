@@ -123,7 +123,8 @@ back.
   "sw" 'helm-swoop
   "hr" 'helm-resume
   "oc" 'occur-dwim
-  "qr" 'quickrun)
+  "qr" 'quickrun
+  "iw" 'ispell-word)
 #+END_SRC
 
 *** Insert state map

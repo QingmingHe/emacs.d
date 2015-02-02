@@ -25,7 +25,25 @@
 
 (require 'auto-complete)
 
+(defvar ac-cmake-executable "cmake"
+  "Executable of CMake.")
+
+(defvar ac-cmake-help-commands
+  '("--help-command"
+    "--help-module"
+    "--help-variable")
+  "Help commands of CMake.")
+
+(defvar ac-cmake-help-command-candidates
+  (make-hash-table :test 'equal)
+  "Hash table that stores (CANDIDATE, COMMAND INDEX) pairs.
+\"CANDIDATE\" is CMake command/module/variable candidate and \"COMMAND INDEX\"
+is index of help command in `ac-cmake-help-commands' for the \"CANDIDATE\".")
+
 (defun get-ac-cmake-candidates ()
+  "Get cmake variable/module/command candidates. Symbol such as <LANG>,
+<CONFIG> and [CMAKE_BUILD_TYPE] will be expanded; other such as [Project
+name], <PackageName> and <NNNN> will not."
   (let (candidates)
     (mapc
      (lambda (command)
@@ -82,75 +100,94 @@
        "cmake --help-variable-list"))
     candidates))
 
-
 (defun ac-cmake-is-valid-doc (doc)
+  "Determines whether a doc is valid CMake help doc."
   (when (and
          (stringp doc)
          (not (string-match-p "Argument.+to --help-.+is not" doc)))
     doc))
 
+(defun ac-cmake-get-doc (symbol &optional index)
+  "Get CMake help documentation.
+
+SYMBOL: CMake variable/module/command.
+INDEX: Index of CMake help command which is passed to
+`ac-cmake-executable'. All of the commands are defined in
+`ac-cmake-help-commands'. If INDEX is not given, it will be get from
+`ac-cmake-help-command-candidates' or scan all the `ac-cmake-help-commands' and
+determine which one is the correct.
+
+If documentation of SYMBOL is found, the doc will be returned as string,
+otherwise return nil."
+  (let ((index (cond (index `(,index))
+                     ((gethash symbol ac-cmake-help-command-candidates)
+                      `(,(gethash symbol ac-cmake-help-command-candidates)))
+                     (t '(0 1 2))))
+        doc)
+    (catch 'doc-found
+      (mapc
+       (lambda (i)
+         (with-temp-buffer
+           (call-process
+            ac-cmake-executable
+            nil t nil
+            (nth i ac-cmake-help-commands) symbol)
+           (setq doc (buffer-string)))
+         (if (ac-cmake-is-valid-doc doc)
+             (progn
+               (puthash symbol i ac-cmake-help-command-candidates)
+               (throw 'doc-found t))
+           (setq doc nil)))
+       index))
+    doc))
 
 (defun ac-cmake-documentation (item)
+  "Get CMake help documentation for ITEM.
+
+ITEM: expanded CMake variable/module/command.
+
+See also `ac-cmake-get-doc'."
   (let (doc)
     (setq
      doc
      (cond
-      ;; expanded variables
       ((string-match "\\(.+_IS_GNU\\)\\(CXX\\|CC\\|G77\\)\\'" item)
-       (shell-command-to-string
-        (format
-         "cmake --help-variable %s"
-         (concat (match-string 1 item) "\\<LANG\\>"))))
+       (ac-cmake-get-doc (concat (match-string 1 item) "\<LANG\>") 2))
 
       ((string-match "CMAKE_\\(Fortran\\|CXX\\|C\\)\\(.+\\)" item)
        (or
-        (ac-cmake-is-valid-doc
-         (shell-command-to-string
-          (concat "cmake --help-variable " item)))
-        (ac-cmake-is-valid-doc
-         (shell-command-to-string
-          (format
-           "cmake --help-variable CMAKE_\\<LANG\\>%s"
-           (match-string 2 item))))))
+        (ac-cmake-get-doc item 2)
+        (ac-cmake-get-doc
+         (format "CMAKE_\<LANG\>%s" (match-string 2 item))
+         2)))
 
       ((string-match
         "CMAKE_USER_MAKE_RULES_OVERRIDE_\\(Fortran\\|CXX\\|C\\)"
         item)
-       (shell-command-to-string
-        "cmake --help-variable CMAKE_USER_MAKE_RULES_OVERRIDE_\\<LANG\\>"))
+       (ac-cmake-get-doc "CMAKE_USER_MAKE_RULES_OVERRIDE_\<LANG\>" 2))
 
       ((string-match
         "CMAKE_\\(DEBUG\\|RELEASE\\|RELWITHDEBINFO\\|MINSIZEREL\\)_POSTFIX"
         item)
-       (shell-command-to-string
-        "cmake --help-variable CMAKE_\\<CONFIG\\>_POSTFIX"))
+       (ac-cmake-get-doc
+        "CMAKE_\<CONFIG\>_POSTFIX" 2))
 
       ((string-match
         "CMAKE_EXE_LINKER_FLAGS_\\(DEBUG\\|RELEASE\\|RELWITHDEBINFO\\|MINSIZEREL\\)"
         item)
-       (shell-command-to-string
-        "cmake --help-variable CMAKE_EXE_LINKER_FLAGS_[CMAKE_BUILD_TYPE]"))
+       (ac-cmake-get-doc
+        "CMAKE_EXE_LINKER_FLAGS_[CMAKE_BUILD_TYPE]" 2))
 
-      ;; all other
-      (t (or
-          (ac-cmake-is-valid-doc
-           (shell-command-to-string (concat "cmake --help-command " item)))
-          (ac-cmake-is-valid-doc
-           (shell-command-to-string (concat "cmake --help-module " item)))
-          (ac-cmake-is-valid-doc
-           (shell-command-to-string (concat "cmake --help-variable " item)))))))
+      (t (ac-cmake-get-doc item))))
     (if (ac-cmake-is-valid-doc doc)
         doc
-      (format "%s is not a documented CMake command/module/variable!"))))
-
+      (format "%s is not a documented CMake command/module/variable!" item))))
 
 (setq ac-cmake-candidates (get-ac-cmake-candidates))
-
 
 (ac-define-source cmake
   '((candidates . ac-cmake-candidates)
     (document . ac-cmake-documentation)))
-
 
 (provide 'auto-complete-cmake)
 

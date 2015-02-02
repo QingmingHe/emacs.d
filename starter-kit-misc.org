@@ -333,12 +333,13 @@ Save buffers before compile automatically.
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 #+end_src
-** Cleanup whitespaces
+** Cleanup white spaces
 
 #+begin_src emacs-lisp
 (defun turn-on-whitespace-cleanup-mode ()
   "Rewrite `turn-on-whitespace-cleanup-mode' of `whitespace-cleanup-mode' so
-that `whitespace-cleanup-mode' will not turn on for large files."
+that `whitespace-cleanup-mode' will not turn on for large files whose size are
+larger than `large-file-warning-threshold'."
   (unless (or (minibufferp)
               (apply 'derived-mode-p whitespace-cleanup-mode-ignore-modes)
               (>= (buffer-size) large-file-warning-threshold))
@@ -358,3 +359,18 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 (when (executable-find "rsync")
   (setq tramp-default-method "rsync"))
 #+end_src
+
+** Flyspell
+
+To fix error like this, change environment variable =LANG='s value to
+=en_US.UTF-8=.
+#+begin_quote
+Error enabling Flyspell mode:
+(错误：No word lists can be found for the language "zh_CN".)
+#+end_quote
+
+Use the latest aspell instead of ispell to check spelling.
+#+BEGIN_SRC emacs-lisp
+(setq ispell-dictionary "british")
+(setq ispell-program-name "aspell")
+#+END_SRC

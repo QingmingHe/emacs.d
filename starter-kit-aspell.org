@@ -1,8 +1,0 @@
-#+TITLE: Emacs Starter Aspell
-#+OPTIONS: toc:2 num:nil ^:nil
-
-Use the latest aspell instead of ispell to check spelling.
-#+BEGIN_SRC emacs-lisp
-(setq ispell-dictionary "british")
-(setq ispell-program-name "aspell")
-#+END_SRC
