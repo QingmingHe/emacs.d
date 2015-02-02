@@ -7,6 +7,7 @@
 #+BEGIN_SRC emacs-lisp
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
+
 ;; enable ac-gtags in several modes
 (when (featurep 'auto-complete-gtags)
   (mapcar
@@ -21,7 +22,7 @@
    (add-to-list 'ac-modes mode))
  '(org-mode text-mode cmake-mode eshell-mode))
 
-;; ac-sources for different languages
+;; default ac-sources: basic ac-sources for all modes
 (setq-default
  ac-sources
  '(ac-source-yasnippet
@@ -30,26 +31,42 @@
    ac-source-words-in-same-mode-buffers
    ac-source-filename))
 
-;; enable auto complete in all modes
-(global-auto-complete-mode t)
-
 (setq ac-use-menu-map t)
 (setq ac-use-quick-help t)
-(setq ac-dwim t)
-;; use TAB to trigger completion
-(setq ac-auto-start nil)
-(ac-set-trigger-key "TAB")
+
 ;; use pos-tip instead of popup to show doc perfectly
 (unless *terminal*
   (setq ac-quick-help-prefer-pos-tip t))
 
-;; Don't use fuzzy complete.
-;; (require 'fuzzy)
-;; (setq ac-fuzzy-enable t)
-
-;;; Key bindings
-(define-key ac-mode-map (kbd "M-n") 'auto-complete)
+;; enable auto complete in all modes
+(global-auto-complete-mode t)
 #+END_SRC
+
+** Super TAB
+
+I want to use =TAB= for these things:
+1. Trigger auto complete. This can be realised by using intrinsic
+   =ac-set-trigger-key=.
+2. Expand common part of all candidates if possible. This can be realised by
+   =ac-expand-common= function which will try to expand common part of
+   =ac-dwim= is nil.
+3. Refresh candidates menu after I've typed in new characters. =ac-update=
+   Just do this kind of thing.
+
+#+begin_src emacs-lisp
+(setq ac-dwim nil)
+(setq ac-auto-start nil)
+(ac-set-trigger-key "TAB")
+(define-key ac-mode-map (kbd "M-n") 'auto-complete)
+
+(defun ac-refresh-candidates ()
+  (interactive)
+  (ac-update t)
+  (ac-expand-common))
+
+(define-key ac-completing-map "\t" 'ac-refresh-candidates)
+(define-key ac-completing-map [tab] 'ac-refresh-candidates)
+#+end_src
 
 ** Fortran
 

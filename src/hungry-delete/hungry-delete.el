@@ -1,11 +1,10 @@
-;;; hungry-delete.el --- Delete following / preceeding white spaces
+;;; hungry-delete.el --- Delete preceding white spaces
 
-;; Copyright (c) 2011 Soutaro Matsumoto
+;; Copyright (c) 2015 Qingming He <906459647@qq.com>
 
-;; Author: Soutaro Matsumoto
-;; Version: 1.0
+;; Author: Qingming He
+;; Version: 0.1
 ;; Package-Requires: ()
-;; URL: https://github.com/soutaro/hungry-delete.el
 
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
@@ -31,38 +30,50 @@
 ;; Configure your load-path and call require
 ;; (require 'hungry-delete)
 
-;; add-hook to use in specific modes
-;; (add-hook 'tuareg-mode-hook #'(lambda () (hungry-keyboard tuareg-mode-map)))
-;; (add-hook 'ruby-mode-hook #'(lambda () (hungry-keyboard ruby-mode-map)))
-
-;; or use in default key-map
-;; (hungry-keyboard global-map)
+;; Define key map for several major modes
+;; (mapc
+;;  (lambda (map)
+;;    (define-key map [backspace] 'hungry-backspace))
+;;  `(,prog-mode-map
+;;    ,org-mode-map
+;;    ,text-mode-map))
+;; It's risky to define global-map!
 
 ;;; Code:
 
+(defun hungry-backspace-python (arg)
+  (interactive "*P")
+  (let (n)
+    (save-excursion
+      (setq n (- (skip-chars-backward " \t"))))
+    (cond ((= 0 n)
+           (delete-backward-char 1))
+          ((looking-back "^ +")
+           (if (nth 3 (syntax-ppss))
+               (delete-backward-char n)
+             (if (= 0 (mod n python-indent))
+                 (delete-backward-char python-indent)
+               (delete-backward-char (mod n python-indent)))))
+          (t (delete-backward-char n)))))
+
+(defun hungry-backspace-default (arg)
+  (interactive "*P")
+  (let (n)
+    (save-excursion
+      (setq n (- (skip-chars-backward " \t"))))
+    (cond ((= 0 n) (delete-backward-char 1))
+          (t (delete-backward-char n)))))
+
 (defun hungry-backspace (arg)
-  "Deletes preceding character or all whitespaces."
   (interactive "*P")
-  (let ((here (point)))
-    (skip-chars-backward " \t")
-    (if (/= (point) here)
-        (delete-region (point) here)
-      (delete-backward-char 1))))
-
-(defun hungry-delete (arg)
-  "Deletes following character or all white spaces and new lines."
-  (interactive "*P")
-  (let ((here (point)))
-    (skip-chars-forward " \t\n")
-    (if (/= (point) here)
-	(delete-region (point) here)
-      (delete-char 1))))
-
-(defun hungry-keyboard (map)
-  (define-key map [backspace] 'hungry-backspace)
-  (define-key map [delete] 'hungry-delete)
-  (define-key map "\C-d" 'hungry-delete)
-  (setq indent-tabs-mode nil))
+  (cond (buffer-read-only (scroll-down-command))
+        ((and (featurep 'evil)
+              (evil-normal-state-p))
+         (backward-char 1))
+        ((eq major-mode 'python-mode)
+         (hungry-backspace-python arg))
+        (t (hungry-backspace-default arg))))
 
 (provide 'hungry-delete)
+
 ;;; hungry-delete.el ends here

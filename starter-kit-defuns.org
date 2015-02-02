@@ -190,3 +190,14 @@ Simple usage:
           (ido-read-directory-name "Dir: ")))
     (call-interactively 'compile)))
 #+end_src
+** Cursor in string or comment
+
+#+begin_src emacs-lisp
+(defun cursor-inside-string? ()
+  (interactive)
+  (nth 3 (syntax-ppss)))
+
+(defun cursor-inside-comment? ()
+  (interactive)
+  (nth 4 (syntax-ppss)))
+#+end_src

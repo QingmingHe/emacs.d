@@ -103,8 +103,14 @@ Rgrep is infinitely useful in multi-file projects.
 #+begin_src emacs-lisp
   (define-key global-map "\C-x\C-r" 'rgrep)
 #+end_src
+
 ** Hungry delete
 
 #+begin_src emacs-lisp
-(hungry-keyboard global-map)
+(mapc
+ (lambda (map)
+   (define-key map [backspace] 'hungry-backspace))
+ `(,prog-mode-map
+   ,org-mode-map
+   ,text-mode-map))
 #+end_src

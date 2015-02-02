@@ -54,8 +54,7 @@ Helm or ido sometimes do wrong things.
        (dired-do-copy . nil)
        (dired-do-rename . nil)
        (dired-create-directory . nil)
-       (w3m-goto-url . nil)
-       ))
+       (w3m-goto-url . nil)))
 #+END_SRC
 
 ** Tips
