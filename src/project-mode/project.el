@@ -453,30 +453,24 @@ Include paths of \"pkgs\", including \"-I\" flag."
 
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
-  :lighter (:eval (let ((p (project-root-fetch))
-                        (fname (buffer-file-name))
-                        lght
-                        plght)
-                    (when (and
-                           p
-                           fname
-                           (file-exists-p fname)
-                           (project-root-file-is-project-file fname p))
-                      (setq lght " Prj")
-                      (setq plght (project-root-data :lighter p))
-                      (when plght
-                        (setq lght (format "%s:%s" lght plght))))
-                    lght))
+  :lighter (when (symbolp prj/buffer-mode-lighter)
+             prj/buffer-mode-lighter)
   (if project-minor-mode
       (progn
         (let ((p (project-root-fetch))
-              (fname (buffer-file-name)))
+              (fname (buffer-file-name))
+              lght)
           (when (and
                  p
                  fname
                  (file-exists-p fname)
                  (project-root-file-is-project-file fname p))
-            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t))))
+            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
+            (setq-local
+             prj/buffer-mode-lighter
+             (if (setq lght (project-root-data :lighter p))
+                 (format " Prj:%s" lght)
+               " Prj")))))
     (progn
       (remove-hook 'after-save-hook 'prj/update-tags-single-file t))))
 
@@ -488,12 +482,12 @@ Enable `global-project-mode' only when all following conditions are meet:
 2. buffer has a file name;
 3. file exists;
 4. file is a project file."
-  (let ((p (project-root-fetch))
-        (fname (buffer-file-name)))
+  (let ((fname (buffer-file-name))
+        p)
     (when (and
-           p
            fname
            (file-exists-p fname)
+           (setq p (project-root-fetch))
            (project-root-file-is-project-file fname p))
       (project-minor-mode))))
 

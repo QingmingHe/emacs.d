@@ -361,10 +361,12 @@ will be used as defined in `project-roots'."
 (defun project-root-set-project (p)
   (if (not project-root-seen-projects)
       (project-root-load-roots))
-  (when (not (member p project-root-seen-projects))
-    (add-to-list 'project-root-seen-projects project)
+  (unless (member p project-root-seen-projects)
+    (when (assoc (car p) project-root-seen-projects)
+      (setcar p (format "%s@%s" (car p) (cdr p))))
+    (add-to-list 'project-root-seen-projects p)
     (project-root-save-roots))
-  (setq project-details project))
+  (setq project-details p))
 
 (defun project-root-every (pred seq)
   "Return non-nil if pred of each element, of seq is non-nil."
