@@ -1,0 +1,11 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: catch throw or nil
+# key: catch
+# --
+(catch '$1
+  (unless
+      (mapc
+       (lambda ($2)
+         ($0))
+       $3)
+    nil))

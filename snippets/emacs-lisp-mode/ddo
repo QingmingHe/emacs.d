@@ -1,6 +1,6 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: direddo
-# key: direddo
+# name: ddo
+# key: ddo
 # --
 (defun --dired-do-$1 ()
   (interactive)

@@ -254,9 +254,6 @@ lines of codes.
 ** Undo is needed by evil
 #+BEGIN_SRC emacs-lisp
 (global-undo-tree-mode)
-(setq undo-tree-history-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq undo-tree-auto-save-history t)
 #+END_SRC
 
 ** Expand region

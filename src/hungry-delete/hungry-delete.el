@@ -47,7 +47,11 @@
     (save-excursion
       (setq n (- (skip-chars-backward " \t"))))
     (cond ((= 0 n)
-           (delete-backward-char 1))
+           (if (and
+                (featurep 'smartparens)
+                smartparens-strict-mode)
+               (sp-backward-delete-char)
+             (delete-backward-char 1)))
           ((looking-back "^ +")
            (if (nth 3 (syntax-ppss))
                (delete-backward-char n)
@@ -61,7 +65,12 @@
   (let (n)
     (save-excursion
       (setq n (- (skip-chars-backward " \t"))))
-    (cond ((= 0 n) (delete-backward-char 1))
+    (cond ((= 0 n)
+           (if (and
+                (featurep 'smartparens)
+                smartparens-strict-mode)
+               (sp-backward-delete-char)
+             (delete-backward-char 1)))
           (t (delete-backward-char n)))))
 
 (defun hungry-backspace (arg)
