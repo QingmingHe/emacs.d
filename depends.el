@@ -12,7 +12,7 @@
         smex
         dash
         find-file
-        ,(unless *terminal*
+        ,(when (window-system)
            'pos-tip)
 
         server

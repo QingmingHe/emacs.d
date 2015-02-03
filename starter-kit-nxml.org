@@ -25,5 +25,6 @@ indentation rules."
 #+BEGIN_SRC emacs-lisp
 (add-hook 'nxml-mode-hook '(lambda ()
                              (modify-syntax-entry ?_ "w")))
-(setq nxml-slash-auto-complete-flag t)
+;; to be compatible with smartparens
+(setq nxml-slash-auto-complete-flag nil)
 #+END_SRC

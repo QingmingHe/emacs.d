@@ -1,0 +1,54 @@
+#+TITLE: Starter Kit Gud
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Starter Kit Gud
+
+#+begin_src emacs-lisp
+(when (or *win32* *cygwin*)
+  (setq gdb-non-stop-setting nil))
+
+(defvar gdb-working-dir-last nil
+  "Last working directory of GDB.")
+
+(defvar gdb-program-last "."
+  "Last program to be debugged.")
+
+(defun run-gdb-dwim ()
+  (interactive)
+  (let* ((dir
+          (setq gdb-working-dir-last
+                (ido-read-directory-name
+                 "GDB working directory: "
+                 gdb-working-dir-last
+                 ".")))
+         (prog
+          (setq gdb-program-last
+                (ido-read-file-name
+                 "Program to be debugged: "
+                 (file-name-directory gdb-program-last)
+                 (file-name-nondirectory gdb-program-last))))
+         (default-directory dir)
+         (args
+          (read-shell-command "Arguments passed to program: "))
+         (src-buffer (current-buffer)))
+    (unless global-linum-mode
+      (global-linum-mode))
+    (setq linum-format 'dynamic)
+    (if (y-or-n-p "Use IDE? ")
+        (progn
+          (gdb (format "gdb -i=mi --cd=%s --args %s %s" dir prog args))
+          (unless gdb-many-windows
+            (gdb-many-windows)))
+      (delete-other-windows)
+      (gud-gdb (format "gdb --fullname --cd=%s --args %s %s" dir prog args))
+      (pop-to-buffer src-buffer)
+      (other-window -1))))
+
+(defun turn-off-gobal-linum-after-gud ()
+  (interactive)
+  (when (and
+         (derived-mode-p 'gud-mode)
+         global-linum-mode)
+    (global-linum-mode -1)))
+(add-hook 'kill-buffer-hook 'turn-off-gobal-linum-after-gud)
+#+end_src

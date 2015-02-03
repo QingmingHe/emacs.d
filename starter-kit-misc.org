@@ -367,13 +367,13 @@ Error enabling Flyspell mode:
 (错误：No word lists can be found for the language "zh_CN".)
 #+end_quote
 
-**** Emacs set path to aspell
+*** Emacs set path to aspell
 it's possible aspell isn't in your path
 #+begin_src emacs-lisp :tangle no
    (setq exec-path (append exec-path '("/opt/local/bin")))
 #+end_src
 
-**** Emacs specify spelling program
+*** Emacs specify spelling program
 - This didn't work at first, possibly because cocoAspell was
   building its dictionary.  Now it seems to work fine.
 #+begin_src emacs-lisp :tangle no

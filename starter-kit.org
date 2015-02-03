@@ -428,6 +428,7 @@ everyone using the starter kit.
 (starter-kit-load "term")
 (starter-kit-load "quickrun")
 (starter-kit-load "occur")
+(starter-kit-load "gud")
 ;; prog mode should be loaded finally
 (starter-kit-load "coding")
 (starter-kit-load "python")
@@ -510,7 +511,10 @@ windows. Since Emacs-24.4 you can toggle full screen by <F11>.
     (switch-to-buffer "*Bookmark List*")
     (delete-other-windows)
     (split-window-right)
-    (switch-to-buffer "*scratch*")))
+    (switch-to-buffer "*scratch*")
+    (with-current-buffer "*scratch*"
+      (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"
+                          (format-time-string "%Y-%m-%d&%T"))))))
 (add-hook 'emacs-startup-hook 'my-start-up-display)
 #+END_SRC
 
