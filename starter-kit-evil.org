@@ -141,20 +141,25 @@ back.
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
 #+end_src
 
-** Disable evil for some modes
+** Set initial state
 #+BEGIN_SRC emacs-lisp
-(dolist (mode '(minibuffer-inactive-mode
-                grep-mode
-                compilation-mode
-                taglist-mode
-                w3m-mode
-                eww-mode
-                dired-mode
-                ibuffer-mode
-                help-mode
-                info-mode
-                occur-mode
-                undo-tree-visualizer-mode
-                flycheck-error-list-mode))
-  (evil-set-initial-state mode 'emacs))
+(mapc
+ (lambda (item)
+   (evil-set-initial-state (car item) (cdr item)))
+ '((minibuffer-inactive-mode  . emacs)
+   (grep-mode                 . emacs)
+   (compilation-mode          . emacs)
+   (taglist-mode              . emacs)
+   (w3m-mode                  . emacs)
+   (eww-mode                  . emacs)
+   (dired-mode                . emacs)
+   (wdired-mode               . normal)
+   (ibuffer-mode              . emacs)
+   (help-mode                 . emacs)
+   (Info-mode                 . emacs)
+   (occur-mode                . emacs)
+   (undo-tree-visualizer-mode . emacs)
+   (flycheck-error-list-mode  . emacs)
+   (git-commit-mode           . insert)
+   (magit-branch-manager-mode . emacs)))
 #+END_SRC

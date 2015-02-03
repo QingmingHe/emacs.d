@@ -275,12 +275,30 @@ Recover previous windows configuration when quitting ediff.
 (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
 
-** Compile
+** Compile and grep
 
 Save buffers before compile automatically.
 #+BEGIN_SRC emacs-lisp
 (setq compilation-ask-about-save nil)
 #+END_SRC
+
+Grep buffer use =compile-goto-error= to locate. The problem is this function
+will not auto expand folding after go to due buffer and point which is
+annoying in org mode. Advice below is for:
+1. Switch window and then switch back to set current buffer to be buffer of
+   current file. It's may be a bug that =compile-goto-error= will set current
+   buffer to be the *compilation* or *grep* buffer.
+2. Determine whether invisible or not and show subtree if invisible.
+3. Recenter window.
+
+#+begin_src emacs-lisp
+(defadvice compile-goto-error (after cge-after activate)
+  (other-window -1)
+  (other-window 1)
+  (when (outline-invisible-p)
+    (show-subtree))
+  (recenter))
+#+end_src
 
 ** Don't disable narrowing commands
 
