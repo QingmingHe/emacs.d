@@ -30,7 +30,7 @@ the English font will be Consolas and Chinese font be Microsoft Yahei.
 
 #+BEGIN_SRC emacs-lisp
 (when (and
-       (not *terminal*)
+       (window-system)
        (or *win32* *cygwin*))
   (progn
     (set-face-attribute
@@ -162,7 +162,7 @@ evaluated a theme is activated using the =load-theme= function.
 
 #+BEGIN_SRC emacs-lisp
 (color-theme-initialize)
-(if (or *terminal* (string= "light" (getenv "EMACS_COLOR_THEME")))
+(if (or (not (window-system)) (string= "light" (getenv "EMACS_COLOR_THEME")))
     (progn (color-theme-solarized-light)
            (set-face-background 'highlight-indentation-face "#073642")
            (set-face-background 'highlight-indentation-current-column-face "#eee8d5"))

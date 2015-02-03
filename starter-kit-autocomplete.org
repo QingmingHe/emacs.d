@@ -35,7 +35,7 @@
 (setq ac-use-quick-help t)
 
 ;; use pos-tip instead of popup to show doc perfectly
-(unless *terminal*
+(when (window-system)
   (setq ac-quick-help-prefer-pos-tip t))
 
 ;; enable auto complete in all modes

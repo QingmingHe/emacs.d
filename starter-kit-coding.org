@@ -40,9 +40,6 @@ a lambda doesn't already exist in the list.
   (setq linum-relative-current-symbol "")
   (linum-mode 1))
 
-(when (window-system)
-  (add-hook 'starter-kit-coding-hook 'starter-kit-pretty-lambdas))
-
 (defun run-starter-kit-coding-hook ()
   "Enable things that are convenient across all coding buffers."
   (run-hooks 'starter-kit-coding-hook))

@@ -26,8 +26,6 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("Cask\\'" . emacs-lisp-mode))
 (defun my-emacs-lisp-config ()
-  (modify-syntax-entry ?_ "w")
-  (modify-syntax-entry ?- "w")
   (turn-on-eldoc-mode)
   (starter-kit-remove-elc-on-save))
 
@@ -131,16 +129,6 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 
 #+results:
 : clojure-project
-
-pretty \lambda's in clojure
-#+begin_src emacs-lisp
-  (eval-after-load 'clojure-mode
-    '(font-lock-add-keywords
-      'clojure-mode `(("(\\(fn\\>\\)"
-                       (0 (progn (compose-region (match-beginning 1)
-                                                 (match-end 1) "ƒ")
-                                 nil))))))
-#+end_src
 
 ** Scheme
    :PROPERTIES:

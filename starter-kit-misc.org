@@ -126,7 +126,7 @@ previously visited the same file.
 (setq ido-use-faces nil)
 #+end_src
 
-** Other, spell checking, tabs, imenu
+** tabs, imenu
 #+begin_src emacs-lisp
   (set-default 'indent-tabs-mode nil)
   (set-default 'indicate-empty-lines t)
@@ -138,41 +138,6 @@ previously visited the same file.
   (defalias 'yes-or-no-p 'y-or-n-p)
   ;; Seed the random-number generator
   (random t)
-#+end_src
-
-*** functions for prettier source code
-#+begin_src emacs-lisp
-(defun starter-kit-pretty-lambdas ()
-  (font-lock-add-keywords
-   nil `(("(\\(lambda\\>\\)"
-          (0 (progn (compose-region (match-beginning 1) (match-end 1)
-                                    ,(make-char 'greek-iso8859-7 107))
-                    nil))))))
-#+end_src
-
-*** possible issues/resolutions with flyspell
-Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsWiki-FlySpell]].  Here is one
-possible fix.
-
-**** Emacs set path to aspell
-it's possible aspell isn't in your path
-#+begin_src emacs-lisp :tangle no
-   (setq exec-path (append exec-path '("/opt/local/bin")))
-#+end_src
-
-**** Emacs specify spelling program
-- This didn't work at first, possibly because cocoAspell was
-  building its dictionary.  Now it seems to work fine.
-#+begin_src emacs-lisp :tangle no
-  (setq ispell-program-name "aspell"
-        ispell-dictionary "english"
-        ispell-dictionary-alist
-        (let ((default '("[A-Za-z]" "[^A-Za-z]" "[']" nil
-                         ("-B" "-d" "english" "--dict-dir"
-                          "/Library/Application Support/cocoAspell/aspell6-en-6.0-0")
-                         nil iso-8859-1)))
-          `((nil ,@default)
-            ("english" ,@default))))
 #+end_src
 
 ** Hippie expand: at times perhaps too hip
@@ -366,8 +331,23 @@ Error enabling Flyspell mode:
 (错误：No word lists can be found for the language "zh_CN".)
 #+end_quote
 
-Use the latest aspell instead of ispell to check spelling.
-#+BEGIN_SRC emacs-lisp
-(setq ispell-dictionary "british")
-(setq ispell-program-name "aspell")
-#+END_SRC
+**** Emacs set path to aspell
+it's possible aspell isn't in your path
+#+begin_src emacs-lisp :tangle no
+   (setq exec-path (append exec-path '("/opt/local/bin")))
+#+end_src
+
+**** Emacs specify spelling program
+- This didn't work at first, possibly because cocoAspell was
+  building its dictionary.  Now it seems to work fine.
+#+begin_src emacs-lisp :tangle no
+  (setq ispell-program-name "aspell"
+        ispell-dictionary "english"
+        ispell-dictionary-alist
+        (let ((default '("[A-Za-z]" "[^A-Za-z]" "[']" nil
+                         ("-B" "-d" "english" "--dict-dir"
+                          "/Library/Application Support/cocoAspell/aspell6-en-6.0-0")
+                         nil iso-8859-1)))
+          `((nil ,@default)
+            ("english" ,@default))))
+#+end_src
