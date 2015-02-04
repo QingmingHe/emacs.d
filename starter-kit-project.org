@@ -40,13 +40,15 @@ First define projects.
          :lighter "pyPkgs")))
 #+END_SRC
 
-** Don't ask yes or no when reverting tags file
+** Ctags
+
+*** Don't ask yes or no when reverting tags file
 
 #+BEGIN_SRC emacs-lisp
 (setq tags-revert-without-query t)
 #+END_SRC
 
-** Function to generate tags file
+*** Function to generate tags file
 #+BEGIN_SRC emacs-lisp
 (defun my-make-tags (dir-name project-name)
   "Create tags file."
@@ -58,7 +60,7 @@ First define projects.
 )
 #+END_SRC
 
-** Set tags file name nil
+*** Set tags file name nil
 
 #+BEGIN_SRC emacs-lisp
 ;; set tags-file-name to be nil so no error in writing .ido.last
@@ -66,7 +68,19 @@ First define projects.
                              (setq tags-file-name nil)))
 #+END_SRC
 
-** taglist
+
+** Gtags
+
+#+begin_src emacs-lisp
+(setq helm-gtags-ignore-case t)
+(setq helm-gtags-cache-select-result t)
+(setq helm-gtags-use-input-at-cursor t)
+(setq helm-gtags-display-style 'detail)
+#+end_src
+
+
+** Taglist, imenu and other
+*** taglist
 
 #+BEGIN_SRC emacs-lisp
 (defun my-taglist ()
@@ -74,7 +88,7 @@ First define projects.
   (list-tags (buffer-file-name)))
 #+END_SRC
 
-** imenu with ido
+*** imenu with ido
 
 #+BEGIN_SRC emacs-lisp
     (defun my-imenu (&optional symbol-list)
@@ -126,16 +140,16 @@ First define projects.
               (add-to-list 'name-and-pos (cons name position))))))))
 #+END_SRC
 
-** How to use imenu, ctags and taglist
+*** How to use imenu, ctags and taglist
 
-*** Key bindings
+**** Key bindings
 See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
 
-*** imenu
+**** imenu
 
 *M-x my-imenu* use imenu with ido
 
-*** Make and update tags file
+**** Make and update tags file
 
 + Define project in project-roots.
 + *M-x my-make-tags* to make tags file for the project. Note that path to make
@@ -144,9 +158,9 @@ See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
 + Emacs will update tags file automatically.
 + Answer *n* to "keep current list of tags table also?"
 
-*** find tag
+**** find tag
 *\ta* and chose a key word. If multiple tags exist, etags-select will work and
  pop a buffer for tags selecting.
 
-*** taglist
+**** taglist
 *\tl* opens taglist and navigate with *jk*.
