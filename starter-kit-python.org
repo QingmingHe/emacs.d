@@ -71,7 +71,14 @@ To use my configuration, set JEDI_SERVER environment to be
 (defun my-python-conf ()
   (my-jedi-setup)
   (highlight-indentation-current-column-mode)
-  (setq imenu-create-index-function 'python-imenu-create-index))
+  (setq imenu-create-index-function 'python-imenu-create-index)
+  (when (> emacs-minor-version 3)
+    (setq prettify-symbols-alist
+          '(("!=" . ?≠)
+            (">=" . ?≥)
+            ("<=" . ?≤)
+            ("lambda" . ?λ)))
+    (prettify-symbols-mode 1)))
 (add-hook 'python-mode-hook 'my-python-conf)
 #+END_SRC
 

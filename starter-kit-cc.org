@@ -31,6 +31,12 @@
 (defun my-c-common-config ()
   (modify-syntax-entry ?_ "w")
   (c-set-offset 'substatement-open 0)
-  (local-set-key (kbd "C-x C-o") 'ff-find-other-file))
+  (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
+  (when (> emacs-minor-version 3)
+    (setq prettify-symbols-alist
+          '(("!=" . ?≠)
+            (">=" . ?≥)
+            ("<=" . ?≤)))
+    (prettify-symbols-mode 1)))
 (add-hook 'c-mode-common-hook 'my-c-common-config)
 #+END_SRC
