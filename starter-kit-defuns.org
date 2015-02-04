@@ -224,3 +224,41 @@ or =defcustom= with =setq= or use =eval-defun=.
         (forward-sexp)
         (eval-defun nil)))))
 #+end_src
+** ASCII table
+
+#+begin_src emacs-lisp
+(defun ascii-table ()
+  (interactive)
+  (with-current-buffer (get-buffer-create "*ASCII table*")
+    (erase-buffer)
+    (insert (format "ASCII characters up to number %d.\n" 254))
+    (let ((i 0))
+      (while (< i 254)
+        (setq i (1+ i))
+        (insert (format "%4d %c\n" i i)))))
+  (pop-to-buffer "*ASCII table*")
+  (goto-char (point-min)))
+#+end_src
+   
+** DOS UNIX conversion
+
+#+begin_src emacs-lisp
+(defun dos2unix ()
+  (interactive)
+  (goto-char (point-min))
+  (while (search-forward "\r" nil t)
+    (replace-match "")))
+
+(defun unix2dos ()
+  (interactive)
+  (goto-char (point-min))
+  (while (search-forward "\n" nil t)
+    (replace-match "\r\n")))
+#+end_src
+
+** Void function
+
+#+begin_src emacs-lisp
+(defun void ()
+  (interactive))
+#+end_src

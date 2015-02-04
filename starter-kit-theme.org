@@ -10,7 +10,7 @@ The toolbar and scroll bar are too ugly and disable it.
 (column-number-mode 1)
 #+END_SRC
 
-It's not easy to recognise the completion words in horizontally split window
+It's not easy to recognize the completion words in horizontally split window
 if two windows are already split horizontally. Therefore set Emacs to split
 vertically by default.
 #+BEGIN_SRC emacs-lisp

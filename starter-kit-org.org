@@ -167,7 +167,7 @@ file using the `org-babel-lob-ingest' function.
       org-export-kill-product-buffer-when-displayed t
       org-export-odt-preferred-output-format "doc"
       org-tags-column 80
-      )
+      org-pretty-entities t)
 #+END_SRC
 
 ** Org export to PDF
@@ -238,7 +238,7 @@ GTD root is defined by *GTD_ROOT* environment variable.
   (setq gtd-root nil))
 #+END_SRC
 
-*** Org TODO #+KEYWORDS: 0
+*** Org TODO
 
 
 The default org todo keywords are *TODO* and *DONE*, which is not adequate for
@@ -296,15 +296,6 @@ Set files where org agenda will extract from.
   )
 #+END_SRC
 
-Show agenda at start up.
-#+BEGIN_SRC emacs-lisp
-;; (when gtd-root
-;;   (setq inhibit-splash-screen t)
-;;   (org-agenda-list)
-;;   (delete-other-windows)
-;;   )
-#+END_SRC
-
 *** Org refile
 
 Org refile provides a convenient method for moving a tree to another. The max
@@ -317,16 +308,12 @@ set targets start with the file name and complete in steps with *TAB*.
         (list (concat org-directory "/inbox.org")
               (concat org-directory "/projects.org")
               (concat org-directory "/finished.org")
-              (concat org-directory "/canceled.org")
-              )
-        )
+              (concat org-directory "/canceled.org")))
   (setq org-refile-targets (quote (
                                    (nil :maxlevel . 3)
-                                   (org-refile-files :maxlevel . 3)
-                                   )))
+                                   (org-refile-files :maxlevel . 3))))
   (setq org-refile-use-outline-path (quote file))
-  (setq org-outline-path-complete-in-steps t)
-  )
+  (setq org-outline-path-complete-in-steps t))
 #+END_SRC
 
 *** Org publish
@@ -345,10 +332,8 @@ The setup is very personal.
            :publishing-directory "~/docs/gtd/html"
            :publishing-function org-html-publish-to-html
            :author "Qingming He"
-           :email "906459647@qq.com"
-           )
-          ("all" :components ("gtd-html" ))))
-  )
+           :email "906459647@qq.com")
+          ("all" :components ("gtd-html" )))))
 #+END_SRC
 
 ** Other
@@ -356,38 +341,38 @@ The author copy codes below from
 [[https://github.com/redguardtoo/emacs.d/blob/master/init-org.el]] and have no
 idea what it means.
 
-# #+BEGIN_SRC emacs-lisp
-# (eval-after-load 'org
-#    '(progn
-#       (require 'org-clock)
-#       ; @see http://irreal.org/blog/?p=671
-#       (setq org-src-fontify-natively t)
-#       (require 'org-fstree)
-#       (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
-#                                        (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
-#       (defun soft-wrap-lines ()
-#         "Make lines wrap at window edge and on word boundary,
-#         in current buffer."
-#         (interactive)
-#         (setq truncate-lines nil)
-#         (setq word-wrap t)
-#         )
-#       (add-hook 'org-mode-hook '(lambda ()
-#                                   (setq evil-auto-indent nil)
-#                                   (soft-wrap-lines)
-#                                   ))))
-#
-# (defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
-#   (let ((browse-url-browser-function
-#          (cond ((equal (ad-get-arg 0) '(4))
-#                 'browse-url-generic)
-#                ((equal (ad-get-arg 0) '(16))
-#                 'choose-browser)
-#                (t
-#                 (lambda (url &optional new)
-#                   (w3m-browse-url url t))))))
-#     ad-do-it))
-# #+END_SRC
+#+BEGIN_SRC emacs-lisp :tangle no
+(eval-after-load 'org
+   '(progn
+      (require 'org-clock)
+      ; @see http://irreal.org/blog/?p=671
+      (setq org-src-fontify-natively t)
+      (require 'org-fstree)
+      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
+                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
+      (defun soft-wrap-lines ()
+        "Make lines wrap at window edge and on word boundary,
+        in current buffer."
+        (interactive)
+        (setq truncate-lines nil)
+        (setq word-wrap t)
+        )
+      (add-hook 'org-mode-hook '(lambda ()
+                                  (setq evil-auto-indent nil)
+                                  (soft-wrap-lines)
+                                  ))))
+
+(defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
+  (let ((browse-url-browser-function
+         (cond ((equal (ad-get-arg 0) '(4))
+                'browse-url-generic)
+               ((equal (ad-get-arg 0) '(16))
+                'choose-browser)
+               (t
+                (lambda (url &optional new)
+                  (w3m-browse-url url t))))))
+    ad-do-it))
+#+END_SRC
 ** Tips and comments
 *** Key bindings
 

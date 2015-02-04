@@ -36,6 +36,7 @@ a lambda doesn't already exist in the list.
 ;; string so that linum-relative will show the real line number at current
 ;; line. Linum mode is too slow.
 (defun starter-kit-turn-on-linum ()
+  (interactive)
   (make-local-variable 'linum-relative-current-symbol)
   (setq linum-relative-current-symbol "")
   (linum-mode 1))
