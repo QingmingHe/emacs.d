@@ -45,7 +45,7 @@ the English font will be Consolas and Chinese font be Microsoft Yahei.
 
 Don't show fringe in GUI, it's too ugly.
 #+BEGIN_SRC emacs-lisp
-(fringe-mode 0)
+(fringe-mode '(4 . 0))
 #+END_SRC
 
 ** Power line

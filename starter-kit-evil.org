@@ -163,5 +163,6 @@ back.
    (git-commit-mode           . insert)
    (magit-branch-manager-mode . emacs)
    (diff-mode                 . emacs)
+   (man-mode                  . emacs)
    (gud-mode                  . emacs)))
 #+END_SRC
