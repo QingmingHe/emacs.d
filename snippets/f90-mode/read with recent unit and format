@@ -1,0 +1,15 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: read with recent unit and format
+# key: re
+# --
+read(${1:`
+(if (save-excursion
+      (re-search-backward
+       "^[ \t]*read[ \t]*(\\([^,]+\\)\\(,?[ \t]*\\)\\(\*\\|\\(fmt=\\)?\".+\"\\)?.*)"
+       nil t))
+    (progn
+      (setq __f90-read-format-last (match-string-no-properties 3))
+      (match-string-no-properties 1))
+  (setq __f90-read-format-last "*")
+  __f90-read-format-last)
+`}`(when __f90-read-format-last ", ")`${2:`__f90-read-format-last`}) $0

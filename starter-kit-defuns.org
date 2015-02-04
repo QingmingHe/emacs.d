@@ -50,11 +50,9 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
   (let ((l-filling " "))
     (when filling
       (setq l-filling filling))
-    (let (
-          (line-position nil)
+    (let ((line-position nil)
           (i 0)
-          (remainder nil)
-          )
+          (remainder nil))
       (setq line-position (- (point) (line-beginning-position)))
       (setq remainder (- default-fill-column line-position))
       (while (< i remainder)

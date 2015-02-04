@@ -8,10 +8,11 @@
 + Use ff-find-other-file command to goto header file quickly.
 + The search dirs are defined at [[~/.emacs.d/starter-kit-autocomplete.org][starter-kit-autocomplete]].
 + Do some hack to locate symbol at point after loading header file.
++ Use =makunbound= to remove variable. (=fmakunbound= to remove function).
 
 #+begin_src emacs-lisp
 (defun my-ff-get-symbol ()
-  (setq __c-symbol-at-point (thing-at-point-no-properties 'word)))
+  (setq __c-symbol-at-point (thing-at-point-no-properties 'symbol)))
 (add-hook 'ff-pre-find-hook 'my-ff-get-symbol)
 
 (defun my-ff-locate-symbol ()
@@ -19,7 +20,8 @@
          __c-symbol-at-point
          (string-match-p "\\.\\(h\\|hpp\\)" (buffer-name)))
     (goto-char (point-min))
-    (re-search-forward (format "\\_<%s\\_>" __c-symbol-at-point) nil t)))
+    (re-search-forward (format "\\_<%s\\_>" __c-symbol-at-point) nil t)
+    (makunbound '__c-symbol-at-point)))
 (add-hook 'ff-post-load-hook 'my-ff-locate-symbol)
 #+end_src
 

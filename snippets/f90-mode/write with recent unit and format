@@ -1,0 +1,15 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: write with recent unit and format
+# key: wr
+# --
+write(${1:`
+(if (save-excursion
+      (re-search-backward
+       "^[ \t]*write[ \t]*(\\([^,]+\\)\\(,?[ \t]*\\)\\(\*\\|\\(fmt=\\)?\".+\"\\)?.*)"
+       nil t))
+    (progn
+      (setq __f90-write-format-last (match-string-no-properties 3))
+      (match-string-no-properties 1))
+  (setq __f90-write-format-last "*")
+  "*")
+`}`(when __f90-write-format-last ", ")`${2:`__f90-write-format-last`}) $0
