@@ -302,6 +302,12 @@ Don't grep repositories and some files.
      (add-to-list 'grep-find-ignored-files file)))
 #+END_SRC
 
+*** Wgrep
+
+#+begin_src emacs-lisp
+(setq wgrep-auto-save-buffer t)
+#+end_src
+
 ** Window numbering
 
 Changing from one window to another is so easy in Emacs with window number,

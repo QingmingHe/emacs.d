@@ -42,6 +42,7 @@
         ace-jump-mode
         git-rebase-mode
         git-commit-mode
+        git-timemachine
         magit
         dictionary
         no-word
@@ -55,6 +56,7 @@
         hideshowvis
         whitespace-cleanup-mode
         hungry-delete
+        wgrep
 
         ;; eshell, term
         em-cmpl

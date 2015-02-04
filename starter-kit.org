@@ -513,6 +513,7 @@ windows. Since Emacs-24.4 you can toggle full screen by <F11>.
     (split-window-right)
     (switch-to-buffer "*scratch*")
     (with-current-buffer "*scratch*"
+      (setq default-directory temporary-file-directory)
       (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"
                           (format-time-string "%Y-%m-%d&%T"))))))
 (add-hook 'emacs-startup-hook 'my-start-up-display)
