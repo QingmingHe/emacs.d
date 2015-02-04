@@ -4,12 +4,13 @@
 # --
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
+""" ${1:brief description}
+
 Author: Qingming He @ NECP
 Date: `(format-time-string "%Y-%m-%d %T")`
 
 Description
 ===========
 
-
+$0
 """

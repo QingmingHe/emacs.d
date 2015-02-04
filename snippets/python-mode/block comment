@@ -2,18 +2,14 @@
 # name: block comment
 # key: bc
 # --
-!${1:`
+${1:`
 (let* ((here (point))
        (beg
         (save-excursion
           (beginning-of-line)
           (point)))
-       (remain (- (+ 3 default-fill-column) (- here beg)))
-       (i 0))
-  (with-temp-buffer
-    (while (<= (setq i (1+ i)) remain)
-      (insert "-"))
-    (buffer-string)))
+       (remain (- (+ 4 default-fill-column) (- here beg))))
+  (make-string remain ?#))
 `}
-! $0
-!$1
+# $0
+$1

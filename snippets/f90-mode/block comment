@@ -1,0 +1,15 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: block comment
+# key: bc
+# --
+!${1:`
+(let* ((here (point))
+       (beg
+        (save-excursion
+          (beginning-of-line)
+          (point)))
+       (remain (- (+ 3 default-fill-column) (- here beg))))
+  (make-string remain ?-))
+`}
+! $0
+!$1

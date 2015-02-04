@@ -102,6 +102,14 @@ My powerline theme based on powerline-default-theme.
 
 #+begin_src emacs-lisp
 (load-theme 'zenburn t)
+(set-face-attribute 'mode-line nil
+                      :box nil
+                      :underline nil
+                      :inverse-video nil)
+(set-face-attribute 'mode-line-inactive nil
+                      :box nil
+                      :underline nil
+                      :inverse-video nil)
 #+end_src
 
 ** Solarized theme
