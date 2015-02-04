@@ -98,7 +98,16 @@ My powerline theme based on powerline-default-theme.
                              (powerline-render rhs)))))))
 #+end_src
 
-** New
+** Zenburn
+
+#+begin_src emacs-lisp
+(load-theme 'zenburn t)
+#+end_src
+
+** Solarized theme
+   :PROPERTIES:
+   :tangle: no
+   :END:
 
 [[https://github.com/bbatsov/solarized-emacs][Solarized theme here]] seems better than [[https://github.com/sellout/emacs-color-theme-solarized][this one]].
 #+begin_src emacs-lisp
@@ -145,7 +154,7 @@ My powerline theme based on powerline-default-theme.
 
 (starter-kit-solarized-emacs-setup)
 #+end_src
-** Old
+** Old solarized theme
    :PROPERTIES:
    :tangle: no
    :END:

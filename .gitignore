@@ -36,7 +36,6 @@ oddmuse/*
 image-dired/*
 elim/*
 doc/*
-themes/*
 url/*
 .cask/
 elpa/archives/

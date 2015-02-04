@@ -162,5 +162,6 @@ back.
    (flycheck-error-list-mode  . emacs)
    (git-commit-mode           . insert)
    (magit-branch-manager-mode . emacs)
+   (diff-mode                 . emacs)
    (gud-mode                  . emacs)))
 #+END_SRC
