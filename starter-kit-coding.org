@@ -17,10 +17,10 @@ a lambda doesn't already exist in the list.
 (defvar starter-kit-coding-hook nil
   "Hook that gets run on activation of any programming mode.")
 
-(defun starter-kit-local-comment-auto-fill ()
+(defun starter-kit-auto-fill ()
   (setq-local comment-auto-fill-only-comments nil)
   (auto-fill-mode t))
-(add-hook 'starter-kit-coding-hook 'starter-kit-local-comment-auto-fill)
+(add-hook 'starter-kit-coding-hook 'starter-kit-auto-fill)
 
 (defun starter-kit-turn-on-flyspell ()
   (flyspell-prog-mode))
@@ -49,9 +49,34 @@ a lambda doesn't already exist in the list.
 #+end_src
 
 ** Handle parens
+
 #+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp
 (show-paren-mode 1)
 (smartparens-global-mode t)
 (smartparens-global-strict-mode t)
+#+end_src
+
+*** CC
+
+Use smartparens to handle curly braces and block comment.
+#+begin_src emacs-lisp
+(defun sp-cc-block-comment (&rest __ignored)
+  (save-excursion
+    (forward-line -1)
+    (end-of-line)
+    (insert "*"))
+  (save-excursion
+    (insert "\n")
+    (indent-according-to-mode))
+  (indent-according-to-mode))
+
+(defun sp-cc-var-comment (&rest __ignored)
+  (backward-char 1)
+  (insert "*< "))
+
+(sp-with-modes '(c-mode c++-mode)
+  (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
+  (sp-local-pair "/*" "*/" :post-handlers '((sp-cc-var-comment "SPC")
+                                            (sp-cc-block-comment "RET"))))
 #+end_src
