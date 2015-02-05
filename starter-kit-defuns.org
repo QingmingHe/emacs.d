@@ -276,3 +276,19 @@ or =defcustom= with =setq= or use =eval-defun=.
       (when kill-buffer-after
         (kill-buffer)))))
 #+end_src
+   
+** Dired do
+
+#+begin_src emacs-lisp
+(defmacro --dired-do-buffers (&rest body)
+  `(mapc
+    (lambda (f)
+      (with-current-buffer (find-file-noselect f)
+        (goto-char (point-min))
+        ,@body
+        (when (buffer-modified-p)
+          (save-buffer))
+        (kill-buffer)))
+    (dired-get-marked-files)))
+#+end_src
+

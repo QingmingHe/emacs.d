@@ -116,7 +116,7 @@ back.
          (interactive)
          (cond ((eq major-mode 'org-mode)
                 (helm-org-headlines))
-               (t (helm-semantic-or-imenu))))
+               (t (call-interactively 'helm-semantic-or-imenu))))
   "mt" 'prj/generate-tags
   "vt" (lambda ()
          (interactive)

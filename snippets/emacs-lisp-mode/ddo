@@ -1,10 +1,10 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: ddo
+# name: dired do something
 # key: ddo
 # --
 (defun --dired-do-$1 ()
   (interactive)
   (mapc
-   '(lambda (marked-file)
-      ($0))
+   (lambda (marked-file)
+     ($0))
    (dired-get-marked-files)))
