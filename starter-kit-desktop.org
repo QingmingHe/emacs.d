@@ -22,6 +22,7 @@ Emacs.
 (setq desktop-restore-frames nil)
 (setq history-length 128)
 (setq kill-ring-max 128)
+(setq regexp-search-ring-max 128)
 (setq desktop-auto-save-timeout 120)
 (setq desktop-globals-to-save
       '((extended-command-history     . history-length)

@@ -58,7 +58,7 @@ I NEVER use hippie.
    yank thing after cursor. This is always not I mean. What I want is to yank
    selected region or symbol at point.
 2. Append thing at point or active region to =regexp-search-ring= and use
-   *M-n* to recover it in minnibuffer.
+   *M-n* to recover it in minibuffer.
 
 #+begin_src emacs-lisp
 (defun isearch-yank-dwim ()

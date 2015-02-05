@@ -40,20 +40,22 @@ white space should be spared or yas-next-field will not work.
     (make-variable-buffer-local 'yas/trigger-key)
     (setq yas/trigger-key [tab])
     (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-    (define-key yas-keymap [tab] 'yas-next-field)
-    )
+    (define-key yas-keymap [tab] 'yas-next-field))
 
   (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
-** Configure for Python mode
+** Indentation configuration for prog mode
 
-Indent in Python mode may be confusing. Set fixed so yas will not indent
+Indent in some prog mode may be confusing. Set fixed so yas will not indent
 automatically, but just as in snippet.
 #+begin_src emacs-lisp
-(defun yas-py-conf ()
-  (setq-local yas-indent-line 'fixd))
-(add-hook 'python-mode-hook 'yas-py-conf)
+(defun yas-conf-fixed-indent ()
+  (setq-local yas-indent-line 'fixed))
+(mapc
+ (lambda (hook)
+   (add-hook hook 'yas-conf-fixed-indent))
+ '(python-mode-hook c-mode-common-hook f90-mode-hook))
 #+end_src
 
 ** Rebind key of yas
