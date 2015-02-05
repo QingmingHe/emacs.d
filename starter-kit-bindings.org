@@ -52,11 +52,13 @@ I NEVER use hippie.
                  (regexp-quote isearch-string))))))
 #+end_src
     
-*** Isearch yank do what I meam
+*** Isearch yank do what I mean
     
-*C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
-yank thing after cursor. This is always not I mean. What I want is to yank
-selected region or symbol at point.
+1. *C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
+   yank thing after cursor. This is always not I mean. What I want is to yank
+   selected region or symbol at point.
+2. Append thing at point or active region to =regexp-search-ring= and use
+   *M-n* to recover it in minnibuffer.
 
 #+begin_src emacs-lisp
 (defun isearch-yank-dwim ()
@@ -66,6 +68,28 @@ selected region or symbol at point.
        (buffer-substring (region-beginning) (region-end))
      (thing-at-point-no-properties'symbol))))
 (define-key isearch-mode-map (kbd "C-w") 'isearch-yank-dwim)
+
+(defadvice isearch-forward-regexp (before ifr-ring-before activate)
+  (let (thing)
+    (setq thing
+          (if (region-active-p)
+              (buffer-substring-no-properties
+               (region-beginning)
+               (region-end))
+            (thing-at-point-no-properties 'symbol)))
+    (when thing
+      (setq regexp-search-ring (append regexp-search-ring `(,thing))))))
+
+(defadvice isearch-backward-regexp (before ibr-ring-before activate)
+  (let (thing)
+    (setq thing
+          (if (region-active-p)
+              (buffer-substring-no-properties
+               (region-beginning)
+               (region-end))
+            (thing-at-point-no-properties 'symbol)))
+    (when thing
+      (setq regexp-search-ring (append regexp-search-ring `(,thing))))))
 #+end_src
 
 ** File finding
@@ -113,4 +137,10 @@ Rgrep is infinitely useful in multi-file projects.
  `(,prog-mode-map
    ,org-mode-map
    ,text-mode-map))
+#+end_src
+** Kill and yank
+
+You can also use *M-w* =kill-ring-save=.
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c k") 'copy-region-as-kill)
 #+end_src

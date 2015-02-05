@@ -21,6 +21,7 @@ Emacs.
 (setq desktop-load-locked-desktop nil)
 (setq desktop-restore-frames nil)
 (setq history-length 128)
+(setq kill-ring-max 128)
 (setq desktop-auto-save-timeout 120)
 (setq desktop-globals-to-save
       '((extended-command-history     . history-length)
@@ -41,7 +42,8 @@ Emacs.
         (dired-regexp-history         . history-length)
         (dired-shell-command-history  . history-length)
         (desktop-missing-file-warning . history-length)
-        (register-alist               . history-length)))
+        (register-alist               . history-length)
+        (kill-ring                    . history-length)))
 
 (defadvice desktop-save (around del-dup-desktop-save activate)
   (mapc

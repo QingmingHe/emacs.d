@@ -105,6 +105,8 @@ back.
          (if prj/use-gtags
              (helm-gtags-select)
            (etags-select-find)))
+  "dta" 'helm-gtags-dwim
+  "rta" 'helm-gtags-find-rtag
   "at" (lambda ()
          (interactive)
          (if prj/use-gtags
@@ -163,6 +165,6 @@ back.
    (git-commit-mode           . insert)
    (magit-branch-manager-mode . emacs)
    (diff-mode                 . emacs)
-   (man-mode                  . emacs)
+   (Man-mode                  . emacs)
    (gud-mode                  . emacs)))
 #+END_SRC

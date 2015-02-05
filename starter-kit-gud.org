@@ -3,7 +3,35 @@
 
 * Starter Kit Gud
 
+** Compile
+
+Another way to compile dwim is to set =compile-command= in project
+=.dir-locals=.
+
 #+begin_src emacs-lisp
+(defvar compile-dir-last nil
+  "Last working directory of Compile.")
+
+(defun compile-dwim ()
+  (interactive)
+  (let ((default-directory
+          (ido-read-directory-name
+           "Compile working directory: "
+           compile-dir-last
+           ".")))
+    (call-interactively 'compile)))
+
+(mapc
+ (lambda (map)
+   (define-key map (kbd "<f5>") 'compile-dwim))
+ `(,c-mode-map ,c++-mode-map ,f90-mode-map))
+#+end_src
+
+** Gdb
+
+#+begin_src emacs-lisp
+(setq gdb-show-main nil)
+
 (when (or *win32* *cygwin*)
   (setq gdb-non-stop-setting nil))
 
@@ -51,4 +79,9 @@
          global-linum-mode)
     (global-linum-mode -1)))
 (add-hook 'kill-buffer-hook 'turn-off-gobal-linum-after-gud)
+
+(mapc
+ (lambda (map)
+   (define-key map (kbd "C-<f5>") 'run-gdb-dwim))
+ `(,c-mode-map ,c++-mode-map ,f90-mode-map))
 #+end_src
