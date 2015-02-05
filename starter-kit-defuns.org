@@ -262,3 +262,17 @@ or =defcustom= with =setq= or use =eval-defun=.
 (defun void ()
   (interactive))
 #+end_src
+** Clean white spaces
+
+#+begin_src emacs-lisp
+(defun clean-white-spaces (f &optional kill-buffer-after)
+  (interactive
+   (list (ido-read-file-name "File to be cleaned: ")
+         (y-or-n-p "Kill buffer after cleaning ?")))
+  (let ((buffer (find-file-noselect f)))
+    (with-current-buffer buffer
+      (delete-trailing-whitespace)
+      (save-buffer)
+      (when kill-buffer-after
+        (kill-buffer)))))
+#+end_src

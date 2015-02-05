@@ -46,10 +46,31 @@ is pre-populated with some generally applicable aliases.
         (expand-file-name "./" (expand-file-name "eshell" starter-kit-dir)))
 #+end_src
 
-*** Multiple eshells
+*** Tips
+**** Multiple eshells
 You can create eshell by just *M-x eshell*, or if can run *C-u 2 M-x eshell*
 to create a eshell numbered 2. If eshell 2 already exists, you will switch to
 it. If *M-x* is bound to *helm-M-x*, run *M-x C-u 2 eshell* instead.
+
+**** Alias
+
+The difference between shell alias and eshell alias is that there should not
+be a *=* between alias name and command. Because eshell alias is a compiled
+lisp function =eshell/alias= which defines an ALIAS using DEFINITION (two
+variables). So define *la* like this:
+#+begin_src sh
+alias ll 'ls -la $*'
+#+end_src
+
+You can also define alias with some variables given:
+#+begin_src sh
+alias clean-white-spaces 'clean-white-spaces $1 t'
+#+end_src
+
+**** Combine Eshell with Helm
+
+Use eshell command on each file marked in =helm-find-files=. Command should
+accept one file as argument.
 
 ** Term
 

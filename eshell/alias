@@ -1,4 +1,9 @@
+alias ga git add $*
+alias g git status
+alias gc magit-commit
 alias ctw cygwin-to-win-path $1
 alias ff find-file-other-window $1
 alias ll ls -l $*
 alias dd dired-other-window $1
+alias clean-white-spaces clean-white-spaces $1 t
+alias la ls -la $*

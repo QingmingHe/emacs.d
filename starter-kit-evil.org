@@ -112,12 +112,16 @@ back.
          (if prj/use-gtags
              (helm-gtags-pop-stack)
            (pop-tag-mark)))
+  "tl" (lambda ()
+         (interactive)
+         (cond ((eq major-mode 'org-mode)
+                (helm-org-headlines))
+               (t (helm-semantic-or-imenu))))
   "mt" 'prj/generate-tags
   "vt" (lambda ()
          (interactive)
          (unless prj/use-gtags
            (etu/visit-tags-table)))
-  "tl" 'helm-semantic-or-imenu
   "ne" 'flycheck-next-error
   "sd" 'sdcv-search-input
   "w" 'ace-jump-word-mode
