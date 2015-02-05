@@ -200,7 +200,7 @@ Simple usage:
   (nth 4 (syntax-ppss)))
 #+end_src
 ** re-evaluate region or buffer
-   
+
 =eval-buffer=, =eval-region=, =eval-last-sexp= and =eval-print-last-sexp=
 don't re-evaluate =defvar= and =defcustom=. To re-evaluate, replace =defvar=
 or =defcustom= with =setq= or use =eval-defun=.
@@ -239,7 +239,7 @@ or =defcustom= with =setq= or use =eval-defun=.
   (pop-to-buffer "*ASCII table*")
   (goto-char (point-min)))
 #+end_src
-   
+
 ** DOS UNIX conversion
 
 #+begin_src emacs-lisp
@@ -265,10 +265,10 @@ or =defcustom= with =setq= or use =eval-defun=.
 ** Clean white spaces
 
 #+begin_src emacs-lisp
-(defun clean-white-spaces (f &optional kill-buffer-after)
+(defun clean-white-spaces (kill-buffer-after f)
   (interactive
-   (list (ido-read-file-name "File to be cleaned: ")
-         (y-or-n-p "Kill buffer after cleaning ?")))
+   (list (y-or-n-p "Kill buffer after cleaning ?")
+         (ido-read-file-name "File to be cleaned: ")))
   (let ((buffer (find-file-noselect f)))
     (with-current-buffer buffer
       (delete-trailing-whitespace)

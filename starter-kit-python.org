@@ -8,7 +8,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 Support for the Python programming language.
 
 ** Jedi Completion
-   
+
 Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
 emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
 manually. Or you can just enable company mode or auto-complete instead of
@@ -59,7 +59,7 @@ To use my configuration, set JEDI_SERVER environment to be
 #+END_SRC
 
 ** Configuration for python mode
-   
+
 + Python uses indentation instead of braces to structure programs so that it's
   crucial to determine at which level of indentation the cursor is. Use
   highlight-indentation-current-column-mode to fulfil this purpose. Another

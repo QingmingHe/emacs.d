@@ -67,10 +67,16 @@ You can also define alias with some variables given:
 alias clean-white-spaces 'clean-white-spaces $1 t'
 #+end_src
 
+To delete an alias:
+#+begin_src sh
+alias some-alias
+#+end_src
+
 **** Combine Eshell with Helm
 
 Use eshell command on each file marked in =helm-find-files=. Command should
-accept one file as argument.
+accept one file as argument. Aliases ended with "\\(\\$1\\|\\$\\*\\)$" can be
+completed by helm.
 
 ** Term
 

@@ -51,9 +51,9 @@ I NEVER use hippie.
                    isearch-string
                  (regexp-quote isearch-string))))))
 #+end_src
-    
+
 *** Isearch yank do what I mean
-    
+
 1. *C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
    yank thing after cursor. This is always not I mean. What I want is to yank
    selected region or symbol at point.
