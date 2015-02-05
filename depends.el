@@ -57,6 +57,7 @@
         whitespace-cleanup-mode
         hungry-delete
         wgrep
+        c-eldoc
 
         ;; eshell, term
         em-cmpl
@@ -114,6 +115,7 @@
         gnuplot
         rnc-mode
 	vimrc-mode
+        cc-mode
 
         ;; docs modes
         markdown-mode

@@ -70,5 +70,6 @@ connection this way:
     (progn
       (flycheck-select-checker 'c/c++-gcc)
       (flycheck-mode))))
-(add-hook 'c-mode-common-hook 'my-flycheck-c-setup)
+(add-hook 'c-mode-hook 'my-flycheck-c-setup)
+(add-hook 'c++-mode-hook 'my-flycheck-c-setup)
 #+end_src

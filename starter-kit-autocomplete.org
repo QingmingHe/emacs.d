@@ -141,7 +141,8 @@ header. So I write a function to update the symbols of a header after saving.
            (string-match-p "\\.\\(h\\|hpp\\)\\'" fname))
       (add-hook 'after-save-hook 'my-update-c-headers-symbols nil t))))
 
-(add-hook 'c-mode-common-hook 'my-add-c-h-to-hook)
+(add-hook 'c-mode-hook 'my-add-c-h-to-hook)
+(add-hook 'c++-mode-hook 'my-add-c-h-to-hook)
 #+end_src
 
 *** cc-search-directories
@@ -215,7 +216,8 @@ added.
       (add-to-list 'ac-sources 'ac-source-gtags))
     (when (featurep 'auto-complete-clang)
       (add-to-list 'ac-sources 'ac-source-clang))))
-(add-hook 'c-mode-common-hook 'my-c-c++-ac-setup)
+(add-hook 'c-mode-hook 'my-c-c++-ac-setup)
+(add-hook 'c++-mode-hook 'my-c-c++-ac-setup)
 #+end_src
 
 ** CMake

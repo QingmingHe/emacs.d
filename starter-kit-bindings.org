@@ -135,6 +135,7 @@ Rgrep is infinitely useful in multi-file projects.
  (lambda (map)
    (define-key map [backspace] 'hungry-backspace))
  `(,prog-mode-map
+   ,c-mode-base-map
    ,org-mode-map
    ,text-mode-map))
 #+end_src

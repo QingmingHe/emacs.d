@@ -28,7 +28,10 @@
 ** Configurations
 
 #+BEGIN_SRC emacs-lisp
+(setq c-eldoc-includes " -I./ ")
+(setq c-eldoc-buffer-regenerate-time 60)
 (defun my-c-common-config ()
+  (c-turn-on-eldoc-mode)
   (modify-syntax-entry ?_ "w")
   (c-set-offset 'substatement-open 0)
   (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
@@ -38,5 +41,6 @@
             (">=" . ?≥)
             ("<=" . ?≤)))
     (prettify-symbols-mode 1)))
-(add-hook 'c-mode-common-hook 'my-c-common-config)
+(add-hook 'c-mode-hook 'my-c-common-config)
+(add-hook 'c++-mode-hook 'my-c-common-config)
 #+END_SRC

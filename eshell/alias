@@ -1,9 +1,11 @@
-alias clean-white-spaces clean-white-spaces t $1
-alias la ls -la $*
-alias dd dired-other-window $1
-alias ll ls -l $*
-alias ff find-file-other-window $1
-alias ctw cygwin-to-win-path $1
-alias gc magit-commit
-alias g git status
+alias gl git pull $1 $2
+alias gp git push $1 $2
 alias ga git add $*
+alias g git status
+alias gc magit-commit
+alias ctw cygwin-to-win-path $1
+alias ff find-file-other-window $1
+alias ll ls -l $*
+alias dd dired-other-window $1
+alias la ls -la $*
+alias clean-white-spaces clean-white-spaces t $1
