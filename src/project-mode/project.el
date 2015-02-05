@@ -433,7 +433,7 @@ Valid form of \"pkgs\":
 \"glib\", \"glib python-2.7\", '(\"glib\" \"python-2.7\")
 
 Returns:
-Include paths of \"pkgs\", including \"-I\" flag."
+List of include paths of \"pkgs\", including \"-I\" flag."
   (when (and pkgs (executable-find "pkg-config"))
     (let ((c-include-paths nil)
           (pkgs (cond ((listp pkgs) pkgs)
@@ -450,6 +450,39 @@ Include paths of \"pkgs\", including \"-I\" flag."
                          (format "pkg-config --cflags-only-I %s" pkg)))))
        pkgs)
       c-include-paths)))
+
+(defun prj/c-include-paths-general (language)
+  "Get general C or C++ include paths.
+
+LANGUAGE: \"c\" or \"c++\".
+
+Returns:
+List of include paths, include \"-I\" flag."
+  (let (p1
+        p2
+        c-include-paths
+        (compiler
+         (cond ((string= "c" language) "gcc")
+               ((string= "c++" language) "g++")
+               (t (error (format "%s not supported!" language))))))
+    (when (executable-find compiler)
+      (with-temp-buffer
+        (insert (shell-command-to-string
+                 (format "echo \"\" | %s -v -x %s -E -" compiler language)))
+        (goto-char (point-min))
+        (search-forward "#include <...>")
+        (forward-line 1)
+        (setq p1 (line-beginning-position))
+        (search-forward "# 1")
+        (forward-line -2)
+        (setq p2 (line-end-position))
+        (setq c-include-paths
+              (split-string (buffer-substring-no-properties p1 p2)))
+        (add-to-list 'c-include-paths ".")))
+    (mapcar
+     (lambda (path)
+       (concat "-I" path))
+     c-include-paths)))
 
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
