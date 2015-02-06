@@ -134,7 +134,6 @@ Or you can use *M-x C-u run-python* command to run Python interpreter. Here
  "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 #+end_src
 
-
 ** Run Windows Python interpreter in Cygwin platform
 Don't do this. You will fall into a pit. If you have to, there are several
 ways:
@@ -183,4 +182,18 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
     (when (and start end)
       (indirect-region start end 'rst-mode))))
 (define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst)
+#+end_src
+** Key bindings
+
+#+begin_src emacs-lisp
+(evil-leader/set-key-for-mode 'python-mode
+  "sr" (lambda ()
+         (interactive)
+         (call-interactively 'python-shell-send-region))
+  "sf" (lambda ()
+         (interactive)
+         (call-interactively 'python-shell-send-defun))
+  "sb" (lambda ()
+         (interactive)
+         (call-interactively 'python-shell-send-buffer)))
 #+end_src
