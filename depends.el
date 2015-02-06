@@ -58,6 +58,7 @@
         hungry-delete
         wgrep
         c-eldoc
+        f90-eldoc
 
         ;; eshell, term
         em-cmpl
