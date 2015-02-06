@@ -14,8 +14,7 @@ Fortran is a major language for scientific computation but a minor for other.
     (setq prettify-symbols-alist
           '(("/=" . ?≠)
             (">=" . ?≥)
-            ("<=" . ?≤)
-            ("function" . ?ƒ)))
+            ("<=" . ?≤)))
     (prettify-symbols-mode 1)))
 (add-hook 'f90-mode-hook 'my-f90-config)
 #+END_SRC

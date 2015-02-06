@@ -39,6 +39,7 @@ Select checker for that flake8 is not always available.
 #+BEGIN_SRC emacs-lisp
 (defun my-flycheck-python-setup ()
   (when (and
+         (buffer-file-name)
          (equal 'python-mode major-mode)
          (not
           (member (file-name-nondirectory (buffer-file-name))
