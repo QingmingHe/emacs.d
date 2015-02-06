@@ -46,6 +46,23 @@ is pre-populated with some generally applicable aliases.
         (expand-file-name "./" (expand-file-name "eshell" starter-kit-dir)))
 #+end_src
 
+*** Eldoc
+
+#+begin_src emacs-lisp
+(defadvice eldoc-current-symbol (around eldoc-current-symbol-a activate)
+  ad-do-it
+  (when (and (not ad-return-value)
+             (eq major-mode 'eshell-mode))
+    (save-excursion
+      (goto-char eshell-last-output-end)
+      (let ((esym (eshell-find-alias-function (current-word)))
+            (sym (intern-soft (current-word))))
+        (setq ad-return-value (or esym sym))))))
+(defun eshell-turn-on-eldoc ()
+  (eldoc-mode 1))
+(add-hook 'eshell-mode-hook 'eshell-turn-on-eldoc)
+#+end_src
+
 *** Tips
 **** Multiple eshells
 You can create eshell by just *M-x eshell*, or if can run *C-u 2 M-x eshell*
