@@ -85,3 +85,22 @@ Another way to compile dwim is to set =compile-command= in project
    (define-key map (kbd "C-<f5>") 'run-gdb-dwim))
  `(,c-mode-map ,c++-mode-map ,f90-mode-map))
 #+end_src
+
+** Pdb
+
+#+begin_src emacs-lisp
+(defun run-pdb-dwim ()
+  (interactive)
+  (let* ((default-directory
+           (ido-read-directory-name
+            "Pdb working directory: "))
+         (fname (buffer-file-name))
+         (script
+          (ido-read-file-name
+           "Script to dubug: "
+           (file-name-directory fname)
+           (file-name-nondirectory fname))))
+    (pdb (format "python -m pdb %s" script))))
+
+(define-key python-mode-map (kbd "C-<f5>") 'run-pdb-dwim)
+#+end_src
