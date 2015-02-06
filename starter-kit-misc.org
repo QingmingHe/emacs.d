@@ -43,6 +43,7 @@ other data on the mode line.
 (eval-after-load "highlight-indentation"   '(diminish 'highlight-indentation-current-column-mode))
 (eval-after-load "hideshow"                '(diminish 'hs-minor-mode))
 (eval-after-load "whitespace-cleanup-mode" '(diminish 'whitespace-cleanup-mode))
+(eval-after-load "fic-mode"                '(diminish 'fic-mode))
 (diminish 'auto-fill-function)
 #+END_SRC
 

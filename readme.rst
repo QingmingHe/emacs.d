@@ -45,7 +45,7 @@ Third Party Packages Dependencies
 * `Evince`_ for pdf preview.
 * Fonts: Consolas for English and Microsoft Yahei for Chinese
 * `LaTeX`_ packages collections such as `TEX live`_
-* `Python`_, `IPython`_, flake8, jedi, numpy, h5py
+* `Python`_, `IPython`_, flake8, jedi, numpy, h5py, pdb
 * Tool chain for coding: cmake, make, automake, autoconf, gcc, clang,
   libclang, llvm, gdb
 * Git for version control
