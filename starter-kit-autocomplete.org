@@ -182,17 +182,17 @@ added.
 #+begin_src emacs-lisp
 (defun my-c-c++-ac-setup ()
   (when (derived-mode-p 'c-mode 'c++-mode)
-    (setq ac-sources
-          (append
-           '(ac-source-c-headers
-             ac-source-c-header-symbols)
-           ac-sources))
     (when (featurep 'auto-complete-etags)
       (add-to-list 'ac-sources 'ac-source-etags))
     (when (featurep 'auto-complete-gtags)
       (add-to-list 'ac-sources 'ac-source-gtags))
     (when (featurep 'auto-complete-clang)
-      (add-to-list 'ac-sources 'ac-source-clang))))
+      (add-to-list 'ac-sources 'ac-source-clang))
+    (setq ac-sources
+          (append
+           ac-sources
+           '(ac-source-c-headers
+             ac-source-c-header-symbols)))))
 (add-hook 'c-mode-hook 'my-c-c++-ac-setup)
 (add-hook 'c++-mode-hook 'my-c-c++-ac-setup)
 #+end_src
