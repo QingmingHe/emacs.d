@@ -44,61 +44,98 @@
                            (nth 5 (file-attributes (nth 2 global-out))))))))
     sym-plist))
 
-(defun f90-eldoc-should-update (sym sym-plist)
-  (let (yes? cache)
-    (if (setq cache (gethash sym f90-eldoc-cache))
-        (when (time-less-p (plist-get cache :mtime)
-                           (plist-get sym-plist :mtime))
-          (setq yes? t))
+(defun f90-eldoc-should-update (sym)
+  (let (yes? sym-plist)
+    (setq sym-plist (gethash sym f90-eldoc-cache))
+    (when (or
+           (and sym (not sym-plist))
+           (and sym-plist
+                (time-less-p
+                 (plist-get sym-plist :mtime)
+                 (nth 5 (file-attributes (plist-get sym-plist :file))))))
       (setq yes? t))
     yes?))
 
-(defun f90-eldoc-update (sym sym-plist)
-  (let (doc)
-    (with-temp-buffer
-      (erase-buffer)
-      (goto-char (point-min))
-      (insert-file-contents (plist-get sym-plist :file))
-      (goto-char (point-min))
-      (forward-line (1- (plist-get sym-plist :line)))
-      (while (looking-at ".*&[ \t]*$")
-        (f90-join-lines t))
-      (setq
-       doc
-       (buffer-substring-no-properties
-        (line-beginning-position) (line-end-position))))
-    (string-match
-     "[ \t]*\\(function\\|subroutine\\)[ \t]*\\(\\<.+\\>\\)[ \t]*(\\(.*\\))"
-     doc)
-    (put-text-property (match-beginning 1) (match-end 1) 'face
-                       font-lock-keyword-face doc)
-    (put-text-property (match-beginning 2) (match-end 2) 'face
-                       font-lock-function-name-face doc)
-    (put-text-property (match-beginning 3) (match-end 3) 'face
-                       font-lock-variable-name-face doc)
-    (puthash sym (plist-put sym-plist :doc doc) f90-eldoc-cache)))
+(defun f90-eldoc-update (sym arg-index)
+  (when sym
+    (let (doc sym-plist)
+      (setq sym-plist (f90-eldoc-get-sym-plist sym))
+      (when sym-plist
+        (if (string-match-p "&" (plist-get sym-plist :doc))
+            (with-temp-buffer
+              (erase-buffer)
+              (goto-char (point-min))
+              (insert-file-contents (plist-get sym-plist :file))
+              (goto-char (point-min))
+              (forward-line (1- (plist-get sym-plist :line)))
+              (while (looking-at ".*&[ \t]*$")
+                (f90-join-lines t))
+              (setq
+               doc
+               (buffer-substring-no-properties
+                (line-beginning-position) (line-end-position))))
+          (setq doc (plist-get sym-plist :doc)))
+        (setq sym-plist (plist-put sym-plist :doc doc))
+        (setq sym-plist (f90-eldoc-font-lock sym-plist arg-index))
+        (puthash sym sym-plist f90-eldoc-cache))
+      sym-plist)))
+
+(defun f90-eldoc-font-lock (sym-plist arg-index)
+  (when sym-plist
+    (let (last-pos
+          current-arg-index
+          (arg-index (or arg-index -1)))
+      (with-temp-buffer
+        (erase-buffer)
+        (goto-char (point-min))
+        (insert (plist-get sym-plist :doc))
+        (goto-char (point-min))
+        (setq last-pos (point))
+        (when (re-search-forward "\\(function\\|subroutine\\)" nil t)
+          (put-text-property last-pos (point) 'face font-lock-keyword-face))
+        (setq last-pos (point))
+        (when (re-search-forward "(" nil t)
+          (put-text-property last-pos (1- (point))
+                             'face font-lock-function-name-face))
+        (setq last-pos (point))
+        (setq current-arg-index 0)
+        (while (re-search-forward "[,)]" nil t)
+          (setq current-arg-index (1+ current-arg-index))
+          (if (= current-arg-index arg-index)
+              (put-text-property last-pos (1- (point)) 'face 'bold)
+            (put-text-property last-pos (1- (point)) 'face
+                               font-lock-variable-name-face))
+          (setq last-pos (point)))
+        (setq sym-plist (plist-put sym-plist :doc (buffer-string))))
+      sym-plist)))
+
+(defun f90-eldoc-args-index (beg)
+  (when beg
+    (let ((index 1))
+      (save-excursion
+        (while (re-search-backward "\\<.+\\>[ \t]*\\((.*)\\)?[ \t]*," beg t)
+          (setq index (1+ index))))
+      index)))
 
 (defun f90-eldoc-function ()
   (let (sym
         sym-plist
+        args-index
         (sp (syntax-ppss)))
     (unless (nth 4 sp)
       (save-excursion
         (unless (eq 0 (nth 0 sp))
           (goto-char (nth 1 sp)))
         (unless (looking-back "\\(function\\|subroutine\\).*")
-          (setq sym (symbol-at-point))
-          (setq sym-plist (f90-eldoc-get-sym-plist sym))))
-      (if (and
-           sym
-           sym-plist
-           (string-match-p
-            "\\(function\\|subroutine\\)" (plist-get sym-plist :doc)))
-          (progn
-            (when (f90-eldoc-should-update sym sym-plist)
-              (f90-eldoc-update sym sym-plist))
-            (setq sym-plist (gethash sym f90-eldoc-cache)))
-        (setq sym nil sym-plist nil)))
+          (setq sym (symbol-at-point))))
+      (when (and sym (not (eq 0 (nth 0 sp))))
+        (setq args-index (f90-eldoc-args-index (nth 1 sp))))
+      (if (f90-eldoc-should-update sym)
+          (setq sym-plist (f90-eldoc-update sym args-index))
+        (setq sym-plist
+              (f90-eldoc-font-lock
+               (gethash sym f90-eldoc-cache)
+               args-index))))
     (plist-get sym-plist :doc)))
 
 (provide 'f90-eldoc)
