@@ -1,14 +1,64 @@
-;;;
+;;; f90-eldoc.el --- Show API of Fortran functions through eldoc.
+;;
+;; Copyright (C) 2015 Qingming He
+;;
+;; Author: Qingming He <906459647@qq.com>
+;; Keywords: convenience
+;; Version: dev
+;;
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation; either version 2, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+;;
+;;; Commentary:
+;;
+;; To use it, you should:
+;; 1. Install GNU global compiled with CTAGS support.
+;; 2. Copy gtags.conf to ~/.glocalrc.
+;; 3. Run gtags at your project root like this:
+;;    gtags --gtagslabel=ctags --gtagsconf=~/.globalrc
+;;
+;; Then, add to your ~/.emacs or ~/.emacs.d/init.el:
+;; (require 'f90-eldoc)
+;; (add-hook 'f90-mode-hook 'f90-turn-on-eldoc-mode)
+;; Or if you only want to turn it on for your project `f90-mode' buffers,
+;; create a file .dir-locals at project root and write to it:
+;; ((f90-mode . ((eval . (f90-turn-on-eldoc-mode)))))
+;;
+;;; Code:
 
 (require 'f90)
 (require 'eldoc)
 
 (defvar f90-eldoc-global-exec (executable-find "global")
-  "Executable of global.")
+  "Executable of GNU global.")
 
-(setq f90-eldoc-cache (make-hash-table :test 'equal))
+(defvar f90-eldoc-cache (make-hash-table :test 'equal)
+  "F90 eldoc hash table cache. The keys of table are function or subroutine names
+(symbols), the corresponding value is a plist containing \":line\", \":file\",
+\"doc\", \":mtime\" properties. Value of these properties are:
+
+\":line\": at which line is the function or subroutine defined.
+\":file\": in which file is the function or subroutine defined.
+\":doc\": API documentation of the function or subroutine.
+\":mtime\": the last time the \":file\" was modified.")
 
 (defun f90-eldoc-get-sym-plist (sym)
+  "Get plist for given SYM by GNU global. For detailed description of the
+plist and SYM, see `f90-eldoc-cache'.
+
+The \":doc\" obtained in this function has no properties which are added in
+`f90-eldoc-font-lock'. If more than one definitions are found for SYM, only
+the first one is returned."
   (let (global-out sym-plist fn-tag)
     (when sym
       (setq global-out
@@ -45,6 +95,10 @@
     sym-plist))
 
 (defun f90-eldoc-should-update (sym)
+  "Whether API documentation for SYM should be updated. If should, return t,
+otherwise return nil. The condition for updating is SYM not in
+`f90-eldoc-cache' or \":file\" in `f90-eldoc-cache' is older than the current
+one. This is realized by comparing \":mtime\"."
   (let (yes? sym-plist)
     (setq sym-plist (gethash sym f90-eldoc-cache))
     (when (or
@@ -57,6 +111,8 @@
     yes?))
 
 (defun f90-eldoc-update (sym kw-or-i)
+  "Update API documentation for SYM. KW-OR-I is key word of argument of index
+of argument at point."
   (when sym
     (let (doc sym-plist)
       (setq sym-plist (f90-eldoc-get-sym-plist sym))
@@ -81,6 +137,13 @@
       sym-plist)))
 
 (defun f90-eldoc-font-lock (sym-plist kw-or-i)
+  "Add text properties to API documentation. SYM-PLIST is a plist for SYM, see
+also `f90-eldoc-cache'. KW-OR-I is key word of argument of index of argument
+at point.
+
+All words before function or subroutine name are put `font-lock-keyword-face';
+function or subroutine name is put `font-lock-function-name-face'; the
+argument at point `bold'; other arguments `font-lock-variable-name-face'."
   (when sym-plist
     (let (last-pos
           current-arg-index
@@ -118,6 +181,10 @@
       sym-plist)))
 
 (defun f90-eldoc-args-index-or-kw (beg)
+  "Get key word argument or index of argument at point. BEG is the beginning
+of the argument list which should be the point after function or subroutine
+name. If a key word found, return the key word, otherwise return the index of
+argument at point."
   (let (lbnd rbnd index kword)
     (save-excursion
       (setq lbnd (re-search-backward "[,(]" beg t)))
@@ -136,6 +203,12 @@
     (or kword index)))
 
 (defun f90-eldoc-function ()
+  "Return a API documentation for current context or nil. Following conditions
+should be satisfied to return an API doc:
+1. Point not in comment;
+2. Point not in function or subroutine definition context;
+3. Point not within function or subroutine usage context;
+4. A function or subroutine name can be found."
   (let (sym
         sym-plist
         kw-or-i
@@ -156,4 +229,14 @@
                kw-or-i))))
     (plist-get sym-plist :doc)))
 
+(defun f90-turn-on-eldoc-mode ()
+  "Turn on eldoc mode for `f90-mode'. Set buffer local
+`eldoc-documentation-function' to be `f90-eldoc-function'."
+  (interactive)
+  (when (eq major-mode 'f90-mode)
+    (eldoc-mode 1)
+    (setq-local eldoc-documentation-function 'f90-eldoc-function)))
+
 (provide 'f90-eldoc)
+
+;;; f90-eldoc.el ends here
