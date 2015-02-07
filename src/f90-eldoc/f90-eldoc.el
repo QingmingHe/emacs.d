@@ -112,7 +112,7 @@ one. This is realized by comparing \":mtime\"."
 
 (defun f90-eldoc-update (sym kw-or-i)
   "Update API documentation for SYM. KW-OR-I is key word of argument of index
-of argument at point."
+of argument at point. Returns plist for SYM."
   (when sym
     (let (doc sym-plist)
       (setq sym-plist (f90-eldoc-get-sym-plist sym))
@@ -185,7 +185,7 @@ argument at point `bold'; other arguments `font-lock-variable-name-face'."
 of the argument list which should be the point after function or subroutine
 name. If a key word found, return the key word, otherwise return the index of
 argument at point."
-  (let (lbnd rbnd index kword)
+  (let (lbnd rbnd index kword pos last-pos)
     (save-excursion
       (setq lbnd (re-search-backward "[,(]" beg t)))
     (save-excursion
@@ -198,9 +198,28 @@ argument at point."
     (unless kword
       (setq index 1)
       (save-excursion
-        (while (re-search-backward "[a-zA-Z0-9_]+[ \t]*\\((.*)\\)?[ \t]*," beg t)
-          (setq index (1+ index)))))
+        (setq last-pos (point))
+        (while (setq pos (re-search-backward "," beg t))
+          (if (string-match
+               ")"
+               (buffer-substring-no-properties pos last-pos))
+              (re-search-backward "(" beg t)
+            (setq index (1+ index)))
+          (setq last-pos (point)))))
     (or kword index)))
+
+(defun f90-eldoc-beginning-of-statement ()
+  "Go to the beginning of current statement. Returns point."
+  (interactive)
+  (let (pos)
+    (catch 'no-conti-line
+      (while t
+        (setq pos (forward-line -1))
+        (unless (looking-at ".*&")
+          (when (zerop pos)
+            (forward-line 1))
+          (throw 'no-conti-line t)))))
+  (point))
 
 (defun f90-eldoc-function ()
   "Return a API documentation for current context or nil. Following conditions
@@ -212,12 +231,18 @@ should be satisfied to return an API doc:
   (let (sym
         sym-plist
         kw-or-i
-        (sp (syntax-ppss)))
+        (sp
+         (parse-partial-sexp
+          (save-excursion
+            (f90-eldoc-beginning-of-statement))
+          (point))))
     (unless (nth 4 sp)
       (save-excursion
         (unless (eq 0 (nth 0 sp))
           (goto-char (nth 1 sp)))
-        (unless (looking-back "\\(function\\|subroutine\\).*")
+        (unless (save-excursion
+                  (beginning-of-line)
+                  (looking-at ".*\\(function\\|subroutine\\)"))
           (setq sym (symbol-at-point))))
       (when (and sym (not (eq 0 (nth 0 sp))))
         (setq kw-or-i (f90-eldoc-args-index-or-kw (nth 1 sp))))
