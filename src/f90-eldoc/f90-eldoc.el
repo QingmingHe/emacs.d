@@ -109,11 +109,29 @@
         (setq sym-plist (plist-put sym-plist :doc (buffer-string))))
       sym-plist)))
 
+(defun f90-eldoc-args-index-or-kw (beg end)
+  (let (lbnd rbnd index kword)
+    (save-excursion
+      (setq lbnd (re-search-backward "[,(]" beg t)))
+    (save-excursion
+      (setq rbnd (re-search-forward "[,)]" end t)))
+    (when (and lbnd rbnd)
+      (save-excursion
+        (goto-char lbnd)
+        (when (re-search-forward "[ \t]*\\([a-zA-Z0-9_]+\\).*=" rbnd nil)
+          (setq kword (downcase (match-string 1))))))
+    (unless kword
+      (setq index 0)
+      (save-excursion
+        (while (re-search-backward "\\((.*)\\)?[ \t]*[,(]" beg t)
+          (setq index (1+ index)))))
+    (or kword index)))
+
 (defun f90-eldoc-args-index (beg)
   (when beg
-    (let ((index 1))
+    (let ((index 0))
       (save-excursion
-        (while (re-search-backward "\\<.+\\>[ \t]*\\((.*)\\)?[ \t]*," beg t)
+        (while (re-search-backward "\\((.*)\\)?[ \t]*[,(]" beg t)
           (setq index (1+ index))))
       index)))
 
