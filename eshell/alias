@@ -1,5 +1,4 @@
-alias gl git pull $1 $2
-alias gp git push $1 $2
+alias gm magit-merge $*
 alias ga git add $*
 alias g git status
 alias gc magit-commit
@@ -9,3 +8,6 @@ alias ll ls -l $*
 alias dd dired-other-window $1
 alias la ls -la $*
 alias clean-white-spaces clean-white-spaces t $1
+alias gp git push $*
+alias gl git pull $*
+alias gb git branch $*
