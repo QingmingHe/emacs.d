@@ -221,6 +221,14 @@ argument at point."
           (throw 'no-conti-line t)))))
   (point))
 
+(defun f90-eldoc-symbol-at-point-nop ()
+  "Get symbol at point without properties."
+  (let* ((bnd (bounds-of-thing-at-point 'symbol))
+         (p0 (car bnd))
+         (p1 (cdr bnd)))
+    (when (and p0 p1)
+      (buffer-substring-no-properties p0 p1))))
+
 (defun f90-eldoc-function ()
   "Return a API documentation for current context or nil. Following conditions
 should be satisfied to return an API doc:
@@ -243,7 +251,7 @@ should be satisfied to return an API doc:
         (unless (save-excursion
                   (beginning-of-line)
                   (looking-at ".*\\(function\\|subroutine\\)"))
-          (setq sym (symbol-at-point))))
+          (setq sym (f90-eldoc-symbol-at-point-nop))))
       (when (and sym (not (eq 0 (nth 0 sp))))
         (setq kw-or-i (f90-eldoc-args-index-or-kw (nth 1 sp))))
       (if (f90-eldoc-should-update sym)
@@ -261,6 +269,15 @@ should be satisfied to return an API doc:
   (when (eq major-mode 'f90-mode)
     (eldoc-mode 1)
     (setq-local eldoc-documentation-function 'f90-eldoc-function)))
+
+(defun f90-eldoc-force-update (arg)
+  "Update `f90-eldoc-cache' interactively. With prefix ARG, clean
+`f90-eldoc-cache' absolutely, otherwise remove
+(`f90-eldoc-symbol-at-point-nop') from `f90-eldoc-cache'."
+  (interactive "p")
+  (if arg
+      (setq f90-eldoc-cache (make-hash-table :test 'equal))
+    (remhash (f90-eldoc-symbol-at-point-nop) f90-eldoc-cache)))
 
 (provide 'f90-eldoc)
 
