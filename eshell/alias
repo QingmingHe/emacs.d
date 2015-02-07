@@ -1,3 +1,4 @@
+alias gch git checkout $*
 alias gm magit-merge $*
 alias ga git add $*
 alias g git status
