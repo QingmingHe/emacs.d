@@ -30,7 +30,7 @@
 ;; Then, add to your ~/.emacs or ~/.emacs.d/init.el:
 ;; (require 'f90-eldoc)
 ;; (add-hook 'f90-mode-hook 'f90-turn-on-eldoc-mode)
-;; Or if you only want to turn it on for your project `f90-mode' buffers,
+;; Or if you want to turn it on only for buffers of project in `f90-mode',
 ;; create a file .dir-locals at project root and write to it:
 ;; ((f90-mode . ((eval . (f90-turn-on-eldoc-mode)))))
 ;;
