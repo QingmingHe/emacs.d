@@ -139,9 +139,41 @@ Rgrep is infinitely useful in multi-file projects.
    ,org-mode-map
    ,text-mode-map))
 #+end_src
+
 ** Kill and yank
 
 You can also use *M-w* =kill-ring-save=.
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-c k") 'copy-region-as-kill)
+#+end_src
+
+** Move beginning of line
+
+This function is copied form prelude. The differences are:
++ It moves to previous char position of indentation instead of
+  indentation. This favors inserting new word at beginning of line.
++ If there is no white space between indentation and beginning, create a white
+  space and go to beginning of line.
+
+#+begin_src emacs-lisp
+(defun move-beginning-of-line-dwim (arg)
+  "Move point to previous char position of indentation or beginning of line."
+  (interactive "^p")
+  (setq arg (or arg 1))
+  (when (/= arg 1)
+    (let ((line-move-visual nil))
+      (forward-line (1- arg))))
+  (let ((orig-point (point)))
+    (back-to-indentation)
+    (when (looking-back "[ \t]+" (line-beginning-position))
+      (backward-char 1))
+    (when (= orig-point (point))
+      (if (and
+           (looking-back "^" (line-beginning-position))
+           (looking-at "[^ \t\n]"))
+          (progn
+            (insert " ")
+            (backward-char 1))
+        (move-beginning-of-line 1)))))
+(global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
 #+end_src
