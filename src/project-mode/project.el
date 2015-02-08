@@ -18,6 +18,12 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
+;;
+;;; TODO
+;; + Commentary
+;; + prj/helm-mini: eshell command on project file/buffer(s)
+;; + prj/helm-mini: copy/insert file name
+;; + prj/helm-mini: source of useful commands
 
 (require 'project-root)
 (require 'etags-update)
@@ -27,9 +33,13 @@
 (defvar prj/use-helm-if-possible t
   "Use helm for completing if possible.")
 
-(defvar prj/use-gtags (if (executable-find "gtags")
-                          t
-                        nil)
+(defvar prj/helm-mini-include-bookmarks t
+  "Whether include `helm-source-bookmarks' in `prj/helm-mini'.")
+
+(defvar prj/helm-mini-include-commands t
+  "Whether include source of some useful commands in `prj/helm-mini'.")
+
+(defvar prj/use-gtags (if (executable-find "gtags") t nil)
   "Use gtags or ctags?")
 
 (defvar prj/gtags-conf-file-guess
@@ -433,6 +443,8 @@ project root, otherwise prj can't update tags file."
           "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
           gtags-label gtags-conf fname))))))
 
+;;; project compiler flags
+
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
   (if prj/use-gtags
@@ -464,8 +476,6 @@ List of include paths of \"pkgs\", including \"-I\" flag."
                          (format "pkg-config --cflags-only-I %s" pkg)))))
        pkgs)
       c-include-paths)))
-
-;;; project compiler flags
 
 (defun prj/c-include-paths-general (language)
   "Get general C or C++ include paths.
@@ -584,6 +594,21 @@ List of include paths, include \"-I\" flag."
          (format "%s | xargs ctags -e -f %s -a"
                  (project-root-find-cmd) tags-file))))))
 
+(defun prj/helm-create-new-file (file)
+  (let* ((p (project-root-fetch))
+         (default-directory (cdr p)))
+    (let ((default-directory
+            (ido-read-directory-name "Directory: ")))
+      (when (not (file-exists-p default-directory))
+        (mkdir default-directory))
+      (find-file (read-string "File name: ")))))
+
+(defun prj/helm-files-candidates ()
+  (let ((p (project-root-fetch)))
+    (when p
+      (let ((default-directory (cdr p)))
+        (project-root-files)))))
+
 (defun prj/helm-mini ()
   (interactive)
   (helm :sources `(((name . "Project Buffers")
@@ -595,17 +620,19 @@ List of include paths, include \"-I\" flag."
                               ("Multi occur on buffer(s)" . prj/helm-multi-occur)
                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop))))
                    ((name . "Project Files")
-                    (candidates . (lambda ()
-                                    (with-project-root
-                                        (project-root-files))))
+                    (candidates . prj/helm-files-candidates)
                     (action . (("Find file(s)" . prj/helm-find-files)
                                ("Find file other window" . find-file-other-window)
                                ("Grep files" . prj/helm-grep-files))))
+                   ((name . "Create New File")
+                    (dummy)
+                    (action . prj/helm-create-new-file))
                    ((name . "Seen Projects")
                     (candidates . ,project-root-seen-projects)
                     (action . (("Find project root in Dired" . find-file)
                                ("Generate TAGS" . prj/helm-gen-gtags))))
-                   helm-source-bookmarks)
+                   ,(when prj/helm-mini-include-bookmarks
+                      helm-source-bookmarks))
         :buffer "*project helm mini*"))
 
 ;;; project minor/global mode

@@ -117,7 +117,6 @@ back.
          (cond ((eq major-mode 'org-mode)
                 (helm-org-headlines))
                (t (call-interactively 'helm-semantic-or-imenu))))
-  "mt" 'prj/generate-tags
   "vt" (lambda ()
          (interactive)
          (unless prj/use-gtags
@@ -127,17 +126,13 @@ back.
   "w" 'ace-jump-word-mode
   "l" 'ace-jump-line-mode
   "sw" 'helm-swoop
-  "hr" 'helm-resume
   "oc" 'occur-dwim
   "qr" 'quickrun
-  "iw" 'ispell-word
-  "pf" 'prj/find-file
-  "pg" 'prj/grep)
+  "iw" 'ispell-word)
 #+END_SRC
 
 *** Insert state map
 #+begin_src emacs-lisp
-(define-key evil-insert-state-map (kbd "C-a") 'move-beginning-of-line)
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-y") 'yank)
 #+end_src
