@@ -22,8 +22,8 @@ start.
   (defun server-ensure-safe-dir (dir) "Noop" t)
   (unless (file-exists-p "/tmp/emacs500")
     (mkdir "/tmp/emacs500")))
-(unless (server-running-p)
-  (server-start))
+;; (unless (server-running-p)
+;;   (server-start))
 #+END_SRC
 
 ** Diminish minor modes
@@ -367,7 +367,8 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 ** Flyspell
 
 To fix error like this, change environment variable =LANG='s value to
-=en_US.UTF-8=.
+=en_US=. For Cygwin Users, delete =LACALE= variable in =~/.minttyrc= so that
+Mintty will use value set by =LANG= environment variable.
 #+begin_quote
 Error enabling Flyspell mode:
 (错误：No word lists can be found for the language "zh_CN".)
@@ -392,4 +393,9 @@ it's possible aspell isn't in your path
                          nil iso-8859-1)))
           `((nil ,@default)
             ("english" ,@default))))
+#+end_src
+*** Personal dictionary
+
+#+begin_src emacs-lisp
+(setq ispell-personal-dictionary (concat starter-kit-dir ".aspell.en.pws"))
 #+end_src

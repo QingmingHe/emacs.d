@@ -18,28 +18,48 @@ vertically by default.
 (setq split-width-threshold 160)
 #+END_SRC
 
-** Font size
-#+begin_src emacs-lisp
-(set-face-attribute 'default (selected-frame) :height 120)
-#+end_src
-
 ** Font for English and Chinese
 
-The author use emacs by "emacs -nw" and let the terminal handle the fonts. Or
-the English font will be Consolas and Chinese font be Microsoft Yahei.
-
 #+BEGIN_SRC emacs-lisp
-(when (and
-       (window-system)
-       (or *win32* *cygwin*))
-  (progn
-    (set-face-attribute
-     'default nil :font "Consolas")
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font)
-                        charset
-                        (font-spec :family "Microsoft Yahei" :size 14)))))
+(set-face-attribute 'default (selected-frame) :height 120)
+(when (window-system)
+  (catch 'en-font-found
+    (mapc
+     (lambda (ft)
+       (when (x-list-fonts ft)
+         (set-face-attribute
+          'default nil :font ft)
+         (throw 'en-font-found ft)))
+ '("Inconsolata" "Consolas")))
+  (catch 'zh-font-found
+    (mapc
+     (lambda (ft)
+       (when (x-list-fonts ft)
+         (dolist (charset '(kana han symbol cjk-misc bopomofo))
+           (set-fontset-font (frame-parameter nil 'font)
+                             charset
+                             (font-spec :family ft :size 14)))
+         (throw 'zh-font-found ft)))
+     '("WenQuanYi Micro Hei Mono" "Microsoft Yahei"))))
 #+END_SRC
+
+*** Install font
+
+**** Windows
+
+Open Windows explorer and enter =C:\WINDOWS\fonts= -> file -> install new font
+-> click the font file.
+
+**** Linux
+
++ Install fontconfig.
++ Copy font file to =~/.fonts/=.
++ Shell command: fc-cache ~/.fonts/
+
+*** TODO WenQuanYi
+
+WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
+(x-list-fonts "WenQuanYi Micro Hei") returns nil.
 
 ** Fringe
 

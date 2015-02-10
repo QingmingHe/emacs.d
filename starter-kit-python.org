@@ -34,7 +34,8 @@ To use my configuration, set JEDI_SERVER environment to be
       (mkdir (expand-file-name "~/bin")))
     (copy-file
      (concat (file-name-directory (locate-library "jedi")) "jediepcserver.py")
-     (expand-file-name "~/bin/jediepcserver.py"))
+     (expand-file-name "~/bin/jediepcserver.py")
+     t)
     (chmod (expand-file-name "~/bin/jediepcserver.py") 755)))
 (my-jedi-install)
 

@@ -1,5 +1,5 @@
 ;;; flycheck-fortran-gfortran-zh.el --- A plugin for flycheck.el to check
-;;; Fortran with gfortran. Error messages in Chinese are supported.
+;;; Fortran with gfortran. Error messages in Chinese are recognized.
 
 ;; Copyright (c) 2015 Qingming He <906459647@qq.com>
 ;; Copyright (C) 2015 Free Software Foundation, Inc.
@@ -26,12 +26,15 @@
 
 ;;; Commentary:
 
-;; A flycheck plugin to support gfortran Chinese error messages. To use it,
-;; add to your init.el:
+;; A flycheck plugin to recognize gfortran error messages in Chiniese. To use
+;; it, add to your init.el:
 ;; (require 'flycheck-fortran-gfortran-zh)
 ;; (add-hook 'f90-mode-hook #'(lambda ()
 ;;           (flycheck-mode)
 ;;           (flycheck-select-checker 'fortran-gfortran-zh)))
+;;
+;; Or if you don't want GCC report errors and warnings in Chinese, set LANG
+;; environment variable to be "en_US".
 
 ;;; Code:
 
