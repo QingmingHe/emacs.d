@@ -33,11 +33,16 @@
 (defvar prj/use-helm-if-possible t
   "Use helm for completing if possible.")
 
-(defvar prj/helm-mini-include-bookmarks t
-  "Whether include `helm-source-bookmarks' in `prj/helm-mini'.")
+(defvar prj/helm-mini-include-bookmarks nil
+  "Whether include `helm-source-bookmarks' in `prj/helm-mini'. This variable
+should be set before load this library.")
 
 (defvar prj/helm-mini-include-commands t
   "Whether include source of some useful commands in `prj/helm-mini'.")
+
+(defvar prj/helm-candidate-number-limit 9999
+  "Limit of helm candidates. This variable should be set before load this
+library.")
 
 (defvar prj/use-gtags (if (executable-find "gtags") t nil)
   "Use gtags or ctags?")
@@ -396,20 +401,22 @@ project root, otherwise prj can't update tags file."
      (format "%s | xargs ctags -e -f %s -a"
              (project-root-find-cmd) tags-file))))
 
-(defun prj/get-gtags-label ()
+(defun prj/get-gtags-label (&optional p)
   "Get gtags label."
-  (or (getenv "GTAGSLABEL")
-      (project-root-data :gtags-label p)
-      (ido-completing-read
-       "Gtags label (You'd better set :gtags-label in project-roots): "
-       prj/gtags-label-choices)))
+  (let ((p (or p (project-root-fetch))))
+    (or (getenv "GTAGSLABEL")
+        (project-root-data :gtags-label p)
+        (ido-completing-read
+         "Gtags label (You'd better set :gtags-label in project-roots): "
+         prj/gtags-label-choices))))
 
-(defun prj/get-gtags-conf ()
+(defun prj/get-gtags-conf (&optional p)
   "Get gtags conf."
-  (or (getenv "GTAGSCONF")
-      (project-root-data :gtags-conf p)
-      prj/gtags-conf-file
-      (ido-read-file-name "Gtags configuration file: ")))
+  (let ((p (or p (project-root-fetch))))
+    (or (getenv "GTAGSCONF")
+        (project-root-data :gtags-conf p)
+        prj/gtags-conf-file
+        (ido-read-file-name "Gtags configuration file: "))))
 
 (defun prj/generate-gtags ()
   "Run gtags at user specified path."
@@ -577,8 +584,8 @@ List of include paths, include \"-I\" flag."
                            (helm-marked-candidates)
                            " "))))
 
-(defun prj/helm-gen-gtags (p)
-  (let ((default-directory (cdr p)))
+(defun prj/helm-gen-gtags (proot)
+  (let ((default-directory proot))
     (if (y-or-n-p "Use GNU global? ")
         (shell-command
          (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
@@ -612,15 +619,17 @@ List of include paths, include \"-I\" flag."
 (defun prj/helm-mini ()
   (interactive)
   (helm :sources `(((name . "Project Buffers")
-                   (candidates . prj/helm-buffers-candidates)
-                   (action . (("Switch to buffer" . switch-to-buffer)
-                              ("Switch to buffer other window" . switch-to-buffer-other-window)
-                              ("Save buffer(s)" . prj/helm-save-buffers)
-                              ("Kill buffer(s)" . prj/helm-kill-buffers)
-                              ("Multi occur on buffer(s)" . prj/helm-multi-occur)
-                              ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop))))
+                    (candidates . prj/helm-buffers-candidates)
+                    (candidate-number-limit . ,prj/helm-candidate-number-limit)
+                    (action . (("Switch to buffer" . switch-to-buffer)
+                               ("Switch to buffer other window" . switch-to-buffer-other-window)
+                               ("Save buffer(s)" . prj/helm-save-buffers)
+                               ("Kill buffer(s)" . prj/helm-kill-buffers)
+                               ("Multi occur on buffer(s)" . prj/helm-multi-occur)
+                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop))))
                    ((name . "Project Files")
                     (candidates . prj/helm-files-candidates)
+                    (candidate-number-limit . ,prj/helm-candidate-number-limit)
                     (action . (("Find file(s)" . prj/helm-find-files)
                                ("Find file other window" . find-file-other-window)
                                ("Grep files" . prj/helm-grep-files))))

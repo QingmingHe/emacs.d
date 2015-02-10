@@ -140,13 +140,6 @@ Rgrep is infinitely useful in multi-file projects.
    ,text-mode-map))
 #+end_src
 
-** Kill and yank
-
-You can also use *M-w* =kill-ring-save=.
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-c k") 'copy-region-as-kill)
-#+end_src
-
 ** Move beginning of line
 
 This function is copied form prelude. The differences are:
