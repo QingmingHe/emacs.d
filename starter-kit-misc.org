@@ -16,17 +16,20 @@ Things that don't fit anywhere else.
 
 On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
 redefine server-ensure-safe-dir function to suppress this kind of error.
-Besides, you should make "/tmp/emacs500" directory manually or server cannot
-start.
+Besides, you should make =server-socket-dir= directory manually or server
+cannot start. After server started, summon Emacs in terminal by:
+#+begin_src sh :tangle no
+emacsclient -t FILE
+#+end_src
+
 #+BEGIN_SRC emacs-lisp
 (when (or *win32* *cygwin*)
   (defun server-ensure-safe-dir (dir) "Noop" t)
-  (unless (file-exists-p "/tmp/emacs500")
-    (mkdir "/tmp/emacs500")))
-;; (unless (server-running-p)
-;;   (server-start))
+  (unless (file-exists-p server-socket-dir)
+    (mkdir server-socket-dir)))
+(unless (server-running-p)
+  (server-start))
 #+END_SRC
-*** TODO determine which directory to create.
 
 ** Diminish minor modes
 
