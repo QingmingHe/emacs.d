@@ -60,6 +60,7 @@
         c-eldoc
         f90-eldoc
         cmuscheme
+        ahk-mode
 
         ;; eshell, term
         em-cmpl
