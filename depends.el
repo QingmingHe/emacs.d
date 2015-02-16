@@ -59,6 +59,7 @@
         wgrep
         c-eldoc
         f90-eldoc
+        cmuscheme
 
         ;; eshell, term
         em-cmpl
