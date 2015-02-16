@@ -170,3 +170,17 @@ This function is copied form prelude. The differences are:
         (move-beginning-of-line 1)))))
 (global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
 #+end_src
+
+** Auto Hot Key
+
+To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
+*capslock* every time you start up PC:
++ Click the Start button Picture of the Start button , click All Programs,
+  right-click the Startup folder, and then click Open.
++ Right-click the [[~/.emacs.d/emacs-ctrl.ahk][emacs-ctrl.ahk]] script, and then click Create Shortcut. The
+  new shortcut appears in the same location as the original item.
++ Drag the shortcut into the Startup folder.
+
+#+begin_src emacs-lisp
+(setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
+#+end_src

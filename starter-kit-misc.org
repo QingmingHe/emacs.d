@@ -401,8 +401,3 @@ it's possible aspell isn't in your path
 #+begin_src emacs-lisp
 (setq ispell-personal-dictionary (concat starter-kit-dir ".aspell.en.pws"))
 #+end_src
-** Auto Hot Key
-
-#+begin_src emacs-lisp
-(setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
-#+end_src
