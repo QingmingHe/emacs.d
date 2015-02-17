@@ -84,3 +84,23 @@ Use smartparens to handle curly braces and block comment.
   (sp-local-pair "/*" "*/" :post-handlers '((sp-cc-var-comment "SPC")
                                             (sp-cc-block-comment "RET"))))
 #+end_src
+
+** Show function name in the header line
+
+#+begin_src emacs-lisp
+(setq which-func-modes
+      '(python-mode c-mode c++-mode f90-mode fortran-mode emacs-lisp-mode
+                    org-mode perl-mode ruby-mode scheme-mode))
+(defun starter-kit-which-func-format ()
+  (setq-local which-func-unknown "n/a")
+  (setq-local header-line-format
+              '((which-func-mode ("" which-func-format " "))))
+  (setq-local mode-line-misc-info
+              (assq-delete-all 'which-func-mode mode-line-misc-info)))
+(mapc
+ (lambda (mode)
+   (add-hook (intern (format "%s-hook" (symbol-name mode)))
+             'starter-kit-which-func-format))
+ which-func-modes)
+(which-function-mode 1)
+#+end_src

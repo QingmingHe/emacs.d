@@ -134,16 +134,21 @@ previously visited the same file.
 
 ** tabs, imenu
 #+begin_src emacs-lisp
-  (set-default 'indent-tabs-mode nil)
-  (set-default 'indicate-empty-lines t)
-  (set-default 'imenu-auto-rescan t)
+(set-default 'indent-tabs-mode nil)
+(set-default 'indicate-empty-lines t)
 
-  (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  (add-hook 'text-mode-hook 'turn-on-flyspell)
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'text-mode-hook 'turn-on-flyspell)
 
-  (defalias 'yes-or-no-p 'y-or-n-p)
-  ;; Seed the random-number generator
-  (random t)
+(defalias 'yes-or-no-p 'y-or-n-p)
+;; Seed the random-number generator
+(random t)
+
+;; auto rescan after saving file
+(defun starter-kit-imenu-rescan ()
+  (interactive)
+  (imenu--menubar-select imenu--rescan-item))
+(add-hook 'after-save-hook 'starter-kit-imenu-rescan)
 #+end_src
 
 ** Hippie expand: at times perhaps too hip

@@ -1,4 +1,4 @@
-#+TITLE: Starter Kit Python
+#+TITLE: Starter Kit Dired
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Dired
