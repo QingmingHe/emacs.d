@@ -292,3 +292,14 @@ or =defcustom= with =setq= or use =eval-defun=.
     (dired-get-marked-files)))
 #+end_src
 
+** Copy file name
+
+#+begin_src emacs-lisp
+(defun copy-buffer-file-name-as-kill ()
+  "Copy file name of current buffer to kill ring."
+  (interactive)
+  (let ((fname (buffer-file-name)))
+    (when fname
+      (kill-new fname)
+      (message fname))))
+#+end_src

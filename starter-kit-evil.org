@@ -28,6 +28,7 @@ otherwise evil-leader won't be enabled in initial buffers (*scratch*,
 Set evil mode globally for that the author is a severe Vim user for the past
 several years.
 #+BEGIN_SRC emacs-lisp
+(setq evil-symbol-word-search t)
 (require 'evil)
 (evil-mode 1)
 #+END_SRC
@@ -73,7 +74,7 @@ back.
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 #+END_SRC
 
-** Vim Bindings for Different states
+** Vim Bindings for Different States
 *** Insert state map
 
 #+begin_src emacs-lisp
@@ -85,7 +86,6 @@ back.
 
 #+begin_src emacs-lisp
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
-(define-key evil-visual-state-map (kbd "c") 'er/contract-region)
 #+end_src
 
 *** Ex completion map
