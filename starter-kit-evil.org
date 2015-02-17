@@ -73,15 +73,34 @@ back.
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 #+END_SRC
 
-** Set Vim Bindings
-*** Fold and unfold
-+ evil has *zo* and *zc* command only support hs-minor-mode and hide-ifdef-mode
-+ evil has no *zO* or *zC*
-+ Define *<leader>-z?* to support both hs-minor-mode and outline-minor-mode
-*** Key bindings with leader
+** Vim Bindings for Different states
+*** Insert state map
+
+#+begin_src emacs-lisp
+(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-insert-state-map (kbd "C-y") 'yank)
+#+end_src
+
+*** Visual state map
+
+#+begin_src emacs-lisp
+(define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+(define-key evil-visual-state-map (kbd "c") 'er/contract-region)
+#+end_src
+
+*** Ex completion map
+
+#+begin_src emacs-lisp
+(define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
+(define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
+#+end_src
+
+** Key bindings with leader
+
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
+  ;; fold and unfold
   "zo" (lambda ()
          (interactive)
          (cond (outline-minor-mode (show-entry))
@@ -98,8 +117,12 @@ back.
          (interactive)
          (cond (outline-minor-mode (hide-body))
                (hs-minor-mode (hs-hide-all))))
+
+  ;; multiple shell
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
+
+  ;; tags
   "ta" (lambda ()
          (interactive)
          (if prj/use-gtags
@@ -121,25 +144,48 @@ back.
          (interactive)
          (unless prj/use-gtags
            (etu/visit-tags-table)))
-  "ne" 'flycheck-next-error
-  "sd" 'sdcv-search-input
-  "w" 'ace-jump-word-mode
-  "l" 'ace-jump-line-mode
   "sw" 'helm-swoop
   "oc" 'occur-dwim
+
+  ;; buffers, files
+  "bb" 'helm-mini
+  "ff" 'ido-find-file
+  "ss" 'save-buffer
+
+  ;; project
+  "pp" 'prj/helm-mini
+
+  ;; ace jump
+  "w" 'ace-jump-word-mode
+  "l" 'ace-jump-line-mode
+
+  ;; misc
+  "ne" 'flycheck-next-error
+  "sd" 'sdcv-search-input
   "qr" 'quickrun
   "iw" 'ispell-word)
 #+END_SRC
 
-*** Insert state map
+** Quit by escape
+
 #+begin_src emacs-lisp
-(define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
-(define-key evil-insert-state-map (kbd "C-y") 'yank)
-#+end_src
-*** Ex completion map
-#+begin_src emacs-lisp
-(define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
-(define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
+(defun minibuffer-keyboard-quit ()
+  "Abort recursive edit.
+In Delete Selection mode, if the mark is active, just deactivate it;
+then it takes a second \\[keyboard-quit] to abort the minibuffer."
+  (interactive)
+  (if (and delete-selection-mode transient-mark-mode mark-active)
+      (setq deactivate-mark t)
+    (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+    (abort-recursive-edit)))
+
+(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-visual-state-map [escape] 'keyboard-quit)
+(define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+(define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
 #+end_src
 
 ** Set initial state
