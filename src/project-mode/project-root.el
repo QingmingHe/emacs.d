@@ -245,10 +245,17 @@ described in PROJECT."
 
 (defun project-root-data (key &optional project)
   "Grab the value (if any) for key in PROJECT. If PROJECT is
-ommited then attempt to get the value for the current
+omitted then attempt to get the value for the current
 project."
   (let ((project (or project project-details)))
-    (plist-get (cdr (assoc (car project) project-roots)) key)))
+    (plist-get
+     (cdr
+      (assoc
+       (progn
+         (string-match "\\([^@]+\\)" (car project))
+         (match-string-no-properties 1 (car project)))
+       project-roots))
+     key)))
 
 (defun project-root-bookmarks (&optional project)
   "Grab the bookmarks (if any) for PROJECT."
@@ -359,6 +366,9 @@ will be used as defined in `project-roots'."
       (project-root-set-project project))))
 
 (defun project-root-set-project (p)
+  "Save seen projects to `project-root-storage-file'. If a duplicate project
+found, append \"@PATH\" to name of the project with the original one
+untouched."
   (if (not project-root-seen-projects)
       (project-root-load-roots))
   (unless (member p project-root-seen-projects)
