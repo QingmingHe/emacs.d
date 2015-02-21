@@ -18,6 +18,7 @@
         server
 	undo-tree
         goto-chg
+        flyspell-lazy
         package
         gnus
         flycheck
