@@ -46,8 +46,13 @@ right; things aligned right include added or deleted characters; *-1* means
 the first group (regexp inside first pair of parenthesis) and the minus means
 adding or deleting spaces on the left side, otherwise on the right side; *1*
 means spacing one; *y* means aligning through the line.
+
 ** Magit
 *** Diff a file between two arbitrary commits
 + =magit-file-log= and type in file name;
 + Type =D= to compare two arbitrary commits;
 + Type =e= on file.
+
+** Install unrar from source
+
+Set LAFLAGS to be empty under Cygwin platform.

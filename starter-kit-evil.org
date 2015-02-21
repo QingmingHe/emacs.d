@@ -149,8 +149,18 @@ back.
 
   ;; buffers, files
   "bb" 'helm-mini
-  "ff" 'ido-find-file
-  "ss" 'save-buffer
+  "ff" 'helm-find-files
+  "ss" (lambda ()
+         (interactive)
+         (mapc
+          (lambda (buffer)
+            (with-current-buffer buffer
+              (when (and
+                     (buffer-file-name)
+                     (buffer-modified-p))
+                (save-buffer))))
+          (buffer-list)))
+  "bk" 'kill-buffer
 
   ;; project
   "pp" 'prj/helm-mini

@@ -671,6 +671,7 @@ List of include paths, include \"-I\" flag."
                  p
                  fname
                  (file-exists-p fname)
+                 (not (file-remote-p fname))
                  (project-root-file-is-project-file fname p))
             (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
             (setq-local

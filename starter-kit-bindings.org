@@ -7,16 +7,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 Key Bindings.
 
-** You know, like Readline.
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-M-h") 'backward-kill-word)
-#+end_src
-
-** Align your code in a pretty way.
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-x \\") 'align-regexp)
-#+end_src
-
 ** Completion that uses many different methods to find options.
 
 I NEVER use hippie.
@@ -24,13 +14,7 @@ I NEVER use hippie.
 (global-set-key (kbd "M-/") 'hippie-expand)
 #+end_src
 
-** Turn on the menu bar for exploring new modes
-#+begin_src emacs-lisp
-(global-set-key [f1] 'menu-bar-mode)
-#+end_src
-
 ** Incremental search
-
 *** Use regexp search by default
 + *C-s* to repeat search
 + *C-y* to yank and *M-y* to cycle kill ring
@@ -92,42 +76,6 @@ I NEVER use hippie.
       (setq regexp-search-ring (append regexp-search-ring `(,thing))))))
 #+end_src
 
-** File finding
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-x M-f") 'ido-find-file-other-window)
-(global-set-key (kbd "C-x C-p") 'find-file-at-point)
-(global-set-key (kbd "C-c y") 'bury-buffer)
-(global-set-key (kbd "C-x C-f") 'ido-find-file)
-(global-set-key (kbd "C-c r") 'revert-buffer)
-(global-set-key (kbd "M-`") 'file-cache-minibuffer-complete)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(global-set-key (kbd "C-x f") 'recentf-ido-find-file)
-#+end_src
-
-** Indentation help
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-x ^") 'join-line)
-#+end_src
-
-** If you want to be able to M-x without meta
-#+begin_src emacs-lisp
-(global-set-key (kbd "C-x C-m") 'execute-extended-command)
-#+end_src
-
-** Help should search more than just commands
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-h a") 'apropos)
-#+end_src
-
-** Rgrep
-Rgrep is infinitely useful in multi-file projects.
-
-(see [[elisp:(describe-function 'rgrep)]])
-
-#+begin_src emacs-lisp
-  (define-key global-map "\C-x\C-r" 'rgrep)
-#+end_src
-
 ** Hungry delete
 
 #+begin_src emacs-lisp
@@ -170,17 +118,9 @@ This function is copied form prelude. The differences are:
         (move-beginning-of-line 1)))))
 (global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
 #+end_src
-
-** Auto Hot Key
-
-To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
-*capslock* every time you start up PC:
-+ Click the Start button Picture of the Start button , click All Programs,
-  right-click the Startup folder, and then click Open.
-+ Right-click the [[~/.emacs.d/emacs-ctrl.ahk][emacs-ctrl.ahk]] script, and then click Create Shortcut. The
-  new shortcut appears in the same location as the original item.
-+ Drag the shortcut into the Startup folder.
+** Text scale
 
 #+begin_src emacs-lisp
-(setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
 #+end_src
