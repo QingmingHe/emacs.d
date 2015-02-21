@@ -28,7 +28,7 @@ otherwise evil-leader won't be enabled in initial buffers (*scratch*,
 Set evil mode globally for that the author is a severe Vim user for the past
 several years.
 #+BEGIN_SRC emacs-lisp
-(setq evil-symbol-word-search t)
+(setq-default evil-symbol-word-search t)
 (require 'evil)
 (evil-mode 1)
 #+END_SRC

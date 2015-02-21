@@ -26,7 +26,10 @@ default checker and options at flycheck mode being enabled.
 
 #+BEGIN_SRC emacs-lisp
 (defun my-flycheck-fortran-setup ()
-  (when (executable-find "gfortran")
+  (when (and
+         (executable-find "gfortran")
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
     (setq flycheck-gfortran-language-standard "f2008")
     (flycheck-select-checker 'fortran-gfortran-zh)
     (flycheck-mode)))
@@ -40,6 +43,7 @@ Select checker for that flake8 is not always available.
 (defun my-flycheck-python-setup ()
   (when (and
          (buffer-file-name)
+         (not (file-remote-p (buffer-file-name)))
          (equal 'python-mode major-mode)
          (not
           (member (file-name-nondirectory (buffer-file-name))
@@ -67,7 +71,10 @@ connection this way:
 + Use GCC as the default checker.
 #+begin_src emacs-lisp
 (defun my-flycheck-c-setup ()
-  (when (executable-find "gcc")
+  (when (and
+         (executable-find "gcc")
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
     (progn
       (flycheck-select-checker 'c/c++-gcc)
       (flycheck-mode))))

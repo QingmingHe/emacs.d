@@ -616,6 +616,17 @@ List of include paths, include \"-I\" flag."
       (let ((default-directory (cdr p)))
         (project-root-files)))))
 
+(defun prj/helm-seen-projects ()
+  project-root-seen-projects)
+
+(defun prj/helm-remove-seen-projects (pr)
+  (mapc
+   (lambda (pr)
+     (setq project-root-seen-projects
+           (rassq-delete-all pr project-root-seen-projects)))
+   (helm-marked-candidates))
+  (project-root-save-roots))
+
 (defun prj/helm-mini ()
   (interactive)
   (helm :sources `(((name . "Project Buffers")
@@ -637,9 +648,10 @@ List of include paths, include \"-I\" flag."
                     (dummy)
                     (action . prj/helm-create-new-file))
                    ((name . "Seen Projects")
-                    (candidates . ,project-root-seen-projects)
+                    (candidates . prj/helm-seen-projects)
                     (action . (("Find project root in Dired" . find-file)
-                               ("Generate TAGS" . prj/helm-gen-gtags))))
+                               ("Generate TAGS" . prj/helm-gen-gtags)
+                               ("Remove from seen projects" . prj/helm-remove-seen-projects))))
                    ,(when prj/helm-mini-include-bookmarks
                       helm-source-bookmarks))
         :buffer "*project helm mini*"))
@@ -682,6 +694,7 @@ Enable `global-project-mode' only when all following conditions are meet:
     (when (and
            fname
            (file-exists-p fname)
+           (not (file-remote-p fname))
            (setq p (project-root-fetch))
            (project-root-file-is-project-file fname p))
       (project-minor-mode))))
