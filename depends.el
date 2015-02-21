@@ -26,6 +26,7 @@
         flx-ido
         dired
         dired-x
+        dired-async
         ibuffer-vc
         ;; dired+ is required in starter-kit-misc.org for that something
         ;; should be set before loading dired+
