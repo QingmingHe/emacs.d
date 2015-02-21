@@ -16,6 +16,8 @@
            'pos-tip)
 
         server
+	undo-tree
+        goto-chg
         package
         gnus
         flycheck
@@ -32,11 +34,9 @@
         ;; should be set before loading dired+
         bookmark+
         linum-relative
-        undo-tree
         expand-region
         window-numbering
         yasnippet
-        goto-chg
         etags-select
         imenu
         imenu+
@@ -107,6 +107,7 @@
         helm-config
         helm-gtags
         helm-swoop
+        helm-c-yasnippet
 
         ;; prog mode
         cmake-mode

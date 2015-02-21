@@ -49,6 +49,7 @@ other data on the mode line.
 (eval-after-load "hideshow"                '(diminish 'hs-minor-mode))
 (eval-after-load "whitespace-cleanup-mode" '(diminish 'whitespace-cleanup-mode))
 (eval-after-load "fic-mode"                '(diminish 'fic-mode))
+(eval-after-load "yasnippet"               '(diminish 'yas-minor-mode))
 (diminish 'auto-fill-function)
 #+END_SRC
 

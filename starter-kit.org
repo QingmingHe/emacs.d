@@ -269,6 +269,8 @@ interested in the actual code implementing the starter kit.
     (setq autoload-file (concat starter-kit-dir "loaddefs.el"))
     (setq package-user-dir (concat starter-kit-dir "elpa"))
     (setq custom-file (concat starter-kit-dir "custom.el"))
+    ;; add path of undo-tree and goto-chg to load path
+    (add-to-list 'load-path (concat starter-kit-dir "src/evil/lib"))
   #+end_src
 
 - Theme load path

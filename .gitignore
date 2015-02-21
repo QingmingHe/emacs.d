@@ -8,6 +8,7 @@ GTAGS
 .ido.last
 .saved-places
 .mc-lists.el
+viper
 
 # project root
 .project-roots
