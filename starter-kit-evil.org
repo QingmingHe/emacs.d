@@ -160,7 +160,6 @@ back.
                      (buffer-modified-p))
                 (save-buffer))))
           (buffer-list)))
-  "bk" 'kill-buffer
 
   ;; project
   "pp" 'prj/helm-mini

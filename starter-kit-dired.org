@@ -58,6 +58,17 @@
 - --group-directories-first: self-explanatory, I like to have the directories
   on the top, separate from the files.
 
+** Find name dired
+
++ Use [[elisp:find-name-dired]] instead of [[elisp:find-dired]] for the former's
+  simplicity.
++ By default Emacs will pass *-exec* to find and that makes it very slow. It is
+  better to collate the matches and then use *xargs* to run the command. To do
+  this instead add this to your =~/.emacs=:
+#+begin_src emacs-lisp
+(setq find-ls-option '("-print0 | xargs -0 ls -ld" . "-ld"))
+#+end_src
+
 ** Tips
 *** key bindings
 - *w* copies file name to ring. *C-u 0 w* copies full path.
