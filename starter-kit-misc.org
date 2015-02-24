@@ -111,7 +111,7 @@ previously visited the same file.
 (recentf-mode 1)
 #+end_src
 
-** ido mode
+** Ido mode
 + ido-mode is like magic pixie dust!
 + Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
   *C-l* in minibuffer to refresh ido candidates.
@@ -133,23 +133,14 @@ previously visited the same file.
 (setq ido-use-faces nil)
 #+end_src
 
-** tabs, imenu
+** Tabs, alias, random
 #+begin_src emacs-lisp
 (set-default 'indent-tabs-mode nil)
 (set-default 'indicate-empty-lines t)
 
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
-(add-hook 'text-mode-hook 'turn-on-flyspell)
-
 (defalias 'yes-or-no-p 'y-or-n-p)
 ;; Seed the random-number generator
 (random t)
-
-;; auto rescan after saving file
-(defun starter-kit-imenu-rescan ()
-  (interactive)
-  (imenu--menubar-select imenu--rescan-item))
-(add-hook 'after-save-hook 'starter-kit-imenu-rescan)
 #+end_src
 
 ** Hippie expand: at times perhaps too hip
@@ -327,10 +318,12 @@ you just key in *M-n* to jump to n-th window numbered by the plugin.
 (window-numbering-mode 1)
 #+END_SRC
 
-** Ediff
+** Ediff and diff
 
 Recover previous windows configuration when quitting ediff.
 #+BEGIN_SRC emacs-lisp
+(setq vc-diff-switches '("-b" "-B" "-u"))
+(setq vc-git-diff-switches nil)
 (setq diff-switches "-u")
 (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
@@ -436,4 +429,16 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 
 #+begin_src emacs-lisp
 (setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
+#+end_src
+** Text mode
+
+#+begin_src emacs-lisp
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'text-mode-hook 'turn-on-flyspell)
+#+end_src
+** Csv mode
+
+#+begin_src emacs-lisp
+(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
+(setq csv-separators '("," ";" "|" " "))
 #+end_src

@@ -7,8 +7,9 @@
 
 Another way to compile dwim is to set =compile-command= in project
 =.dir-locals=.
-
 #+begin_src emacs-lisp
+(setq compilation-scroll-output t)
+
 (defvar compile-dir-last nil
   "Last working directory of Compile.")
 
