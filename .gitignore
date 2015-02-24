@@ -40,6 +40,7 @@ doc/*
 url/*
 .cask/
 elpa/archives/
+irony/
 
 ## exported and encrypted files
 *gpg

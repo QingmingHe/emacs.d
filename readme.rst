@@ -47,7 +47,7 @@ Third Party Packages Dependencies
 * `LaTeX`_ packages collections such as `TEX live`_
 * `Python`_, `IPython`_, flake8, jedi, numpy, h5py, pdb
 * Tool chain for coding: cmake, make, automake, autoconf, gcc, clang,
-  libclang, llvm, gdb
+  libclang-dev, llvm, gdb
 * Git for version control
 * zip, unzip, unrar, xz
 * wget, curl
