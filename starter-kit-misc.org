@@ -442,3 +442,9 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 (add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
 (setq csv-separators '("," ";" "|" " "))
 #+end_src
+
+** Executable buffer
+
+#+begin_src emacs-lisp
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+#+end_src
