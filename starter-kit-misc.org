@@ -430,16 +430,17 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 #+begin_src emacs-lisp
 (setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
 #+end_src
+
 ** Text mode
 
 #+begin_src emacs-lisp
 (add-hook 'text-mode-hook 'turn-on-auto-fill)
 (add-hook 'text-mode-hook 'turn-on-flyspell)
 #+end_src
+
 ** Csv mode
 
 #+begin_src emacs-lisp
-(add-auto-mode 'csv-mode "\\.[Cc][Ss][Vv]\\'")
 (setq csv-separators '("," ";" "|" " "))
 #+end_src
 
