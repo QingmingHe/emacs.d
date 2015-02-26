@@ -423,7 +423,7 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 *capslock* every time you start up PC:
 + Click the Start button Picture of the Start button , click All Programs,
   right-click the Startup folder, and then click Open.
-+ Right-click the [[~/.emacs.d/emacs-ctrl.ahk][emacs-ctrl.ahk]] script, and then click Create Shortcut. The
++ Right-click the [[~/.emacs.d/starter-kit-ahk.ahk][starter-kit-ahk]] script, and then click Create Shortcut. The
   new shortcut appears in the same location as the original item.
 + Drag the shortcut into the Startup folder.
 

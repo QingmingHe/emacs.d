@@ -6,6 +6,7 @@ GRTAGS
 GTAGS
 *-TAGS
 .ido.last
+ido.last
 .saved-places
 .mc-lists.el
 viper
