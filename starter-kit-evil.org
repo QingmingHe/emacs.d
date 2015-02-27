@@ -95,11 +95,17 @@ back.
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
 #+end_src
 
-** Key bindings with leader
+** Key bindings with evil leader
+
++ Universal argument ::
+     - '(4): <SPC>-u-<SPC>-*
+     - other number: <NUMBER>-<SPC>-*
 
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
+  "u" 'universal-argument
+
   ;; fold and unfold
   "zo" (lambda ()
          (interactive)
@@ -123,11 +129,12 @@ back.
   "me" 'multi-eshell
 
   ;; tags
-  "ta" (lambda ()
-         (interactive)
+  ;; to force update etags cache of helm-tags, type <SPC>-u-<SPC>-t-a
+  "ta" (lambda (arg)
+         (interactive "P")
          (if prj/use-gtags
              (helm-gtags-select)
-           (etags-select-find)))
+           (helm-etags-select arg)))
   "dta" 'helm-gtags-dwim
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()
