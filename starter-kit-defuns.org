@@ -273,7 +273,7 @@ or =defcustom= with =setq= or use =eval-defun=.
     (dired-get-marked-files)))
 #+end_src
 
-** Copy file name
+** Copy file/buffer name
 
 #+begin_src emacs-lisp
 (defun copy-buffer-file-name-as-kill ()
@@ -283,4 +283,10 @@ or =defcustom= with =setq= or use =eval-defun=.
     (when fname
       (kill-new fname)
       (message fname))))
+#+end_src
+
+#+begin_src emacs-lisp
+(defun copy-buffer-name-as-kill ()
+  (interactive)
+  (kill-new (buffer-name)))
 #+end_src

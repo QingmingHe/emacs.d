@@ -1,0 +1,79 @@
+#+TITLE: Starter Kit Midnight
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Midnight
+
+** When to run midnight
+
+#+begin_src emacs-lisp
+(midnight-delay-set 'midnight-delay "2:00am")
+#+end_src
+
+** Clean buffers
+
+#+begin_src emacs-lisp
+(setq clean-buffer-list-delay-general 1)
+(add-to-list 'clean-buffer-list-kill-buffer-names
+             '("*buffer-selection*"
+               "*Finder*"
+               "*Finder Category*"
+               "*Finder-package*"
+               "*RE-Builder*"
+               "*vc-change-log*"
+               "*grep*"
+               "*Backtrace*"
+               "*Occur*"
+               "*Directory*"
+               "*Completions*"
+               "*Shell Command Output*"
+               "*Compile-Log*"
+               "*Org Clock*"))
+(add-to-list 'clean-buffer-list-kill-regexps
+             '("\\`\\*Customize .*\\*\\'"
+               "\\`\\*\\(Wo\\)?Man .*\\*\\'"
+               "\\`\\*magit-.+\\*\\'"
+               "\\`\\*.*helm.*\\*\\'"))
+(add-to-list 'clean-buffer-list-kill-never-buffer-names
+             '("*ielm*"
+               "*mail*"
+               "*w3m*"
+               "*w3m-cache*"
+               "*Bookmark List*"))
+(add-to-list 'clean-buffer-list-kill-never-regexps
+             '("\\`\\*tramp/.*\\*\\'"
+               "\\`\\*ftp .*\\*\\'"
+               "\\`\\*eshell\\*.*\\'"
+               "\\`\\*shell\\*.*\\'"
+               "\\`\\*ipython\\*.*\\'"
+               "\\`\\.\\*scratch\\*.*\\'"
+               "\\`\\*Org Src .+\\*\\'"))
+#+end_src
+
+** Run midnight scripts
+
+Sequence of midnight hooks:
++ Save modified buffers
++ Kill some buffers by [[elisp:clean-buffer-list]]
++ Run some user specified scripts
+
+#+begin_src emacs-lisp
+(defun run-midnight-scripts ()
+  (when (setq midnight-root (getenv "MIDNIGHT_ROOT"))
+    (mapc
+     (lambda (file)
+       (load-file file))
+     (directory-files midnight-root t "\\.el\\'"))))
+
+(defun save-buffers-before-run-midnight-hooks ()
+  (mapc
+   (lambda (buffer)
+     (with-current-buffer buffer
+       (when (and
+              (buffer-file-name)
+              (buffer-modified-p))
+         (save-buffer))))
+   (buffer-list)))
+
+(add-hook 'midnight-hook 'run-midnight-scripts t)
+(add-hook 'midnight-hook 'save-buffers-before-run-midnight-hooks)
+#+end_src

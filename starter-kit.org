@@ -444,6 +444,7 @@ everyone using the starter kit.
 (starter-kit-load "quickrun")
 (starter-kit-load "occur")
 (starter-kit-load "gud")
+(starter-kit-load "midnight")
 ;; prog mode should be loaded finally
 (starter-kit-load "coding")
 (starter-kit-load "python")

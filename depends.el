@@ -15,6 +15,7 @@
         ,(when (window-system)
            'pos-tip)
 
+        midnight
         server
 	undo-tree
         goto-chg
