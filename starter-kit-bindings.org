@@ -111,7 +111,8 @@ This function is copied form prelude. The differences are:
     (when (= orig-point (point))
       (if (and
            (looking-back "^" (line-beginning-position))
-           (looking-at "[^ \t\n]"))
+           (looking-at "[^ \t\n]")
+           (not buffer-read-only))
           (progn
             (insert " ")
             (backward-char 1))

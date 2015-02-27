@@ -11,28 +11,32 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 *** Configurations
 
 #+begin_src emacs-lisp
-  (setq eshell-cmpl-cycle-completions nil
-        eshell-save-history-on-exit t
-        eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'")
+(setq eshell-cmpl-cycle-completions nil
+      eshell-save-history-on-exit t
+      eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'"
+      eshell-history-size 250)
 
-  (eval-after-load 'esh-opt
-    '(progn
-       ;; TODO: for some reason requiring this here breaks it, but
-       ;; requiring it after an eshell session is started works fine.
-       ;; (require 'eshell-vc)
-       (setenv "PAGER" "cat")
-       ; (set-face-attribute 'eshell-prompt nil :foreground "turquoise1")
-       (add-hook 'eshell-mode-hook ;; for some reason this needs to be a hook
-                 '(lambda () (define-key eshell-mode-map "\C-a" 'eshell-bol)))
-       (add-hook 'eshell-mode-hook 'turn-on-eldoc-mode)
-       (add-to-list 'eshell-visual-commands "ssh")
-       (add-to-list 'eshell-visual-commands "tail")
-       (add-to-list 'eshell-command-completions-alist
-                    '("gunzip" "gz\\'"))
-       (add-to-list 'eshell-command-completions-alist
-                    '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))
-       ;; (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
-       ))
+(eval-after-load 'esh-opt
+  '(progn
+     ;; TODO: for some reason requiring this here breaks it, but
+     ;; requiring it after an eshell session is started works fine.
+     ;; (require 'eshell-vc)
+     (setenv "PAGER" "cat")
+     ; (set-face-attribute 'eshell-prompt nil :foreground "turquoise1")
+     (add-hook 'eshell-mode-hook ;; for some reason this needs to be a hook
+               '(lambda () (define-key eshell-mode-map "\C-a" 'eshell-bol)))
+     (add-to-list 'eshell-visual-commands "ssh")
+     (add-to-list 'eshell-visual-commands "tail")
+     (add-to-list 'eshell-command-completions-alist
+                  '("gunzip" "gz\\'"))
+     (add-to-list 'eshell-command-completions-alist
+                  '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))
+     ;; (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
+     ))
+
+(defun my-eshell-config ()
+  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history))
+(add-hook 'eshell-mode-hook 'my-eshell-config)
 #+end_src
 
 The =eshell= directory holds alias definitions and history

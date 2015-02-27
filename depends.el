@@ -110,6 +110,7 @@
         helm-gtags
         helm-swoop
         helm-c-yasnippet
+        helm-eshell
 
         ;; prog mode
         cmake-mode

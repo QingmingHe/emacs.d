@@ -27,6 +27,10 @@
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
 (global-unset-key (kbd "C-x c"))
 
+;; helm eshell
+(define-key helm-eshell-history-map (kbd "M-n") 'helm-next-line)
+(define-key helm-eshell-history-map (kbd "M-p") 'helm-previous-line)
+
 (setq
  helm-split-window-in-side-p t
  helm-move-to-line-cycle-in-source t
@@ -63,6 +67,29 @@ Helm or ido sometimes do wrong things.
        (w3m-goto-url . nil)
        (rgrep . nil)))
 #+END_SRC
+
+** Remove duplicate eshell history
+
++ Remove duplicates in eshell history ring.
++ Use [[elisp:write-region]] instead of [[elisp:write-file]] for that the previous is
+  faster and quite.
+#+begin_src emacs-lisp
+(defadvice eshell-write-history (after remove-eshell-history-dup-after-write activate)
+  (with-temp-buffer
+    (insert-file-contents eshell-history-file-name)
+    (let ((his-ring
+           (delete-dups
+            (split-string
+             (buffer-substring-no-properties (point-min) (point-max))
+             "\n"))))
+      (with-temp-buffer
+        (mapc
+         (lambda (item)
+           (unless (string-empty-p item)
+             (insert (format "%s\n" item))))
+         his-ring)
+        (write-region (point-min) (point-max) eshell-history-file-name nil 'no-message)))))
+#+end_src
 
 ** Tips
 *** General
