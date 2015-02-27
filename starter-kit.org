@@ -411,6 +411,7 @@ everyone using the starter kit.
 #+BEGIN_SRC emacs-lisp
 ;; desktop should be the first one to load
 (starter-kit-load "desktop")
+(starter-kit-load "win32")
 ;; Configure org 8.* bundled with Emacs 24.4
 (when (> emacs-minor-version 3)
   (starter-kit-load "org"))
@@ -443,6 +444,7 @@ everyone using the starter kit.
 (starter-kit-load "graphviz")
 (starter-kit-load "rnc")
 (starter-kit-load "cc")
+(starter-kit-load "js")
 #+END_SRC
 
 ** Load User/System Specific Files

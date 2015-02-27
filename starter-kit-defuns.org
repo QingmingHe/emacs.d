@@ -79,25 +79,6 @@ No such function in Emacs 24.4, so add it.
                 ad-advised-definition-docstring-regexp docstring))))))
 #+END_SRC
 
-** Cygwin path to Windows path
-Map Cygwin path to Windows path. For example: map =/usr/bin/python= to
-=D:/cygwin/usr/bin/python=.
-#+BEGIN_SRC emacs-lisp
-(defun cygwin-to-win-path (path &optional cygwin-root)
-  "Transform Cygwin path to Windows path.
-
-path: Cygwin path.
-cygwin-root: root of Cygwin installed on Windows. D:/cygwin for example.
-return: Windows path.
-"
-  (interactive)
-  (let ((cygwin-root (or
-                      cygwin-root
-                      (getenv "CYGWIN_ROOT")
-                      (read-string "Root of Cygwin in Windows system: "))))
-    (format "%s%s" cygwin-root (expand-file-name path))))
-#+END_SRC
-
 ** Resize window interactively
 #+BEGIN_SRC emacs-lisp
 (defun resize-window (&optional arg)    ; Hirose Yuuji and Bob Wiener

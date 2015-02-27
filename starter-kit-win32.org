@@ -1,0 +1,78 @@
+#+TITLE: Starter Kit Win32
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Win32
+
+** Some notes
+
++ Program and argument strings passed to the program are double quoted so that white
+  spaces in directory names are allowed.
+
+** Cygwin path to Windows path
+
+#+BEGIN_SRC emacs-lisp
+(defun cygwin-to-win-path (path &optional cygwin-root)
+  "Transform Cygwin path to Windows path.
+
+path: Cygwin path.
+cygwin-root: root of Cygwin installed on Windows. D:/cygwin for example. If
+not given, get from environment variable \"CYGWIN_ROOT\" or read from
+minibuffer.
+return: Windows path.
+
+Examples:
+/usr/bin/gcc -> D:/cygwin/usr/bin/gcc
+/home/user/.emacs.d/ -> D:/cygwin/home/user/.emacs.d/
+/cygdirve/d/Dropbox/ -> D:/Dropbox/"
+  (if (not (string-match "^/cygdrive/" path))
+      (let ((cygwin-root (or
+                          cygwin-root
+                          (getenv "CYGWIN_ROOT")
+                          (setenv "CYGWIN_ROOT" (read-string "Root of Cygwin in Windows system: ")))))
+        (format "%s%s" cygwin-root (expand-file-name path)))
+    (with-temp-buffer
+      (insert path)
+      (goto-char (point-min))
+      (while (re-search-forward "/cygdrive/\\([a-z]\\)\\([^ ]+\\)" nil t)
+        (replace-match "\\1:\\2"))
+      (buffer-string))))
+#+END_SRC
+
+** Open w32 program at point in Dired
+
+#+BEGIN_SRC emacs-lisp
+(defun dired-open-w32-prog-at-point (arg)
+  "Open Windows program at point in dired. With prefix, read argument passed
+to program from minibuffer."
+  (interactive "P")
+  (let ((prog-name (dired-get-filename))
+        (prog-argv
+         (when arg
+           (read-shell-command "Argv passed to prog: "))))
+    (when prog-argv
+      (setq prog-argv (cygwin-to-win-path prog-argv)))
+    (w32-shell-execute "open" prog-name (format "\"%s\"" prog-argv))))
+
+(when *win32*
+  (define-key dired-mode-map "/" 'dired-open-w32-prog-at-point))
+#+END_SRC
+
+** Create Win32 shortcut
+
+#+begin_src emacs-lisp
+(defun create-w32-shortcut (dir name target)
+  "Create shortcut in Windows system.
+
+DIR: where to place the shortcut;
+NAME: name of the shortcut;
+TARGET: target program or file."
+  (interactive
+   (list (ido-read-directory-name "Dir to place shortcut: ")
+         (read-string "Name of shortcut: " nil nil "shortcut.lnk")
+         (ido-read-file-name "Target: ")))
+  (unless (string-match "\\.\\(lnk\\|url\\)\\'" name)
+    (setq name (concat name ".lnk")))
+  (w32-shell-execute "open"
+                     (cygwin-to-win-path (concat starter-kit-dir "mkshortcut.vbs"))
+                     (format "\"%s\" \"%s\"" (cygwin-to-win-path (concat dir name)) (cygwin-to-win-path target))))
+#+end_src

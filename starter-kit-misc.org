@@ -373,7 +373,6 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 All these codes are copied from
 [[https://github.com/redguardtoo/emacs.d/blob/master/lisp/init-spelling.el]].
 #+begin_src emacs-lisp
-(flyspell-lazy-mode 1)
 (setq flyspell-issue-message-flag nil)
 ;; if (aspell installed) { use aspell}
 ;; else if (hunspell installed) { use hunspell }

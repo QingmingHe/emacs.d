@@ -21,29 +21,6 @@
                                          (find-alternate-file "..")))
 #+END_SRC
 
-** Open w32 prog at point
-
-#+BEGIN_SRC emacs-lisp
-(defun dired-open-w32-prog-at-point (arg)
-  "Open Windows program at point in dired."
-  (interactive "P")
-  (let ((prog-name (dired-get-filename))
-        (prog-argv
-         (when arg
-           (read-shell-command "Argv passed to prog: "))))
-    (when prog-argv
-      (setq prog-argv
-            (with-temp-buffer
-              (insert prog-argv)
-              (goto-char (point-min))
-              (while (re-search-forward "/cygdrive/\\([a-z]\\)\\([^ ]+\\)" nil t)
-                (replace-match "\\1:\\2"))
-              (buffer-string))))
-    (w32-shell-execute "open" prog-name prog-argv)))
-
-(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point)
-#+END_SRC
-
 ** How dired presents
 #+BEGIN_SRC emacs-lisp
 (setq dired-listing-switches "-lah1v --group-directories-first")

@@ -18,7 +18,6 @@
         server
 	undo-tree
         goto-chg
-        flyspell-lazy
         package
         gnus
         flycheck
@@ -123,6 +122,8 @@
         rnc-mode
 	vimrc-mode
         cc-mode
+	js2-mode
+        js2-imenu-extras
 
         ;; docs modes
         markdown-mode
