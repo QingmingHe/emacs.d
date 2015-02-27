@@ -70,8 +70,9 @@ Remove clocked tasks with 0:00 duration.
 (setq org-clock-out-remove-zero-time-clocks t)
 #+END_SRC
 
-Show the clocked-in task if possible at Emacs head.
-#+BEGIN_SRC emacs-lisp
+Show the clocked-in task if possible at Emacs head. This is shadowed by
+which-function-mode.
+#+BEGIN_SRC emacs-lisp :tangle no
 (defun sanityinc/show-org-clock-in-header-line ()
   (setq-default header-line-format '((" " org-mode-line-string " "))))
 
@@ -305,8 +306,7 @@ set targets start with the file name and complete in steps with *TAB*.
               (concat org-directory "/projects.org")
               (concat org-directory "/finished.org")
               (concat org-directory "/canceled.org")))
-  (setq org-refile-targets (quote (
-                                   (nil :maxlevel . 3)
+  (setq org-refile-targets (quote ((nil :maxlevel . 3)
                                    (org-refile-files :maxlevel . 3))))
   (setq org-refile-use-outline-path (quote file))
   (setq org-outline-path-complete-in-steps t))
