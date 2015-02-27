@@ -278,9 +278,7 @@ just provide a possible one. The meanings of these templates are:
              ("p" "Project" entry (file+headline org-default-notes-file "Projects")
               "** %? \n   SCHEDULED: %T \n   %i")
              ("n" "Note" entry (file+headline org-default-notes-file "Notes")
-              "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i")))
-     )
-
+              "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i"))))
 #+END_SRC
 
 *** Org agenda
@@ -291,9 +289,7 @@ Set files where org agenda will extract from.
 (when gtd-root
   (setq org-agenda-files
         (list org-default-notes-file
-              (concat org-directory "/projects.org")
-              ))
-  )
+              (concat org-directory "/projects.org"))))
 #+END_SRC
 
 *** Org refile
