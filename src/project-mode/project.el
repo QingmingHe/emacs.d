@@ -67,6 +67,10 @@ use ctags parser; ...")
 (defvar prj/install-path (expand-file-name "~/bin")
   "Where to install scripts of project mode.")
 
+(defvar prj/tags-update-file-ext
+  (regexify-ext-list '(c cpp cxx h hpp f90 f py pl el))
+  "File extensions whose tags will be updated.")
+
 (defun __file__ ()
   "Get the name of current file."
   (cond ((stringp (car-safe current-load-list)) (car current-load-list))
@@ -454,9 +458,12 @@ project root, otherwise prj can't update tags file."
 
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
-  (if prj/use-gtags
-      (prj/update-gtags-single-file)
-    (etu/update-tags-for-file)))
+  (when (and
+         (buffer-file-name)
+         (string-match prj/tags-update-file-ext (buffer-file-name)))
+    (if prj/use-gtags
+        (prj/update-gtags-single-file)
+      (etu/update-tags-for-file))))
 
 (defun prj/c-include-paths-pkgs (pkgs)
   "Get c include pahts for \"pkgs\". \"pkgs\" should be string or list of
