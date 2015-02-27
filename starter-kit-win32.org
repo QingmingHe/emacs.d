@@ -5,6 +5,7 @@
 
 ** Some notes
 
++ This configuration file should only be loaded under Cygwin.
 + Program and argument strings passed to the program are double quoted so that white
   spaces in directory names are allowed.
 
@@ -53,7 +54,7 @@ to program from minibuffer."
       (setq prog-argv (cygwin-to-win-path prog-argv)))
     (w32-shell-execute "open" prog-name (format "\"%s\"" prog-argv))))
 
-(when *win32*
+(when *cygwin*
   (define-key dired-mode-map "/" 'dired-open-w32-prog-at-point))
 #+END_SRC
 

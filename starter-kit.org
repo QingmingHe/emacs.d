@@ -242,18 +242,16 @@ interested in the actual code implementing the starter kit.
 
 - Determine system type and emacs version
 #+BEGIN_SRC emacs-lisp
-(defun my-system-type ()
-  "Get system type by Python."
-  (shell-command-to-string "python -c 'import sys; print(sys.platform)'"))
-
-(setq *win32* (string-match-p "win[0-9]+" (my-system-type)))
-(setq *cygwin* (string-match-p "cygwin" (my-system-type)))
-(setq *linux* (string-match-p "linux" (my-system-type)))
+(setq *cygwin* (eq 'cygwin system-type))
+(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
 
 (if (< emacs-major-version 24)
     (error "Emacs version should be >= 24.3")
   (when (< emacs-minor-version 3)
     (error "Emacs version should be >= 24.3")))
+
+(when (eq system-type 'windows-nt)
+  (error "Native Windows is not supported"))
 #+END_SRC
 
 - Load path etc.
@@ -424,7 +422,8 @@ everyone using the starter kit.
 #+BEGIN_SRC emacs-lisp
 ;; desktop should be the first one to load
 (starter-kit-load "desktop")
-(starter-kit-load "win32")
+(when *cygwin*
+  (starter-kit-load "win32"))
 ;; Configure org 8.* bundled with Emacs 24.4
 (when (> emacs-minor-version 3)
   (starter-kit-load "org"))

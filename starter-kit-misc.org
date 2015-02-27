@@ -23,7 +23,7 @@ emacsclient -t FILE
 #+end_src
 
 #+BEGIN_SRC emacs-lisp
-(when (or *win32* *cygwin*)
+(when *cygwin*
   (defun server-ensure-safe-dir (dir) "Noop" t)
   (unless (file-exists-p server-socket-dir)
     (mkdir server-socket-dir)))

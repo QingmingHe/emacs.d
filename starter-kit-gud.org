@@ -33,7 +33,7 @@ Another way to compile dwim is to set =compile-command= in project
 #+begin_src emacs-lisp
 (setq gdb-show-main nil)
 
-(when (or *win32* *cygwin*)
+(when *cygwin*
   (setq gdb-non-stop-setting nil))
 
 (defvar gdb-working-dir-last nil
