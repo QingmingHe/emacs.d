@@ -422,6 +422,7 @@ everyone using the starter kit.
 #+BEGIN_SRC emacs-lisp
 ;; desktop should be the first one to load
 (starter-kit-load "desktop")
+(starter-kit-load "flyspell")
 (when *cygwin*
   (starter-kit-load "win32"))
 ;; Configure org 8.* bundled with Emacs 24.4
