@@ -1,0 +1,9 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: link elisp variable
+# key: link elisp variable
+# --
+[[elisp:(describe-variable '${1:`
+(helm-comp-read "Symbol name: "
+                (loop for x being the symbols
+                      if (boundp x)
+                      collect (symbol-name x)))`})][$1]]$0

@@ -10,6 +10,9 @@ Emacs.
 + Save no buffer and file.
 + Set variables (list) along with max length to save.
 + Delete duplicates before save.
+
+Some variables such as [[elisp:(describe-variable 'comint-input-ring)][comint-input-ring]] is buffer local so that can't be
+saved globally.
 #+BEGIN_SRC emacs-lisp
 (setq desktop-path (list
                     starter-kit-dir)
@@ -49,7 +52,7 @@ Emacs.
 (defadvice desktop-save (around del-dup-desktop-save activate)
   (mapc
    (lambda (l)
-     (delete-dups (eval (car l))))
+     (ignore-errors (delete-dups (eval (car l)))))
    desktop-globals-to-save)
   ad-do-it)
 

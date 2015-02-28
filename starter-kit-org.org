@@ -123,7 +123,8 @@ contains an up to date list of the currently supported languages.
  'org-babel-load-languages
  '((emacs-lisp . t)
    (sh . t)
-   (python . t)))
+   (python . t)
+   (scheme . t)))
 #+end_src
 
 You are encouraged to add the following to your personal configuration
@@ -375,3 +376,4 @@ idea what it means.
 *** Key bindings
 
 + You can use *C-c '* to edit source code in its own mode.
++ Powerful *C-c C-c* at code block, table, ...

@@ -35,7 +35,8 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
      ))
 
 (defun my-eshell-config ()
-  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history))
+  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
+  (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history))
 (add-hook 'eshell-mode-hook 'my-eshell-config)
 #+end_src
 

@@ -52,6 +52,10 @@ means spacing one; *y* means aligning through the line.
 + =magit-file-log= and type in file name;
 + Type =D= to compare two arbitrary commits;
 + Type =e= on file.
+  
+*** View previous commit of a file
+
++ *magit-show*
 
 ** Install unrar from source
 

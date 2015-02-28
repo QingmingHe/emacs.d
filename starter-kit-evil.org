@@ -98,14 +98,12 @@ back.
 ** Key bindings with evil leader
 
 + Universal argument ::
-     - '(4): <SPC>-u-<SPC>-*
+     - '(4): C-u-<SPC>-*
      - other number: <NUMBER>-<SPC>-*
 
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  "u" 'universal-argument
-
   ;; fold and unfold
   "zo" (lambda ()
          (interactive)
@@ -129,7 +127,7 @@ back.
   "me" 'multi-eshell
 
   ;; tags
-  ;; to force update etags cache of helm-tags, type <SPC>-u-<SPC>-t-a
+  ;; to force update etags cache of helm-tags, type C-u-<SPC>-t-a
   "ta" (lambda (arg)
          (interactive "P")
          (if prj/use-gtags
