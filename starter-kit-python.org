@@ -15,7 +15,7 @@ manually. Or you can just enable company mode or auto-complete instead of
 setup jedi.
 
 To install jedi manually:
-#+BEGIN_SRC sh
+#+BEGIN_SRC sh :tangle no
   pip install jedi
   pip install epc
 #+END_SRC
@@ -36,7 +36,7 @@ To use my configuration, set JEDI_SERVER environment to be
      (concat (file-name-directory (locate-library "jedi")) "jediepcserver.py")
      (expand-file-name "~/bin/jediepcserver.py")
      t)
-    (chmod (expand-file-name "~/bin/jediepcserver.py") 755)))
+    (shell-command (format "chmod 755 %s" (expand-file-name "~/bin/jediepcserver.py")))))
 (my-jedi-install)
 
 (defun my-jedi-conf ()
