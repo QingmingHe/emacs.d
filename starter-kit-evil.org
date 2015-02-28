@@ -72,6 +72,7 @@ back.
 (ace-jump-mode-enable-mark-sync)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+(ace-link-setup-default)
 #+END_SRC
 
 ** Vim Bindings for Different States
@@ -140,10 +141,11 @@ back.
          (if prj/use-gtags
              (helm-gtags-pop-stack)
            (pop-tag-mark)))
+  "ota" 'helm-org-agenda-files-headings
   "tl" (lambda ()
          (interactive)
          (cond ((eq major-mode 'org-mode)
-                (helm-org-headlines))
+                (helm-org-in-buffer-headings))
                (t (call-interactively 'helm-semantic-or-imenu))))
   "vt" (lambda ()
          (interactive)

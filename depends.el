@@ -44,6 +44,7 @@
         imenu
         imenu+
         ace-jump-mode
+        ace-link
         git-rebase-mode
         git-commit-mode
         git-timemachine
