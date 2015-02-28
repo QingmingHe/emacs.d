@@ -101,7 +101,6 @@ accept one file as argument. Aliases ended with "\\(\\$1\\|\\$\\*\\)$" can be
 completed by helm.
 
 ** Term
-
 *** Multi eshell
 
 Use =multi-eshell= to handle multiple shells. Use *\-mn* to create new shell or
@@ -110,6 +109,7 @@ shell file name to be bash. Don't add =--login= to explicit-bash-args, or
 shell will run at =~/= path with the =default-directory= to be that of
 previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
+(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring)
 (setq explicit-shell-file-name "/usr/bin/bash")
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
