@@ -13,40 +13,48 @@
 
 #+begin_src emacs-lisp
 (setq clean-buffer-list-delay-general 1)
-(add-to-list 'clean-buffer-list-kill-buffer-names
-             '("*buffer-selection*"
-               "*Finder*"
-               "*Finder Category*"
-               "*Finder-package*"
-               "*RE-Builder*"
-               "*vc-change-log*"
-               "*grep*"
-               "*Backtrace*"
-               "*Occur*"
-               "*Directory*"
-               "*Completions*"
-               "*Shell Command Output*"
-               "*Compile-Log*"
-               "*Org Clock*"))
-(add-to-list 'clean-buffer-list-kill-regexps
-             '("\\`\\*Customize .*\\*\\'"
-               "\\`\\*\\(Wo\\)?Man .*\\*\\'"
-               "\\`\\*magit-.+\\*\\'"
-               "\\`\\*.*helm.*\\*\\'"))
-(add-to-list 'clean-buffer-list-kill-never-buffer-names
-             '("*ielm*"
-               "*mail*"
-               "*w3m*"
-               "*w3m-cache*"
-               "*Bookmark List*"))
-(add-to-list 'clean-buffer-list-kill-never-regexps
-             '("\\`\\*tramp/.*\\*\\'"
-               "\\`\\*ftp .*\\*\\'"
-               "\\`\\*eshell\\*.*\\'"
-               "\\`\\*shell\\*.*\\'"
-               "\\`\\*ipython\\*.*\\'"
-               "\\`\\.\\*scratch\\*.*\\'"
-               "\\`\\*Org Src .+\\*\\'"))
+(mapc
+ (lambda (item)
+   (add-to-list 'clean-buffer-list-kill-buffer-names item))
+ '("*buffer-selection*"
+   "*Finder*"
+   "*Finder Category*"
+   "*Finder-package*"
+   "*RE-Builder*"
+   "*vc-change-log*"
+   "*grep*"
+   "*Backtrace*"
+   "*Occur*"
+   "*Directory*"
+   "*Completions*"
+   "*Shell Command Output*"
+   "*Compile-Log*"
+   "*Org Clock*"))
+(mapc
+ (lambda (item)
+   (add-to-list 'clean-buffer-list-kill-regexps item))
+ '("\\`\\*Customize .*\\*\\'"
+   "\\`\\*\\(Wo\\)?Man .*\\*\\'"
+   "\\`\\*magit-.+\\*\\'"
+   "\\`\\*.*helm.*\\*\\'"))
+(mapc
+ (lambda (item)
+   (add-to-list 'clean-buffer-list-kill-never-buffer-names item))
+ '("*ielm*"
+   "*mail*"
+   "*w3m*"
+   "*w3m-cache*"
+   "*Bookmark List*"))
+(mapc
+ (lambda (item)
+   (add-to-list 'clean-buffer-list-kill-never-regexps item))
+ '("\\`\\*tramp/.*\\*\\'"
+   "\\`\\*ftp .*\\*\\'"
+   "\\`\\*eshell\\*.*\\'"
+   "\\`\\*shell\\*.*\\'"
+   "\\`\\*ipython\\*.*\\'"
+   "\\`\\.\\*scratch\\*.*\\'"
+   "\\`\\*Org Src .+\\*\\'"))
 #+end_src
 
 ** Run midnight scripts
