@@ -28,6 +28,7 @@ at root of org package.
 (defun my-org-config ()
   ;; other minor mode
   (eldoc-mode)
+  (turn-on-flyspell)
   ;; math
   (org-cdlatex-mode)
   (local-set-key "\M-\C-n" 'outline-next-visible-heading)
@@ -116,16 +117,18 @@ to activate more languages using the customize interface for the
 `=org-babel-load-languages=' variable, or with an elisp form like the
 one below.  The customize interface of `=org-babel-load-languages='
 contains an up to date list of the currently supported languages.
-#+begin_src emacs-lisp :tangle no
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (sh . t)))
+#+begin_src emacs-lisp
+(require 'ob)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (sh . t)
+   (python . t)))
 #+end_src
 
 You are encouraged to add the following to your personal configuration
 although it is not added by default as a security precaution.
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (setq org-confirm-babel-evaluate nil)
 #+end_src
 
@@ -172,7 +175,6 @@ file using the `org-babel-lob-ingest' function.
 #+END_SRC
 
 ** Org export to PDF
-
 *** XeLaTeX
 Use XeLaTeX to export PDF and compile two times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
