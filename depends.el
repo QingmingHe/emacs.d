@@ -12,6 +12,7 @@
         smex
         dash
         find-file
+        highlight-cl
         ,(when (window-system)
            'pos-tip)
 
