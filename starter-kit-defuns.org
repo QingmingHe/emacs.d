@@ -277,16 +277,19 @@ or =defcustom= with =setq= or use =eval-defun=.
 
 #+begin_src emacs-lisp
 (defun copy-buffer-file-name-as-kill ()
-  "Copy file name of current buffer to kill ring."
   (interactive)
   (let ((fname (buffer-file-name)))
     (when fname
       (kill-new fname)
       (message fname))))
-#+end_src
 
-#+begin_src emacs-lisp
 (defun copy-buffer-name-as-kill ()
   (interactive)
-  (kill-new (buffer-name)))
+  (kill-new (buffer-name))
+  (message (buffer-name)))
+
+(defun copy-buffer-directory-name-as-kill ()
+  (interactive)
+  (kill-new (file-name-directory (buffer-file-name)))
+  (message (file-name-directory (buffer-file-name))))
 #+end_src

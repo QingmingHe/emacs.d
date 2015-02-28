@@ -139,6 +139,7 @@ previously visited the same file.
 (set-default 'indicate-empty-lines t)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'gc 'magit-commit)
 ;; Seed the random-number generator
 (random t)
 #+end_src
