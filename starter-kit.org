@@ -419,9 +419,11 @@ everyone using the starter kit.
 
 - Others
 
+You should note that the sequence is very important.
 #+BEGIN_SRC emacs-lisp
 ;; desktop should be the first one to load
 (starter-kit-load "desktop")
+(starter-kit-load "evil")
 (starter-kit-load "flyspell")
 (when *cygwin*
   (starter-kit-load "win32"))
@@ -435,7 +437,6 @@ everyone using the starter kit.
 (starter-kit-load "flycheck")
 (starter-kit-load "misc-recommended")
 (starter-kit-load "helm")
-(starter-kit-load "evil")
 (starter-kit-load "yasnippet")
 (starter-kit-load "autocomplete")
 (starter-kit-load "w3m")

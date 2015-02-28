@@ -125,3 +125,11 @@ This function is copied form prelude. The differences are:
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 #+end_src
+** Org mode
+
+#+begin_src emacs-lisp
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(global-set-key "\C-cc" 'org-capture)
+(global-set-key "\C-cj" 'org-clock-goto)
+#+end_src
