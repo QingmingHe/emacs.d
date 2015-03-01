@@ -15,14 +15,20 @@ which typesets HTML into plain text.
 
 #+BEGIN_SRC emacs-lisp
 (if (executable-find "w3m")
-  (progn
-    (require 'w3m)
-    (setq w3m-command "w3m")
-    (setq browse-url-browser-function 'w3m-browse-url)
-    (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
-    (setq w3m-use-cookies t)
-    (setq w3m-home-page "https://www.google.com.hk"))
-  (message "w3m is not installed!"))
+    (progn
+      (require 'w3m)
+      (setq w3m-command "w3m")
+      (setq browse-url-browser-function 'w3m-browse-url)
+      (autoload 'w3m-browse-url "w3m" "Ask a WWW browser to show a URL." t)
+      (setq w3m-use-cookies t)
+      (setq w3m-home-page "https://www.google.com.hk"))
+  (message "w3m is not installed!")
+  (setq w3m-coding-system 'utf-8
+        w3m-file-coding-system 'utf-8
+        w3m-file-name-coding-system 'utf-8
+        w3m-input-coding-system 'utf-8
+        w3m-output-coding-system 'utf-8
+        w3m-terminal-coding-system 'utf-8))
 #+END_SRC
 
 *** Key bindings
@@ -46,10 +52,11 @@ which typesets HTML into plain text.
 *** Key bindings
 
 #+begin_src emacs-lisp
-(define-key eww-mode-map "B" 'eww-back-url)
-(define-key eww-mode-map "b" 'scroll-down-command)
-(define-key eww-mode-map "j" 'next-line)
-(define-key eww-mode-map "k" 'previous-line)
-(define-key eww-mode-map (kbd "<") 'beginning-of-buffer)
-(define-key eww-mode-map (kbd ">") 'end-of-buffer)
+(when (fboundp 'eww)
+  (define-key eww-mode-map "B" 'eww-back-url)
+  (define-key eww-mode-map "b" 'scroll-down-command)
+  (define-key eww-mode-map "j" 'next-line)
+  (define-key eww-mode-map "k" 'previous-line)
+  (define-key eww-mode-map (kbd "<") 'beginning-of-buffer)
+  (define-key eww-mode-map (kbd ">") 'end-of-buffer))
 #+end_src
