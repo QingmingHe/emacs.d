@@ -12,6 +12,7 @@ First define projects.
 ;; project mode everywhere
 (global-project-mode 1)
 (prj/setup)
+(setq etu/quiet-update t)
 
 (setq project-roots
       `(("CExamples"
@@ -55,9 +56,7 @@ First define projects.
   (interactive "DPath to make tags: \nsProject name: ")
   (shell-command
    (format "find %s -type f ! -path \"./.git/*\" | grep \".\\+\\.\\(py\\|c\\|h\\|cxx\\|cpp\\|f90\\|F90\\|f\\|F\\|el\\)\" | xargs ctags -e -f %s/%s-TAGS"
-           (directory-file-name dir-name) (directory-file-name dir-name) project-name)
-  )
-)
+           (directory-file-name dir-name) (directory-file-name dir-name) project-name)))
 #+END_SRC
 
 *** Set tags file name nil

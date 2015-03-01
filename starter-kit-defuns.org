@@ -293,3 +293,11 @@ or =defcustom= with =setq= or use =eval-defun=.
   (kill-new (file-name-directory (buffer-file-name)))
   (message (file-name-directory (buffer-file-name))))
 #+end_src
+** Add to PATH environment variable
+ 
+#+begin_src emacs-lisp
+(defun add-to-path-env-var (path)
+  (interactive
+   (list (read-shell-command "Path: ")))
+  (setenv "PATH" (concat path ":" (getenv "PATH"))))
+#+end_src

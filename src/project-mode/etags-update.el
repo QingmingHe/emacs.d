@@ -66,6 +66,9 @@ If set to a function, the function should return one of 'add, 'prompt, or 'nil."
 (defvar etu/no-prompt-files (make-hash-table :test 'equal)
   "A collection of files not to be prompted for in file append situations")
 
+(defvar etu/quiet-update nil
+  "Update TAGS file quietly?")
+
 (defun etu/append-prompt-file ()
   "Remove the curent-buffers's file from the no-prompt-files
  collection. Then, when the file is saved and
@@ -156,7 +159,8 @@ the match or nil."
     ;; have use find-tags between saves and we don't want to re-prompt
     ;; to add the file.
     (visit-tags-table (expand-file-name tags-file-name))
-    (message "Refreshing TAGS file ...done")
+    (unless etu/quiet-update
+      (message "Refreshing TAGS file ...done"))
     (when (get-buffer  etu/proc-buf)
       (kill-buffer (get-buffer etu/proc-buf))))
    (t (message "Refreshing TAGS file failed. Event was %s. See buffer %s." event etu/proc-buf))))
@@ -229,7 +233,8 @@ the file is not already in TAGS, maybe add it."
           ;; absolute paths. How often do you move your source code OR
           ;; your TAGS file and not completely rebuild TAGS?
           (setq cmd (concat "etags -o " tags-file-name " -a " file)))
-        (message "Refreshing TAGS file for %s..." file)
+        (unless etu/quiet-update
+          (message "Refreshing TAGS file for %s..." file))
         (start-process-shell-command proc-name etu/proc-buf cmd)
         (set-process-sentinel (get-process proc-name) 'etu/update-cb)))))) 
 
