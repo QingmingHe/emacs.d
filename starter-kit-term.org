@@ -4,8 +4,8 @@
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 * Starter Kit Term
-
 ** Eshell
+
 [[http://www.emacswiki.org/emacs/CategoryEshell][Eshell]] is a great shell.
 
 *** Configurations
@@ -14,7 +14,10 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (setq eshell-cmpl-cycle-completions nil
       eshell-save-history-on-exit t
       eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'"
-      eshell-history-size 250)
+      eshell-history-size 250
+      eshell-hist-ignoredups t
+      eshell-scroll-to-bottom-on-output t
+      eshell-scroll-show-maximum-output t)
 
 (eval-after-load 'esh-opt
   '(progn
@@ -31,13 +34,10 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
                   '("gunzip" "gz\\'"))
      (add-to-list 'eshell-command-completions-alist
                   '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))
-     ;; (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
-     ))
-
-(defun my-eshell-config ()
-  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
-  (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history))
-(add-hook 'eshell-mode-hook 'my-eshell-config)
+     (add-to-list 'eshell-command-completions-alist
+                  '("unzip" "\\.zip\\'"))
+     (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
+     (add-to-list 'eshell-output-filter-functions 'eshell-postoutput-scroll-to-bottom)))
 #+end_src
 
 The =eshell= directory holds alias definitions and history
@@ -49,6 +49,26 @@ is pre-populated with some generally applicable aliases.
 #+begin_src emacs-lisp
   (setq eshell-directory-name
         (expand-file-name "./" (expand-file-name "eshell" starter-kit-dir)))
+#+end_src
+
+** Key bindings
+
++ Use *C-a* to move to beginning of line of beginning of command line.
++ Use *C-p* or *M-p* to complete eshell history with helm.
+
+#+begin_src emacs-lisp
+(defun my-eshell-goto-bottom ()
+  (interactive)
+  (evil-goto-line)
+  (eshell-bol))
+
+(defun my-eshell-keybinding ()
+  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
+  (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
+  (define-key eshell-mode-map [tab] 'helm-esh-pcomplete)
+  (evil-define-key 'normal eshell-mode-map (kbd "G") 'my-eshell-goto-bottom)
+  (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history))
+(add-hook 'eshell-mode-hook 'my-eshell-keybinding)
 #+end_src
 
 *** Eldoc
@@ -99,6 +119,12 @@ alias some-alias
 Use eshell command on each file marked in =helm-find-files=. Command should
 accept one file as argument. Aliases ended with "\\(\\$1\\|\\$\\*\\)$" can be
 completed by helm.
+
+**** Pseudo device
+#+begin_src sh
+echo hello > /dev/clip    # goes to the clipboard
+echo hello > /dev/kill    # goes to the kill ring
+#+end_src
 
 ** Term
 *** Multi eshell

@@ -227,5 +227,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
    (magit-branch-manager-mode . emacs)
    (diff-mode                 . emacs)
    (Man-mode                  . emacs)
-   (gud-mode                  . emacs)))
+   (gud-mode                  . emacs)
+   (eshell-mode               . insert)
+   (shell-mode                . insert)))
 #+END_SRC

@@ -68,6 +68,7 @@
         ahk-mode
 
         ;; eshell, term
+        esh-mode
         em-cmpl
         em-prompt
         em-term

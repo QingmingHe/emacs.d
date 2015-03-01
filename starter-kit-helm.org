@@ -69,10 +69,14 @@ Helm or ido sometimes do wrong things.
 #+END_SRC
 
 ** Remove duplicate eshell history
+    :PROPERTIES:
+    :TANGLE:   yes
+    :END:
 
 + Remove duplicates in eshell history ring.
 + Use [[elisp:write-region]] instead of [[elisp:write-file]] for that the previous is
   faster and quite.
++ This can be realized by set [[elisp:(describe-variable 'eshell-hist-ignoredups)][eshell-hist-ignoredups]] to be t.
 #+begin_src emacs-lisp
 (defadvice eshell-write-history (after remove-eshell-history-dup-after-write activate)
   (with-temp-buffer
