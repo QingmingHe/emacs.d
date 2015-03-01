@@ -37,8 +37,9 @@ which typesets HTML into plain text.
 *** Key bindings
 
 #+begin_src emacs-lisp
-(define-key w3m-mode-map (kbd "<") 'beginning-of-buffer)
-(define-key w3m-mode-map (kbd ">") 'end-of-buffer)
+(when (executable-find "w3m")
+  (define-key w3m-mode-map (kbd "<") 'beginning-of-buffer)
+  (define-key w3m-mode-map (kbd ">") 'end-of-buffer))
 #+end_src
 
 *** How to install
