@@ -1,7 +1,8 @@
-#+TITLE: Starter Kit W3m
+#+TITLE: Starter Kit Browser
 #+OPTIONS: toc:nil num:nil ^:nil
 
-* Starter Kit W3m
+* Starter Kit Browser
+** w3m
 
 #+BEGIN_QUOTE
 w3m is a text-based web browser as well as a pager like `more' or `less'. With
@@ -10,7 +11,7 @@ or something like that). Moreover, w3m can be used as a text formatting tool
 which typesets HTML into plain text.
 #+END_QUOTE
 
-** Basic configuration
+*** Basic configuration
 
 #+BEGIN_SRC emacs-lisp
 (if (executable-find "w3m")
@@ -24,12 +25,31 @@ which typesets HTML into plain text.
   (message "w3m is not installed!"))
 #+END_SRC
 
-** How to install
+*** Key bindings
+
+#+begin_src emacs-lisp
+(define-key w3m-mode-map (kbd "<") 'beginning-of-buffer)
+(define-key w3m-mode-map (kbd ">") 'end-of-buffer)
+#+end_src
+
+*** How to install
 
 - Install mew, apel and flim from melpa.
 - Install w3m form melpa.
 - Error during compilation for lack of Mule-UCS. Don't care it, Mule-UCS is
   obsolete.
 
-** Usage
+*** Usage
 + To copy url: *w3m-print-current-url*
+
+** eww
+*** Key bindings
+
+#+begin_src emacs-lisp
+(define-key eww-mode-map "B" 'eww-back-url)
+(define-key eww-mode-map "b" 'scroll-down-command)
+(define-key eww-mode-map "j" 'next-line)
+(define-key eww-mode-map "k" 'previous-line)
+(define-key eww-mode-map (kbd "<") 'beginning-of-buffer)
+(define-key eww-mode-map (kbd ">") 'end-of-buffer)
+#+end_src
