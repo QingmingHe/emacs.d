@@ -38,7 +38,13 @@ First define projects.
          :filename-regex ,(regexify-ext-list '(py f90 org))
          :exclude-paths (".git" "build")
          :gtags-label "ctags"
-         :lighter "pyPkgs")))
+         :lighter "pyPkgs")
+        ("GTD"
+         :root-contains-files ("inbox.org" "projects.org" "notes.org")
+         :filename-regex ,(regexify-ext-list '(org py f90 c))
+         :exclude-paths (".git")
+         :tags-tool 'ctags
+         :lighter "GTD")))
 #+END_SRC
 
 ** Ctags

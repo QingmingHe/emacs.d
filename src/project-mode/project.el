@@ -46,6 +46,7 @@ library.")
 
 (defvar prj/use-gtags (if (executable-find "gtags") t nil)
   "Use gtags or ctags?")
+(make-variable-buffer-local 'prj/use-gtags)
 
 (defvar prj/gtags-conf-file-guess
   `("/usr/share/gtags/gtags.conf"
@@ -673,7 +674,8 @@ List of include paths, include \"-I\" flag."
       (progn
         (let ((p (project-root-fetch))
               (fname (buffer-file-name))
-              lght)
+              lght
+              tags-tool)
           (when (and
                  p
                  fname
@@ -685,7 +687,10 @@ List of include paths, include \"-I\" flag."
              prj/buffer-mode-lighter
              (if (setq lght (project-root-data :lighter p))
                  (format " Prj:%s" lght)
-               " Prj")))))
+               " Prj"))
+            (when (setq tags-tool (project-root-data :tags-tool p))
+              (cond ((eq tags-tool 'gtags) (setq prj/use-gtags t))
+                    ((eq tags-tool 'ctags) (setq prj/use-gtags nil)))))))
     (progn
       (remove-hook 'after-save-hook 'prj/update-tags-single-file t))))
 

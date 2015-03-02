@@ -200,8 +200,12 @@ prompt for user input tags file name."
           (catch 'tags-found
             (mapcar
              (lambda (file-name)
-               (when (string-match-p ".*TAGS$" file-name)
-                 (etu/visit-tags-table-new file-name)
+               (setq file-name (file-name-nondirectory file-name))
+               (when (and
+                      (string-match-p ".*TAGS$" file-name)
+                      (not (string= "GTAGS" file-name))
+                      (not (string= "GRTAGS" file-name)))
+                 (etu/visit-tags-table-new (expand-file-name file-name))
                  (throw 'tags-found t)))
              (directory-files ".")))))
     (when (not quit-when-not-p)
