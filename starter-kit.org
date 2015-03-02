@@ -439,7 +439,7 @@ You should note that the sequence is very important.
 (starter-kit-load "helm")
 (starter-kit-load "yasnippet")
 (starter-kit-load "autocomplete")
-(starter-kit-load "w3m")
+(starter-kit-load "browser")
 (starter-kit-load "dictionary")
 (starter-kit-load "bindings")
 (starter-kit-load "term")

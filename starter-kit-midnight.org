@@ -35,7 +35,7 @@
    (add-to-list 'clean-buffer-list-kill-regexps item))
  '("\\`\\*Customize .*\\*\\'"
    "\\`\\*\\(Wo\\)?Man .*\\*\\'"
-   "\\`\\*magit-.+\\*\\'"
+   "\\`\\*magit.+\\*\\'"
    "\\`\\*.*helm.*\\*\\'"))
 (mapc
  (lambda (item)
