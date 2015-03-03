@@ -479,7 +479,7 @@ directory they are found in so that they are unique."
     (mapcar
      (lambda (exclude-path)
        (concat (cdr p) exclude-path))
-     (or (project-root-data :exclude-paths p) '(".git")))))
+     (or (project-root-data :exclude-paths p) '(".git" ".hg" ".svn")))))
 
 (defun project-root-find-cmd (&rest pattern)
   (let ((pattern (car pattern))
@@ -531,22 +531,29 @@ then the current project-details are used."
 function and project-root-file-in-project is that this function check
 whether a file is in project by checking paths, exclude paths and
 filename-regex."
-  (let ((p (or p (project-root-fetch)))
-        (filename (ignore-errors (expand-file-name filename))))
+  (let* ((p (or p (project-root-fetch)))
+         (filename (ignore-errors (expand-file-name filename)))
+         (default-directory (if p (cdr p) default-directory)))
     (and
      p
      filename
      (file-exists-p filename)
-     (string-match-p
-      (or (project-root-data :filename-regex p) "") filename)
-     (catch 'under-due-path
-       (mapcar
-        (lambda (exclude-path)
-          (if (eq 0
-                  (string-match-p exclude-path filename))
-              (throw 'under-due-path nil)
-            t))
-        (project-root-exclude-paths p))))))
+     (string-match
+      (or (project-root-data :filename-regex p) ".+") filename)
+     (not (null (string-match
+                 (regexp-quote (expand-file-name (cdr p)))
+                 filename)))
+     (let ((under-due-path t))
+       (catch 'under-exclude-path
+         (mapc
+          (lambda (path)
+            (when (eq 0 (string-match
+                         (regexp-quote (expand-file-name path))
+                         filename))
+              (setq under-due-path nil)
+              (throw 'under-exclude-path t)))
+          (project-root-exclude-paths p)))
+       under-due-path))))
 
 (defun project-root-buffer-in-project (buffer &optional p)
   "Check to see if buffer is in project"

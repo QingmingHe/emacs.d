@@ -133,3 +133,14 @@ This function is copied form prelude. The differences are:
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-cj" 'org-clock-goto)
 #+end_src
+** Upper case back word
+
+#+begin_src emacs-lisp
+(define-key global-map (kbd "M-u")
+  (lambda (arg)
+    (interactive "P")
+    (if arg
+        (upcase-word arg)
+      (let ((b (bounds-of-thing-at-point 'symbol)))
+        (upcase-region (car b) (cdr b))))))
+#+end_src
