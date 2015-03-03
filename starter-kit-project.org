@@ -18,19 +18,18 @@ First define projects.
       `(("CExamples"
          :root-contains-files (".CExample-root.el")
          :filename-regex ,(regexify-ext-list '(c h org))
-         :exclude-paths (".git")
          :gtags-label "default"
          :lighter "C-e")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py org))
-         :exclude-paths (".git" "benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
+         :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :gtags-label "ctags"
          :lighter "SUGAR")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))
-         :exclude-paths (".git" "backups" "auto-save-list")
+         :exclude-paths ("backups" "auto-save-list")
          :gtags-label "ctags"
          :lighter "Econf")
         ("pyPkgs"
@@ -42,8 +41,7 @@ First define projects.
         ("GTD"
          :root-contains-files ("inbox.org" "projects.org" "notes.org")
          :filename-regex ,(regexify-ext-list '(org py f90 c))
-         :exclude-paths (".git")
-         :tags-tool 'ctags
+         :tags-tool "ctags"
          :lighter "GTD")))
 #+END_SRC
 
@@ -53,16 +51,6 @@ First define projects.
 
 #+BEGIN_SRC emacs-lisp
 (setq tags-revert-without-query t)
-#+END_SRC
-
-*** Function to generate tags file
-#+BEGIN_SRC emacs-lisp
-(defun my-make-tags (dir-name project-name)
-  "Create tags file."
-  (interactive "DPath to make tags: \nsProject name: ")
-  (shell-command
-   (format "find %s -type f ! -path \"./.git/*\" | grep \".\\+\\.\\(py\\|c\\|h\\|cxx\\|cpp\\|f90\\|F90\\|f\\|F\\|el\\)\" | xargs ctags -e -f %s/%s-TAGS"
-           (directory-file-name dir-name) (directory-file-name dir-name) project-name)))
 #+END_SRC
 
 *** Set tags file name nil
@@ -94,10 +82,11 @@ First define projects.
 *** imenu
 
 #+BEGIN_SRC emacs-lisp
-;; auto rescan after saving file
+(setq imenu-auto-rescan nil)
 (defun starter-kit-imenu-rescan ()
   (interactive)
-  (imenu--menubar-select imenu--rescan-item))
+  (when (derived-mode-p 'org-mode 'prog-mode 'markdown-mode 'rst-mode)
+    (imenu--menubar-select imenu--rescan-item)))
 (add-hook 'after-save-hook 'starter-kit-imenu-rescan)
 
 (defun my-imenu (&optional symbol-list)

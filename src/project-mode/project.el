@@ -68,9 +68,13 @@ use ctags parser; ...")
 (defvar prj/install-path (expand-file-name "~/bin")
   "Where to install scripts of project mode.")
 
-(defvar prj/tags-update-file-ext
-  (regexify-ext-list '(c cpp cxx h hpp f90 f py pl el))
-  "File extensions whose tags will be updated.")
+(defvar prj/is-safe-on nil
+  "Whether is it safe to turn on `project-minor-mode'")
+(make-variable-buffer-local 'prj/is-safe-on)
+
+(defvar prj/buffer-mode-lighter nil
+  "Mode line linghter for current buffer if `project-minor-mode' is on.")
+(make-variable-buffer-local 'prj/buffer-mode-lighter)
 
 (defun __file__ ()
   "Get the name of current file."
@@ -392,19 +396,15 @@ saved before killed."
 project root, otherwise prj can't update tags file."
   (interactive)
   (let* ((p (project-root-fetch))
-         (default-directory
-           (ido-read-directory-name
-            "Directory to run ctags: "
-            (when p (cdr p))))
-         (tags-file
-          (read-string
-           "Name of tags file: " nil nil
-           (concat (if p (concar (car p) "-") "") "TAGS"))))
+         (default-directory (cdr p))
+         (tags-file "TAGS"))
     (when (file-exists-p tags-file)
       (delete-file tags-file))
+    (message "Generating TAGS file for %s ..." (car p))
     (shell-command
      (format "%s | xargs ctags -e -f %s -a"
-             (project-root-find-cmd) tags-file))))
+             (project-root-find-cmd) tags-file))
+    (message "Done")))
 
 (defun prj/get-gtags-label (&optional p)
   "Get gtags label."
@@ -427,21 +427,21 @@ project root, otherwise prj can't update tags file."
   "Run gtags at user specified path."
   (interactive)
   (let* ((p (project-root-fetch))
-         (default-directory (ido-read-directory-name
-                             "Directory to run gtags: "
-                             (when p (cdr p))))
+         (default-directory (cdr p))
          (gtags-label (prj/get-gtags-label))
          (gtags-conf (prj/get-gtags-conf)))
+    (message "Generating GTAGS for %s ..." (car p))
     (shell-command
      (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
-             (project-root-find-cmd) gtags-label gtags-conf))))
+             (project-root-find-cmd) gtags-label gtags-conf))
+    (message "Done")))
 
 (defun prj/generate-tags ()
   "Generate tags file by ctags or gtags."
   (interactive)
   (if prj/use-gtags
       (prj/generate-gtags)
-    (prj/generate-gtags)))
+    (prj/generate-etags)))
 
 (defun prj/update-gtags-single-file ()
   "Update GTAGS for current project file."
@@ -455,16 +455,15 @@ project root, otherwise prj can't update tags file."
           "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
           gtags-label gtags-conf fname))))))
 
-;;; project compiler flags
-
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
   (when (and
-         (buffer-file-name)
-         (string-match prj/tags-update-file-ext (buffer-file-name)))
+         (buffer-file-name))
     (if prj/use-gtags
         (prj/update-gtags-single-file)
       (etu/update-tags-for-file))))
+
+;;; project compiler flags
 
 (defun prj/c-include-paths-pkgs (pkgs)
   "Get c include pahts for \"pkgs\". \"pkgs\" should be string or list of
@@ -675,23 +674,40 @@ List of include paths, include \"-I\" flag."
               (fname (buffer-file-name))
               lght
               tags-tool)
-          (when (and
-                 p
-                 fname
-                 (file-exists-p fname)
-                 (not (file-remote-p fname))
-                 (project-root-file-is-project-file fname p))
-            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
-            (setq-local
+          (when (or
+                 prj/is-safe-on
+                 (and
+                  p
+                  fname
+                  (file-exists-p fname)
+                  (not (file-remote-p fname))
+                  (project-root-file-is-project-file fname p)))
+            ;; mode line lighter
+            (setq
              prj/buffer-mode-lighter
              (if (setq lght (project-root-data :lighter p))
                  (format " Prj:%s" lght)
                " Prj"))
-            (when (setq tags-tool (project-root-data :tags-tool p))
-              (cond ((eq tags-tool 'gtags) (setq prj/use-gtags t))
-                    ((eq tags-tool 'ctags) (setq prj/use-gtags nil)))))))
-    (progn
-      (remove-hook 'after-save-hook 'prj/update-tags-single-file t))))
+            ;; add update tags hook, determine tags tool, generate tags, visit
+            ;; tags table
+            (unless (string=
+                     "none"
+                     (setq tags-tool (project-root-data :tags-tool p)))
+              (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)
+              (cond ((string= "gtags" tags-tool) (setq prj/use-gtags t))
+                    ((string= "ctags" tags-tool) (setq prj/use-gtags nil))
+                    (t (if (executable-find "gtags")
+                           (setq prj/use-gtags t)
+                         (setq prj/use-gtags nil))))
+              (let ((default-directory (cdr p)))
+                (if prj/use-gtags
+                    (unless (file-exists-p "GTAGS")
+                      (prj/generate-gtags))
+                  (unless (etu/find-tags-file p)
+                    prj/generate-etags)))
+              (unless prj/use-gtags
+                (etu/visit-tags-table p))))))
+    (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
 (defun project-mode-on-safe ()
   "Enable `global-project-mode' if it is safe to do so.
@@ -709,6 +725,7 @@ Enable `global-project-mode' only when all following conditions are meet:
            (not (file-remote-p fname))
            (setq p (project-root-fetch))
            (project-root-file-is-project-file fname p))
+      (setq prj/is-safe-on t)
       (project-minor-mode))))
 
 (define-globalized-minor-mode global-project-mode project-minor-mode

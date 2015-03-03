@@ -155,9 +155,12 @@
                   (concat " -path \"" default-directory path "\" -prune ")))
              paths "-o"))
 
+(defvar project-root-rep-paths
+  '(".git" ".hg" ".svn")
+  "Repository paths at project root.")
+
 (defvar project-root-extra-find-args
-  (project-root-find-prune '("*/.hg" "*/.git" "*/.svn") t)
-;  (find-to-string '(prune (name ".svn" ".git" ".hg")))
+  (project-root-find-prune project-root-rep-paths t)
   "Extra find args that will be AND'd to the defaults (which are
 in `project-root-file-find-process')")
 
@@ -427,7 +430,7 @@ one."
      (if (project-root-p)
          (let ((default-directory (cdr project-details))
                (filename-regex (or (project-root-data :filename-regex) ".*"))
-               (exclude-paths (project-root-data :exclude-paths)))
+               (exclude-paths (project-root-exclude-paths project-details)))
            ,@body)
        (error "No project root found"))))
 
@@ -475,11 +478,19 @@ directory they are found in so that they are unique."
 
 (defun project-root-exclude-paths (&optional p)
   "Absolute paths of exclude paths."
-  (let ((p (or p (project-root-fetch))))
+  (let* ((p (or p (project-root-fetch)))
+         (exclude-paths (project-root-data :exclude-paths p)))
     (mapcar
      (lambda (exclude-path)
        (concat (cdr p) exclude-path))
-     (or (project-root-data :exclude-paths p) '(".git" ".hg" ".svn")))))
+     (if exclude-paths
+         (progn
+           (mapc
+            (lambda (path)
+              (add-to-list 'exclude-paths path))
+            project-root-rep-paths)
+           exclude-paths)
+       project-root-rep-paths))))
 
 (defun project-root-find-cmd (&rest pattern)
   (let ((pattern (car pattern))
@@ -487,8 +498,7 @@ directory they are found in so that they are unique."
     ;; TODO: use find-cmd here
     (concat (project-root-find-executable) " " default-directory
             (project-root-find-prune
-             (project-root-data :exclude-paths p))
-            project-root-extra-find-args
+             (project-root-exclude-paths p))
             ", -type f -regex \"" (project-root-data :filename-regex p) "\" "
             (if pattern (concat " -name '*" pattern "*' "))
             project-root-find-options)))
@@ -512,6 +522,22 @@ directory they are found in so that they are unique."
 `default-directory' to the root of the current project."
   (interactive)
   (with-project-root (execute-extended-command current-prefix-arg)))
+
+(defun project-root-under-exclude-path (filename &optional p)
+  "Determine whether FILENAME is under exclude paths of a project. FILENAME
+should be full path of a file."
+  (let ((under-exclude-path nil)
+        (p (or p (project-root-fetch))))
+       (catch 'under-exclude-path
+         (mapc
+          (lambda (path)
+            (when (eq 0 (string-match
+                         (regexp-quote (expand-file-name path))
+                         filename))
+              (setq under-exclude-path t)
+              (throw 'under-exclude-path t)))
+          (project-root-exclude-paths p)))
+       under-exclude-path))
 
 (defun project-root-file-in-project (filename &optional p)
   "Check to see if FILENAME is in the project P. If P is omitted
@@ -543,17 +569,7 @@ filename-regex."
      (not (null (string-match
                  (regexp-quote (expand-file-name (cdr p)))
                  filename)))
-     (let ((under-due-path t))
-       (catch 'under-exclude-path
-         (mapc
-          (lambda (path)
-            (when (eq 0 (string-match
-                         (regexp-quote (expand-file-name path))
-                         filename))
-              (setq under-due-path nil)
-              (throw 'under-exclude-path t)))
-          (project-root-exclude-paths p)))
-       under-due-path))))
+     (not (project-root-under-exclude-path filename p)))))
 
 (defun project-root-buffer-in-project (buffer &optional p)
   "Check to see if buffer is in project"
@@ -646,9 +662,8 @@ filename-regex."
     (type . file)))
 
 (defun project-root-file-find-process (pattern)
-  "Return a process which represents a find of all files matching
-`project-root-extra-find-args' and the hard-coded arguments in
-this function."
+  "Return a process which represents a find of all files matching and the
+hard-coded arguments in this function."
   (when anything-project-root
       (start-process-shell-command
        "project-root-find"

@@ -40,7 +40,7 @@
 
 ;; helm swoop
 (setq helm-multi-swoop-edit-save t
-      helm-swoop-split-with-multiple-windows nil
+      helm-swoop-split-with-multiple-windows t
       helm-swoop-move-to-line-cycle t)
 #+end_src
 

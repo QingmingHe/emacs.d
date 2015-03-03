@@ -69,6 +69,10 @@ If set to a function, the function should return one of 'add, 'prompt, or 'nil."
 (defvar etu/quiet-update nil
   "Update TAGS file quietly?")
 
+(defvar etu/buffer-tags-file-name nil
+  "Buffer local `tags-file-name'.")
+(make-variable-buffer-local 'etu/buffer-tags-file-name)
+
 (defun etu/append-prompt-file ()
   "Remove the curent-buffers's file from the no-prompt-files
  collection. Then, when the file is saved and
@@ -183,39 +187,43 @@ the match or nil."
        (t t)))
      (t (error "Invalid etu/append-file-action action: %s" action)))))
 
-(defun etu/visit-tags-table-new (file-name)
-  "Visit new tags table"
-  (when (not (string= file-name tags-file-name))
-    (visit-tags-table file-name)))
+(defun etu/find-tags-file (&optional p)
+  "Find tags file at project root. Returns TAGS-FILE-NAME without directory
+name."
+  (let* ((p (or p (project-root-fetch)))
+         (default-directory (if p (cdr p) default-directory))
+         tags)
+    (when p
+      (cond ((file-exists-p "TAGS") (setq tags "TAGS"))
+            (t
+             (catch 'tags-found
+               (mapc
+                (lambda (file-name)
+                  (setq file-name (file-name-nondirectory file-name))
+                  (when (and
+                         (string-match-p ".*tags$" file-name)
+                         (not (string= "GTAGS" file-name))
+                         (not (string= "GRTAGS" file-name)))
+                    (setq tags file-name)
+                    (throw 'tags-found t)))
+                (directory-files ".")))))
+      tags)))
 
-(defun etu/visit-tags-table (&optional quit-when-not-p)
-  "Visit tags table at root of project which is defined by project-roots or
-prompt for user input tags file name."
+(defun etu/visit-tags-table (&optional p)
+  "Visit tags table at root of project."
   (interactive)
-  (if (project-root-fetch)
-      (let ((default-directory (cdr project-details)))
-        (if (file-exists-p (concat (car project-details) "-TAGS"))
-            (etu/visit-tags-table-new
-             (concat (car project-details) "-TAGS"))
-          (catch 'tags-found
-            (mapcar
-             (lambda (file-name)
-               (setq file-name (file-name-nondirectory file-name))
-               (when (and
-                      (string-match-p ".*TAGS$" file-name)
-                      (not (string= "GTAGS" file-name))
-                      (not (string= "GRTAGS" file-name)))
-                 (etu/visit-tags-table-new (expand-file-name file-name))
-                 (throw 'tags-found t)))
-             (directory-files ".")))))
-    (when (not quit-when-not-p)
-      (visit-tags-table (read-file-name "TAGS file name: ")))))
+  (unless etu/buffer-tags-file-name
+    (when (setq p (or p (project-root-fetch)))
+      (let ((default-directory (cdr p)))
+        (if (setq etu/buffer-tags-file-name (etu/find-tags-file p))
+            (visit-tags-table etu/buffer-tags-file-name t)
+          (setq-local tags-file-name nil))))))
 
 (defun etu/update-tags-for-file ()
   "Update the TAGS file for the file of the current buffer. If
 the file is not already in TAGS, maybe add it."
   (interactive)
-  (etu/visit-tags-table t)
+  (etu/visit-tags-table)
   (when project-details
     (catch 'etu/update-tags-for-file
     (when tags-file-name
@@ -228,8 +236,8 @@ the file is not already in TAGS, maybe add it."
              (cmd               (concat "etags-update.pl " tags-file-name " " file-in-tags))
              (proc-name         "etags-update")
              (default-directory (etu/tags-file-dir)))
-        (if (not (project-root-file-is-project-file (buffer-file-name)))
-            (throw 'etu/update-tags-for-file nil))
+        (unless (project-root-file-is-project-file (buffer-file-name))
+          (throw 'etu/update-tags-for-file nil))
         (unless file-in-tags
           (unless (etu/append-file-p file)
             (throw 'etu/update-tags-for-file nil))
