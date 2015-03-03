@@ -159,14 +159,11 @@ the match or nil."
   "Callback fn to handle etags-update.pl termination"
   (cond
    ((string= event "finished\n")
-    ;; Manualy re-visit TAGS if we appended a new file -- we might not
-    ;; have use find-tags between saves and we don't want to re-prompt
-    ;; to add the file.
-    (visit-tags-table (expand-file-name tags-file-name))
     (unless etu/quiet-update
       (message "Refreshing TAGS file ...done"))
     (when (get-buffer  etu/proc-buf)
-      (kill-buffer (get-buffer etu/proc-buf))))
+      (kill-buffer (get-buffer etu/proc-buf)))
+    (kill-buffer (get-file-buffer (expand-file-name tags-file-name))))
    (t (message "Refreshing TAGS file failed. Event was %s. See buffer %s." event etu/proc-buf))))
 
 (defun etu/append-file-p (file)
@@ -210,23 +207,26 @@ name."
       tags)))
 
 (defun etu/visit-tags-table (&optional p)
-  "Visit tags table at root of project."
+  "Visit tags table at root of project. Returns buffer local
+`etu/buffer-tags-file-name'."
   (interactive)
   (unless etu/buffer-tags-file-name
     (when (setq p (or p (project-root-fetch)))
       (let ((default-directory (cdr p)))
         (if (setq etu/buffer-tags-file-name (etu/find-tags-file p))
-            (visit-tags-table etu/buffer-tags-file-name t)
-          (setq-local tags-file-name nil))))))
+            (progn
+              (visit-tags-table etu/buffer-tags-file-name t)
+              (setq etu/buffer-tags-file-name tags-file-name))
+          (setq-local tags-file-name nil)))))
+  etu/buffer-tags-file-name)
 
-(defun etu/update-tags-for-file ()
+(defun etu/update-tags-for-file (&optional p)
   "Update the TAGS file for the file of the current buffer. If
 the file is not already in TAGS, maybe add it."
   (interactive)
-  (etu/visit-tags-table)
-  (when project-details
+  (etu/visit-tags-table p)
+  (when (and project-details etu/buffer-tags-file-name)
     (catch 'etu/update-tags-for-file
-    (when tags-file-name
       (let ((tags-file-full-name (expand-file-name tags-file-name)))
         (unless (get-file-buffer tags-file-full-name)
           (visit-tags-table tags-file-full-name))
@@ -236,8 +236,6 @@ the file is not already in TAGS, maybe add it."
              (cmd               (concat "etags-update.pl " tags-file-name " " file-in-tags))
              (proc-name         "etags-update")
              (default-directory (etu/tags-file-dir)))
-        (unless (project-root-file-is-project-file (buffer-file-name))
-          (throw 'etu/update-tags-for-file nil))
         (unless file-in-tags
           (unless (etu/append-file-p file)
             (throw 'etu/update-tags-for-file nil))
@@ -248,20 +246,7 @@ the file is not already in TAGS, maybe add it."
         (unless etu/quiet-update
           (message "Refreshing TAGS file for %s..." file))
         (start-process-shell-command proc-name etu/proc-buf cmd)
-        (set-process-sentinel (get-process proc-name) 'etu/update-cb)))))) 
-
-(define-minor-mode etags-update-mode
-  "Minor mode to update the TAGS file when a file is saved.
-
-Requires etags-update.pl to be in your PATH. Does not use
-tags-table-list, only tags-file-name. It is helpful to set
-tags-revert-without-query to `t' to avoid tedious prompting."
-  nil
-  :global nil
-  :lighter " etu"
-  (if etags-update-mode
-      (add-hook 'after-save-hook 'etu/update-tags-for-file)
-    (remove-hook 'after-save-hook 'etu/update-tags-for-file)))
+        (set-process-sentinel (get-process proc-name) 'etu/update-cb))))) 
 
 (provide 'etags-update)
 

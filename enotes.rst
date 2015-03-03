@@ -1,5 +1,3 @@
-.. _SECTION-ctags:
-
 -----
 Ctags
 -----
@@ -33,8 +31,6 @@ listed below:
 |           |                          |source file   |
 +-----------+--------------------------+--------------+
 
-.. _SECTION-multi-term:
-
 ----------
 multi-term
 ----------
@@ -54,16 +50,12 @@ Then kill it::
 
     kill some-process-id
 
-.. _SECTION-ropemacs:    
-
 --------
 Ropemacs
 --------
 
 Ropemacs is based on rope, ropemode and Pymacs. At first usage, emacs will 
 inform to enter "rope project root folder", just enter ".ropeproject".
-
-.. _SECTION-w3m-emacs:
 
 ---------
 w3m-emacs
@@ -76,8 +68,6 @@ w3m-emacs
 * **N**: inverse to **B**
 * **C-c C-p**: w3m-previous-buffer
 * **C-c C-n**: w3m-next-buffer
-
-.. _SECTION-auctex:
 
 ------
 auctex
@@ -104,8 +94,6 @@ Latex Chinese Support for non Windows OS
 * Error may occur that fonts not found. Open /usr/local/texlive/2013/texmf-dist/tex/latex/ctex/fontset/ctex-xecjk-winfonts.def
   and modify fonts name according to names viewed by **fc-list :lang=zh**
 * Compile again and view *.pdf in EMACS.
-
-.. _SECTION-python:
 
 ------
 python
@@ -165,8 +153,6 @@ To avoid time-consuming *loading intersphinx inventory*, download
                             
 Note that **LaTeX** and **python-doc** should be installed.
 
-.. _SECTION-kmacro:
-
 ------
 Kmacro
 ------
@@ -177,8 +163,6 @@ Basic usage
 **C-x (**: begin to define a keyboard macro;
 **C-x )**: end the definition;
 **C-u 10 C-x e**: execute last kmacro for 10 times.
-
-.. _SECTION-org-mode:
 
 --------
 org-mode

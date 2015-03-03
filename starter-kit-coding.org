@@ -52,7 +52,7 @@ a lambda doesn't already exist in the list.
 (add-hook 'prog-mode-hook 'run-starter-kit-coding-hook)
 #+end_src
 
-** Handle parens
+** Handle parens                                                                :smartparens:
 
 #+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp
@@ -85,12 +85,13 @@ Use smartparens to handle curly braces and block comment.
                                             (sp-cc-block-comment "RET"))))
 #+end_src
 
-** Show function name in the header line
+** Show function name in the header line                                        :which:function:mode:
 
 #+begin_src emacs-lisp
 (setq which-func-modes
       '(python-mode c-mode c++-mode f90-mode fortran-mode emacs-lisp-mode
-                    org-mode perl-mode ruby-mode scheme-mode))
+                    org-mode perl-mode ruby-mode scheme-mode
+                    rst-mode markdown-mode))
 (defun starter-kit-which-func-format ()
   (setq-local which-func-unknown "n/a")
   (setq-local header-line-format
