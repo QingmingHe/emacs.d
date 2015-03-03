@@ -667,8 +667,7 @@ List of include paths, include \"-I\" flag."
 
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
-  :lighter (when (symbolp prj/buffer-mode-lighter)
-             prj/buffer-mode-lighter)
+  :lighter prj/buffer-mode-lighter
   (if project-minor-mode
       (progn
         (let ((p (project-root-fetch))
