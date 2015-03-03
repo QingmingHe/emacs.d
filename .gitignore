@@ -48,7 +48,6 @@ irony/
 *elc
 *html
 *pdf
-*txt
 
 ## org stuff
 .org-id-locations
