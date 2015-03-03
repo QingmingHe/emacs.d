@@ -30,7 +30,7 @@ First define projects.
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))
          :exclude-paths ("backups" "auto-save-list")
-         :gtags-label "ctags"
+         :tags-tool "ctags"
          :lighter "Econf")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
@@ -60,6 +60,14 @@ First define projects.
 (add-hook 'kill-emacs-hook (lambda ()
                              (setq tags-file-name nil)))
 #+END_SRC
+
+*** Helm ctags
+
+The limit level or directory to search tag file should not be too deep. Four
+is OK, or you should consider restructure your project.
+#+begin_src emacs-lisp
+(setq helm-etags-tag-file-search-limit 4)
+#+end_src
 
 ** Gtags
 

@@ -704,7 +704,7 @@ List of include paths, include \"-I\" flag."
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
                   (unless (etu/find-tags-file p)
-                    prj/generate-etags)))
+                    (prj/generate-etags))))
               (unless prj/use-gtags
                 (etu/visit-tags-table p))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
