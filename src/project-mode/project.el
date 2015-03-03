@@ -634,6 +634,13 @@ List of include paths, include \"-I\" flag."
    (helm-marked-candidates))
   (project-root-save-roots))
 
+(defun prj/helm-jump-to-dired-buffer (buffer)
+  (with-current-buffer buffer
+    (dired-jump)))
+
+(defun prj/helm-jump-to-dired-file (file)
+  (dired-jump nil file))
+
 (defun prj/helm-mini ()
   (interactive)
   (helm :sources `(((name . "Project Buffers")
@@ -641,6 +648,7 @@ List of include paths, include \"-I\" flag."
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)
                     (action . (("Switch to buffer" . switch-to-buffer)
                                ("Switch to buffer other window" . switch-to-buffer-other-window)
+                               ("Jump to Dired" . prj/helm-jump-to-dired-buffer)
                                ("Save buffer(s)" . prj/helm-save-buffers)
                                ("Kill buffer(s)" . prj/helm-kill-buffers)
                                ("Multi occur on buffer(s)" . prj/helm-multi-occur)
@@ -650,6 +658,7 @@ List of include paths, include \"-I\" flag."
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)
                     (action . (("Find file(s)" . prj/helm-find-files)
                                ("Find file other window" . find-file-other-window)
+                               ("Jump to Dired" . prj/helm-jump-to-dired-file)
                                ("Grep files" . prj/helm-grep-files))))
                    ((name . "Create New File")
                     (dummy)
