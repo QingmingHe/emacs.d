@@ -35,7 +35,6 @@
         ibuffer-vc
         ;; dired+ is required in starter-kit-misc.org for that something
         ;; should be set before loading dired+
-        bookmark+
         linum-relative
         expand-region
         window-numbering

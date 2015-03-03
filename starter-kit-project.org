@@ -46,6 +46,16 @@ First define projects.
 #+END_SRC
 
 ** Ctags
+*** Teach Ctags to Support Org mode
+
+Add to your =~/.ctags= file:
+#+begin_src sh :tangle no
+--langdef=Org
+--langmap=Org:.org
+--regex-Org=/^\* +(.+)$/\1/c,chapter/
+--regex-Org=/^\*\* +(.+)$/\1/s,section/
+--regex-Org=/^\*\*\* +(.+)$/\1/u,subsection/
+#+end_src
 
 *** Don't ask yes or no when reverting tags file
 
@@ -58,7 +68,7 @@ First define projects.
 #+BEGIN_SRC emacs-lisp
 ;; set tags-file-name to be nil so no error in writing .ido.last
 (add-hook 'kill-emacs-hook (lambda ()
-                             (setq tags-file-name nil)))
+                             (setq tags-file-name nil)) t)
 #+END_SRC
 
 *** Helm ctags
@@ -67,6 +77,22 @@ The limit level or directory to search tag file should not be too deep. Four
 is OK, or you should consider restructure your project.
 #+begin_src emacs-lisp
 (setq helm-etags-tag-file-search-limit 4)
+#+end_src
+
+I don't want Org headings are invisible when I jump to it.
+#+begin_src emacs-lisp
+(defadvice helm-etags-action-goto (after helm-etags-goto-outline-show-subtree activate)
+  (when (outline-invisible-p)
+    (show-subtree))
+  (recenter))
+#+end_src
+
+Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-part-only)][helm-etags-match-part-only]].
+#+begin_src emacs-lisp
+(defun helm-etags-toggle-match-part-only ()
+  (interactive)
+  (setq helm-etags-match-part-only (not helm-etags-match-part-only)))
+(define-key helm-etags-map (kbd "C-c C-c") 'helm-etags-toggle-match-part-only)
 #+end_src
 
 ** Gtags

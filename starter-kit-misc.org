@@ -405,6 +405,7 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 
 #+begin_src emacs-lisp
 (autoload 'eim-use-package "eim" "Another emacs input method")
+;; 不使用tooltip
 (setq eim-use-tooltip nil)
 (register-input-method
  "eim-wb" "euc-cn" 'eim-use-package
@@ -412,6 +413,9 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 (register-input-method
  "eim-py" "euc-cn" 'eim-use-package
  "拼音" "汉字拼音输入法" "py.txt")
+;; 默认的multilingual text输入法
+(setq default-input-method "eim-py")
+;; 输入;暂时输入英文
 (require 'eim-extra)
 (global-set-key ";" 'eim-insert-ascii)
 #+end_src
