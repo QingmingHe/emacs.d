@@ -12,7 +12,7 @@ First define projects.
 ;; project mode everywhere
 (global-project-mode 1)
 (prj/setup)
-(setq etu/quiet-update t)
+(setq prj/update-tags-verbose nil)
 
 (setq project-roots
       `(("CExamples"

@@ -76,7 +76,7 @@
         multi-eshell
 
         ;; my own package for handling projects, including project.el,
-        ;; project-root.el, etags-update.el
+        ;; project-root.el
         project
         ;; downloaded somewhere
         taglist

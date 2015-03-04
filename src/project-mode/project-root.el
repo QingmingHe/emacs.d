@@ -607,7 +607,6 @@ filename-regex."
          (project (ido-completing-read "Select project: " (mapcar 'car project-names))))
     (find-file (cdr (assoc project project-names)))))
 
-
 ;;; anything.el config
 
 (defun project-root-anything-colourfy-hits (hits)
