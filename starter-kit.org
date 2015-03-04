@@ -241,18 +241,18 @@ interested in the actual code implementing the starter kit.
 ** Starter kit basics
 
 - Determine system type and emacs version
-#+BEGIN_SRC emacs-lisp
-(setq *cygwin* (eq 'cygwin system-type))
-(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+  #+BEGIN_SRC emacs-lisp
+  (setq *cygwin* (eq 'cygwin system-type))
+  (setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
 
-(if (< emacs-major-version 24)
-    (error "Emacs version should be >= 24.3")
-  (when (< emacs-minor-version 3)
-    (error "Emacs version should be >= 24.3")))
+  (if (< emacs-major-version 24)
+      (error "Emacs version should be >= 24.3")
+    (when (< emacs-minor-version 3)
+      (error "Emacs version should be >= 24.3")))
 
-(when (eq system-type 'windows-nt)
-  (error "Native Windows is not supported"))
-#+END_SRC
+  (when (eq system-type 'windows-nt)
+    (error "Native Windows is not supported"))
+  #+END_SRC
 
 - Load path etc.
   #+name: starter-kit-load-paths
@@ -325,77 +325,84 @@ interested in the actual code implementing the starter kit.
 - Function for loading other parts of the starter kit
   #+name: starter-kit-load
   #+begin_src emacs-lisp
-   (defun starter-kit-load (file &optional header-or-tag)
-     "Load configuration from other starter-kit-*.org files.
-   If the optional argument is the id of a subtree then only
-   configuration from within that subtree will be loaded.  If it is
-   not an id then it will be interpreted as a tag, and only subtrees
-   marked with the given tag will be loaded.
+  (defun starter-kit-load (file &optional header-or-tag)
+    "Load configuration from other starter-kit-*.org files.
+  If the optional argument is the id of a subtree then only
+  configuration from within that subtree will be loaded.  If it is
+  not an id then it will be interpreted as a tag, and only subtrees
+  marked with the given tag will be loaded.
 
-   For example, to load all of starter-kit-lisp.org simply
-   add (starter-kit-load \"lisp\") to your configuration.
+  For example, to load all of starter-kit-lisp.org simply
+  add (starter-kit-load \"lisp\") to your configuration.
 
-   To load only the 'window-system' config from
-   starter-kit-misc-recommended.org add
-    (starter-kit-load \"misc-recommended\" \"window-system\")
-   to your configuration."
-     (let ((file (expand-file-name (if (string-match "starter-kit-.+\.org" file)
-                                       file
-                                     (format "starter-kit-%s.org" file))
-                                   starter-kit-dir)))
-       (org-babel-load-file
-        (if header-or-tag
-            (let* ((base (file-name-nondirectory file))
-                   (dir  (file-name-directory file))
-                   (partial-file (expand-file-name
-                                  (concat "." (file-name-sans-extension base)
-                                          ".part." header-or-tag ".org")
-                                  dir)))
-              (unless (file-exists-p partial-file)
-                (with-temp-file partial-file
-                  (insert
-                   (with-temp-buffer
-                     (insert-file-contents file)
-                     (save-excursion
-                       (condition-case nil ;; collect as a header
-                           (progn
-                             (org-link-search (concat"#"header-or-tag))
-                             (org-narrow-to-subtree)
-                             (buffer-string))
-                         (error ;; collect all entries with as tags
-                          (let (body)
-                            (org-map-entries
-                             (lambda ()
-                               (save-restriction
-                                 (org-narrow-to-subtree)
-                                 (setq body (concat body "\n" (buffer-string)))))
-                             header-or-tag)
-                            body))))))))
-              partial-file)
-          file))))
+  To load only the 'window-system' config from
+  starter-kit-misc-recommended.org add
+   (starter-kit-load \"misc-recommended\" \"window-system\")
+  to your configuration."
+    (let ((file (expand-file-name (if (string-match "starter-kit-.+\.org" file)
+                                      file
+                                    (format "starter-kit-%s.org" file))
+                                  starter-kit-dir)))
+      (org-babel-load-file
+       (if header-or-tag
+           (let* ((base (file-name-nondirectory file))
+                  (dir  (file-name-directory file))
+                  (partial-file (expand-file-name
+                                 (concat "." (file-name-sans-extension base)
+                                         ".part." header-or-tag ".org")
+                                 dir)))
+             (unless (file-exists-p partial-file)
+               (with-temp-file partial-file
+                 (insert
+                  (with-temp-buffer
+                    (insert-file-contents file)
+                    (save-excursion
+                      (condition-case nil ;; collect as a header
+                          (progn
+                            (org-link-search (concat"#"header-or-tag))
+                            (org-narrow-to-subtree)
+                            (buffer-string))
+                        (error ;; collect all entries with as tags
+                         (let (body)
+                           (org-map-entries
+                            (lambda ()
+                              (save-restriction
+                                (org-narrow-to-subtree)
+                                (setq body (concat body "\n" (buffer-string)))))
+                            header-or-tag)
+                           body))))))))
+             partial-file)
+         file))))
 
-   (defun starter-kit-fast-load (file)
-     (let* ((last-time (current-time))
-            (org-file
-             (expand-file-name
-              (if (string-match "starter-kit-.+\.org" file)
-                  file
-                (format "starter-kit-%s.org" file))
-              starter-kit-dir))
-            (elisp-file
-             (expand-file-name (format "%s.el" (file-name-base org-file)))))
-       (if (or
-            (not (file-exists-p elisp-file))
-            (time-less-p
-             (nth 5 (file-attributes elisp-file))
-             (nth 5 (file-attributes org-file))))
-           (progn
-             (message "Loading %s ..." org-file)
-             (org-babel-load-file org-file))
-         (load-file elisp-file))
-       (message
-        (format "%s consumes %.06f to load."
-                file (float-time (time-since last-time))))))
+  (defun starter-kit-fast-load (file)
+    "Load starter kit configuration FILE. A FILE can be file name such as
+  \"starter-kit-defuns.org\" or base-base configuration name such as
+  \"defuns\". If the corresponding elisp file of org FILE exists and not older
+  than the org FILE, It will be loaded directly without loading the org FILE;
+  otherwise the org FILE will be loaded by `org-babel-load-file'."
+    (let* ((last-time (current-time))
+           (org-file
+            (expand-file-name
+             (if (string-match "starter-kit-.+\.org" file)
+                 file
+               (format "starter-kit-%s.org" file))
+             starter-kit-dir))
+           (elisp-file
+            (expand-file-name
+             (format "%s.el" (file-name-base org-file))
+             starter-kit-dir)))
+      (if (or
+           (not (file-exists-p elisp-file))
+           (time-less-p
+            (nth 5 (file-attributes elisp-file))
+            (nth 5 (file-attributes org-file))))
+          (progn
+            (message "Loading %s ..." org-file)
+            (org-babel-load-file org-file))
+        (load-file elisp-file))
+      (message
+       (format "%s consumes %.06f to load."
+               file (float-time (time-since last-time))))))
   #+end_src
 
 - Work around a bug on OS X where system-name is FQDN.
@@ -405,6 +412,34 @@ interested in the actual code implementing the starter kit.
         (eq system-type 'darwin)
         (eq system-type 'berkeley-unix))
         (setq system-name (car (split-string system-name "\\."))))
+  #+end_src
+
+- Ensure that all packages installed by package.el are byte compiled. First to
+  speedup loading. Secondly, it has some errors for some packages to be loaded
+  without byte compilation such as Bookmark+.
+
+  #+begin_src emacs-lisp
+  (defun was-compiled-p (path)
+    "Does the directory at PATH contain any .elc files?"
+    (let (any?)
+      (catch 'elc-found
+        (mapc
+         (lambda (file)
+           (when (string-match ".+\\.elc\\'" file)
+             (throw 'elc-found (setq any? t))))
+         (nthcdr 2 (directory-files path))))
+      any?))
+
+  (defun ensure-packages-compiled ()
+    "If any packages installed with package.el aren't compiled yet, compile them."
+    (mapc
+     (lambda (path)
+       (when (and (file-directory-p path)
+                  (not (was-compiled-p path)))
+         (byte-recompile-directory path 0)))
+     (nthcdr 2 (directory-files package-user-dir t))))
+
+  (ensure-packages-compiled)
   #+end_src
 
 ** Starter kit core

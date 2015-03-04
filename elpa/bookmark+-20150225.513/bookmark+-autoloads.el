@@ -3,16 +3,16 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "bookmark+" "bookmark+.el" (21750 52238 473252
-;;;;;;  100000))
+;;;### (autoloads nil "bookmark+" "bookmark+.el" (21751 10055 230462
+;;;;;;  600000))
 ;;; Generated autoloads from bookmark+.el
  (autoload 'bmkp-version-number "bookmark+")
  (autoload 'bmkp-version "bookmark+")
 
 ;;;***
 
-;;;### (autoloads nil "bookmark+-1" "bookmark+-1.el" (21750 52238
-;;;;;;  488852 100000))
+;;;### (autoloads nil "bookmark+-1" "bookmark+-1.el" (21751 10055
+;;;;;;  42947 700000))
 ;;; Generated autoloads from bookmark+-1.el
  (autoload 'bmkp-autofile-filecache "bookmark+")
  (autoload 'bmkp-auto-idle-bookmark-min-distance "bookmark+")
@@ -276,8 +276,8 @@
 
 ;;;***
 
-;;;### (autoloads nil "bookmark+-bmu" "bookmark+-bmu.el" (21750 52238
-;;;;;;  582452 300000))
+;;;### (autoloads nil "bookmark+-bmu" "bookmark+-bmu.el" (21751 10055
+;;;;;;  74199 0))
 ;;; Generated autoloads from bookmark+-bmu.el
  (autoload 'bmkp-bmenu-omitted-bookmarks "bookmark+")
  (autoload 'bmkp-bmenu-commands-file "bookmark+")
@@ -427,8 +427,8 @@
 
 ;;;***
 
-;;;### (autoloads nil "bookmark+-lit" "bookmark+-lit.el" (21750 52238
-;;;;;;  395252 0))
+;;;### (autoloads nil "bookmark+-lit" "bookmark+-lit.el" (21751 10055
+;;;;;;  183582 900000))
 ;;; Generated autoloads from bookmark+-lit.el
  (autoload 'bmkp-auto-light-relocate-when-jump-flag "bookmark+")
  (autoload 'bmkp-auto-light-when-jump "bookmark+")
@@ -476,8 +476,8 @@
 
 ;;;***
 
-;;;### (autoloads nil "bookmark+-mac" "bookmark+-mac.el" (21750 52238
-;;;;;;  442052 100000))
+;;;### (autoloads nil "bookmark+-mac" "bookmark+-mac.el" (21751 10055
+;;;;;;  214835 0))
 ;;; Generated autoloads from bookmark+-mac.el
  (autoload 'bmkp-with-help-window "bookmark+")
  (autoload 'bmkp-with-output-to-plain-temp-buffer "bookmark+")
@@ -492,8 +492,8 @@
 ;;;***
 
 ;;;### (autoloads nil nil ("bookmark+-chg.el" "bookmark+-doc.el"
-;;;;;;  "bookmark+-key.el" "bookmark+-pkg.el") (21750 52238 660452
-;;;;;;  400000))
+;;;;;;  "bookmark+-key.el" "bookmark+-pkg.el") (21751 11138 339330
+;;;;;;  0))
 
 ;;;***
 
