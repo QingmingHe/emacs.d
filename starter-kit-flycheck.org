@@ -30,10 +30,12 @@ default checker and options at flycheck mode being enabled.
          (executable-find "gfortran")
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
+    (require 'flycheck-fortran-gfortran-zh)
     (setq flycheck-gfortran-language-standard "f2008")
     (flycheck-select-checker 'fortran-gfortran-zh)
     (flycheck-mode)))
-(add-hook 'f90-mode-hook 'my-flycheck-fortran-setup)
+(eval-after-load "f90"
+  `(add-hook 'f90-mode-hook 'my-flycheck-fortran-setup))
 #+END_SRC
 
 ** Python
@@ -48,12 +50,14 @@ Select checker for that flake8 is not always available.
          (not
           (member (file-name-nondirectory (buffer-file-name))
                   '("SConstruct" "SConscript"))))
+    (require 'flycheck)
     (if (executable-find "flake8")
         (flycheck-select-checker 'python-flake8)
       (flycheck-select-checker 'python-pycompile))
     (flycheck-mode)))
 
-(add-hook 'python-mode-hook 'my-flycheck-python-setup)
+(eval-after-load "python"
+  `(add-hook 'python-mode-hook 'my-flycheck-python-setup))
 #+END_SRC
 
 You can install flake8 with its dependencies without direct Internet
@@ -75,9 +79,12 @@ connection this way:
          (executable-find "gcc")
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
+    (require 'flycheck)
     (progn
       (flycheck-select-checker 'c/c++-gcc)
       (flycheck-mode))))
-(add-hook 'c-mode-hook 'my-flycheck-c-setup)
-(add-hook 'c++-mode-hook 'my-flycheck-c-setup)
+(eval-after-load "cc-mode"
+  `(progn
+     (add-hook 'c-mode-hook 'my-flycheck-c-setup)
+     (add-hook 'c++-mode-hook 'my-flycheck-c-setup)))
 #+end_src

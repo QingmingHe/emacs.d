@@ -281,7 +281,9 @@ interested in the actual code implementing the starter kit.
   session.
   #+name: starter-kit-load-on-startup
   #+begin_src emacs-lisp
-  (load (concat starter-kit-dir "depends.el"))
+  ;; string manipulation functions and macros
+  (when (> emacs-minor-version 3)
+    (eval-when-compile (require 'subr-x)))
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be
@@ -301,6 +303,7 @@ interested in the actual code implementing the starter kit.
 
 - ELPA archive repositories.
   #+begin_src emacs-lisp
+  (require 'package)
   (setq package-archives
         '(("melpa"       . "http://melpa.org/packages/")))
   (package-initialize)
@@ -322,67 +325,77 @@ interested in the actual code implementing the starter kit.
 - Function for loading other parts of the starter kit
   #+name: starter-kit-load
   #+begin_src emacs-lisp
-  (defun starter-kit-load (file &optional header-or-tag)
-    "Load configuration from other starter-kit-*.org files.
-  If the optional argument is the id of a subtree then only
-  configuration from within that subtree will be loaded.  If it is
-  not an id then it will be interpreted as a tag, and only subtrees
-  marked with the given tag will be loaded.
+   (defun starter-kit-load (file &optional header-or-tag)
+     "Load configuration from other starter-kit-*.org files.
+   If the optional argument is the id of a subtree then only
+   configuration from within that subtree will be loaded.  If it is
+   not an id then it will be interpreted as a tag, and only subtrees
+   marked with the given tag will be loaded.
 
-  For example, to load all of starter-kit-lisp.org simply
-  add (starter-kit-load \"lisp\") to your configuration.
+   For example, to load all of starter-kit-lisp.org simply
+   add (starter-kit-load \"lisp\") to your configuration.
 
-  To load only the 'window-system' config from
-  starter-kit-misc-recommended.org add
-   (starter-kit-load \"misc-recommended\" \"window-system\")
-  to your configuration."
-    (let ((file (expand-file-name (if (string-match "starter-kit-.+\.org" file)
-                                      file
-                                    (format "starter-kit-%s.org" file))
-                                  starter-kit-dir)))
-      (org-babel-load-file
-       (if header-or-tag
-           (let* ((base (file-name-nondirectory file))
-                  (dir  (file-name-directory file))
-                  (partial-file (expand-file-name
-                                 (concat "." (file-name-sans-extension base)
-                                         ".part." header-or-tag ".org")
-                                 dir)))
-             (unless (file-exists-p partial-file)
-               (with-temp-file partial-file
-                 (insert
-                  (with-temp-buffer
-                    (insert-file-contents file)
-                    (save-excursion
-                      (condition-case nil ;; collect as a header
-                          (progn
-                            (org-link-search (concat"#"header-or-tag))
-                            (org-narrow-to-subtree)
-                            (buffer-string))
-                        (error ;; collect all entries with as tags
-                         (let (body)
-                           (org-map-entries
-                            (lambda ()
-                              (save-restriction
-                                (org-narrow-to-subtree)
-                                (setq body (concat body "\n" (buffer-string)))))
-                            header-or-tag)
-                           body))))))))
-             partial-file)
-         file))))
+   To load only the 'window-system' config from
+   starter-kit-misc-recommended.org add
+    (starter-kit-load \"misc-recommended\" \"window-system\")
+   to your configuration."
+     (let ((file (expand-file-name (if (string-match "starter-kit-.+\.org" file)
+                                       file
+                                     (format "starter-kit-%s.org" file))
+                                   starter-kit-dir)))
+       (org-babel-load-file
+        (if header-or-tag
+            (let* ((base (file-name-nondirectory file))
+                   (dir  (file-name-directory file))
+                   (partial-file (expand-file-name
+                                  (concat "." (file-name-sans-extension base)
+                                          ".part." header-or-tag ".org")
+                                  dir)))
+              (unless (file-exists-p partial-file)
+                (with-temp-file partial-file
+                  (insert
+                   (with-temp-buffer
+                     (insert-file-contents file)
+                     (save-excursion
+                       (condition-case nil ;; collect as a header
+                           (progn
+                             (org-link-search (concat"#"header-or-tag))
+                             (org-narrow-to-subtree)
+                             (buffer-string))
+                         (error ;; collect all entries with as tags
+                          (let (body)
+                            (org-map-entries
+                             (lambda ()
+                               (save-restriction
+                                 (org-narrow-to-subtree)
+                                 (setq body (concat body "\n" (buffer-string)))))
+                             header-or-tag)
+                            body))))))))
+              partial-file)
+          file))))
 
-  (defun starter-kit-load-elisp-org ()
-    "Tangle elisp from org file and eval."
-    (interactive)
-    (let (file file-dir file-basename)
-      (if (and
-           (setq file (buffer-file-name))
-           (string-match
-            "\\.org\\'"
-            (setq file-basename (file-name-nondirectory file))))
-          (setq file-dir (file-name-directory file))
-        (setq file-dir starter-kit-dir))
-      (starter-kit-load (ido-read-file-name "File to load: " file-dir file-basename))))
+   (defun starter-kit-fast-load (file)
+     (let* ((last-time (current-time))
+            (org-file
+             (expand-file-name
+              (if (string-match "starter-kit-.+\.org" file)
+                  file
+                (format "starter-kit-%s.org" file))
+              starter-kit-dir))
+            (elisp-file
+             (expand-file-name (format "%s.el" (file-name-base org-file)))))
+       (if (or
+            (not (file-exists-p elisp-file))
+            (time-less-p
+             (nth 5 (file-attributes elisp-file))
+             (nth 5 (file-attributes org-file))))
+           (progn
+             (message "Loading %s ..." org-file)
+             (org-babel-load-file org-file))
+         (load-file elisp-file))
+       (message
+        (format "%s consumes %.06f to load."
+                file (float-time (time-since last-time))))))
   #+end_src
 
 - Work around a bug on OS X where system-name is FQDN.
@@ -404,17 +417,17 @@ everyone using the starter kit.
 
 - Starter kit function definitions in [[file:starter-kit-defuns.org][starter-kit-defuns]]
   #+begin_src emacs-lisp
-  (starter-kit-load "starter-kit-defuns.org")
+  (starter-kit-fast-load "defuns")
   #+end_src
 
 - Miscellaneous settings in [[file:starter-kit-misc.org][starter-kit-misc]]
   #+begin_src emacs-lisp
-  (starter-kit-load "starter-kit-misc.org")
+  (starter-kit-fast-load "misc")
   #+end_src
 
 - Registers for jumping to commonly used files in [[file:starter-kit-registers.org][starter-kit-registers]]
   #+begin_src emacs-lisp
-  (starter-kit-load "starter-kit-registers.org")
+  (starter-kit-fast-load "registers")
   #+end_src
 
 - Others
@@ -422,44 +435,45 @@ everyone using the starter kit.
 You should note that the sequence is very important.
 #+BEGIN_SRC emacs-lisp
 ;; desktop should be the first one to load
-(starter-kit-load "desktop")
-(starter-kit-load "evil")
-(starter-kit-load "flyspell")
+(starter-kit-fast-load "desktop")
+(starter-kit-fast-load "evil")
 (when *cygwin*
-  (starter-kit-load "win32"))
+  (starter-kit-fast-load "win32"))
 ;; Configure org 8.* bundled with Emacs 24.4
 (when (> emacs-minor-version 3)
-  (starter-kit-load "org"))
-(starter-kit-load "theme")
-(starter-kit-load "ibuffer")
-(starter-kit-load "dired")
-(starter-kit-load "project")
-(starter-kit-load "flycheck")
-(starter-kit-load "misc-recommended")
-(starter-kit-load "helm")
-(starter-kit-load "yasnippet")
-(starter-kit-load "autocomplete")
-(starter-kit-load "browser")
-(starter-kit-load "dictionary")
-(starter-kit-load "bindings")
-(starter-kit-load "quickrun")
-(starter-kit-load "occur")
-(starter-kit-load "gud")
-(starter-kit-load "midnight")
+  (starter-kit-fast-load "org"))
+(starter-kit-fast-load "theme")
+(starter-kit-fast-load "ibuffer")
+(starter-kit-fast-load "dired")
+(starter-kit-fast-load "project")
+(starter-kit-fast-load "flycheck")
+(starter-kit-fast-load "helm")
+(starter-kit-fast-load "yasnippet")
+(starter-kit-fast-load "autocomplete")
+(starter-kit-fast-load "browser")
+(starter-kit-fast-load "dictionary")
+(starter-kit-fast-load "bindings")
+(starter-kit-fast-load "quickrun")
+(starter-kit-fast-load "occur")
+(starter-kit-fast-load "gud")
+(starter-kit-fast-load "midnight")
 ;; prog mode should be loaded finally
-(starter-kit-load "shell")
-(starter-kit-load "coding")
-(starter-kit-load "python")
-(starter-kit-load "nxml")
-(starter-kit-load "lisp")
-(starter-kit-load "cmake")
-(starter-kit-load "rst")
-(starter-kit-load "fortran")
-(starter-kit-load "latex")
-(starter-kit-load "graphviz")
-(starter-kit-load "rnc")
-(starter-kit-load "cc")
-(starter-kit-load "js")
+(starter-kit-fast-load "shell")
+(starter-kit-fast-load "coding")
+(starter-kit-fast-load "python")
+(starter-kit-fast-load "nxml")
+(starter-kit-fast-load "lisp")
+(starter-kit-fast-load "cmake")
+(starter-kit-fast-load "rst")
+(starter-kit-fast-load "fortran")
+(starter-kit-fast-load "latex")
+(starter-kit-fast-load "graphviz")
+(starter-kit-fast-load "rnc")
+(starter-kit-fast-load "cc")
+(starter-kit-fast-load "js")
+;; load flyspell at last so that aspell will not start when
+;; org-babel-load-file which is very time consuming
+(starter-kit-fast-load "flyspell")
 #+END_SRC
 
 ** Load User/System Specific Files

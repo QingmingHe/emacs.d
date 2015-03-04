@@ -21,7 +21,7 @@ for these files.
 ** Basic Setup
 
 #+BEGIN_SRC emacs-lisp
-(autoload 'rnc-mode "rnc-mode")
+(autoload 'rnc-mode "rnc-mode" "Rnc mode" t)
 (add-to-list 'auto-mode-alist '("\\.rnc\\'" . rnc-mode))
 #+END_SRC
 

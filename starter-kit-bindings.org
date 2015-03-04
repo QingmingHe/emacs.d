@@ -79,13 +79,15 @@ I NEVER use hippie.
 ** Hungry delete
 
 #+begin_src emacs-lisp
+(require 'hungry-delete)
 (mapc
  (lambda (map)
    (define-key map [backspace] 'hungry-backspace))
  `(,prog-mode-map
-   ,c-mode-base-map
    ,org-mode-map
    ,text-mode-map))
+(eval-after-load "cc-mode"
+  `(define-key c-mode-base-map [backspace] 'hungry-delete))
 #+end_src
 
 ** Move beginning of line
@@ -133,14 +135,18 @@ This function is copied form prelude. The differences are:
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-cj" 'org-clock-goto)
 #+end_src
-** Upper case back word
+** Upper case word or symbol
 
 #+begin_src emacs-lisp
 (define-key global-map (kbd "M-u")
   (lambda (arg)
     (interactive "P")
-    (if arg
-        (upcase-word arg)
-      (let ((b (bounds-of-thing-at-point 'symbol)))
-        (upcase-region (car b) (cdr b))))))
+    (cond ((equal arg '(4))
+           (let ((b (bounds-of-thing-at-point 'word)))
+             (upcase-region (car b) (cdr b))))
+          (arg
+           (upcase-word arg))
+          (t
+           (let ((b (bounds-of-thing-at-point 'symbol)))
+             (upcase-region (car b) (cdr b)))))))
 #+end_src

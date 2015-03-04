@@ -11,6 +11,7 @@ inspired by TextMate's templating syntax.
 
 ** yas everywhere
 #+BEGIN_SRC emacs-lisp
+(require 'yasnippet)
 (yas-global-mode 1)
 #+END_SRC
 

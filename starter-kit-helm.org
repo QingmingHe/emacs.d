@@ -15,6 +15,7 @@
 #+begin_src emacs-lisp
 ;; do not use helm everywhere
 ;; (helm-mode 1)
+(require 'helm-config)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x p") 'prj/helm-mini)
@@ -22,14 +23,18 @@
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-h a") 'helm-apropos)
 (global-set-key (kbd "C-c y") 'helm-yas-complete)
-(define-key helm-map (kbd "C-f") 'helm-next-page)
-(define-key helm-map (kbd "C-b") 'helm-previous-page)
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
 (global-unset-key (kbd "C-x c"))
+(eval-after-load "helm"
+  `(progn
+     (define-key helm-map (kbd "C-f") 'helm-next-page)
+     (define-key helm-map (kbd "C-b") 'helm-previous-page)))
 
 ;; helm eshell
-(define-key helm-eshell-history-map (kbd "M-n") 'helm-next-line)
-(define-key helm-eshell-history-map (kbd "M-p") 'helm-previous-line)
+(eval-after-load "helm-eshell"
+  `(progn
+     (define-key helm-eshell-history-map (kbd "M-n") 'helm-next-line)
+     (define-key helm-eshell-history-map (kbd "M-p") 'helm-previous-line)))
 
 (setq
  helm-split-window-in-side-p t

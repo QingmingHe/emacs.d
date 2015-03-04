@@ -24,6 +24,16 @@
 
 ** sdcv
 sdcv is a command-line version of stardict.
+*** Configuration
+
+#+begin_src emacs-lisp
+(when (executable-find "sdcv")
+  (autoload 'sdcv-search-pointer "sdcv" "Translate word in other buffer." t)
+  (autoload 'sdcv-search-pointer+ "sdcv" "Translate word in tooltip." t)
+  (autoload 'sdcv-search-input "sdcv" "Translate word in other buffer." t)
+  (autoload 'sdcv-search-input+ "sdcv" "Translate word in tooltip." t))
+#+end_src
+
 *** Install sdcv
 + Google =sdcv= and download the source code.
 + Install glib2, readline.
@@ -32,8 +42,10 @@ sdcv is a command-line version of stardict.
   command to *CXX_DEFINES*.
 + make.
 + Copy sdcv to $PATH.
+
 *** Install dictionary
 + Download from http://abloz.com/huzheng/stardict-dic/
 + Decompress and copy to =~/.stardict/dic=.
+
 *** Use sdcv.el
 *helm-M-x ^sdcv* and you know what it means.

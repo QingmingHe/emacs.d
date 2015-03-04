@@ -28,14 +28,12 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
                                file-assoc-list))))))
  #+end_src
 
-** MS word to other format
+** MS word to other format                                                      :no:word:
 #+BEGIN_SRC emacs-lisp
 (defun my-no-word (fname)
   "Open MS word using antiword."
   (interactive (list (read-file-name "Open MS word file: ")))
-  (let (
-        (tmp-file-name (format (concat "/tmp/" "." (file-name-nondirectory fname))))
-        )
+  (let ((tmp-file-name (format (concat "/tmp/" "." (file-name-nondirectory fname)))))
     (progn
       (shell-command
        (format "antiword -m UTF-8 %s > %s" fname tmp-file-name))

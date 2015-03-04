@@ -6,6 +6,12 @@
 Evil is an evil mode to imitate Vim in Emacs. Starter Kit will set global evil
 mode if starter-kit-evil is activated.
 
+** Undo is needed by evil
+#+BEGIN_SRC emacs-lisp
+(require 'undo-tree)
+(global-undo-tree-mode)
+#+END_SRC
+
 ** Evil leader
 
 #+BEGIN_QUOTE
@@ -68,6 +74,8 @@ Just press =SPC-w=, the first character of word where you want to go and select
 the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
 back.
 #+BEGIN_SRC emacs-lisp
+(require 'ace-jump-mode)
+(require 'ace-link)
 (setq ace-jump-mode-scope 'window)
 (ace-jump-mode-enable-mark-sync)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
@@ -177,7 +185,11 @@ back.
 
   ;; misc
   "ne" 'flycheck-next-error
-  "sd" 'sdcv-search-input
+  "sd" (lambda ()
+         (interactive)
+         (if (executable-find "sdcv")
+             (call-interactively 'sdcv-search-input)
+           (message "sdcv is not installed!")))
   "qr" 'quickrun
   "iw" 'ispell-word)
 #+END_SRC

@@ -9,7 +9,7 @@ Use gtags, etags, imenu ... to handle projects.
 
 First define projects.
 #+BEGIN_SRC emacs-lisp
-;; project mode everywhere
+(require 'project)
 (global-project-mode 1)
 (prj/setup)
 (setq prj/update-tags-verbose nil)
@@ -92,7 +92,8 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 (defun helm-etags-toggle-match-part-only ()
   (interactive)
   (setq helm-etags-match-part-only (not helm-etags-match-part-only)))
-(define-key helm-etags-map (kbd "C-c C-c") 'helm-etags-toggle-match-part-only)
+(eval-after-load "helm-tags"
+  `(define-key helm-etags-map (kbd "C-c C-c") 'helm-etags-toggle-match-part-only))
 #+end_src
 
 ** Gtags

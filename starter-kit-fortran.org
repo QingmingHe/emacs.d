@@ -16,7 +16,8 @@ Fortran is a major language for scientific computation but a minor for other.
             (">=" . ?≥)
             ("<=" . ?≤)))
     (prettify-symbols-mode 1)))
-(add-hook 'f90-mode-hook 'my-f90-config)
+(eval-after-load "f90"
+  `(add-hook 'f90-mode-hook 'my-f90-config))
 #+END_SRC
 
 ** Fortran indent
@@ -52,7 +53,8 @@ type(SomeType) :: atype ! object of SomeType"
     (align-regexp begin end "\\(\\s-*\\)::" 1 1 nil)
     (align-regexp begin end "::\\(\\s-*\\)" 1 1 nil)
     (align-regexp begin end "\\(\\s-*\\)!" 1 1 nil)))
-(define-key f90-mode-map (kbd "C-c C-i") 'my-f90-align-declare)
+(eval-after-load "f90"
+  `(define-key f90-mode-map (kbd "C-c C-i") 'my-f90-align-declare))
 #+END_SRC
 
 ** Fortran join lines
@@ -78,3 +80,8 @@ type(SomeType) :: atype ! object of SomeType"
 1. f90-end-of-block
 2. f90-beginning-of-block
 3. ...
+** F90 eldoc
+
+#+begin_src emacs-lisp
+(autoload 'f90-turn-on-eldoc-mode "f90-eldoc" "Turn on f90 eldoc mode" t)
+#+end_src

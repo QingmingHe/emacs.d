@@ -674,6 +674,7 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/helm-mini ()
   (interactive)
+  (require 'helm)
   (helm :sources `(((name . "Project Buffers")
                     (candidates . prj/helm-buffers-candidates)
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)

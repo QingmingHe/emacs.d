@@ -3,12 +3,13 @@
 
 * Starter Kit Theme
 
+** Highlight indentation
+
+#+begin_src emacs-lisp
+(require 'highlight-indentation)
+#+end_src
+
 ** Emacs Layout
-The toolbar and scroll bar are too ugly and disable it.
-#+BEGIN_SRC emacs-lisp
-(scroll-bar-mode 0)
-(column-number-mode 1)
-#+END_SRC
 
 It's not easy to recognize the completion words in horizontally split window
 if two windows are already split horizontally. Therefore set Emacs to split
@@ -44,7 +45,6 @@ vertically by default.
 #+END_SRC
 
 *** Install font
-
 **** Windows
 
 Open Windows explorer and enter =C:\WINDOWS\fonts= -> file -> install new font
@@ -122,6 +122,7 @@ My powerline theme based on powerline-default-theme.
 
 #+begin_src emacs-lisp
 (load-theme 'zenburn t)
+(set-face-background 'highlight-indentation-current-column-face "#4F4F4F")
 (set-face-attribute 'mode-line nil
                       :box nil
                       :underline nil

@@ -55,7 +55,8 @@ to program from minibuffer."
     (w32-shell-execute "open" prog-name (format "\"%s\"" prog-argv))))
 
 (when *cygwin*
-  (define-key dired-mode-map "/" 'dired-open-w32-prog-at-point))
+  (eval-after-load "dired"
+    `(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point)))
 #+END_SRC
 
 ** Create Win32 shortcut

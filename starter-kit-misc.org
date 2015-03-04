@@ -12,6 +12,15 @@ Things that don't fit anywhere else.
 (setq user-mail-address "906459647@qq.com")
 #+end_src
 
+** Menu bar, scroll bar, column number
+You really don't need this; trust me.
+#+name: starter-kit-no-menu
+#+begin_src emacs-lisp
+(menu-bar-mode -1)
+(scroll-bar-mode 0)
+(column-number-mode 1)
+#+end_src
+
 ** Ensure server safe in windows
 
 On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
@@ -23,6 +32,7 @@ emacsclient -t FILE
 #+end_src
 
 #+BEGIN_SRC emacs-lisp
+(require 'server)
 (when *cygwin*
   (defun server-ensure-safe-dir (dir) "Noop" t)
   (unless (file-exists-p server-socket-dir)
@@ -59,6 +69,8 @@ other data on the mode line.
   (when window-system
     (setq frame-title-format '(buffer-file-name "%f" ("%b")))
     (blink-cursor-mode -1)
+    (tooltip-mode -1)
+    (tool-bar-mode -1)
     (when (require 'mwheel nil 'no-error) (mouse-wheel-mode t)))
 
   (set-terminal-coding-system 'utf-8)
@@ -107,7 +119,7 @@ previously visited the same file.
 
 ** Save a list of recent files visited.
 #+begin_src emacs-lisp
-(setq recentf-max-saved-items 128)
+(setq recentf-max-saved-items 1000)
 (recentf-mode 1)
 #+end_src
 
@@ -117,6 +129,8 @@ previously visited the same file.
   *C-l* in minibuffer to refresh ido candidates.
 #+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp
+(require 'ido)
+(require 'flx-ido)
 (ido-mode 1)
 (ido-everywhere 1)
 (flx-ido-mode 1)
@@ -220,11 +234,6 @@ lines of codes.
 (define-key global-map (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
-** Undo is needed by evil
-#+BEGIN_SRC emacs-lisp
-(global-undo-tree-mode)
-#+END_SRC
-
 ** Expand region
 
 #+BEGIN_QUOTE
@@ -281,12 +290,16 @@ annoying in org mode. Advice below is for:
   (compile-goto-error)
   (other-window -1))
 
-(define-key grep-mode-map (kbd "j") 'compilation-next-error)
-(define-key grep-mode-map (kbd "k") 'compilation-previous-error)
-(define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)
-(define-key compilation-mode-map (kbd "j") 'compilation-next-error)
-(define-key compilation-mode-map (kbd "k") 'compilation-previous-error)
-(define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)
+(eval-after-load "grep"
+  `(progn
+     (define-key grep-mode-map (kbd "j") 'compilation-next-error)
+     (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
+     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
+(eval-after-load "compile"
+  `(progn
+     (define-key compilation-mode-map (kbd "j") 'compilation-next-error)
+     (define-key compilation-mode-map (kbd "k") 'compilation-previous-error)
+     (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)))
 #+end_src
 
 *** Grep ignore directories and files
@@ -326,7 +339,8 @@ Recover previous windows configuration when quitting ediff.
 (setq vc-diff-switches '("-b" "-B" "-u"))
 (setq vc-git-diff-switches nil)
 (setq diff-switches "-u")
-(add-hook 'ediff-after-quit-hook-internal 'winner-undo)
+(eval-after-load "ediff"
+  `(add-hook 'ediff-after-quit-hook-internal 'winner-undo))
 #+END_SRC
 
 ** Don't disable narrowing commands
@@ -342,9 +356,11 @@ Recover previous windows configuration when quitting ediff.
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 #+end_src
+
 ** Cleanup white spaces
 
 #+begin_src emacs-lisp
+(require 'whitespace-cleanup-mode)
 (defun turn-on-whitespace-cleanup-mode ()
   "Rewrite `turn-on-whitespace-cleanup-mode' of `whitespace-cleanup-mode' so
 that `whitespace-cleanup-mode' will not turn on for large files whose size are
@@ -381,6 +397,9 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 
 #+begin_src emacs-lisp
 (setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
+(add-to-list 'auto-mode-alist
+             '("\\.ahk$"  . ahk-mode))
+(autoload 'ahk-mode "ahk-mode" "Mode for editing AutoHotKey configuration file." t)
 #+end_src
 
 ** Text mode
@@ -401,6 +420,7 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 #+begin_src emacs-lisp
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 #+end_src
+
 ** Pinyin input
 
 #+begin_src emacs-lisp
@@ -418,4 +438,10 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ;; 输入;暂时输入英文
 (require 'eim-extra)
 (global-set-key ";" 'eim-insert-ascii)
+#+end_src
+
+** rst mode
+
+#+begin_src emacs-lisp
+(autoload 'rst-mode "rst")
 #+end_src

@@ -23,22 +23,19 @@ Define my function to compile.
       (setq output-format "png"))
     (setq graphviz-file (buffer-name))
     (setq output-file (concat (file-name-base graphviz-file) "." output-format))
-    (shell-command (format "dot -T%s %s -o %s" output-format graphviz-file output-file))
-    )
-  )
+    (shell-command (format "dot -T%s %s -o %s" output-format graphviz-file output-file))))
 #+END_SRC
 
 ** Key bindings
-Graphviz-dot-mode bind "C-c c" to compile, which contradicts with org
++ Graphviz-dot-mode bind "C-c c" to compile, which contradicts with org
 capture. So it is unbinded in favour of org mode. And I don't like the other
 key bindings also.
++ Emacs key binding for compiling graphviz file for this mode.
 #+BEGIN_SRC emacs-lisp
-(define-key graphviz-dot-mode-map (kbd "C-c c") nil)
-(define-key graphviz-dot-mode-map (kbd "C-c p") nil)
-(define-key graphviz-dot-mode-map (kbd "C-c v") nil)
-#+END_SRC
-
-Emacs key binding for compiling graphviz file for this mode.
-#+BEGIN_SRC emacs-lisp
-(define-key graphviz-dot-mode-map (kbd "C-c C-c") 'my-graghviz-compile)
+(eval-after-load "graphviz-dot-mode"
+  `(progn
+     (define-key graphviz-dot-mode-map (kbd "C-c c") nil)
+     (define-key graphviz-dot-mode-map (kbd "C-c p") nil)
+     (define-key graphviz-dot-mode-map (kbd "C-c v") nil)
+     (define-key graphviz-dot-mode-map (kbd "C-c C-c") 'my-graghviz-compile)))
 #+END_SRC

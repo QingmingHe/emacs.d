@@ -6,6 +6,7 @@
 ** When to run midnight
 
 #+begin_src emacs-lisp
+(require 'midnight)
 (midnight-delay-set 'midnight-delay "2:00am")
 #+end_src
 

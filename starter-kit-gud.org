@@ -22,10 +22,11 @@ Another way to compile dwim is to set =compile-command= in project
            ".")))
     (call-interactively 'compile)))
 
-(mapc
- (lambda (map)
-   (define-key map (kbd "<f5>") 'compile-dwim))
- `(,c-mode-map ,c++-mode-map ,f90-mode-map))
+(eval-after-load "f90" `(define-key f90-mode-map (kbd "<f5>") 'compile-dwim))
+(eval-after-load "cc-mode"
+  `(progn
+     (define-key c-mode-map (kbd "<f5>") 'compile-dwim)
+     (define-key c++-mode-map (kbd "<f5>") 'compile-dwim)))
 #+end_src
 
 ** Gdb
@@ -81,10 +82,11 @@ Another way to compile dwim is to set =compile-command= in project
     (global-linum-mode -1)))
 (add-hook 'kill-buffer-hook 'turn-off-gobal-linum-after-gud)
 
-(mapc
- (lambda (map)
-   (define-key map (kbd "C-<f5>") 'run-gdb-dwim))
- `(,c-mode-map ,c++-mode-map ,f90-mode-map))
+(eval-after-load "f90" `(define-key f90-mode-map (kbd "C-<f5>") 'run-gdb-dwim))
+(eval-after-load "cc-mode"
+  `(progn
+     (define-key c-mode-map (kbd "C-<f5>") 'run-gdb-dwim)
+     (define-key c++-mode-map (kbd "C-<f5>") 'run-gdb-dwim)))
 #+end_src
 
 ** Pdb
@@ -103,5 +105,6 @@ Another way to compile dwim is to set =compile-command= in project
            (file-name-nondirectory fname))))
     (pdb (format "python -m pdb %s" script))))
 
-(define-key python-mode-map (kbd "C-<f5>") 'run-pdb-dwim)
+(eval-after-load "python"
+  `(define-key python-mode-map (kbd "C-<f5>") 'run-pdb-dwim))
 #+end_src

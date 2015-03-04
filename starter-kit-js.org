@@ -7,8 +7,14 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 Java-script Helpers
 
 ** js2 mode
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
 
+[[elisp:(describe-variable 'js2-minor-mode)][js2-minor-mode]] is too slow.
 #+begin_src emacs-lisp
+(require 'js2-mode)
+(require 'js2-imenu-extras)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
 (add-hook 'js2-mode-hook 'js2-imenu-extras-mode)

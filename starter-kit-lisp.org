@@ -26,6 +26,9 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("Cask\\'" . emacs-lisp-mode))
 (defun my-emacs-lisp-config ()
+  ;; highlight-cl is too time consuming
+  ;; (require 'highlight-cl)
+  ;; (highlight-cl-add-font-lock-keywords)
   (turn-on-eldoc-mode)
   (starter-kit-remove-elc-on-save)
   (when (> emacs-minor-version 3)
@@ -44,14 +47,13 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
                   (delete-file (concat buffer-file-name "c"))))
             nil t))
 
-(add-hook 'emacs-lisp-mode-hook 'highlight-cl-add-font-lock-keywords)
-(add-hook 'lisp-interaction-mode-hook 'highlight-cl-add-font-lock-keywords)
 (add-hook 'emacs-lisp-mode-hook 'my-emacs-lisp-config)
 #+end_src
 
 ** Clojure
    :PROPERTIES:
    :CUSTOM_ID: clojure
+   :TANGLE:   no
    :END:
 
 #+begin_src emacs-lisp
@@ -171,12 +173,14 @@ PS: this function is inspired by Wang Yin."
   (kh/get-scheme-proc-create)
   (scheme-send-last-sexp))
 
-(define-key scheme-mode-map (kbd "C-x C-j") 'kh/scheme-send-last-sexp)
+(eval-after-load "scheme"
+  `(define-key scheme-mode-map (kbd "C-x C-j") 'kh/scheme-send-last-sexp))
 #+end_src
 
 ** Common Lisp
    :PROPERTIES:
    :CUSTOM_ID: common-lisp
+   :TANGLE:   no
    :END:
 
 TODO

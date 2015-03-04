@@ -2,7 +2,6 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit CC
-
 ** ff-find-other-file
 
 + Use ff-find-other-file command to goto header file quickly.
@@ -28,6 +27,7 @@
 ** Configurations
 
 #+BEGIN_SRC emacs-lisp
+(autoload 'c-turn-on-eldoc-mode "c-eldoc" "Show function API in the minibuffer." t)
 (setq c-eldoc-includes " -I./ ")
 (setq c-eldoc-buffer-regenerate-time 60)
 (defun my-c-common-config ()
@@ -41,6 +41,8 @@
             (">=" . ?≥)
             ("<=" . ?≤)))
     (prettify-symbols-mode 1)))
-(add-hook 'c-mode-hook 'my-c-common-config)
-(add-hook 'c++-mode-hook 'my-c-common-config)
+(eval-after-load "cc-mode"
+  `(progn
+     (add-hook 'c-mode-hook 'my-c-common-config)
+     (add-hook 'c++-mode-hook 'my-c-common-config)))
 #+END_SRC

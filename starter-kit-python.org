@@ -80,7 +80,8 @@ To use my configuration, set JEDI_SERVER environment to be
             ("<=" . ?≤)
             ("lambda" . ?λ)))
     (prettify-symbols-mode 1)))
-(add-hook 'python-mode-hook 'my-python-conf)
+(eval-after-load "python"
+  `(add-hook 'python-mode-hook 'my-python-conf))
 #+END_SRC
 
 ** Use Cython mode
@@ -136,6 +137,7 @@ Or you can use *M-x C-u run-python* command to run Python interpreter. Here
 #+end_src
 
 ** Run Windows Python interpreter in Cygwin platform
+
 Don't do this. You will fall into a pit. If you have to, there are several
 ways:
 - You are under directory where script to run exists ::
@@ -166,6 +168,7 @@ path. The quickrun will be confused by *#!/usr/bin/env python* and have no
 idea whether to run winpy or python. The path problems also exist for
 quickrun. The dired way is perfect only if you don't use
 matplotlib. Matplotlib can not create configuration directory for some reason.
+
 ** Rst in Python doc
 #+begin_src emacs-lisp
 (defun indirect-region-py-rst ()
@@ -182,7 +185,8 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
       (setq end (- end 3)))
     (when (and start end)
       (indirect-region start end 'rst-mode))))
-(define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst)
+(eval-after-load "python"
+  `(define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst))
 #+end_src
 ** Python shell send
 

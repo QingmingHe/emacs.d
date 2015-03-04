@@ -19,6 +19,18 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
       eshell-scroll-to-bottom-on-output t
       eshell-scroll-show-maximum-output t)
 
+(defun my-esh-opt ()
+  (add-to-list 'eshell-visual-commands "ssh")
+  (add-to-list 'eshell-visual-commands "tail")
+  (add-to-list 'eshell-command-completions-alist
+               '("gunzip" "gz\\'"))
+  (add-to-list 'eshell-command-completions-alist
+               '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))
+  (add-to-list 'eshell-command-completions-alist
+               '("unzip" "\\.zip\\'"))
+  (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
+  (add-to-list 'eshell-output-filter-functions 'eshell-postoutput-scroll-to-bottom))
+
 (eval-after-load 'esh-opt
   '(progn
      ;; TODO: for some reason requiring this here breaks it, but
@@ -27,17 +39,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
      (setenv "PAGER" "cat")
      ; (set-face-attribute 'eshell-prompt nil :foreground "turquoise1")
      (add-hook 'eshell-mode-hook ;; for some reason this needs to be a hook
-               '(lambda () (define-key eshell-mode-map "\C-a" 'eshell-bol)))
-     (add-to-list 'eshell-visual-commands "ssh")
-     (add-to-list 'eshell-visual-commands "tail")
-     (add-to-list 'eshell-command-completions-alist
-                  '("gunzip" "gz\\'"))
-     (add-to-list 'eshell-command-completions-alist
-                  '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))
-     (add-to-list 'eshell-command-completions-alist
-                  '("unzip" "\\.zip\\'"))
-     (add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)
-     (add-to-list 'eshell-output-filter-functions 'eshell-postoutput-scroll-to-bottom)))
+               'my-esh-opt)))
 #+end_src
 
 The =eshell= directory holds alias definitions and history
@@ -63,6 +65,7 @@ is pre-populated with some generally applicable aliases.
   (eshell-bol))
 
 (defun my-eshell-keybinding ()
+  (define-key eshell-mode-map "\C-a" 'eshell-bol)
   (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
   (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
   (define-key eshell-mode-map [tab] 'helm-esh-pcomplete)
@@ -134,7 +137,8 @@ shell file name to be bash. Don't add =--login= to explicit-bash-args, or
 shell will run at =~/= path with the =default-directory= to be that of
 previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
-(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring)
+(eval-after-load "shell"
+  `(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
 (setq explicit-shell-file-name "/usr/bin/bash")
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
@@ -159,10 +163,11 @@ function and kbd provide easy toggling.
       (message "Switch to line mode")
       (term-line-mode))))
 
-(add-hook 'term-mode-hook
-          (lambda ()
-            (define-key term-mode-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
-            (define-key term-raw-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)))
+(eval-after-load "term"
+  `(add-hook 'term-mode-hook
+             (lambda ()
+               (define-key term-mode-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
+               (define-key term-raw-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode))))
 #+END_SRC
 
 ** Shell script

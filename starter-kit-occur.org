@@ -42,21 +42,7 @@
 
 ** Key bindings
 
-Use hydra to set key bindings for that help message will be shown in
-minibuffer.
-
 #+begin_src emacs-lisp
-(defvar hydra-occur
-  '(("j" occur-next "next")
-    ("k" occur-prev "previous")
-    ("d" occur-display-dwim "display")
-    ("o" occur-mode-goto-occurrence-other-window "goto"))
-  "A hydra for `occur'.")
-
-(hydra-create "?"
-  hydra-occur
-  occur-mode-map)
-
 (define-key occur-mode-map (kbd "j") 'occur-next)
 (define-key occur-mode-map (kbd "k") 'occur-prev)
 (define-key occur-mode-map (kbd "d") 'occur-display-dwim)

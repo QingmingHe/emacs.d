@@ -149,10 +149,10 @@
   (require 'dired))
 
 (defun project-root-find-prune (paths &optional no-default-directory)
-  (mapconcat '(lambda (path)
-                (if no-default-directory
-                    (concat " -path \"" path "\" -prune ")
-                  (concat " -path \"" default-directory path "\" -prune ")))
+  (mapconcat (lambda (path)
+               (if no-default-directory
+                   (concat " -path \"" path "\" -prune ")
+                 (concat " -path \"" default-directory path "\" -prune ")))
              paths "-o"))
 
 (defvar project-root-rep-paths
@@ -417,7 +417,7 @@ current-directory."
 
 (defun regexify-ext-list (extensions)
   "Turn a list of extensions to a regexp."
-  (concat ".*\\.\\(" (mapconcat '(lambda (x) (format "%s" x))
+  (concat ".*\\.\\(" (mapconcat (lambda (x) (format "%s" x))
                                 extensions "\\|") "\\)"))
 
 (defmacro with-project-root (&rest body)
@@ -614,13 +614,13 @@ filename-regex."
   (let ((highs (project-root-data :anything-highlight
                                   anything-project-root)))
     (mapcar
-     '(lambda (hit)
+     (lambda (hit)
        (let ((new (replace-regexp-in-string
                    (regexp-quote (cdr anything-project-root))
                    ""
                    hit)))
          (when highs
-           (mapc '(lambda (s)
+           (mapc (lambda (s)
                    ;; propertize either the first group or the whole
                    ;; string
                    (when (string-match (car s) new)
@@ -655,7 +655,7 @@ filename-regex."
                     anything-project-root project-details)))
     (candidates . (lambda ()
                     (mapcar
-                     '(lambda (b)
+                     (lambda (b)
                        (expand-file-name b anything-default-directory))
                      (project-root-bookmarks anything-project-root))))
     (type . file)))
