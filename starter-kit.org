@@ -442,12 +442,12 @@ You should note that the sequence is very important.
 (starter-kit-load "browser")
 (starter-kit-load "dictionary")
 (starter-kit-load "bindings")
-(starter-kit-load "term")
 (starter-kit-load "quickrun")
 (starter-kit-load "occur")
 (starter-kit-load "gud")
 (starter-kit-load "midnight")
 ;; prog mode should be loaded finally
+(starter-kit-load "shell")
 (starter-kit-load "coding")
 (starter-kit-load "python")
 (starter-kit-load "nxml")

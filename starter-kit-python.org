@@ -184,17 +184,16 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
       (indirect-region start end 'rst-mode))))
 (define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst)
 #+end_src
-** Key bindings
+** Python shell send
 
 #+begin_src emacs-lisp
-(evil-leader/set-key-for-mode 'python-mode
-  "sr" (lambda ()
-         (interactive)
-         (call-interactively 'python-shell-send-region))
-  "sf" (lambda ()
-         (interactive)
-         (call-interactively 'python-shell-send-defun))
-  "sb" (lambda ()
-         (interactive)
-         (call-interactively 'python-shell-send-buffer)))
+(defun python-shell-send-defun-or-region-or-buffer (arg)
+  (interactive "P")
+  (if (region-active-p)
+      (python-shell-send-region region-beginning region-end)
+    (if arg
+        (python-shell-send-buffer)
+      (python-shell-send-defun))))
+(eval-after-load "python"
+  `(define-key python-mode-map (kbd "C-c C-c") 'python-shell-send-defun-or-region-or-buffer))
 #+end_src

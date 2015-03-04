@@ -23,11 +23,11 @@
 
 ** How dired presents
 #+BEGIN_SRC emacs-lisp
-(setq dired-listing-switches "-lah1v --group-directories-first")
+(setq dired-listing-switches "-lAh1v --group-directories-first")
 #+END_SRC
 
 - l: Is the only mandatory one.
-- a: Means to list invisible files.
+- A: Means to list all files but . and ...
 - G: Don't show group information. These days, when there are more laptops
   than people, the group info is rarely useful.
 - h: Human readable sizes, such as M for mebibytes.

@@ -52,12 +52,12 @@ library.")
   "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
 
 (defvar prj/gtags-conf-file-guess
-  `("/usr/share/gtags/gtags.conf"
+  `(,(expand-file-name "~/.globalrc")
+    "/usr/share/gtags/gtags.conf"
     "/usr/local/share/gtags/gtags.conf"
     "/usr/local/gtags/share/gtags.conf"
     "/opt/share/gtags/gtags.conf"
     "/opt/gtags/share/gtags.conf"
-    ,(expand-file-name "~/.globalrc")
     "/etc/gtags.conf")
   "Guesses of gtags configuration files.")
 

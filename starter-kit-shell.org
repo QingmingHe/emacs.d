@@ -1,9 +1,9 @@
-#+TITLE: Starter Kit Term
+#+TITLE: Starter Kit Shell
 #+OPTIONS: toc:nil num:nil ^:nil
 
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
-* Starter Kit Term
+* Starter Kit Shell
 ** Eshell
 
 [[http://www.emacswiki.org/emacs/CategoryEshell][Eshell]] is a great shell.
@@ -51,7 +51,7 @@ is pre-populated with some generally applicable aliases.
         (expand-file-name "./" (expand-file-name "eshell" starter-kit-dir)))
 #+end_src
 
-** Key bindings
+*** Key bindings
 
 + Use *C-a* to move to beginning of line of beginning of command line.
 + Use *C-p* or *M-p* to complete eshell history with helm.
@@ -126,8 +126,7 @@ echo hello > /dev/clip    # goes to the clipboard
 echo hello > /dev/kill    # goes to the kill ring
 #+end_src
 
-** Term
-*** Multi eshell
+** Multi eshell
 
 Use =multi-eshell= to handle multiple shells. Use *\-mn* to create new shell or
 switch to anther existing shell. Shell doesn't support zsh well, so specify
@@ -140,7 +139,7 @@ previous buffer. This will make path completion problematic.
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
 
-*** Term and ansi-term
+** Term and ansi-term
 
 In most cases, shell is in my favour. Only when I want to run another app
 inside emacs, I will resort to to awkward term or ansi-term.
@@ -165,3 +164,10 @@ function and kbd provide easy toggling.
             (define-key term-mode-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
             (define-key term-raw-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)))
 #+END_SRC
+
+** Shell script
+
+#+begin_src emacs-lisp
+(eval-after-load "sh-script"
+  `(define-key sh-mode-map (kbd "C-c C-c") 'sh-send-line-or-region-and-step))
+#+end_src
