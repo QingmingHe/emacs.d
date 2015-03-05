@@ -55,7 +55,7 @@ To use my configuration, set JEDI_SERVER environment to be
         ((executable-find "jediepcserver.py")
          (progn
            (setq jedi:server-command
-                 `(,(executable-find "jediepcserver.py")))
+                 `(,(executable-find "python") ,(executable-find "jediepcserver.py")))
            (my-jedi-conf)))))
 #+END_SRC
 
@@ -188,16 +188,45 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
 (eval-after-load "python"
   `(define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst))
 #+end_src
-** Python shell send
+** Python shell send do what I mean
 
+[[help:python-shell-send-region][python-shell-send-region]] is sometimes strange, don't use it.
 #+begin_src emacs-lisp
-(defun python-shell-send-defun-or-region-or-buffer (arg)
+(defun python-shell-send-dwim (arg)
+  "Send region or function or class or buffer or statement to python shell.
+
+- If a piece of region is selected, send the active retion.
+
+- With C-u prefix, send function or class definition.
+
+- With C-u C-u prefix, send the whole buffer.
+
+- If at beginning of class or function definition, send the definition
+  structure.
+
+- Finally, try to send the statement at point."
   (interactive "P")
-  (if (region-active-p)
-      (python-shell-send-region region-beginning region-end)
-    (if arg
-        (python-shell-send-buffer)
-      (python-shell-send-defun))))
+  (let (b0 b1)
+    (cond ((region-active-p)
+           (python-shell-send-region (region-beginning) (region-end)))
+          ((equal arg '(4))
+           (python-shell-send-defun (y-or-n-p "Don't send decorators?")))
+          ((equal arg '(16))
+           (python-shell-send-buffer))
+          ((save-excursion
+             (beginning-of-line)
+             (looking-at "[ \t]*\\(class \\|def \\)"))
+           (python-shell-send-defun (y-or-n-p "Don't send decorators?")))
+          (t
+           (save-excursion
+             (setq b0 (progn
+                        (python-nav-beginning-of-statement)
+                        (point)))
+             (setq b1 (progn
+                        (python-nav-end-of-statement)
+                        (point))))
+           (python-shell-send-string
+            (buffer-substring-no-properties b0 b1))))))
 (eval-after-load "python"
-  `(define-key python-mode-map (kbd "C-c C-c") 'python-shell-send-defun-or-region-or-buffer))
+  `(define-key python-mode-map (kbd "C-c C-c") 'python-shell-send-dwim))
 #+end_src

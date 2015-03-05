@@ -4,12 +4,6 @@
 # --
 [[help:${1:`
 (helm-comp-read "Symbol name: "
-                (let ((symbol-names
-                       (loop for x being the symbols
-                             if (boundp x)
-                             collect (symbol-name x))))
-                  (mapatoms
-                   (lambda (x)
-                     (when (fboundp x)
-                       (add-to-list 'symbol-names (symbol-name x)))))
-                  symbol-names))`}][$1]]
+                (loop for x being the symbols
+                      if (or (boundp x) (fboundp x))
+                      collect (symbol-name x)))`}][$1]]
