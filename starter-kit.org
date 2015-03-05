@@ -257,22 +257,20 @@ interested in the actual code implementing the starter kit.
 - Load path etc.
   #+name: starter-kit-load-paths
   #+begin_src emacs-lisp
-    (let ((elisp-dir (expand-file-name "src" starter-kit-dir)))
-      ;; add the src directory to the load path
-      (add-to-list 'load-path elisp-dir)
-      ;; load specific files
-      (when (file-exists-p elisp-dir)
-        (let ((default-directory elisp-dir))
-          (normal-top-level-add-subdirs-to-load-path))))
-    (setq autoload-file (concat starter-kit-dir "loaddefs.el"))
-    (setq package-user-dir (concat starter-kit-dir "elpa"))
-    (setq custom-file (concat starter-kit-dir "custom.el"))
-    ;; add path of undo-tree and goto-chg to load path
-    (add-to-list 'load-path (concat starter-kit-dir "src/evil/lib"))
-  #+end_src
-
-- Theme load path
-  #+begin_src emacs-lisp
+  (let ((elisp-dir (expand-file-name "src" starter-kit-dir)))
+    ;; add the src directory to the load path
+    (add-to-list 'load-path elisp-dir)
+    ;; load specific files
+    (when (file-exists-p elisp-dir)
+      (let ((default-directory elisp-dir))
+        (normal-top-level-add-subdirs-to-load-path))))
+  (setq autoload-file (concat starter-kit-dir "loaddefs.el"))
+  (setq package-user-dir (concat starter-kit-dir "elpa"))
+  (setq custom-file (concat starter-kit-dir "custom.el"))
+  ;; path of evil
+  (setq starter-kit-evil-dir (concat starter-kit-dir "src/evil/"))
+  ;; add path of undo-tree and goto-chg to load path
+  (add-to-list 'load-path (concat starter-kit-evil-dir "lib"))
   (add-to-list 'custom-theme-load-path (concat starter-kit-dir "themes"))
   #+end_src
 
@@ -417,7 +415,6 @@ interested in the actual code implementing the starter kit.
 - Ensure that all packages installed by package.el are byte compiled. First to
   speedup loading. Secondly, it has some errors for some packages to be loaded
   without byte compilation such as Bookmark+.
-
   #+begin_src emacs-lisp
   (defun was-compiled-p (path)
     "Does the directory at PATH contain any .elc files?"

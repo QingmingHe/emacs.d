@@ -105,8 +105,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 (setq helm-gtags-display-style 'detail)
 #+end_src
 
-** Taglist, imenu and other
-*** taglist
+** taglist
 
 #+BEGIN_SRC emacs-lisp
 (defun my-taglist ()
@@ -114,9 +113,12 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
   (list-tags (buffer-file-name)))
 #+END_SRC
 
-*** imenu
+** imenu
 
 #+BEGIN_SRC emacs-lisp
+(eval-after-load "imenu"
+  `(require 'imenu+))
+
 (setq imenu-auto-rescan nil)
 (defun starter-kit-imenu-rescan ()
   (interactive)
@@ -173,7 +175,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
           (add-to-list 'name-and-pos (cons name position))))))))
 #+END_SRC
 
-*** How to use imenu, ctags and taglist
+** How to use imenu, ctags and taglist
 
 **** Key bindings
 See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
