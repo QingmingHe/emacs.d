@@ -65,8 +65,7 @@ which typesets HTML into plain text.
   obsolete.
 
 *** Usage
-+ To copy url: *w3m-print-current-url*
-
++ To copy url as kill: [[help:w3m-print-current-url][w3m-print-current-url]] or [[help:w3m-print-this-url][w3m-print-this-url]].
 **** Select search engine
 
 call [[elisp:w3m-search][w3m-search]] with a prefix.
