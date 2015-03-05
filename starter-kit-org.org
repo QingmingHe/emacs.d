@@ -44,6 +44,13 @@ at root of org package.
 (add-hook 'org-mode-hook 'my-org-config)
 #+end_src
 
+** Use RET or follow link at point
+
+#+begin_src emacs-lisp
+(setq org-return-follows-link t)
+(define-key org-mode-map [remap evil-ret] 'org-return)
+#+end_src
+
 ** Time and clock
 *** Time stamp
 
@@ -144,7 +151,7 @@ although it is not added by default as a security precaution.
 
 Show two window for code editing. See also [[elisp:(describe-variable 'org-src-window-setup)][org-src-window-setup]].
 #+begin_src emacs-lisp
-(setq org-src-window-setup 'reorganize-frame)
+(setq org-src-window-setup 'other-window)
 #+end_src
 
 ** Code block fontification

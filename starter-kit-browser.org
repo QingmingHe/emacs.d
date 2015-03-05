@@ -14,10 +14,12 @@ which typesets HTML into plain text.
 *** Basic configuration
 
 #+BEGIN_SRC emacs-lisp
-(setq w3m-command "w3m")
-(setq browse-url-browser-function 'w3m-browse-url)
-(setq w3m-use-cookies t)
-(setq w3m-home-page "https://www.google.com.hk")
+(setq w3m-command "w3m"
+      browse-url-browser-function 'w3m-browse-url
+      w3m-use-cookies t
+      w3m-home-page "https://www.google.com.hk"
+      w3m-default-save-directory "~/.w3m/download"
+      w3m-bookmark-file (concat starter-kit-dir ".w3m-bookmarks.html"))
 (setq w3m-coding-system 'utf-8
       w3m-file-coding-system 'utf-8
       w3m-file-name-coding-system 'utf-8
@@ -27,9 +29,23 @@ which typesets HTML into plain text.
 (eval-after-load "w3m-search"
   `(progn
      (add-to-list 'w3m-search-engine-alist
-                  '("DuckDuck Go" "http://www.duckduckgo.com/?q=%s"))
-     (setq w3m-search-default-engine "google")))
+                  '("DuckDuck Go" "http://www.duckduckgo.com/?q=%s" utf-8))
+     (add-to-list 'w3m-search-engine-alist
+                  '("dictionary" "http://dictionary.reference.com/search?q=%s" utf-8))
+     (setq w3m-search-default-engine "yahoo")))
 #+END_SRC
+
+*** Rename w3m buffer name to favor helm-mini
+
+#+begin_src emacs-lisp
+(add-hook 'w3m-display-hook
+          (lambda (url)
+            (rename-buffer
+             (format "*w3m: %s*"
+                     (or w3m-current-title
+                         w3m-current-url))
+             t)))
+#+end_src
 
 *** Key bindings
 
@@ -37,6 +53,7 @@ which typesets HTML into plain text.
 (eval-after-load "w3m"
   `(progn
      (define-key w3m-mode-map (kbd "<") 'beginning-of-buffer)
+     (define-key w3m-mode-map (kbd "S") 'w3m-search-new-session)
      (define-key w3m-mode-map (kbd ">") 'end-of-buffer)))
 #+end_src
 
@@ -69,5 +86,25 @@ call [[elisp:w3m-search][w3m-search]] with a prefix.
      (define-key eww-mode-map "j" 'next-line)
      (define-key eww-mode-map "k" 'previous-line)
      (define-key eww-mode-map (kbd "<") 'beginning-of-buffer)
-     (define-key eww-mode-map (kbd ">") 'end-of-buffer)))
+     (define-key eww-mode-map (kbd ">") 'end-of-buffer)
+     (define-key eww-mode-map "R" 'eww-reload)))
 #+end_src
+
+*** Multiple eww
+
+Just rename current eww buffer and eww will open new url in other eww buffer.
+
+*** EWW use google search
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
+
+The default earch engine of EWW is [[https://duckduckgo.com/][DuckDuckGo]], to use google search, add to
+your =~/.emacs= and use [[elisp:(describe-variable 'helm-google-suggest-url)][helm-google-suggest-url]] to enter key words.[fn:1]
+#+begin_src emacs-lisp
+(setq browse-url-browser-function 'eww-browse-url)
+#+end_src
+
+* Footnotes
+
+[fn:1] From [[http://stackoverflow.com/questions/28443064/emacs-org-mode-helm-google-open-links-in-eww][emacs (org-mode/helm-google) open links in eww? - Stack Overflow]]
