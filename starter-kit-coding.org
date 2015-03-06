@@ -3,7 +3,7 @@
 
 * Starter Kit Coding
 
-** COMMENT Prog mode hooks
+** Prog mode hooks
 A single hook holding those functions which should be run in *every*
 code buffer.
 
@@ -104,10 +104,15 @@ Use smartparens to handle curly braces and block comment.
               '((which-func-mode ("" which-func-format " "))))
   (setq-local mode-line-misc-info
               (assq-delete-all 'which-func-mode mode-line-misc-info)))
+(defun starter-kit-turn-off-which-func ()
+  (setq-local header-line-format nil)
+  (setq-local mode-line-misc-info
+              (assq-delete-all 'which-func-mode mode-line-misc-info)))
 (mapc
  (lambda (mode)
    (add-hook (intern (format "%s-hook" (symbol-name mode)))
              'starter-kit-which-func-format))
  which-func-modes)
+(add-hook 'lisp-interaction-mode-hook 'starter-kit-turn-off-which-func t)
 (which-function-mode 1)
 #+end_src

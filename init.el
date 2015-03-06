@@ -25,10 +25,12 @@
           ,(file-name-directory (or load-file-name (buffer-file-name))))
     ;; only load org-mode later if we didn't load it just now
     ,(unless (and (getenv "ORG_HOME")
-                  (file-directory-p (expand-file-name "lisp"
-                                                      (getenv "ORG_HOME"))))
+                  (file-directory-p
+                   (expand-file-name "lisp" (getenv "ORG_HOME"))))
        '(require 'org))
-    ;; load up the starter kit
+    ;; load up the starter kit. As the initial value of
+    ;; org-babel-load-languages is '(emacs-lisp . t), only the emacs-lisp code
+    ;; block will be loaded.
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 
 ;;; init.el ends here
