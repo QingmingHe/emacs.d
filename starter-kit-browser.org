@@ -17,6 +17,9 @@ which typesets HTML into plain text.
 (setq w3m-command "w3m"
       browse-url-browser-function 'w3m-browse-url
       w3m-use-cookies t
+      w3m-cookie-accept-bad-cookies t
+      w3m-default-display-inline-images t
+      w3m-command-arguments '("-F" "-cookie")
       w3m-home-page "https://www.google.com.hk"
       w3m-default-save-directory "~/.w3m/download"
       w3m-bookmark-file (concat starter-kit-dir ".w3m-bookmarks.html"))
@@ -32,6 +35,8 @@ which typesets HTML into plain text.
                   '("DuckDuck Go" "http://www.duckduckgo.com/?q=%s" utf-8))
      (add-to-list 'w3m-search-engine-alist
                   '("dictionary" "http://dictionary.reference.com/search?q=%s" utf-8))
+     (add-to-list 'w3m-search-engine-alist
+                  '("youdao" "http://dict.youdao.com/search?q=%s" utf-8))
      (setq w3m-search-default-engine "yahoo")))
 #+END_SRC
 
@@ -50,11 +55,18 @@ which typesets HTML into plain text.
 *** Key bindings
 
 #+begin_src emacs-lisp
+(global-set-key (kbd "C-c S") 'w3m-search)
 (eval-after-load "w3m"
   `(progn
      (define-key w3m-mode-map (kbd "<") 'beginning-of-buffer)
      (define-key w3m-mode-map (kbd "S") 'w3m-search-new-session)
-     (define-key w3m-mode-map (kbd ">") 'end-of-buffer)))
+     (define-key w3m-mode-map (kbd ">") 'end-of-buffer)
+     (define-key w3m-mode-map (kbd "o") 'w3m-view-this-url-new-session)
+     (define-key w3m-mode-map (kbd "w") (lambda ()
+                                          (interactive)
+                                          (if (w3m-anchor)
+                                              (w3m-print-this-url)
+                                            (w3m-print-current-url))))))
 #+end_src
 
 *** How to install
@@ -67,12 +79,18 @@ which typesets HTML into plain text.
 *** Usage
 + To copy url as kill: [[help:w3m-print-current-url][w3m-print-current-url]] or [[help:w3m-print-this-url][w3m-print-this-url]].
 **** Select search engine
-
 call [[elisp:w3m-search][w3m-search]] with a prefix.
 
 **** w3m cannot retrieve url
-
 [[elisp:w3m-reload-this-page][w3m-reload-this-page]] or type *R*.
+
+**** Use google search
++ C-u w3m-search
++ select google engine
++ search something and see it fail
++ w to print current url
++ goto [[http://4-freeproxyserver.com/][Free Proxy Server for sites]] and enter url into the form
++ use C-c C-c to send to form
 
 ** eww
 *** Key bindings
