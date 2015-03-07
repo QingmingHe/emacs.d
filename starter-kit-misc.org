@@ -6,12 +6,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 * Starter Kit Misc
 Things that don't fit anywhere else.
 
-** User data
-#+begin_src emacs-lisp
-(setq user-full-name "Qingming He")
-(setq user-mail-address "906459647@qq.com")
-#+end_src
-
 ** Menu bar, scroll bar, column number
 You really don't need this; trust me.
 #+name: starter-kit-no-menu
