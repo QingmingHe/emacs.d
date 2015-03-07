@@ -10,6 +10,14 @@
       debug-on-signal nil
       debug-on-quit nil)
 
+;; get environment variables and paths
+(setq gtd-root (getenv "GTD_ROOT"))
+(setq dropbox-root (getenv "DROPBOX_ROOT"))
+(if dropbox-root
+    (setq py-bank-root (expand-file-name "dict" dropbox-root))
+  (setq py-bank-root (expand-file-name "~/.emacs.d/pyim")))
+(setq midnight-root (getenv "MIDNIGHT_ROOT"))
+
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
   (let ((org-lisp-dir (expand-file-name "lisp" (getenv "ORG_HOME"))))
@@ -29,13 +37,13 @@
                    (expand-file-name "lisp" (getenv "ORG_HOME"))))
        '(require 'org))
     ;; load user settings org file which ofen contains user' private data
-    ;; As the initial value of org-babel-load-languages is '(emacs-lisp . t),
-    ;; only the emacs-lisp code block will be loaded.
     (when (and
-           (setq gtd-root (getenv "GTD_ROOT"))
+           gtd-root
            (file-exists-p (concat gtd-root "/source/user-settings.org")))
       (org-babel-load-file (concat gtd-root "/source/user-settings.org")))
     ;; load up the starter kit.
+    ;; As the initial value of org-babel-load-languages is '(emacs-lisp . t),
+    ;; only the emacs-lisp code block will be loaded.
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 
 ;;; init.el ends here

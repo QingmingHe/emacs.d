@@ -418,8 +418,8 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ** Pinyin input
 
 #+begin_src emacs-lisp
-(defvar starter-kit-py-bank "starter-kit-py.txt"
-  "Pinyin word bank file.")
+(defvar starter-kit-py-bank (expand-file-name "eim-user-bank.txt" py-bank-root)
+  "Pinyin word bank file. This should be the full path of the bank file.")
 (autoload 'eim-use-package "eim" "Another emacs input method")
 ;; 不使用tooltip
 (setq eim-use-tooltip nil)
@@ -434,12 +434,13 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ;; 输入;暂时输入英文
 (require 'eim-extra)
 (global-set-key ";" 'eim-insert-ascii)
-;; install py.txt if needed
-(let* ((py-dir (file-name-directory (locate-library "eim-extra")))
-       (starter-kit-py-bank (expand-file-name starter-kit-py-bank py-dir))
-       (orig-eim-bank (expand-file-name "py.txt" py-dir)))
-  (unless (file-exists-p starter-kit-py-bank)
-    (copy-file orig-eim-bank starter-kit-py-bank)))
+;; install py bank for eim if needed
+(unless (file-exists-p starter-kit-py-bank)
+  (copy-file
+   (expand-file-name
+    "py.txt"
+    (file-name-directory (locate-library "eim-extra")))
+   starter-kit-py-bank))
 #+end_src
 
 ** rst mode

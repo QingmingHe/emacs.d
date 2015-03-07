@@ -67,7 +67,7 @@ Sequence of midnight hooks:
 
 #+begin_src emacs-lisp
 (defun run-midnight-scripts ()
-  (when (setq midnight-root (getenv "MIDNIGHT_ROOT"))
+  (when midnight-root
     (mapc
      (lambda (file)
        (load-file file))
