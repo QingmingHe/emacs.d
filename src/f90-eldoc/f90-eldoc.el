@@ -62,8 +62,10 @@ the first one is returned."
   (let (global-out sym-plist fn-tag)
     (when sym
       (setq global-out
-            (shell-command-to-string
-             (format "%s -xa %s" f90-eldoc-global-exec sym)))
+            (with-temp-buffer
+              (if (eq (call-process f90-eldoc-global-exec nil t nil "-xa" sym) 0)
+                  (buffer-string)
+                "")))
       (unless (string-empty-p global-out)
         (setq fn-tag
               (catch 'fn-tag

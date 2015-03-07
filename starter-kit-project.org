@@ -22,7 +22,7 @@ First define projects.
          :lighter "C-e")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
-         :filename-regex ,(regexify-ext-list '(f90 for py org))
+         :filename-regex ,(regexify-ext-list '(f90 for py org txt))
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :gtags-label "ctags"
          :lighter "SUGAR")

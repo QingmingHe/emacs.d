@@ -17,7 +17,9 @@ Fortran is a major language for scientific computation but a minor for other.
             ("<=" . ?≤)))
     (prettify-symbols-mode 1)))
 (eval-after-load "f90"
-  `(add-hook 'f90-mode-hook 'my-f90-config))
+  `(progn
+     (require 'f90-eldoc)
+     (add-hook 'f90-mode-hook 'my-f90-config)))
 #+END_SRC
 
 ** Fortran indent
