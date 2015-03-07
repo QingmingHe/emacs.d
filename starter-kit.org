@@ -279,9 +279,10 @@ interested in the actual code implementing the starter kit.
   session.
   #+name: starter-kit-load-on-startup
   #+begin_src emacs-lisp
-  ;; string manipulation functions and macros
   (when (> emacs-minor-version 3)
     (eval-when-compile (require 'subr-x)))
+  (when (window-system)
+    (require 'pos-tip))
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be

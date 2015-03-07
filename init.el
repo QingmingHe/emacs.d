@@ -13,10 +13,8 @@
 ;; get environment variables and paths
 (setq gtd-root (getenv "GTD_ROOT"))
 (setq dropbox-root (getenv "DROPBOX_ROOT"))
-(if dropbox-root
-    (setq py-bank-root (expand-file-name "dict" dropbox-root))
-  (setq py-bank-root (expand-file-name "~/.emacs.d/pyim")))
 (setq midnight-root (getenv "MIDNIGHT_ROOT"))
+(setq cygwin-root (getenv "CYGWIN_ROOT"))
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")

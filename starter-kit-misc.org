@@ -418,9 +418,13 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ** Pinyin input
 
 #+begin_src emacs-lisp
-(defvar starter-kit-py-bank (expand-file-name "eim-user-bank.txt" py-bank-root)
+(defvar starter-kit-eim-py-bank (expand-file-name
+                             "eim-user-bank.txt"
+                             (if dropbox-root
+                                 (expand-file-name "dict" dropbox-root)
+                               (expand-file-name "~/.emacs.d/pyim")))
   "Pinyin word bank file. This should be the full path of the bank file.")
-(autoload 'eim-use-package "eim" "Another emacs input method")
+(autoload 'eim-use-package "eim" "Another emacs input method" t)
 ;; 不使用tooltip
 (setq eim-use-tooltip nil)
 (register-input-method
@@ -428,19 +432,21 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
  "五笔" "汉字五笔输入法" "wb.txt")
 (register-input-method
  "eim-py" "euc-cn" 'eim-use-package
- "拼音" "汉字拼音输入法" starter-kit-py-bank)
+ "拼音" "汉字拼音输入法" starter-kit-eim-py-bank)
 ;; 默认的multilingual text输入法
 (setq default-input-method "eim-py")
 ;; 输入;暂时输入英文
-(require 'eim-extra)
+(autoload 'eim-insert-ascii "eim-extra" "Use a key to insert English." t)
 (global-set-key ";" 'eim-insert-ascii)
 ;; install py bank for eim if needed
-(unless (file-exists-p starter-kit-py-bank)
+(unless (file-exists-p (file-name-directory starter-kit-eim-py-bank))
+  (mkdir (file-name-directory starter-kit-eim-py-bank) t))
+(unless (file-exists-p starter-kit-eim-py-bank)
   (copy-file
    (expand-file-name
     "py.txt"
-    (file-name-directory (locate-library "eim-extra")))
-   starter-kit-py-bank))
+    (file-name-directory (locate-library "eim")))
+   starter-kit-eim-py-bank))
 #+end_src
 
 ** rst mode
