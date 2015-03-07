@@ -432,7 +432,7 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
  "五笔" "汉字五笔输入法" "wb.txt")
 (register-input-method
  "eim-py" "euc-cn" 'eim-use-package
- "拼音" "汉字拼音输入法" "py.txt")
+ "拼音" "汉字拼音输入法" "my-py.txt")
 ;; 默认的multilingual text输入法
 (setq default-input-method "eim-py")
 ;; 输入;暂时输入英文
