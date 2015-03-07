@@ -1,4 +1,5 @@
 ;;; pos-tip.el --- Show tooltip at point -*- coding: utf-8 -*-
+;; Version: 20150221.1706
 
 ;; Copyright (C) 2010 S. Irie
 
@@ -6,7 +7,7 @@
 ;; Maintainer: S. Irie
 ;; Keywords: Tooltip
 
-(defconst pos-tip-version "0.4.5")
+(defconst pos-tip-version "0.4.6")
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -69,6 +70,11 @@
 
 
 ;;; History:
+;; 2013-07-16  P. Kalinowski
+;;         * Adjusted `pos-tip-show' to correctly set tooltip text foreground
+;;           color when using custom color themes.
+;;         * Version 0.4.6
+;;
 ;; 2010-09-27  S. Irie
 ;;         * Simplified implementation of `pos-tip-window-system'
 ;;         * Version 0.4.5
@@ -213,29 +219,47 @@
 ;; Settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defvar pos-tip-border-width 1
-  "Outer border width of pos-tip's tooltip.")
+(defgroup pos-tip nil
+  "Show tooltip at point"
+  :group 'faces
+  :prefix "pos-tip-")
 
-(defvar pos-tip-internal-border-width 2
-  "Text margin of pos-tip's tooltip.")
+(defcustom pos-tip-border-width 1
+  "Outer border width of pos-tip's tooltip."
+  :type 'integer
+  :group 'pos-tip)
 
-(defvar pos-tip-foreground-color "black"
-  "Default foreground color of pos-tip's tooltip.")
+(defcustom pos-tip-internal-border-width 2
+  "Text margin of pos-tip's tooltip."
+  :type 'integer
+  :group 'pos-tip)
 
-(defvar pos-tip-background-color "lightyellow"
-  "Default background color of pos-tip's tooltip.")
+(defcustom pos-tip-foreground-color (face-foreground 'tooltip)
+  "Default foreground color of pos-tip's tooltip."
+  :type 'string
+  :group 'pos-tip)
 
-(defvar pos-tip-tab-width nil
+(defcustom pos-tip-background-color (face-background 'tooltip)
+  "Default background color of pos-tip's tooltip."
+  :type 'string
+  :group 'pos-tip)
+
+(defcustom pos-tip-tab-width nil
   "Tab width used for `pos-tip-split-string' and `pos-tip-fill-string'
-to expand tab characters. nil means use default value of `tab-width'.")
+to expand tab characters. nil means use default value of `tab-width'."
+  :type '(choice (const :tag "Default" nil)
+                 integer)
+  :group 'pos-tip)
 
-(defvar pos-tip-use-relative-coordinates nil
+(defcustom pos-tip-use-relative-coordinates nil
   "Non-nil means tooltip location is calculated as a coordinates
 relative to the top left corner of frame. In this case the tooltip
 will always be displayed within the frame.
 
 Note that this variable is automatically set to non-nil if absolute
-coordinates can't be obtained by `pos-tip-compute-pixel-position'.")
+coordinates can't be obtained by `pos-tip-compute-pixel-position'."
+  :type 'boolean
+  :group 'pos-tip)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Functions
@@ -512,6 +536,26 @@ in FRAME. Return new mouse position like (FRAME . (X . Y))."
 	  (sit-for 0.0001))))
     (cons mframe (and mpos (cons mx my)))))
 
+(defun pos-tip-compute-foreground-color (tip-color)
+  "Compute the foreground color to use for tooltip.
+
+TIP-COLOR is a face or a cons cell like (FOREGROUND-COLOR . BACKGROUND-COLOR).
+If it is nil, use `pos-tip-foreground-color'."
+  (or (and (facep tip-color)
+           (face-attribute tip-color :foreground))
+      (car-safe tip-color)
+      pos-tip-foreground-color))
+
+(defun pos-tip-compute-background-color (tip-color)
+  "Compute the background color to use for tooltip.
+
+TIP-COLOR is a face or a cons cell like (FOREGROUND-COLOR . BACKGROUND-COLOR).
+If it is nil, use `pos-tip-background-color'."
+  (or (and (facep tip-color)
+           (face-attribute tip-color :background))
+      (cdr-safe tip-color)
+      pos-tip-background-color))
+
 (defun pos-tip-show-no-propertize
   (string &optional tip-color pos window timeout pixel-width pixel-height frame-coordinates dx dy)
   "Show STRING in a tooltip at POS in WINDOW.
@@ -570,14 +614,8 @@ Example:
 	 (rx (if relative ax (- ax (car pos-tip-saved-frame-coordinates))))
 	 (ry (if relative ay (- ay (cdr pos-tip-saved-frame-coordinates))))
 	 (retval (cons rx ry))
-	 (fg (or (and (facep tip-color)
-		      (face-attribute tip-color :foreground))
-		 (car-safe tip-color)
-		 pos-tip-foreground-color))
-	 (bg (or (and (facep tip-color)
-		      (face-attribute tip-color :background))
-		 (cdr-safe tip-color)
-		 pos-tip-background-color))
+	 (fg (pos-tip-compute-foreground-color tip-color))
+	 (bg (pos-tip-compute-background-color tip-color))
 	 (use-dxdy (or relative
 		       (not x-frame)))
 	 (spacing (frame-parameter frame 'line-spacing))
@@ -654,7 +692,7 @@ characters to add at the beginning of each row.
 The optional fourth argument JUSTIFY specifies which kind of justification
 to do: `full', `left', `right', `center', or `none'. A value of t means handle
 each paragraph as specified by its text properties. Omitting JUSTIFY means
-don't perform justification, word wrap and kinsoku shori (½û„t„IÀí).
+don't perform justification, word wrap and kinsoku shori (ç¦å‰‡å‡¦ç†).
 
 SQUEEZE nil means leave whitespaces other than line breaks untouched.
 
@@ -703,7 +741,7 @@ characters to add at the beginning of each row.
 The optional fourth argument JUSTIFY specifies which kind of justification
 to do: `full', `left', `right', `center', or `none'. A value of t means handle
 each paragraph as specified by its text properties. Omitting JUSTIFY means
-don't perform justification, word wrap and kinsoku shori (½û„t„IÀí).
+don't perform justification, word wrap and kinsoku shori (ç¦å‰‡å‡¦ç†).
 
 SQUEEZE nil means leave whitespaces other than line breaks untouched.
 
@@ -751,7 +789,7 @@ The last empty line of STRING is ignored.
 
 Example:
 
-\(pos-tip-string-width-height \"abc\\n¤¢¤¤¤¦\\n123\")
+\(pos-tip-string-width-height \"abc\\nã‚ã„ã†\\n123\")
 ;; => (6 . 3)"
   (with-temp-buffer
     (insert string)
@@ -797,8 +835,6 @@ of display. Omitting FRAME means use display that selected frame is in."
        (ash (+ pos-tip-border-width
 	       pos-tip-internal-border-width)
 	    1))))
-
-(make-face 'pos-tip-temp)
 
 (defun pos-tip-show
   (string &optional tip-color pos window timeout width frame-coordinates dx dy)
@@ -848,7 +884,11 @@ See also `pos-tip-show-no-propertize'."
   (let* ((frame (window-frame window))
 	 (max-width (pos-tip-x-display-width frame))
 	 (max-height (pos-tip-x-display-height frame))
-	 (w-h (pos-tip-string-width-height string)))
+	 (w-h (pos-tip-string-width-height string))
+         (fg (pos-tip-compute-foreground-color tip-color))
+         (bg (pos-tip-compute-background-color tip-color))
+         (tip-face-attrs (list :font (frame-parameter frame 'font)
+                               :foreground fg :background bg)))
     (cond
      ((and width
 	   (> (car w-h) width))
@@ -858,11 +898,8 @@ See also `pos-tip-show-no-propertize'."
 	  (> (cdr w-h) max-height))
       (setq string (pos-tip-truncate-string string max-width max-height)
 	    w-h (pos-tip-string-width-height string))))
-    (face-spec-reset-face 'pos-tip-temp)
-    (with-selected-window window
-      (set-face-font 'pos-tip-temp (frame-parameter frame 'font)))
     (pos-tip-show-no-propertize
-     (propertize string 'face 'pos-tip-temp)
+     (propertize string 'face tip-face-attrs)
      tip-color pos window timeout
      (pos-tip-tooltip-width (car w-h) (frame-char-width frame))
      (pos-tip-tooltip-height (cdr w-h) (frame-char-height frame) frame)
@@ -888,7 +925,7 @@ Note that this function does't correctly work for X frame and Emacs 22."
 	 (pos-tip-border-width 0)
 	 (pos-tip-internal-border-width 1)
 	 (rpos (pos-tip-show ""
-			     '(nil . (frame-parameter frame 'background-color))
+			     `(nil . ,(frame-parameter frame 'background-color))
 			     (window-start window) window
 			     nil nil 'relative nil 0)))
     (sit-for 0)
@@ -922,7 +959,7 @@ Note that this function is usable only in Emacs 23 for MS-Windows."
 	      (cons (frame-pixel-width)
 		    (+ (frame-pixel-height)
 		       (- (cdr offset) (car offset)))))
-      (if (interactive-p)
+      (if (called-interactively-p 'interactive)
 	  (message "%S" pos-tip-w32-saved-max-width-height))
       (unless keep-maximize
 	;; Restore frame
