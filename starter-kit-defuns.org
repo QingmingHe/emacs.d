@@ -288,9 +288,25 @@ or =defcustom= with =setq= or use =eval-defun=.
 
 (defun copy-buffer-directory-name-as-kill ()
   (interactive)
-  (kill-new (file-name-directory (buffer-file-name)))
-  (message (file-name-directory (buffer-file-name))))
+  (kill-new default-directory)
+  (message default-directory))
+
+(defun locate-library-and-kill (lib-name)
+  (interactive
+   (list (read-string "library to locate: " nil nil
+                      (if (region-active-p)
+                          (buffer-substring-no-properties
+                           (region-beginning)
+                           (region-end))
+                        (thing-at-point-no-properties 'symbol)))))
+  (let ((path (locate-library lib-name)))
+    (if path
+        (progn
+          (kill-new path)
+          (message path))
+      (message "%s can't be located!" lib-name))))
 #+end_src
+
 ** Add to PATH environment variable
  
 #+begin_src emacs-lisp

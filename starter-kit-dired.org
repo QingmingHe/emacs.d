@@ -2,25 +2,6 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Dired
-
-** Basic settings
-
-#+BEGIN_SRC emacs-lisp
-(eval-after-load "dired-aux"
-  '(require 'dired-async))
-;; try to guess destination
-(setq dired-dwim-target t)
-;; use the same buffer for viewing dir, instead of spawning many
-(put 'dired-find-alternate-file 'disabled nil)
-(eval-after-load "dired"
-  `(progn
-     (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-     (define-key dired-mode-map (kbd "^") (lambda ()
-                                            (interactive)
-                                            (find-alternate-file "..")))
-     (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)))
-#+END_SRC
-
 ** How dired presents
 #+BEGIN_SRC emacs-lisp
 (setq dired-listing-switches "-lAh1v --group-directories-first")
@@ -40,6 +21,35 @@
 - 1v: Affects the sorting of digits, hopefully in a positive way.
 - --group-directories-first: self-explanatory, I like to have the directories
   on the top, separate from the files.
+
+** Basic settings
+
+Key bindings should be set after loading dired+.
+#+BEGIN_SRC emacs-lisp
+;; try to guess destination
+(setq dired-dwim-target t)
+;; use the same buffer for viewing dir, instead of spawning many
+(put 'dired-find-alternate-file 'disabled nil)
+(eval-after-load "dired"
+  `(progn
+     (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
+     (define-key dired-mode-map (kbd "RET")
+       (lambda ()
+         "If file name at current line in Dired is a directory, visit the
+directory in the same Dired buffer; otherwise visit the file in another buffer
+with the Dired buffer preserved."
+         (interactive)
+         (let ((file (dired-get-file-for-visit)))
+           (if (file-directory-p file)
+               (dired-find-alternate-file)
+             (find-file file)))))
+     (define-key dired-mode-map (kbd "^") (lambda ()
+                                            (interactive)
+                                            (find-alternate-file "..")))
+     (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)))
+(eval-after-load "dired-aux"
+  '(require 'dired-async))
+#+END_SRC
 
 ** Find name dired
 

@@ -6,9 +6,10 @@
 Evil is an evil mode to imitate Vim in Emacs. Starter Kit will set global evil
 mode if starter-kit-evil is activated.
 
-** Undo is needed by evil
+** Undo and goto-chg is needed by evil
 #+BEGIN_SRC emacs-lisp
 (require 'undo-tree)
+(require 'goto-chg)
 (global-undo-tree-mode)
 #+END_SRC
 
@@ -43,30 +44,6 @@ several years.
 
 It is so happy to key in *g;* or *C-o* to go to last change and *g* or *C-i*,
 to com back.
-
-** Surround
-This package emulates surround.vim by Tim Pope. The functionality is wrapped
-into a minor mode.
-
-#+BEGIN_SRC emacs-lisp
-(require 'surround)
-(global-surround-mode 1)
-#+END_SRC
-
-To activate it, *M-x surround-mode*.
-
-*** Add surrounding
-
-You can surround in visual-state with s<textobject><trigger> or in
-normal-state with ys<textobject><trigger>.
-
-*** Change surrounding
-
-You can change a surrounding with cs<old-trigger><new-trigger>.
-
-*** Delete surrounding
-
-You can delete a surrounding with ds<trigger>.
 
 ** Ace jump
 

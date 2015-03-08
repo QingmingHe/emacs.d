@@ -2,7 +2,6 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit Graphviz
-
 ** Basic Set up
 Auto load graphviz-dot-mode for *.gv.
 #+BEGIN_SRC emacs-lisp

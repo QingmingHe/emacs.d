@@ -327,7 +327,12 @@ set targets start with the file name and complete in steps with *TAB*.
 #+END_SRC
 
 *** Org publish
-The setup is very personal.
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
+
+The setup is very personal. May be this subsection should be moved to
+=user-settings.org=.
 #+BEGIN_SRC emacs-lisp
 (when gtd-root
   (require 'ox-publish)

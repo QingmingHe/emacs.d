@@ -2,7 +2,6 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit Nxml
-
 ** Pretty print xml
 
 #+BEGIN_SRC emacs-lisp

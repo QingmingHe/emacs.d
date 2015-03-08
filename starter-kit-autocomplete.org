@@ -7,7 +7,6 @@
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
-;; (require 'auto-complete-pcomplete)
 (when (executable-find "ctags")
   (require 'auto-complete-etags))
 (when (executable-find "gtags")
@@ -114,17 +113,6 @@ Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
                      ac-source-variables
                      ac-source-symbols)
                    ac-sources))))
-#+end_src
-
-** Eshell
-    :PROPERTIES:
-    :TANGLE:   no
-    :END:
-
-#+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (setq ac-sources '(ac-source-pcomplete))))
 #+end_src
 
 ** CC
