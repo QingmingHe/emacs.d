@@ -139,6 +139,11 @@ previously visited the same file.
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
+;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
+(defun ido-setup-key-bindings ()
+  (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
+  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
+(add-hook 'ido-setup-hook 'ido-setup-key-bindings)
 #+end_src
 
 ** Tabs, alias, random
@@ -286,16 +291,16 @@ annoying in org mode. Advice below is for:
 
 Don't grep repositories and some files.
 #+BEGIN_SRC emacs-lisp
-(eval-after-load 'grep
-  '(dolist (dir '(".git"
-                  ".cvs"
-                  ".svn"
-                  ".hg"))
-     (add-to-list 'grep-find-ignored-directories dir)))
-(eval-after-load 'grep
-  '(dolist (file '("#*"
-                   "*.mod"))
-     (add-to-list 'grep-find-ignored-files file)))
+(eval-after-load "grep"
+  `(progn
+     (dolist (dir '(".git"
+                    ".cvs"
+                    ".svn"
+                    ".hg"))
+       (add-to-list 'grep-find-ignored-directories dir))
+     (dolist (file '("#*"
+                     "*.mod"))
+       (add-to-list 'grep-find-ignored-files file))))
 #+END_SRC
 
 *** Wgrep

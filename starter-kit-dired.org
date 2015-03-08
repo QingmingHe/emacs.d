@@ -24,15 +24,22 @@
 
 ** Basic settings
 
-Key bindings should be set after loading dired+.
 #+BEGIN_SRC emacs-lisp
 ;; try to guess destination
 (setq dired-dwim-target t)
 ;; use the same buffer for viewing dir, instead of spawning many
 (put 'dired-find-alternate-file 'disabled nil)
-(eval-after-load "dired"
+;; copy, remove files asynchronous
+(eval-after-load "dired-aux"
+  '(require 'dired-async))
+#+END_SRC
+
+** Enhanced Dired key bindings
+
+Key bindings should be set after loading dired+.
+#+begin_src emacs-lisp
+(eval-after-load "dired+"
   `(progn
-     (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
      (define-key dired-mode-map (kbd "RET")
        (lambda ()
          "If file name at current line in Dired is a directory, visit the
@@ -43,15 +50,30 @@ with the Dired buffer preserved."
            (if (file-directory-p file)
                (dired-find-alternate-file)
              (find-file file)))))
-     (define-key dired-mode-map (kbd "^") (lambda ()
-                                            (interactive)
-                                            (find-alternate-file "..")))
+     (define-key dired-mode-map (kbd "^")
+       (lambda ()
+         "Goto parent directory in current Dired buffer with cursor locating
+at line of last directory."
+         (interactive)
+         (let ((last-path (file-name-directory (dired-get-file-for-visit))))
+           (find-alternate-file "..")
+           (dired-goto-file last-path))))
+     (define-key dired-mode-map (kbd "j")
+       (lambda ()
+         "Original `dired-goto-file' can't jump to directory in Dired
+buffer. This command uses ido to complete read a file or directory name from
+all files and directories under current path and jump to it in current Dired
+buffer."
+         (interactive)
+         (dired-goto-file
+          (expand-file-name
+           (ido-completing-read
+            "Goto file or dir: "
+            (directory-files "."))))))
      (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)))
-(eval-after-load "dired-aux"
-  '(require 'dired-async))
-#+END_SRC
+#+end_src
 
-** Find name dired
+** Find name Dired
 
 + Use [[elisp:find-name-dired]] instead of [[elisp:find-dired]] for the former's
   simplicity.
@@ -60,6 +82,22 @@ with the Dired buffer preserved."
   this instead add this to your =~/.emacs=:
 #+begin_src emacs-lisp
 (setq find-ls-option '("-print0 | xargs -0 ls -ld" . "-ld"))
+#+end_src
+
+** Ido Dired and move to file's line
+
+#+begin_src emacs-lisp
+(defun ido-dired-dwim ()
+  "Call `ido-dired' and move to last file's line in Dired buffer if possible."
+  (interactive)
+  (let* ((file-name (buffer-file-name))
+         (dir-name (if file-name
+                       (expand-file-name (file-name-directory file-name))
+                     "")))
+    (call-interactively 'ido-dired)
+    (when (string= dir-name (expand-file-name default-directory))
+      (dired-goto-file file-name))))
+(define-key global-map (kbd "C-x d") 'ido-dired-dwim)
 #+end_src
 
 ** Tips

@@ -158,15 +158,6 @@ Simple usage:
 (--for i in '(1 2 3)
        (print i))
 #+end_src
-** Compile
-
-#+begin_src emacs-lisp
-(defun my-compile ()
-  (interactive)
-  (let ((default-directory
-          (ido-read-directory-name "Dir: ")))
-    (call-interactively 'compile)))
-#+end_src
 ** Cursor in string or comment
 
 #+begin_src emacs-lisp
@@ -178,6 +169,7 @@ Simple usage:
   (interactive)
   (nth 4 (syntax-ppss)))
 #+end_src
+
 ** re-evaluate region or buffer
 
 =eval-buffer=, =eval-region=, =eval-last-sexp= and =eval-print-last-sexp=
@@ -203,6 +195,7 @@ or =defcustom= with =setq= or use =eval-defun=.
         (forward-sexp)
         (eval-defun nil)))))
 #+end_src
+
 ** ASCII table
 
 #+begin_src emacs-lisp
