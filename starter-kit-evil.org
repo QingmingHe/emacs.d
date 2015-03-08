@@ -72,6 +72,7 @@ back.
 
 #+begin_src emacs-lisp
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+(key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
 #+end_src
 
 *** Ex completion map

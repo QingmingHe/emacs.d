@@ -454,3 +454,10 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
   (turn-on-flyspell))
 (add-hook 'rst-mode-hook 'my-rst-config)
 #+END_SRC
+
+** Key Chord mode
+
+#+begin_src emacs-lisp
+(require 'key-chord)
+(key-chord-mode 1)
+#+end_src
