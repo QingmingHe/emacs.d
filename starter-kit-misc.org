@@ -123,11 +123,6 @@ previously visited the same file.
   *C-l* in minibuffer to refresh ido candidates.
 #+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp
-(require 'ido)
-(require 'flx-ido)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
       ido-create-new-buffer 'always
@@ -139,6 +134,11 @@ previously visited the same file.
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
+(require 'ido)
+(require 'flx-ido)
+(ido-mode 1)
+(ido-everywhere 1)
+(flx-ido-mode 1)
 ;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
 (defun ido-setup-key-bindings ()
   (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
@@ -197,7 +197,7 @@ live in the =/tmp= directory.
 ** Bookmark
 
 #+BEGIN_SRC emacs-lisp
-(setq bmkp-bmenu-state-file (expand-file-name "~/.emacs.d/.emacs-bmk-bmenu-state.el"))
+(setq bmkp-bmenu-state-file (expand-file-name ".emacs-bmk-bmenu-state.el" starter-kit-dir))
 #+END_SRC
 
 ** Always auto revert file

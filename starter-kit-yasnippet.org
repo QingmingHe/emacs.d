@@ -21,7 +21,7 @@ inspired by TextMate's templating syntax.
    :END:
 Load the snippets defined in the =./snippets/= directory.
 #+begin_src emacs-lisp
-(yas-load-directory "~/.emacs.d/snippets")
+(yas-load-directory (expand-file-name "snippets" starter-kit-dir))
 #+end_src
 
 ** Configure Yasnippets for Org Mode
