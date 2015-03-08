@@ -6,8 +6,8 @@
 ** Basic settings
 
 #+BEGIN_SRC emacs-lisp
-(eval-after-load "dired-aux"
-  '(require 'dired-async))
+;; (eval-after-load "dired-aux"
+;;   '(require 'dired-async))
 ;; try to guess destination
 (setq dired-dwim-target t)
 ;; use the same buffer for viewing dir, instead of spawning many
