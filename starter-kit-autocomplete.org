@@ -2,7 +2,6 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit AC
-
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
@@ -11,8 +10,8 @@
   (require 'auto-complete-etags))
 (when (executable-find "gtags")
   (require 'auto-complete-gtags))
-(when (executable-find "cmake")
-  (require 'auto-complete-cmake))
+(when (executable-find "clang")
+  (require 'auto-complete-clang))
 
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
@@ -201,10 +200,13 @@ added.
 ** CMake
 
 #+begin_src emacs-lisp
-(when (featurep 'auto-complete-cmake)
-  (add-hook 'cmake-mode-hook
-            (lambda ()
-              (add-to-list 'ac-sources 'ac-source-cmake))))
+(when (executable-find "cmake")
+  (eval-after-load "cmake-mode"
+    `(progn
+       (require 'auto-complete-cmake)
+       (add-hook 'cmake-mode-hook
+                 (lambda ()
+                   (add-to-list 'ac-sources 'ac-source-cmake))))))
 #+end_src
 
 ** Comment

@@ -476,6 +476,7 @@ everyone using the starter kit.
   (starter-kit-fast-load "occur")
   (starter-kit-fast-load "gud")
   (starter-kit-fast-load "midnight")
+  (starter-kit-fast-load "flyspell")
   ;; prog mode should be loaded finally
   (starter-kit-fast-load "shell")
   (starter-kit-fast-load "coding")
@@ -488,9 +489,6 @@ everyone using the starter kit.
   (starter-kit-fast-load "rnc")
   (starter-kit-fast-load "cc")
   (starter-kit-fast-load "js")
-  ;; load flyspell at last so that aspell will not start when
-  ;; org-babel-load-file which is very time consuming
-  (starter-kit-fast-load "flyspell")
   #+END_SRC
 
 ** Load User/System Specific Files
@@ -545,20 +543,10 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 ** Starter kit initial display
 
 This should be placed at end of starter kit and configures the initial
-windows. Since Emacs-24.4 you can toggle full screen by <F11>.
+windows.
 #+BEGIN_SRC emacs-lisp
 (defun my-start-up-display ()
   (setq inhibit-splash-screen t)
-  ;; ;; start eshell so helm-find-file can use pcomplete
-  ;; (eshell 1)
-  ;; (bury-buffer)
-  ;; ;; Generate a temporary buffer for write something
-  ;; (generate-new-buffer "temporary")
-  ;; (bury-buffer)
-  ;; ;; show bookmark and scratch at startup
-  ;; (bookmark-bmenu-list)
-  ;; (delete-other-windows)
-  ;; (split-window-right)
   (switch-to-buffer "*scratch*")
   (setq default-directory temporary-file-directory)
   (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"

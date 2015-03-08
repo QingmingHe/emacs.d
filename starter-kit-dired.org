@@ -29,9 +29,10 @@
 (setq dired-dwim-target t)
 ;; use the same buffer for viewing dir, instead of spawning many
 (put 'dired-find-alternate-file 'disabled nil)
-;; copy, remove files asynchronous
-(eval-after-load "dired-aux"
-  '(require 'dired-async))
+;; copy, remove files asynchronous. It's a pitty that `dired-async` don't
+;; support tramp well.
+;; (eval-after-load "dired-aux"
+;;   '(require 'dired-async))
 #+END_SRC
 
 ** Enhanced Dired key bindings
