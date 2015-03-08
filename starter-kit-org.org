@@ -257,15 +257,6 @@ the mind by recording them externally and then breaking them into actionable
 work items. This allows one to focus attention on taking action on tasks,
 instead of on recalling them.
 #+END_QUOTE
-*** GTD root
-
-GTD root is defined by *GTD_ROOT* environment variable.
-#+BEGIN_SRC emacs-lisp
-(if (getenv "GTD_ROOT")
-    (setq gtd-root (getenv "GTD_ROOT"))
-  (setq gtd-root nil))
-#+END_SRC
-
 *** Org TODO
 
 The default org todo keywords are *TODO* and *DONE*, which is not adequate for
@@ -297,15 +288,15 @@ just provide a possible one. The meanings of these templates are:
         org-default-notes-file (concat org-directory "/inbox.org")
         org-capture-templates
         '(("t" "Task" entry (file+headline org-default-notes-file "Tasks")
-           "** TODO %? \n   SCHEDULED: %T \n   %i")
+           "** TODO %?\n   SCHEDULED: %T \n   %i")
           ("d" "Daily" entry (file+headline org-default-notes-file "Dailies")
-           "** %? \n   SCHEDULED: %T \n   %i")
+           "** %?\n   SCHEDULED: %T \n   %i")
           ("l" "Calendar" entry (file+headline org-default-notes-file "Calendar")
-           "** %? \n   %T")
+           "** %?\n   %T")
           ("p" "Project" entry (file+headline org-default-notes-file "Projects")
-           "** %? \n   SCHEDULED: %T \n   %i")
+           "** %?\n   SCHEDULED: %T \n   %i")
           ("n" "Note" entry (file+headline org-default-notes-file "Notes")
-           "** %? \n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i"))))
+           "** %?\n   :PROPERTIES: \n   :TIMESTAMP_IA: %U \n   :END: \n   %i"))))
 #+END_SRC
 
 *** Org agenda
@@ -336,7 +327,12 @@ set targets start with the file name and complete in steps with *TAB*.
 #+END_SRC
 
 *** Org publish
-The setup is very personal.
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
+
+The setup is very personal. May be this subsection should be moved to
+=user-settings.org=.
 #+BEGIN_SRC emacs-lisp
 (when gtd-root
   (require 'ox-publish)

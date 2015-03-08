@@ -2,18 +2,16 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit AC
-
 ** Basic setup
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
-;; (require 'auto-complete-pcomplete)
 (when (executable-find "ctags")
   (require 'auto-complete-etags))
 (when (executable-find "gtags")
   (require 'auto-complete-gtags))
-(when (executable-find "cmake")
-  (require 'auto-complete-cmake))
+(when (executable-find "clang")
+  (require 'auto-complete-clang))
 
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
@@ -116,17 +114,6 @@ Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
                    ac-sources))))
 #+end_src
 
-** Eshell
-    :PROPERTIES:
-    :TANGLE:   no
-    :END:
-
-#+begin_src emacs-lisp
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (setq ac-sources '(ac-source-pcomplete))))
-#+end_src
-
 ** CC
 *** ac-c-headers
 
@@ -213,10 +200,13 @@ added.
 ** CMake
 
 #+begin_src emacs-lisp
-(when (featurep 'auto-complete-cmake)
-  (add-hook 'cmake-mode-hook
-            (lambda ()
-              (add-to-list 'ac-sources 'ac-source-cmake))))
+(when (executable-find "cmake")
+  (eval-after-load "cmake-mode"
+    `(progn
+       (require 'auto-complete-cmake)
+       (add-hook 'cmake-mode-hook
+                 (lambda ()
+                   (add-to-list 'ac-sources 'ac-source-cmake))))))
 #+end_src
 
 ** Comment

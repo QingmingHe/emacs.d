@@ -1,8 +1,0 @@
-#+TITLE: Starter Kit CMake
-#+OPTIONS: toc:nil num:nil ^:nil
-
-Setup for CMake.
-#+BEGIN_SRC emacs-lisp
-(autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
-(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
-#+END_SRC

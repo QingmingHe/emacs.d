@@ -135,6 +135,7 @@ This function is copied form prelude. The differences are:
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-cj" 'org-clock-goto)
 #+end_src
+
 ** Upper case word or symbol
 
 #+begin_src emacs-lisp
@@ -150,3 +151,16 @@ This function is copied form prelude. The differences are:
            (let ((b (bounds-of-thing-at-point 'symbol)))
              (upcase-region (car b) (cdr b)))))))
 #+end_src
+
+** Expand region
+
+#+BEGIN_QUOTE
+Expand region increases the selected region by semantic units. Just keep
+pressing the key until it selects what you want.
+#+END_QUOTE
+
+In terminal, *C-=* may not work. You may have to run extended-command-history
+to expand or contract region.
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-=") 'er/expand-region)
+#+END_SRC

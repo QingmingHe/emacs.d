@@ -10,6 +10,22 @@
       debug-on-signal nil
       debug-on-quit nil)
 
+;; determine system type and emacs version
+(setq *cygwin* (eq 'cygwin system-type))
+(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+(if (< emacs-major-version 24)
+    (error "Emacs version should be >= 24.3")
+  (when (< emacs-minor-version 3)
+    (error "Emacs version should be >= 24.3")))
+(when (eq system-type 'windows-nt)
+  (error "Native Windows is not supported"))
+
+;; get environment variables and paths
+(setq gtd-root (getenv "GTD_ROOT"))
+(setq dropbox-root (getenv "DROPBOX_ROOT"))
+(setq midnight-root (getenv "MIDNIGHT_ROOT"))
+(setq cygwin-root (getenv "CYGWIN_ROOT"))
+
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
   (let ((org-lisp-dir (expand-file-name "lisp" (getenv "ORG_HOME"))))
@@ -28,9 +44,14 @@
                   (file-directory-p
                    (expand-file-name "lisp" (getenv "ORG_HOME"))))
        '(require 'org))
-    ;; load up the starter kit. As the initial value of
-    ;; org-babel-load-languages is '(emacs-lisp . t), only the emacs-lisp code
-    ;; block will be loaded.
+    ;; load user settings org file which ofen contains user' private data
+    (when (and
+           gtd-root
+           (file-exists-p (concat gtd-root "/source/user-settings.org")))
+      (org-babel-load-file (concat gtd-root "/source/user-settings.org")))
+    ;; load up the starter kit.
+    ;; As the initial value of org-babel-load-languages is '(emacs-lisp . t),
+    ;; only the emacs-lisp code block will be loaded.
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 
 ;;; init.el ends here

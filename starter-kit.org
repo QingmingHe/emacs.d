@@ -240,20 +240,6 @@ interested in the actual code implementing the starter kit.
 
 ** Starter kit basics
 
-- Determine system type and emacs version
-  #+BEGIN_SRC emacs-lisp
-  (setq *cygwin* (eq 'cygwin system-type))
-  (setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
-
-  (if (< emacs-major-version 24)
-      (error "Emacs version should be >= 24.3")
-    (when (< emacs-minor-version 3)
-      (error "Emacs version should be >= 24.3")))
-
-  (when (eq system-type 'windows-nt)
-    (error "Native Windows is not supported"))
-  #+END_SRC
-
 - Load path etc.
   #+name: starter-kit-load-paths
   #+begin_src emacs-lisp
@@ -279,9 +265,10 @@ interested in the actual code implementing the starter kit.
   session.
   #+name: starter-kit-load-on-startup
   #+begin_src emacs-lisp
-  ;; string manipulation functions and macros
   (when (> emacs-minor-version 3)
     (eval-when-compile (require 'subr-x)))
+  (when (window-system)
+    (require 'pos-tip))
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be
@@ -464,49 +451,45 @@ everyone using the starter kit.
 
 - Others
 
-You should note that the sequence is very important.
-#+BEGIN_SRC emacs-lisp
-;; desktop should be the first one to load
-(starter-kit-fast-load "desktop")
-(starter-kit-fast-load "evil")
-(when *cygwin*
-  (starter-kit-fast-load "win32"))
-;; Configure org 8.* bundled with Emacs 24.4
-(when (> emacs-minor-version 3)
-  (starter-kit-fast-load "org"))
-(starter-kit-fast-load "theme")
-(starter-kit-fast-load "ibuffer")
-(starter-kit-fast-load "dired")
-(starter-kit-fast-load "project")
-(starter-kit-fast-load "flycheck")
-(starter-kit-fast-load "helm")
-(starter-kit-fast-load "yasnippet")
-(starter-kit-fast-load "autocomplete")
-(starter-kit-fast-load "browser")
-(starter-kit-fast-load "dictionary")
-(starter-kit-fast-load "bindings")
-(starter-kit-fast-load "quickrun")
-(starter-kit-fast-load "occur")
-(starter-kit-fast-load "gud")
-(starter-kit-fast-load "midnight")
-;; prog mode should be loaded finally
-(starter-kit-fast-load "shell")
-(starter-kit-fast-load "coding")
-(starter-kit-fast-load "python")
-(starter-kit-fast-load "nxml")
-(starter-kit-fast-load "lisp")
-(starter-kit-fast-load "cmake")
-(starter-kit-fast-load "rst")
-(starter-kit-fast-load "fortran")
-(starter-kit-fast-load "latex")
-(starter-kit-fast-load "graphviz")
-(starter-kit-fast-load "rnc")
-(starter-kit-fast-load "cc")
-(starter-kit-fast-load "js")
-;; load flyspell at last so that aspell will not start when
-;; org-babel-load-file which is very time consuming
-(starter-kit-fast-load "flyspell")
-#+END_SRC
+  You should note that the sequence is very important.
+  #+BEGIN_SRC emacs-lisp
+  ;; desktop should be the first one to load
+  (starter-kit-fast-load "desktop")
+  (starter-kit-fast-load "evil")
+  (when *cygwin*
+    (starter-kit-fast-load "win32"))
+  ;; Configure org 8.* bundled with Emacs 24.4
+  (when (> emacs-minor-version 3)
+    (starter-kit-fast-load "org"))
+  (starter-kit-fast-load "theme")
+  (starter-kit-fast-load "ibuffer")
+  (starter-kit-fast-load "dired")
+  (starter-kit-fast-load "project")
+  (starter-kit-fast-load "flycheck")
+  (starter-kit-fast-load "helm")
+  (starter-kit-fast-load "yasnippet")
+  (starter-kit-fast-load "autocomplete")
+  (starter-kit-fast-load "browser")
+  (starter-kit-fast-load "dictionary")
+  (starter-kit-fast-load "bindings")
+  (starter-kit-fast-load "quickrun")
+  (starter-kit-fast-load "occur")
+  (starter-kit-fast-load "gud")
+  (starter-kit-fast-load "midnight")
+  (starter-kit-fast-load "flyspell")
+  ;; prog mode should be loaded finally
+  (starter-kit-fast-load "shell")
+  (starter-kit-fast-load "coding")
+  (starter-kit-fast-load "python")
+  (starter-kit-fast-load "nxml")
+  (starter-kit-fast-load "lisp")
+  (starter-kit-fast-load "fortran")
+  (starter-kit-fast-load "latex")
+  (starter-kit-fast-load "graphviz")
+  (starter-kit-fast-load "rnc")
+  (starter-kit-fast-load "cc")
+  (starter-kit-fast-load "js")
+  #+END_SRC
 
 ** Load User/System Specific Files
 *** System/User specific customizations
@@ -560,20 +543,10 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 ** Starter kit initial display
 
 This should be placed at end of starter kit and configures the initial
-windows. Since Emacs-24.4 you can toggle full screen by <F11>.
+windows.
 #+BEGIN_SRC emacs-lisp
 (defun my-start-up-display ()
   (setq inhibit-splash-screen t)
-  ;; ;; start eshell so helm-find-file can use pcomplete
-  ;; (eshell 1)
-  ;; (bury-buffer)
-  ;; ;; Generate a temporary buffer for write something
-  ;; (generate-new-buffer "temporary")
-  ;; (bury-buffer)
-  ;; ;; show bookmark and scratch at startup
-  ;; (bookmark-bmenu-list)
-  ;; (delete-other-windows)
-  ;; (split-window-right)
   (switch-to-buffer "*scratch*")
   (setq default-directory temporary-file-directory)
   (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"

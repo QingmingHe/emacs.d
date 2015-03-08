@@ -11,11 +11,8 @@ a component of Docutils. reStructuredText is a revision and reinterpretation
 of the StructuredText and Setext lightweight markup systems.
 #+END_QUOTE
 
-Flyspell for checking spelling and outline mode for folding.
 #+BEGIN_SRC emacs-lisp
-(add-hook 'rst-mode-hook (lambda ()
-                           (turn-on-flyspell)
-                           (outline-minor-mode)
-                           (setq outline-regexp "\.\. _\\(CHAPTER\\|SECTION\\|SUBSECTION\\)")
-                           (hide-body)))
+(defun my-rst-config ()
+  (turn-on-flyspell))
+(add-hook 'rst-mode-hook 'my-rst-config)
 #+END_SRC

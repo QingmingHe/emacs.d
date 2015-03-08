@@ -7,6 +7,7 @@
 All these codes are copied from
 [[http://blog.binchen.org/posts/what-s-the-best-spell-check-set-up-in-emacs.html]]
 #+begin_src emacs-lisp
+(setq flyspell-issue-welcome-flag nil)
 (setq flyspell-issue-message-flag nil)
 ;; if (aspell installed) { use aspell}
 ;; else if (hunspell installed) { use hunspell }

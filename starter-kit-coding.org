@@ -26,11 +26,6 @@ a lambda doesn't already exist in the list.
   (flyspell-prog-mode))
 (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-flyspell)
 
-(autoload 'hideshowvis-enable "hideshowvis" "Highlight foldable regions")
-(autoload 'hideshowvis-minor-mode
-  "hideshowvis"
-  "Will indicate regions foldable with hideshow in the fringe."
-  'interactive)
 (defun starter-kit-turn-on-hs ()
   (hs-minor-mode)
   (hideshowvis-enable)
@@ -47,7 +42,6 @@ a lambda doesn't already exist in the list.
   (linum-mode 1))
 
 (setq fic-highlighted-words '("FIXME" "TODO" "BUG" "KLUDGE" "DEBUG"))
-(require 'fic-mode)
 (add-hook 'starter-kit-coding-hook 'turn-on-fic-mode)
 
 (defun run-starter-kit-coding-hook ()

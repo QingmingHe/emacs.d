@@ -2,7 +2,6 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Occur
-
 ** Occur do what I mean
 
 + Push region or symbol at point to regexp-history so that occur will set the

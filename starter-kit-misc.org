@@ -6,12 +6,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 * Starter Kit Misc
 Things that don't fit anywhere else.
 
-** User data
-#+begin_src emacs-lisp
-(setq user-full-name "Qingming He")
-(setq user-mail-address "906459647@qq.com")
-#+end_src
-
 ** Menu bar, scroll bar, column number
 You really don't need this; trust me.
 #+name: starter-kit-no-menu
@@ -145,6 +139,11 @@ previously visited the same file.
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
+;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
+(defun ido-setup-key-bindings ()
+  (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
+  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
+(add-hook 'ido-setup-hook 'ido-setup-key-bindings)
 #+end_src
 
 ** Tabs, alias, random
@@ -234,20 +233,6 @@ lines of codes.
 (define-key global-map (kbd "RET") 'newline-and-indent)
 #+END_SRC
 
-** Expand region
-
-#+BEGIN_QUOTE
-Expand region increases the selected region by semantic units. Just keep
-pressing the key until it selects what you want.
-#+END_QUOTE
-
-In terminal, *C-=* may not work. You may have to run extended-command-history
-to expand or contract region.
-
-#+BEGIN_SRC emacs-lisp
-(global-set-key (kbd "C-=") 'er/expand-region)
-#+END_SRC
-
 ** Garbage collection
 
 Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We
@@ -306,16 +291,16 @@ annoying in org mode. Advice below is for:
 
 Don't grep repositories and some files.
 #+BEGIN_SRC emacs-lisp
-(eval-after-load 'grep
-  '(dolist (dir '(".git"
-                  ".cvs"
-                  ".svn"
-                  ".hg"))
-     (add-to-list 'grep-find-ignored-directories dir)))
-(eval-after-load 'grep
-  '(dolist (file '("#*"
-                   "*.mod"))
-     (add-to-list 'grep-find-ignored-files file)))
+(eval-after-load "grep"
+  `(progn
+     (dolist (dir '(".git"
+                    ".cvs"
+                    ".svn"
+                    ".hg"))
+       (add-to-list 'grep-find-ignored-directories dir))
+     (dolist (file '("#*"
+                     "*.mod"))
+       (add-to-list 'grep-find-ignored-files file))))
 #+END_SRC
 
 *** Wgrep
@@ -377,10 +362,9 @@ larger than `large-file-warning-threshold'."
 Unfortunately currently Cygwin doesn't support file descriptor passing via
 unix-domain sockets and it's not possible to enable ControlMaster (Google
 =Cygwin ssh ControlMaster=).
-
 #+begin_src emacs-lisp
 (when *cygwin*
-  (setq tramp-ssh-controlmaster-options ""))
+  (setq tramp-use-ssh-controlmaster-options nil))
 (when (executable-find "rsync")
   (setq tramp-default-method "rsync"))
 #+end_src
@@ -424,7 +408,13 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ** Pinyin input
 
 #+begin_src emacs-lisp
-(autoload 'eim-use-package "eim" "Another emacs input method")
+(defvar starter-kit-eim-py-bank (expand-file-name
+                             "eim-user-bank.txt"
+                             (if dropbox-root
+                                 (expand-file-name "dict" dropbox-root)
+                               (expand-file-name "~/.emacs.d/pyim")))
+  "Pinyin word bank file. This should be the full path of the bank file.")
+(autoload 'eim-use-package "eim" "Another emacs input method" t)
 ;; 不使用tooltip
 (setq eim-use-tooltip nil)
 (register-input-method
@@ -432,16 +422,35 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
  "五笔" "汉字五笔输入法" "wb.txt")
 (register-input-method
  "eim-py" "euc-cn" 'eim-use-package
- "拼音" "汉字拼音输入法" "py.txt")
+ "拼音" "汉字拼音输入法" starter-kit-eim-py-bank)
 ;; 默认的multilingual text输入法
 (setq default-input-method "eim-py")
 ;; 输入;暂时输入英文
-(require 'eim-extra)
+(autoload 'eim-insert-ascii "eim-extra" "Use a key to insert English." t)
 (global-set-key ";" 'eim-insert-ascii)
+;; install py bank for eim if needed
+(unless (file-exists-p (file-name-directory starter-kit-eim-py-bank))
+  (mkdir (file-name-directory starter-kit-eim-py-bank) t))
+(unless (file-exists-p starter-kit-eim-py-bank)
+  (copy-file
+   (expand-file-name
+    "py.txt"
+    (file-name-directory (locate-library "eim")))
+   starter-kit-eim-py-bank))
 #+end_src
 
-** rst mode
+** CMake mode
 
-#+begin_src emacs-lisp
+#+BEGIN_SRC emacs-lisp
+(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+#+END_SRC
+
+** Rst mode (reStructuredText)
+
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
 (autoload 'rst-mode "rst")
-#+end_src
+(defun my-rst-config ()
+  (turn-on-flyspell))
+(add-hook 'rst-mode-hook 'my-rst-config)
+#+END_SRC

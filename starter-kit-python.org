@@ -20,43 +20,22 @@ To install jedi manually:
   pip install epc
 #+END_SRC
 
-To use my configuration, set JEDI_SERVER environment to be
-/path/to/jediepcserver.py.
 #+BEGIN_SRC emacs-lisp
 ;; show doc by popup is too annoying, just show in minibuffer
 (setq jedi:tooltip-method nil)
-
-(defun my-jedi-install ()
-  "Install jeciepcserver.py to ~/bin."
-  (interactive)
-  (unless (executable-find "jediepcserver.py")
-    (unless (file-directory-p (expand-file-name "~/bin"))
-      (mkdir (expand-file-name "~/bin")))
-    (copy-file
-     (concat (file-name-directory (locate-library "jedi")) "jediepcserver.py")
-     (expand-file-name "~/bin/jediepcserver.py")
-     t)
-    (shell-command (format "chmod 755 %s" (expand-file-name "~/bin/jediepcserver.py")))))
-(my-jedi-install)
-
-(defun my-jedi-conf ()
-  (jedi:setup)
-  (setq jedi:setup-keys t)
-  (setq jedi:complete-on-dot t))
-
-(defun my-jedi-setup ()
-  (interactive)
-  (cond ((file-directory-p "~/.emacs.d/.python-environments")
-         (my-jedi-conf))
-        ((getenv "JEDI_SERVER")
-         (progn (setq jedi:server-command
-                      `(,(executable-find "python") ,(getenv "JEDI_SERVER")))
-                (my-jedi-conf)))
-        ((executable-find "jediepcserver.py")
-         (progn
-           (setq jedi:server-command
-                 `(,(executable-find "python") ,(executable-find "jediepcserver.py")))
-           (my-jedi-conf)))))
+(setq jedi:complete-on-dot t)
+(cond ((file-directory-p "~/.emacs.d/.python-environments")
+       nil)
+      ((executable-find "jediepcserver.py")
+       (setq jedi:server-command
+             `(,(executable-find "python") ,(executable-find "jediepcserver.py")))
+       (my-jedi-conf))
+      (t
+       (setq jedi:server-command
+             `(,(executable-find "python")
+               ,(expand-file-name
+                 "jediepcserver.py"
+                 (file-name-directory (locate-library "jedi")))))))
 #+END_SRC
 
 ** Configuration for python mode
@@ -70,7 +49,7 @@ To use my configuration, set JEDI_SERVER environment to be
   myself.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
-  (my-jedi-setup)
+  (jedi:setup)
   (highlight-indentation-current-column-mode)
   (setq imenu-create-index-function 'python-imenu-create-index)
   (when (> emacs-minor-version 3)
@@ -81,7 +60,9 @@ To use my configuration, set JEDI_SERVER environment to be
             ("lambda" . ?λ)))
     (prettify-symbols-mode 1)))
 (eval-after-load "python"
-  `(add-hook 'python-mode-hook 'my-python-conf))
+  `(progn
+     (require 'jedi)
+     (add-hook 'python-mode-hook 'my-python-conf)))
 #+END_SRC
 
 ** Use Cython mode
