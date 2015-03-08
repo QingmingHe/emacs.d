@@ -28,8 +28,7 @@ To install jedi manually:
        nil)
       ((executable-find "jediepcserver.py")
        (setq jedi:server-command
-             `(,(executable-find "python") ,(executable-find "jediepcserver.py")))
-       (my-jedi-conf))
+             `(,(executable-find "python") ,(executable-find "jediepcserver.py"))))
       (t
        (setq jedi:server-command
              `(,(executable-find "python")

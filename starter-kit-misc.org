@@ -412,7 +412,7 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
                              "eim-user-bank.txt"
                              (if dropbox-root
                                  (expand-file-name "dict" dropbox-root)
-                               (expand-file-name "~/.emacs.d/pyim")))
+                               (expand-file-name "pyim" starter-kit-dir)))
   "Pinyin word bank file. This should be the full path of the bank file.")
 (autoload 'eim-use-package "eim" "Another emacs input method" t)
 ;; 不使用tooltip
