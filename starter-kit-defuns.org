@@ -281,8 +281,8 @@ or =defcustom= with =setq= or use =eval-defun=.
 
 (defun copy-buffer-directory-name-as-kill ()
   (interactive)
-  (kill-new default-directory)
-  (message default-directory))
+  (kill-new (expand-file-name default-directory))
+  (message (expand-file-name default-directory)))
 
 (defun locate-library-and-kill (lib-name)
   (interactive

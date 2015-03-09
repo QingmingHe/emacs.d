@@ -2,7 +2,6 @@
 #+OPTIONS: toc:2 num:nil ^:nil
 
 * Starter Kit Gud
-
 ** Compile
 
 Another way to compile dwim is to set =compile-command= in project
@@ -20,6 +19,7 @@ Another way to compile dwim is to set =compile-command= in project
            "Compile working directory: "
            compile-dir-last
            ".")))
+    (setq compile-dir-last default-directory)
     (call-interactively 'compile)))
 
 (eval-after-load "f90" `(define-key f90-mode-map (kbd "<f5>") 'compile-dwim))

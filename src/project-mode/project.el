@@ -475,7 +475,7 @@ project root, otherwise prj can't update tags file."
     (when prj/update-tags-verbose
       (message "Updating tags for %s ..." (buffer-file-name)))
     (if prj/use-gtags
-        (prj/update-gtags-single-file prj/buffer-project prj/buffer-project)
+        (prj/update-gtags-single-file prj/buffer-project)
       (prj/update-etags-single-file prj/buffer-project))
     (when prj/update-tags-verbose
       (message "Done"))))

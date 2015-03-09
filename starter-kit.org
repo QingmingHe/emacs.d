@@ -475,7 +475,6 @@ everyone using the starter kit.
   (starter-kit-fast-load "quickrun")
   (starter-kit-fast-load "occur")
   (starter-kit-fast-load "gud")
-  (starter-kit-fast-load "midnight")
   (starter-kit-fast-load "flyspell")
   ;; prog mode should be loaded finally
   (starter-kit-fast-load "shell")

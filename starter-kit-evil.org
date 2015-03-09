@@ -117,7 +117,9 @@ back.
   "ta" (lambda (arg)
          (interactive "P")
          (if prj/use-gtags
-             (helm-gtags-select)
+             ;; for some reason `exit' symbol should be `catch' TODO
+             (catch 'exit
+               (helm-gtags-select))
            (helm-etags-select arg)))
   "dta" 'helm-gtags-dwim
   "rta" 'helm-gtags-find-rtag
@@ -216,7 +218,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
    (magit-branch-manager-mode . emacs)
    (diff-mode                 . emacs)
    (Man-mode                  . emacs)
-   (gud-mode                  . emacs)
+   (gud-mode                  . insert)
    (eshell-mode               . insert)
    (shell-mode                . insert)))
 #+END_SRC
