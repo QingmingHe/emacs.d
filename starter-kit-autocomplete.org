@@ -60,6 +60,9 @@ I want to use =TAB= for these things:
    =ac-dwim= is nil.
 3. Refresh candidates menu after I've typed in new characters. =ac-update=
    Just do this kind of thing.
+4. If auto complete is not alive, fall back to
+   [[help:yas-next-field-or-maybe-expand][yas-next-field-or-maybe-expand]] if [[help:yas-next-field-or-maybe-expand][yas-next-field-or-maybe-expand]], otherwise
+   just [[help:indent-according-to-mode][indent-according-to-mode]].
 
 #+begin_src emacs-lisp
 (setq ac-dwim nil)
@@ -74,6 +77,13 @@ I want to use =TAB= for these things:
 
 (define-key ac-completing-map "\t" 'ac-refresh-candidates)
 (define-key ac-completing-map [tab] 'ac-refresh-candidates)
+
+(defun ac-fallback-command (&optional except-command)
+  (interactive)
+  (cond ((yas--snippets-at-point)
+         (yas-next-field-or-maybe-expand))
+        (t
+         (indent-according-to-mode))))
 #+end_src
 
 ** Fortran
