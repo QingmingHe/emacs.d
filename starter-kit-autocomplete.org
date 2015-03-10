@@ -82,7 +82,7 @@ I want to use =TAB= for these things:
   "Redefine `ac-fallback-command' in `auto-complete-mode'."
   (interactive)
   (cond ((yas--snippets-at-point)
-         (yas-next-field-or-maybe-expand))
+         (yas-next-field))
         (t
          (indent-according-to-mode))))
 #+end_src
