@@ -226,3 +226,18 @@ added.
 + Use *C-M-n* and *C-M-p* to scroll down and up in quick help.
 + *C-M-?* to persist ac-help which may be useful when help page is too long or
   you want to get help when filling arguments of the function.
+
+** Other completion
+*** Built in completion
+
+#+begin_src emacs-lisp
+(setq completion-ignore-case t)
+#+end_src
+
+** Hippie expand: at times perhaps too hip
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-/") 'hippie-expand)
+(when (boundp 'hippie-expand-try-functions-list)
+  (delete 'try-expand-line hippie-expand-try-functions-list)
+  (delete 'try-expand-list hippie-expand-try-functions-list))
+#+end_src

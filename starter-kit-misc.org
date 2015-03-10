@@ -157,13 +157,6 @@ previously visited the same file.
 (random t)
 #+end_src
 
-** Hippie expand: at times perhaps too hip
-#+begin_src emacs-lisp
-  (when (boundp 'hippie-expand-try-functions-list)
-    (delete 'try-expand-line hippie-expand-try-functions-list)
-    (delete 'try-expand-list hippie-expand-try-functions-list))
-#+end_src
-
 ** Backup files
 
 Rather than saving backup files scattered all over the file system, let them

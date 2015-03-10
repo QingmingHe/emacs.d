@@ -7,13 +7,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 Key Bindings.
 
-** Completion that uses many different methods to find options.
-
-I NEVER use hippie.
-#+begin_src emacs-lisp
-(global-set-key (kbd "M-/") 'hippie-expand)
-#+end_src
-
 ** Incremental search
 *** Use regexp search by default
 + *C-s* to repeat search
