@@ -2,8 +2,7 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Dictionary
-
-** Dictionary.el
+** Dictionary
 
 #+BEGIN_SRC emacs-lisp
 (autoload 'dictionary-search "dictionary"

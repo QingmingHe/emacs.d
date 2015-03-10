@@ -97,7 +97,6 @@ which-function-mode.
 ** Speed keys
    :PROPERTIES:
    :CUSTOM_ID: speed-keys
-   :TANGLE: no
    :END:
 Speed commands enable single-letter commands in Org-mode files when
 the point is at the beginning of a headline, or at the beginning of a
@@ -111,17 +110,6 @@ display a list of the code blocks commands and their related keys.
 
 #+begin_src emacs-lisp
   (setq org-use-speed-commands t)
-#+end_src
-
-** Keys defined by evil leader
-
-Org speed keys are shadowed by evil. Mimic these keys by evil leader.
-
-#+begin_src emacs-lisp
-(evil-leader/set-key-for-mode 'org-mode
-  "ii" 'org-clock-in
-  "oo" 'org-clock-out
-  "cc" 'org-cycle)
 #+end_src
 
 ** Code blocks

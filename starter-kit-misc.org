@@ -418,16 +418,27 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ** Rst mode (reStructuredText)
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
-(autoload 'rst-mode "rst")
-(defun my-rst-config ()
-  (turn-on-flyspell))
-(add-hook 'rst-mode-hook 'my-rst-config)
+  (add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
+  (autoload 'rst-mode "rst")
+  (defun my-rst-config ()
+    (turn-on-flyspell))
+  (add-hook 'rst-mode-hook 'my-rst-config)
 #+END_SRC
 
-** Same window regexp
+** Key Chord mode
 
-#+begin_src emacs-lisp :tangle no
-(setq same-window-regexps
-      '("\*compilation.*\*"))
+Use *jk* key chord to quite everything.
+#+begin_src emacs-lisp
+  (require 'key-chord)
+  (eval-after-load 'evil
+    `(progn
+       (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+       (key-chord-define evil-normal-state-map "jk" 'keyboard-quit)
+       (key-chord-define evil-visual-state-map "jk" 'keyboard-quit)))
+  (key-chord-define minibuffer-local-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-ns-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-completion-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-must-match-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-mode 1)
 #+end_src

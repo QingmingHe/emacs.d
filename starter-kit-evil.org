@@ -81,6 +81,12 @@ back.
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
 #+end_src
 
+*** Evil ex cmd
+
+#+begin_src emacs-lisp
+(evil-ex-define-cmd "ls" 'ibuffer)
+#+end_src
+
 ** Key bindings with evil leader
 
 + Universal argument ::
@@ -90,6 +96,7 @@ back.
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
+  "<SPC>" 'evil-execute-in-emacs-state
   ;; fold and unfold
   "zo" (lambda ()
          (interactive)
@@ -170,6 +177,7 @@ back.
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
+  "co" 'comment-or-uncomment-region
   "iw" 'ispell-word)
 #+END_SRC
 

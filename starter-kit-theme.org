@@ -123,14 +123,14 @@ My powerline theme based on powerline-default-theme.
 #+begin_src emacs-lisp
 (load-theme 'zenburn t)
 (set-face-background 'highlight-indentation-current-column-face "#4F4F4F")
-(set-face-attribute 'mode-line nil
-                      :box nil
-                      :underline nil
-                      :inverse-video nil)
-(set-face-attribute 'mode-line-inactive nil
-                      :box nil
-                      :underline nil
-                      :inverse-video nil)
+;; (set-face-attribute 'mode-line nil
+;;                       :box nil
+;;                       :underline nil
+;;                       :inverse-video nil)
+;; (set-face-attribute 'mode-line-inactive nil
+;;                       :box nil
+;;                       :underline nil
+;;                       :inverse-video nil)
 #+end_src
 
 ** Solarized theme
