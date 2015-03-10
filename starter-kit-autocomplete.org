@@ -21,20 +21,19 @@
   (mapcar
    (lambda (mode)
      (add-to-list 'ac-gtags-modes mode))
-   '(f90-mode python-mode)))
+   '(f90-mode)))
 
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
 (mapc
  (lambda (mode)
    (add-to-list 'ac-modes mode))
- '(org-mode text-mode cmake-mode eshell-mode))
+ '(text-mode cmake-mode eshell-mode))
 
 ;; default ac-sources: basic ac-sources for all modes
 (setq-default
  ac-sources
- '(ac-source-yasnippet
-   ac-source-abbrev
+ '(ac-source-abbrev
    ac-source-dictionary
    ac-source-words-in-same-mode-buffers
    ac-source-filename))
@@ -91,19 +90,6 @@ I want to use =TAB= for these things:
 
 #+begin_src emacs-lisp
 (add-hook 'f90-mode-hook
-          (lambda ()
-            (when (featurep 'auto-complete-etags)
-              (add-to-list 'ac-sources 'ac-source-etags))
-            (when (featurep 'auto-complete-gtags)
-              (add-to-list 'ac-sources 'ac-source-gtags))))
-#+end_src
-
-** Python
-
-Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
-
-#+begin_src emacs-lisp
-(add-hook 'python-mode-hook
           (lambda ()
             (when (featurep 'auto-complete-etags)
               (add-to-list 'ac-sources 'ac-source-etags))
