@@ -3,24 +3,101 @@
 
 * Starter Kit Gud
 ** Compile
+*** Auto show subtree
+Grep and compilation use =compile-goto-error= to locate. The problem is this
+function will not auto expand folding after go to due buffer and point which
+is annoying in org mode. Advice below is for:
+1. Switch window and then switch back to set current buffer to be buffer of
+   current file. It's may be a bug that =compile-goto-error= will set current
+   buffer to be the *compilation* or *grep* buffer.
+2. Determine whether invisible or not and show subtree if invisible.
+3. Recenter window.
+
+#+begin_src emacs-lisp
+(defadvice compile-goto-error (after cge-after activate)
+  (other-window 1)
+  (other-window -1)
+  (when (outline-invisible-p)
+    (show-subtree))
+  (recenter))
+#+end_src
+
+*** Key bindings for compilation
+
+#+begin_src emacs-lisp
+(defun compilation-display-error-dwim ()
+  (interactive)
+  (compile-goto-error)
+  (other-window -1))
+
+(eval-after-load "compile"
+  `(progn
+     (define-key compilation-mode-map (kbd "j") 'compilation-next-error)
+     (define-key compilation-mode-map (kbd "k") 'compilation-previous-error)
+     (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)))
+#+end_src
+
+*** Compilation do what I mean
 
 Another way to compile dwim is to set =compile-command= in project
 =.dir-locals=.
 #+begin_src emacs-lisp
+(setq compilation-ask-about-save nil)
 (setq compilation-scroll-output t)
 
 (defvar compile-dir-last nil
   "Last working directory of Compile.")
 
+(defvar compile-dir-default nil
+  "Default compilation directory set by user. This value will be used in
+`compile-dwim' as the `default-directory'. To best use this variable, set it
+in your project \".dir-locals\".")
+(make-variable-buffer-local 'compile-dir-default)
+
+(defvar delete-compilation-window-if-only-warning t
+  "Whether delete compilation window if there is only warnings.")
+(make-variable-buffer-local 'delete-compilation-window-if-only-warning)
+
 (defun compile-dwim ()
+  "Use `ido-mode' to set directory to run compilation. The compilation window
+is splitted vertically and limited to 10 lines height."
   (interactive)
   (let ((default-directory
-          (ido-read-directory-name
-           "Compile working directory: "
-           compile-dir-last
-           ".")))
+          (cond (compile-dir-default)
+                (t (ido-read-directory-name
+                    "Compile working directory: "
+                    compile-dir-last
+                    "."))))
+        cur w h)
     (setq compile-dir-last default-directory)
-    (call-interactively 'compile)))
+    (call-interactively 'compile)
+    (setq cur (selected-window))
+    (setq w (get-buffer-window "*compilation*"))
+    (select-window w)
+    (setq h (window-height w))
+    (shrink-window (- h 10))
+    (select-window cur)))
+
+(defun compilation-split-vertically ()
+  (unless (get-buffer-window "*compilation*")
+    (split-window-vertically)))
+
+(defun delete-compile-window-if-success (buffer string)
+  "Delete compilation window if there is no errors."
+  (when (and
+         (string-match "compilation" (buffer-name buffer))
+         (string-match "finished" string)
+         (or delete-compilation-window-if-only-warning
+             (not (with-current-buffer buffer
+                    (save-excursion
+                      (goto-char (point-min))
+                      (search-forward "warning" nil t))))))
+    (run-with-timer 1 nil 'delete-window (get-buffer-window "*compilation*"))))
+
+(eval-after-load 'compile
+  `(progn
+     (add-hook 'compilation-mode-hook 'compilation-split-vertically)
+     (add-hook 'compilation-finish-functions 'delete-compile-window-if-success)))
 
 (eval-after-load "f90" `(define-key f90-mode-map (kbd "<f5>") 'compile-dwim))
 (eval-after-load "cc-mode"

@@ -241,36 +241,11 @@ set it to be 20 MB to save time.
 (setq gc-cons-threshold 20000000)
 #+END_SRC
 
-** Compile and grep
-*** Auto save
-Save buffers before compile automatically.
-#+BEGIN_SRC emacs-lisp
-(setq compilation-ask-about-save nil)
-#+END_SRC
-
-*** Auto show subtree
-Grep buffer use =compile-goto-error= to locate. The problem is this function
-will not auto expand folding after go to due buffer and point which is
-annoying in org mode. Advice below is for:
-1. Switch window and then switch back to set current buffer to be buffer of
-   current file. It's may be a bug that =compile-goto-error= will set current
-   buffer to be the *compilation* or *grep* buffer.
-2. Determine whether invisible or not and show subtree if invisible.
-3. Recenter window.
-
-#+begin_src emacs-lisp
-(defadvice compile-goto-error (after cge-after activate)
-  (other-window 1)
-  (other-window -1)
-  (when (outline-invisible-p)
-    (show-subtree))
-  (recenter))
-#+end_src
-
+** Grep
 *** Key bindings
 
 #+begin_src emacs-lisp
-(defun compilation-display-error-dwim ()
+(defun grep-display-error-dwim ()
   (interactive)
   (compile-goto-error)
   (other-window -1))
@@ -280,11 +255,6 @@ annoying in org mode. Advice below is for:
      (define-key grep-mode-map (kbd "j") 'compilation-next-error)
      (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
      (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
-(eval-after-load "compile"
-  `(progn
-     (define-key compilation-mode-map (kbd "j") 'compilation-next-error)
-     (define-key compilation-mode-map (kbd "k") 'compilation-previous-error)
-     (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)))
 #+end_src
 
 *** Grep ignore directories and files
@@ -454,3 +424,10 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
   (turn-on-flyspell))
 (add-hook 'rst-mode-hook 'my-rst-config)
 #+END_SRC
+
+** Same window regexp
+
+#+begin_src emacs-lisp :tangle no
+(setq same-window-regexps
+      '("\*compilation.*\*"))
+#+end_src
