@@ -79,6 +79,7 @@ I want to use =TAB= for these things:
 (define-key ac-completing-map [tab] 'ac-refresh-candidates)
 
 (defun ac-fallback-command (&optional except-command)
+  "Redefine `ac-fallback-command' in `auto-complete-mode'."
   (interactive)
   (cond ((yas--snippets-at-point)
          (yas-next-field-or-maybe-expand))

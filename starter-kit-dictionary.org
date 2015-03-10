@@ -31,10 +31,6 @@ sdcv is a command-line version of stardict.
   (autoload 'sdcv-search-pointer+ "sdcv" "Translate word in tooltip." t)
   (autoload 'sdcv-search-input "sdcv" "Translate word in other buffer." t)
   (autoload 'sdcv-search-input+ "sdcv" "Translate word in tooltip." t))
-;; I only use these two dictionaries
-(setq sdcv-dictionary-complete-list
-      '("朗道汉英字典5.0"
-        "牛津英汉双解美化版"))
 #+end_src
 
 *** Install sdcv
