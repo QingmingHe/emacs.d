@@ -299,7 +299,6 @@ project."
                             (line-beginning-position)
                             (line-beginning-position 2))
                            (setq buffer-read-only t)))))
-
   (define-key project-root-list-mode-map (car keyfunc) (cadr keyfunc)))
 
 (defun project-root-browse-seen-projects ()

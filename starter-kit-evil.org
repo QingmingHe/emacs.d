@@ -151,16 +151,7 @@ back.
   ;; buffers, files
   "bb" 'helm-mini
   "ff" 'helm-find-files
-  "ss" (lambda ()
-         (interactive)
-         (mapc
-          (lambda (buffer)
-            (with-current-buffer buffer
-              (when (and
-                     (buffer-file-name)
-                     (buffer-modified-p))
-                (save-buffer))))
-          (buffer-list)))
+  "ss" 'prj/save-buffers-and-update-tags
 
   ;; project
   "pp" 'prj/helm-mini

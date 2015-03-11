@@ -39,7 +39,7 @@ should be set before load this library.")
 (defvar prj/helm-mini-include-commands t
   "Whether include source of some useful commands in `prj/helm-mini'.")
 
-(defvar prj/helm-candidate-number-limit 9999
+(defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
 
@@ -50,6 +50,9 @@ library.")
 (defvar prj/tags-tool-found
   (or (executable-find "gtags") (executable-find "ctags"))
   "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
+
+(defvar prj/global-exec (executable-find "global")
+  "Executable of GNU global.")
 
 (defvar prj/gtags-conf-file-guess
   `(,(expand-file-name "~/.globalrc")
@@ -178,7 +181,7 @@ may need to kill buffers after running this function."
     (message "Helm is required!")))
 
 (defun prj/occur-dir (arg)
-  "Run multiple occur on found files under given directory..
+  "Run multiple occur on found files under given directory.
 
 `grep-find-ignored-directories' and `grep-find-ignored-files' will be ignored
 by default.  If arg is nil, run `helm-multi-swoop', otherwise run
@@ -456,8 +459,8 @@ project root, otherwise prj can't update tags file."
             (gtags-conf (prj/get-gtags-conf)))
         (shell-command
          (format
-          "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
-          gtags-label gtags-conf fname))))))
+          "%s --gtagslabel=%s --gtagsconf=%s --single-update %s"
+          prj/global-exec gtags-label gtags-conf fname))))))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
@@ -479,6 +482,74 @@ project root, otherwise prj can't update tags file."
       (prj/update-etags-single-file prj/buffer-project))
     (when prj/update-tags-verbose
       (message "Done"))))
+
+(defun prj/save-buffers-and-update-tags ()
+  "Update tags file for modified buffers of projects asynchronously and then
+save all modified buffers.
+
+All the modified buffers are classified into project bubbers and non project
+buffers including buffers of project that doesn't use any tags tool. The
+project buffers are distincuished by user defined projects. Before saving the
+project buffers, the `prj/update-tags-single-file' function is removed from
+`after-save-hook'. Then for each project, the tags file is updated by GNU
+global or etags-update.pl. At last, all the buffers are saved by
+`save-buffer'. For project buffers, the `prj/update-tags-single-file' function
+is add to `after-save-hook' immediately after `save-buffer'."
+  (interactive)
+  (let ((prj-files (make-hash-table :test 'equal))
+        not-prj-buffers
+        p
+        f)
+    ;; get all modified buffers or files and classify them according to which
+    ;; project they belong to
+    (mapc
+     (lambda (buf)
+       (with-current-buffer buf
+         (when (and
+                (setq f (buffer-file-name))
+                (buffer-modified-p))
+           (if (and
+                (setq p prj/buffer-project)
+                (not
+                 (string=
+                  "none"
+                  (project-root-data :tags-tool prj/buffer-project))))
+               (progn
+                 (puthash (car p) (cons f (gethash (car p) prj-files)) prj-files)
+                 (remove-hook 'after-save-hook 'prj/update-tags-single-file t))
+             (add-to-list 'not-prj-buffers buf)))))
+     (buffer-list))
+    ;; update tags file using GNU global or etags-update.pl project-wisely
+    (maphash
+     (lambda (key value)
+       (setq p (assoc key project-root-seen-projects))
+       (with-current-buffer (get-file-buffer (car value))
+         (if prj/use-gtags
+             (eval
+              `(call-process prj/global-exec nil 0 nil
+                             "-u"
+                             (format "--gtagslabel=%s" (prj/get-gtags-label p))
+                             (format "--gtagsconf=%s" (prj/get-gtags-conf p))))
+           (eval
+            `(call-process prj/etags-update-script nil 0 nil
+                           prj/buffer-tags-file ,@value)))))
+     prj-files)
+    ;; save project buffers
+    (maphash
+     (lambda (key value)
+       (mapcar
+        (lambda (f)
+          (with-current-buffer (get-file-buffer f)
+            (save-buffer)
+            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)))
+        value))
+     prj-files)
+    ;; save non project buffers
+    (mapcar
+     (lambda (buf)
+       (with-current-buffer buf
+         (save-buffer)))
+     not-prj-buffers)))
 
 ;;; project compiler flags
 

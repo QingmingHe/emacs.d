@@ -99,6 +99,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 ** Gtags
 
 #+begin_src emacs-lisp
+(setq helm-gtags-pulse-at-cursor nil)
 (setq helm-gtags-ignore-case t)
 (setq helm-gtags-cache-select-result t)
 (setq helm-gtags-use-input-at-cursor t)
