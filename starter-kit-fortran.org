@@ -10,6 +10,9 @@ Fortran is a major language for scientific computation but a minor for other.
 (defun my-f90-config ()
   (modify-syntax-entry ?_ "w")
   (f90-backslash-not-special)
+  (setq-local er/try-expand-list
+              (append er/try-expand-list
+                      '(f90-mark-block)))
   (when (> emacs-minor-version 3)
     (setq prettify-symbols-alist
           '(("/=" . ?≠)
@@ -84,4 +87,74 @@ type(SomeType) :: atype ! object of SomeType"
 
 #+begin_src emacs-lisp
 (autoload 'f90-turn-on-eldoc-mode "f90-eldoc" "Turn on f90 eldoc mode" t)
+#+end_src
+
+** F90 expand region
+
+#+begin_src emacs-lisp
+(defun f90-mark-block ()
+  (interactive)
+  (let (reach-beg reach-end)
+    (setq reach-beg (f90-reach-beg-of-block))
+    (if (region-active-p)
+        (progn
+          (exchange-point-and-mark)
+          (setq reach-end (f90-reach-end-of-block))
+          (exchange-point-and-mark))
+      (setq reach-end (f90-reach-end-of-block)))
+    (unless (region-active-p)
+      (set-mark (point)))
+    (cond ((and reach-beg reach-end)
+           (exchange-point-and-mark)
+           (f90-end-of-block)
+           (exchange-point-and-mark)
+           (f90-beginning-of-block))
+          ((and reach-beg (not reach-end))
+           (exchange-point-and-mark)
+           (f90-end-or-next-block)
+           (exchange-point-and-mark))
+          ((and (not reach-beg) reach-end)
+           (f90-beg-or-prev-block))
+          (t
+           (f90-beg-or-prev-block)
+           (exchange-point-and-mark)
+           (f90-end-or-next-block)
+           (exchange-point-and-mark)))))
+
+(defun f90-reach-beg-of-block ()
+  (interactive)
+  (and
+   (looking-at
+    (format "\\([a-zA-Z0-9_]+[ \t]*:[ \t]*\\)?%s" f90-blocks-re))
+   (looking-back "^[ \t]*")))
+
+(defun f90-reach-end-of-block ()
+  (interactive)
+  (and
+   (looking-at "[ \t]*$")
+   (looking-back
+    (format "end[ \t]*%s\\([ \t]+[a-zA-Z0-9_]+\\)?" f90-blocks-re))))
+
+(defun f90-beg-or-prev-block ()
+  (interactive)
+  (cond ((f90-reach-beg-of-block)
+         (f90-beginning-of-block))
+        ((save-excursion
+           (beginning-of-line)
+           (looking-at
+            (format "[ \t]*\\([a-zA-Z0-9_]+[ \t]*:[ \t]*\\)?%s" f90-blocks-re)))
+         (back-to-indentation))
+        (t
+         (f90-beginning-of-block))))
+
+(defun f90-end-or-next-block ()
+  (interactive)
+  (cond ((f90-reach-end-of-block)
+         (f90-end-of-block))
+        ((save-excursion
+           (beginning-of-line)
+           (looking-at (format "[ \t]*end[ \t]*%s" f90-blocks-re)))
+         (end-of-line))
+        (t
+         (f90-end-of-block))))
 #+end_src
