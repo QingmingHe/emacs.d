@@ -157,3 +157,9 @@ to expand or contract region.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
+
+** Run shell command asynchronously by default
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-!") 'async-shell-command)
+#+end_src
