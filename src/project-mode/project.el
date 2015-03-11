@@ -486,10 +486,7 @@ project root, otherwise prj can't update tags file."
 save all modified buffers."
   (interactive)
   (let ((prj-files (make-hash-table :test 'equal))
-        not-prj-buffers
-        p
-        f
-        proc)
+        not-prj-buffers p f proc)
     ;; get all modified buffers or files and classify them according to which
     ;; project they belong to
     (mapc
@@ -508,18 +505,16 @@ save all modified buffers."
                  (remove-hook 'after-save-hook 'prj/update-tags-single-file t))
              (add-to-list 'not-prj-buffers buf)))))
      (buffer-list))
-    ;; save project buffers
+    ;; save project buffers and update tags file using GNU global or
+    ;; etags-update.pl project-wisely
     (maphash
      (lambda (key value)
        (mapcar
         (lambda (f)
           (with-current-buffer (get-file-buffer f)
-            (save-buffer)))
-        value))
-     prj-files)
-    ;; update tags file using GNU global or etags-update.pl project-wisely
-    (maphash
-     (lambda (key value)
+            (save-buffer)
+            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)))
+        value)
        (when prj/update-tags-verbose
          (message "Updating tags file for %s ..." key))
        (setq p (assoc key project-root-seen-projects))
@@ -538,15 +533,6 @@ save all modified buffers."
            (set-process-sentinel
             proc
             'prj/save-buffers-and-update-tags-sentinel))))
-     prj-files)
-    ;; add prj/update-tags-single-file to after-save-hook
-    (maphash
-     (lambda (key value)
-       (mapcar
-        (lambda (f)
-          (with-current-buffer (get-file-buffer f)
-            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)))
-        value))
      prj-files)
     ;; save non project buffers
     (mapcar
