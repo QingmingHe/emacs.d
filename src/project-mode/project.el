@@ -482,8 +482,8 @@ project root, otherwise prj can't update tags file."
       (message "Updating tags for %s failed." proc))))
 
 (defun prj/save-buffers-and-update-tags ()
-  "Update tags file for modified buffers of projects asynchronously and then
-save all modified buffers."
+  "Update tags file for modified buffers of projects asynchronously then save
+all modified buffers."
   (interactive)
   (let ((prj-files (make-hash-table :test 'equal))
         not-prj-buffers p f proc)
@@ -509,22 +509,32 @@ save all modified buffers."
     ;; etags-update.pl project-wisely
     (maphash
      (lambda (key value)
+       ;; save buffers and re-add the `prj/update-tags-single-file' to
+       ;; `after-save-hook'
        (mapcar
         (lambda (f)
           (with-current-buffer (get-file-buffer f)
             (save-buffer)
             (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)))
         value)
+       ;; update tags
        (when prj/update-tags-verbose
          (message "Updating tags file for %s ..." key))
        (setq p (assoc key project-root-seen-projects))
        (with-current-buffer (get-file-buffer (car value))
          (if prj/use-gtags
-             (setq proc
-                   (start-process
-                    key nil prj/global-exec "-u"
-                    (format "--gtagslabel=%s" (prj/get-gtags-label p))
-                    (format "--gtagsconf=%s" (prj/get-gtags-conf p))))
+             (if (= 1 (length value))
+                 (setq proc
+                       (start-process
+                        key nil prj/global-exec
+                        (format "--gtagslabel=%s" (prj/get-gtags-label p))
+                        (format "--gtagsconf=%s" (prj/get-gtags-conf p))
+                        (format "--single-update=%s" (car value))))
+               (setq proc
+                     (start-process
+                      key nil prj/global-exec "-u"
+                      (format "--gtagslabel=%s" (prj/get-gtags-label p))
+                      (format "--gtagsconf=%s" (prj/get-gtags-conf p)))))
            (setq proc
                  (eval
                   `(start-process key nil prj/etags-update-script

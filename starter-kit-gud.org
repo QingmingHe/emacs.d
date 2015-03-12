@@ -35,7 +35,7 @@ is annoying in org mode. Advice below is for:
      (define-key compilation-mode-map (kbd "j") 'compilation-next-error)
      (define-key compilation-mode-map (kbd "k") 'compilation-previous-error)
      (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)
-     (define-key compilation-mode-map (kbd "q") 'delete-window)))
+     (define-key compilation-mode-map (kbd "q") 'bury-buffer)))
 #+end_src
 
 *** Compilation do what I mean
@@ -55,50 +55,29 @@ Another way to compile dwim is to set =compile-command= in project
 in your project \".dir-locals\".")
 (make-variable-buffer-local 'compile-dir-default)
 
-(defvar delete-compilation-window-if-only-warning t
-  "Whether delete compilation window if there is only warnings.")
-(make-variable-buffer-local 'delete-compilation-window-if-only-warning)
-
 (defun compile-dwim ()
   "Use `ido-mode' to set directory to run compilation. The compilation window
 is splitted vertically and limited to 10 lines height."
   (interactive)
   (let ((default-directory
-          (cond (compile-dir-default)
-                (t (ido-read-directory-name
-                    "Compile working directory: "
-                    compile-dir-last
-                    "."))))
-        cur w h)
+          (ido-read-directory-name
+           "Compile working directory: "
+           (or compile-dir-default compile-dir-last)
+           ".")))
     (setq compile-dir-last default-directory)
     (call-interactively 'compile)
-    (setq cur (selected-window))
-    (setq w (get-buffer-window "*compilation*"))
-    (select-window w)
-    (setq h (window-height w))
-    (shrink-window (- h 10))
-    (select-window cur)))
+    (with-selected-window (get-buffer-window "*compilation*")
+      (bury-buffer))))
 
-(defun compilation-split-vertically ()
-  (unless (get-buffer-window "*compilation*")
-    (split-window-vertically)))
-
-(defun delete-compile-window-if-success (buffer string)
-  "Delete compilation window if there is no errors."
-  (when (and
-         (string-match "compilation" (buffer-name buffer))
-         (string-match "finished" string)
-         (or delete-compilation-window-if-only-warning
-             (not (with-current-buffer buffer
-                    (save-excursion
-                      (goto-char (point-min))
-                      (search-forward "warning" nil t))))))
-    (run-with-timer 1 nil 'delete-window (get-buffer-window "*compilation*"))))
+(defun show-compile-window-not-success (buffer string)
+  (unless (string-match "finished" string)
+    (with-current-buffer buffer
+      (goto-char (point-min))
+      (call-interactively 'compilation-next-error))
+    (pop-to-buffer buffer)))
 
 (eval-after-load 'compile
-  `(progn
-     (add-hook 'compilation-mode-hook 'compilation-split-vertically)
-     (add-hook 'compilation-finish-functions 'delete-compile-window-if-success)))
+  `(add-hook 'compilation-finish-functions 'show-compile-window-not-success))
 
 (eval-after-load "f90" `(define-key f90-mode-map (kbd "<f5>") 'compile-dwim))
 (eval-after-load "cc-mode"

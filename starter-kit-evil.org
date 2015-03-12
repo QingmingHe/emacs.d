@@ -161,7 +161,18 @@ back.
   "l" 'ace-jump-line-mode
 
   ;; misc
-  "ne" 'flycheck-next-error
+  "fm" 'flycheck-buffer
+  "ne" (lambda ()
+         (interactive)
+         (let ((pos (flycheck-next-error-pos nil nil))
+               (counts (length (flycheck-count-errors flycheck-current-errors))))
+           (if pos
+               (goto-char pos)
+             (if (> counts 0)
+                 (progn
+                   (goto-char (point-min))
+                   (flycheck-next-error))
+               (message "No error")))))
   "sd" (lambda ()
          (interactive)
          (if (executable-find "sdcv")
