@@ -51,6 +51,7 @@ To install jedi manually:
   (jedi:setup)
   (highlight-indentation-current-column-mode)
   (setq imenu-create-index-function 'python-imenu-create-index)
+  (modify-syntax-entry ?_ "w")
   (when (> emacs-minor-version 3)
     (setq prettify-symbols-alist
           '(("!=" . ?≠)

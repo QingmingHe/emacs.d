@@ -247,7 +247,8 @@ set it to be 20 MB to save time.
   `(progn
      (define-key grep-mode-map (kbd "j") 'compilation-next-error)
      (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
-     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
+     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)
+     (define-key grep-mode-map (kbd "q") 'delete-window)))
 #+end_src
 
 *** Grep ignore directories and files

@@ -34,7 +34,8 @@ is annoying in org mode. Advice below is for:
   `(progn
      (define-key compilation-mode-map (kbd "j") 'compilation-next-error)
      (define-key compilation-mode-map (kbd "k") 'compilation-previous-error)
-     (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)))
+     (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)
+     (define-key compilation-mode-map (kbd "q") 'delete-window)))
 #+end_src
 
 *** Compilation do what I mean
