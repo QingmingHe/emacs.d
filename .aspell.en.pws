@@ -1,4 +1,4 @@
-personal_ws-1.1 en 7 
+personal_ws-1.1 en 9 
 Cygwin
 fontification
 triso
@@ -6,3 +6,5 @@ Triso
 Fortran
 SRC
 nuclide
+plist
+elisp
