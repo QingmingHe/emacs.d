@@ -7,6 +7,7 @@
 (setq dired-listing-switches "-lAh1v --group-directories-first")
 (eval-after-load "dired"
   `(progn
+     (require 'dired-tar)
      (require 'dired+)
      ;; Emacs 24.4+
      (when (fboundp 'dired-hide-details-mode)
