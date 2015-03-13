@@ -76,6 +76,12 @@ I NEVER use hippie.
       (setq regexp-search-ring (append regexp-search-ring `(,thing))))))
 #+end_src
 
+*** Pinyin search
+
+#+begin_src emacs-lisp
+(define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
+#+end_src
+
 ** Hungry delete
 
 #+begin_src emacs-lisp

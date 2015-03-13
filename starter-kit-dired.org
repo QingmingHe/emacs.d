@@ -102,6 +102,26 @@ buffer."
 (define-key global-map (kbd "C-x d") 'ido-dired-dwim)
 #+end_src
 
+** Find by pinyin Dired
+
+From [[http://github.com/redguardtoo/find-by-pinyin-dired][find by pinyin dired]]. The variable [[help:fbpd-char-table][fbpd-char-table]] is defined in
+pinyin-search library.
+#+begin_src emacs-lisp
+(defun find-by-pinyin-dired (dir pattern)
+  "Search DIR recursively for files/directories matching the PATTERN,
+and run Dired on those files.
+PATTERN is sequence of first character of PinYin from Chinese file name."
+  (require 'pinyin-search)
+  (interactive
+   "DFind-name (directory): \nsFind-name (first characters of Hanzi Pinyin): ")
+  (let ((regexp ".*") str)
+    (dotimes (i (length pattern))
+      (setq str (nth (- (aref pattern i) 97) fbpd-char-table))
+      (setq regexp (concat regexp str ".*")))
+    ;; find-lisp-find-dired is a lisp version
+    (find-lisp-find-dired dir regexp)))
+#+end_src
+
 ** Tips
 *** key bindings
 - *w* copies file name to ring. *C-u 0 w* copies full path.
