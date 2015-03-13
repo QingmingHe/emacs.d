@@ -73,7 +73,9 @@ I want to use =TAB= for these things:
 (defun ac-refresh-candidates ()
   (interactive)
   (ac-update t)
-  (ac-expand-common))
+  (ac-expand-common)
+  (when (eq 1 (length ac-candidates))
+    (ac-abort)))
 
 (define-key ac-completing-map "\t" 'ac-refresh-candidates)
 (define-key ac-completing-map [tab] 'ac-refresh-candidates)

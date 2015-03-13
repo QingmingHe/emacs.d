@@ -287,6 +287,12 @@ annoying in org mode. Advice below is for:
      (define-key compilation-mode-map (kbd "d") 'compilation-display-error-dwim)))
 #+end_src
 
+*** Grep set up
+
+#+begin_src emacs-lisp
+(setq grep-highlight-matches t)
+#+end_src
+
 *** Grep ignore directories and files
 
 Don't grep repositories and some files.
