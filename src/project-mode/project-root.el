@@ -494,10 +494,10 @@ directory they are found in so that they are unique."
 (defun project-root-find-cmd (&rest pattern)
   (let ((pattern (car pattern))
         (p (progn (project-root-fetch) project-details)))
-    ;; TODO: use find-cmd here
-    (concat (project-root-find-executable) " " default-directory
+    (concat (project-root-find-executable) " " (cdr p)
             (project-root-find-prune
-             (project-root-exclude-paths p))
+             (project-root-exclude-paths p)
+             t)
             ", -type f -regex \"" (project-root-data :filename-regex p) "\" "
             (if pattern (concat " -name '*" pattern "*' "))
             project-root-find-options)))

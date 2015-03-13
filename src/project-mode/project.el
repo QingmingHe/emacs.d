@@ -35,7 +35,7 @@
   "Limit of helm candidates. This variable should be set before load this
 library.")
 
-(defvar prj/use-gtags (if (executable-find "gtags") t nil)
+(defvar prj/use-gtags nil
   "Use gtags or ctags?")
 (make-variable-buffer-local 'prj/use-gtags)
 
@@ -56,12 +56,18 @@ library.")
     "/etc/gtags.conf")
   "Guesses of gtags configuration files.")
 
-(defvar prj/gtags-conf-file nil
+(defvar prj/gtags-conf-file
+  (let (gtags-conf)
+    (catch 'gtags-conf
+      (mapc
+       (lambda (f)
+         (when (file-exists-p f)
+           (message "[Prj] find gtags configuration file %s" f)
+           (setq gtags-conf f)
+           (throw 'gtags-conf f)))
+       prj/gtags-conf-file-guess))
+    gtags-conf)
   "Gtags configuration file.")
-
-(defvar prj/gtags-label-choices '("default" "ctags" "pygments" "native")
-  "Gtags label. If \"default\" gtags uses its built in parser; if \"ctags\"
-use ctags parser; ...")
 
 (defvar prj/etags-tags-file "TAGS"
   "TAGS file name.")
@@ -111,23 +117,11 @@ expanded.  Otherwise will be recognized as path relative to project root."
   "Set up project mode generally.
 
 1. Load project root cache from \"~/.emacs.d/.project-roots;\"
-2. Add `project-root-save-roots' to `kill-emacs-hook';
-3. Get gtags conf file from guesses."
-  (interactive)
+2. Add `project-root-save-roots' to `kill-emacs-hook';"
   (message "[Prj] loading project roots form %s ..."
            project-root-storage-file)
   (project-root-load-roots)
-  (add-hook 'kill-emacs-hook 'project-root-save-roots)
-  (setq prj/tags-tool-found
-        (or (executable-find "gtags") (executable-find "ctags")))
-  (catch 'gtags-conf
-    (mapc
-     (lambda (f)
-       (when (file-exists-p f)
-         (message "[Prj] find gtags configuration file %s" f)
-         (setq prj/gtags-conf-file f)
-         (throw 'gtags-conf f)))
-     prj/gtags-conf-file-guess)))
+  (add-hook 'kill-emacs-hook 'project-root-save-roots))
 
 (defun prj/thing-at-point-no-properties (thing)
   "Get thing at point without properties."
@@ -408,19 +402,18 @@ project root, otherwise prj can't update tags file."
 (defun prj/get-gtags-label (&optional p)
   "Get gtags label."
   (let ((p (or p (project-root-fetch))))
-    (or (getenv "GTAGSLABEL")
-        (project-root-data :gtags-label p)
-        (ido-completing-read
-         "Gtags label (You'd better set :gtags-label in project-roots): "
-         prj/gtags-label-choices))))
+    (or (project-root-data :gtags-label p)
+        (getenv "GTAGSLABEL")
+        "default")))
 
 (defun prj/get-gtags-conf (&optional p)
-  "Get gtags conf."
+  "Get gtags configuration file."
   (let ((p (or p (project-root-fetch))))
     (or (getenv "GTAGSCONF")
         (project-root-data :gtags-conf p)
         prj/gtags-conf-file
-        (ido-read-file-name "Gtags configuration file: "))))
+        (setq prj/gtags-conf-file
+              (ido-read-file-name "Gtags configuration file: ")))))
 
 (defun prj/generate-gtags ()
   "Run gtags at user specified path."
@@ -725,6 +718,26 @@ List of include paths, include \"-I\" flag."
 (defun prj/helm-jump-to-dired-file (file)
   (dired-jump nil file))
 
+(defun prj/helm-copy-path-as-kill (candidate)
+  (let ((ch (read-char "f=full, d=directory, n=name: ")))
+    (mapc
+     (lambda (b)
+       (cond ((= ch ?f)
+              (if (bufferp b)
+                  (kill-new (buffer-file-name b))
+                (kill-new b)))
+             ((= ch ?d)
+              (if (bufferp b)
+                  (with-current-buffer b
+                    (kill-new default-directory))
+                (kill-new (file-name-directory b))))
+             ((= ch ?n)
+              (if (bufferp b)
+                  (kill-new (file-name-nondirectory (buffer-file-name b)))
+                (kill-new (file-name-nondirectory b)))))
+       (message (car kill-ring)))
+     (helm-marked-candidates))))
+
 (defun prj/helm-mini ()
   (interactive)
   (require 'helm)
@@ -737,14 +750,16 @@ List of include paths, include \"-I\" flag."
                                ("Save buffer(s)" . prj/helm-save-buffers)
                                ("Kill buffer(s)" . prj/helm-kill-buffers)
                                ("Multi occur on buffer(s)" . prj/helm-multi-occur)
-                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop))))
+                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop)
+                               ("Copy buffer name(s) as kill" . prj/helm-copy-path-as-kill))))
                    ((name . "Project Files")
                     (candidates . prj/helm-files-candidates)
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)
                     (action . (("Find file(s)" . prj/helm-find-files)
                                ("Find file other window" . find-file-other-window)
                                ("Jump to Dired" . prj/helm-jump-to-dired-file)
-                               ("Grep files" . prj/helm-grep-files))))
+                               ("Grep files" . prj/helm-grep-files)
+                               ("Copy file name(s) as kill" . prj/helm-copy-path-as-kill))))
                    ((name . "Create New File")
                     (dummy)
                     (action . prj/helm-create-new-file))
@@ -789,9 +804,7 @@ List of include paths, include \"-I\" flag."
                           'prj/update-tags-single-file nil t))
               (cond ((string= "gtags" tags-tool) (setq prj/use-gtags t))
                     ((string= "ctags" tags-tool) (setq prj/use-gtags nil))
-                    (t (if (string-match ".+gtags$" prj/tags-tool-found)
-                           (setq prj/use-gtags t)
-                         (setq prj/use-gtags nil))))
+                    (t (setq prj/use-gtags nil)))
               (let ((default-directory (cdr p)))
                 (if prj/use-gtags
                     (unless (file-exists-p "GTAGS")

@@ -160,6 +160,6 @@ to expand or contract region.
 
 ** Run shell command asynchronously by default
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (global-set-key (kbd "M-!") 'async-shell-command)
 #+end_src

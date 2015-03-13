@@ -2,7 +2,6 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Coding
-
 ** Prog mode hooks
 A single hook holding those functions which should be run in *every*
 code buffer.

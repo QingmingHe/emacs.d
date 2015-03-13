@@ -18,30 +18,26 @@ First define projects.
       `(("CExamples"
          :root-contains-files (".CExample-root.el")
          :filename-regex ,(regexify-ext-list '(c h org))
-         :gtags-label "default"
+         :tags-tool "gtags"
          :lighter "C-e")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :filename-regex ,(regexify-ext-list '(f90 for py org txt))
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
-         :gtags-label "ctags"
          :lighter "SUGAR")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))
          :exclude-paths ("backups" "auto-save-list")
-         :tags-tool "ctags"
          :lighter "Econf")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
          :filename-regex ,(regexify-ext-list '(py f90 org))
          :exclude-paths (".git" "build")
-         :gtags-label "ctags"
          :lighter "pyPkgs")
         ("GTD"
          :root-contains-files ("inbox.org" "projects.org" "notes.org")
          :filename-regex ,(regexify-ext-list '(org py f90 c))
-         :tags-tool "ctags"
          :lighter "GTD")))
 #+END_SRC
 
