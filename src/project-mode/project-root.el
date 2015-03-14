@@ -260,6 +260,16 @@ project."
        project-roots))
      key)))
 
+(defun project-root-set-data (prop val &optional p)
+  "Set PROP of P to VAL. P is a project, VAL is a property symbol, val is
+anything."
+  (let ((p (or p (project-root-fetch))))
+    (when p
+      (put-alist
+       (car p)
+       (plist-put (cdr (assoc (car p) project-roots)) prop val)
+       project-roots))))
+
 (defun project-root-bookmarks (&optional project)
   "Grab the bookmarks (if any) for PROJECT."
   (project-root-data :bookmarks project))

@@ -16,19 +16,12 @@
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
 
-;; enable ac-gtags in several modes
-(when (featurep 'auto-complete-gtags)
-  (mapcar
-   (lambda (mode)
-     (add-to-list 'ac-gtags-modes mode))
-   '(f90-mode)))
-
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
 (mapc
  (lambda (mode)
    (add-to-list 'ac-modes mode))
- '(text-mode cmake-mode eshell-mode))
+ '(text-mode cmake-mode))
 
 ;; default ac-sources: basic ac-sources for all modes
 (setq-default
@@ -94,9 +87,7 @@ I want to use =TAB= for these things:
 (add-hook 'f90-mode-hook
           (lambda ()
             (when (featurep 'auto-complete-etags)
-              (add-to-list 'ac-sources 'ac-source-etags))
-            (when (featurep 'auto-complete-gtags)
-              (add-to-list 'ac-sources 'ac-source-gtags))))
+              (add-to-list 'ac-sources 'ac-source-etags))))
 #+end_src
 
 ** Emacs lisp
@@ -215,8 +206,7 @@ added.
 + *C-M-?* to persist ac-help which may be useful when help page is too long or
   you want to get help when filling arguments of the function.
 
-** Other completion
-*** Built in completion
+** Built in completion
 
 #+begin_src emacs-lisp
 (setq completion-ignore-case t)

@@ -72,10 +72,6 @@ library.")
 (defvar prj/etags-tags-file "TAGS"
   "TAGS file name.")
 
-(defvar prj/buffer-tags-file nil
-  "Buffer local `tags-file-name'.")
-(make-variable-buffer-local 'prj/buffer-tags-file)
-
 (defvar prj/update-tags-verbose t
   "Update tags file verbosely or not?")
 
@@ -449,12 +445,13 @@ project root, otherwise prj can't update tags file."
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
-  (let ((fname (buffer-file-name))
-        (p (or p (project-root-fetch))))
-    (when (and p fname prj/buffer-tags-file)
+  (let* ((fname (buffer-file-name))
+         (p (or p (project-root-fetch)))
+         (tags-file (project-root-data :tags-file p)))
+    (when (and p fname tags-file)
       (shell-command
        (format "%s %s %s"
-               prj/etags-update-script prj/buffer-tags-file fname)))))
+               prj/etags-update-script tags-file fname)))))
 
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
@@ -531,7 +528,7 @@ all modified buffers."
            (setq proc
                  (eval
                   `(start-process key nil prj/etags-update-script
-                                  prj/buffer-tags-file ,@value))))
+                                  (project-root-data :tags-file p) ,@value))))
          (when prj/update-tags-verbose
            (set-process-sentinel
             proc
@@ -787,32 +784,33 @@ List of include paths, include \"-I\" flag."
                  fname
                  (file-exists-p fname)
                  (not (file-remote-p fname)))
-            ;; mode line lighter
-            (setq
-             prj/buffer-mode-lighter
-             (if (setq lght (project-root-data :lighter p))
-                 (format " Prj:%s" lght)
-               " Prj"))
-            ;; add update tags hook, determine tags tool, generate tags
-            (unless (or
-                     (string=
-                      "none"
-                      (setq tags-tool (project-root-data :tags-tool p)))
-                     (not prj/tags-tool-found))
-              (when (project-root-file-is-project-file fname p)
-                (add-hook 'after-save-hook
-                          'prj/update-tags-single-file nil t))
-              (cond ((string= "gtags" tags-tool) (setq prj/use-gtags t))
-                    ((string= "ctags" tags-tool) (setq prj/use-gtags nil))
-                    (t (setq prj/use-gtags nil)))
-              (let ((default-directory (cdr p)))
+            (let ((default-directory (cdr p)))
+              ;; mode line lighter
+              (setq
+               prj/buffer-mode-lighter
+               (if (setq lght (project-root-data :lighter p))
+                   (format " Prj:%s" lght)
+                 " Prj"))
+              ;; add update tags hook, determine tags tool, generate tags
+              (unless (or
+                       (string=
+                        "none"
+                        (setq tags-tool (project-root-data :tags-tool p)))
+                       (not prj/tags-tool-found))
+                (when (project-root-file-is-project-file fname p)
+                  (add-hook 'after-save-hook
+                            'prj/update-tags-single-file nil t))
+                (cond ((string= "gtags" tags-tool) (setq prj/use-gtags t))
+                      ((string= "ctags" tags-tool) (setq prj/use-gtags nil))
+                      (t (setq prj/use-gtags nil)))
                 (if prj/use-gtags
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
                   (unless (file-exists-p prj/etags-tags-file)
                     (prj/generate-etags))
-                  (setq prj/buffer-tags-file
-                        (expand-file-name prj/etags-tags-file))
+                  (project-root-set-data
+                   :tags-file
+                   (expand-file-name prj/etags-tags-file))
                   (setq-local tags-file-name
                               (expand-file-name prj/etags-tags-file))))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
