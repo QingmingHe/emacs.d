@@ -40,6 +40,15 @@ several years.
 (evil-mode 1)
 #+END_SRC
 
+** Evil numbers
+
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
+(define-key evil-visual-state-map (kbd "+") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt)
+(define-key evil-visual-state-map (kbd "-") 'evil-numbers/dec-at-pt)
+#+end_src
+
 ** Go to change
 
 It is so happy to key in *g;* or *C-o* to go to last change and *g* or *C-i*,
