@@ -29,7 +29,8 @@ a lambda doesn't already exist in the list.
   (hs-minor-mode)
   (hideshowvis-enable)
   (hideshowvis-symbols))
-(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs)
+(when (window-system)
+  (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs))
 
 ;; Use relative line number. Set linum-relative-current-symbol to be empty
 ;; string so that linum-relative will show the real line number at current

@@ -65,7 +65,8 @@ WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
 
 Don't show fringe in GUI, it's too ugly.
 #+BEGIN_SRC emacs-lisp
-(fringe-mode '(4 . 0))
+(when (window-system)
+  (fringe-mode '(4 . 0)))
 #+END_SRC
 
 ** Power line
