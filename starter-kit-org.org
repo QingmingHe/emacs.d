@@ -44,11 +44,18 @@ at root of org package.
 (add-hook 'org-mode-hook 'my-org-config)
 #+end_src
 
-** Use RET or follow link at point
+** Use RET and TAB in org mode
 
++ Use RET to follow link in org mode. Problem is that press RET will open a
+  new line in [[help:evil-normal-state][evil-normal-state]].
++ In terminal TAB and C-i are the same. [[help:org-cycle][org-cycle]] is more important then
+  [[help:evil-jump-forward][evil-jump-forward]] in org mode. So remap it to org-cycle. There is no such
+  problem in gui emacs.
 #+begin_src emacs-lisp
 (setq org-return-follows-link t)
 (define-key org-mode-map [remap evil-ret] 'org-return)
+(unless (window-system)
+  (define-key org-mode-map [remap evil-jump-forward] 'org-cycle))
 #+end_src
 
 ** Time and clock

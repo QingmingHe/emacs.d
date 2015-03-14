@@ -42,6 +42,9 @@ First define projects.
 #+END_SRC
 
 ** Ctags
+
+You should use *Exuberant Ctags* instead of etags supplied with Emacs. The
+former is much more powerful especially in introducing new languages.
 *** Teach Ctags to Support Org mode
 
 Add to your =~/.ctags= file:
