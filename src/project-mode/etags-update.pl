@@ -20,12 +20,12 @@ use strict;
 
 # etags-update.pl: Updates a TAGS file for a given set of files.
 #
-# Requires etags in PATH.
+# Requires ctags in PATH.
 #
 # Algorithm:
 # 1) Ensure the given TAGS file and the files to be updated exist
 # 2) Copy the TAGS file to a tempfile, filtering out the entries for files to be updated
-# 3) Run 'etags -a' to append entries to the tempfile for each file to be updated
+# 3) Run 'ctags -a' to append entries to the tempfile for each file to be updated
 # 4) Overwrite the original TAGS file with the tempfile
 
 my $tmpname = '';
@@ -43,9 +43,9 @@ sub error {
   exit 1;
 }
 
-my $etags_bin = `which etags`;
-chomp($etags_bin);
-error("Cannot find 'etags' in your shell's PATH") if ($etags_bin eq '');
+my $ctags_bin = `which ctags`;
+chomp($ctags_bin);
+error("Cannot find 'ctags' in your shell's PATH") if ($ctags_bin eq '');
 
 usage() if (scalar @ARGV < 2);
 
@@ -94,7 +94,7 @@ close(TAGS);
 # Use 'etags --append' to add entries for updated files
 for my $f (keys %files) {
   #print "Appending $f entries\n";
-  if ((system("$etags_bin -o $tmpname -a $f") >> 8) != 0) {
+  if ((system("$ctags_bin -e -o $tmpname -a $f") >> 8) != 0) {
     error("Unable to append entries for $f");
   }
 }
