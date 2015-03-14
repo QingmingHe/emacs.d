@@ -247,8 +247,7 @@ set it to be 20 MB to save time.
   `(progn
      (define-key grep-mode-map (kbd "j") 'compilation-next-error)
      (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
-     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)
-     (define-key grep-mode-map (kbd "q") 'delete-window)))
+     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
 #+end_src
 
 *** Grep set up
@@ -367,12 +366,6 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 
 #+begin_src emacs-lisp
 (setq csv-separators '("," ";" "|" " "))
-#+end_src
-
-** Executable buffer
-
-#+begin_src emacs-lisp
-(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 #+end_src
 
 ** Pinyin input
