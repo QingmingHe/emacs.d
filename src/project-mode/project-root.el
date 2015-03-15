@@ -285,6 +285,11 @@ project."
     (when (and (eq :filename-regex key)
                (null val))
       (setq val project-root-file-regexp))
+    (when (eq :exclude-paths key)
+      (mapc
+       (lambda (path)
+         (add-to-list 'val path))
+       project-root-rep-paths))
     val))
 
 (defun project-root-set-data (prop val &optional p)
@@ -513,15 +518,8 @@ directory they are found in so that they are unique."
          (exclude-paths (project-root-data :exclude-paths p)))
     (mapcar
      (lambda (exclude-path)
-       (concat (cdr p) exclude-path))
-     (if exclude-paths
-         (progn
-           (mapc
-            (lambda (path)
-              (add-to-list 'exclude-paths path))
-            project-root-rep-paths)
-           exclude-paths)
-       project-root-rep-paths))))
+       (expand-file-name exclude-path (cdr p)))
+     exclude-paths)))
 
 (defun project-root-find-cmd (&rest pattern)
   (let ((pattern (car pattern))

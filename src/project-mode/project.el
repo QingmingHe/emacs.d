@@ -810,7 +810,7 @@ List of include paths, include \"-I\" flag."
       (setq pm (point-max))
       (goto-char (point-min))
       (while (setq b0 (search-forward "\177" pm t))
-        (setq b1 (search-forward "\001" pm t))
+        (setq b1 (search-forward "\001" (line-end-position) t))
         (when (and b1 (> (setq b1 (1- b1)) b0))
           (setq tags (cons (buffer-substring-no-properties b0 b1) tags)))))
     tags))

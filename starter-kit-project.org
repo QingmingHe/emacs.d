@@ -9,11 +9,11 @@ Use gtags, etags, imenu ... to handle projects.
 
 First define projects.
 #+BEGIN_SRC emacs-lisp
+(setq prj/update-tags-verbose nil)
+(setq prj/use-auto-complete t)
 (require 'project)
 (global-project-mode 1)
 (prj/setup)
-(setq prj/update-tags-verbose nil)
-(setq prj/use-auto-complete t)
 
 (setq project-roots
       `(("CExamples"
