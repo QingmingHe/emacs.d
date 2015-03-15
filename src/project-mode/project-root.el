@@ -198,6 +198,27 @@ Use this to exclude portions of your project: \"-not -regex \\\".*vendor.*\\\"\"
 (defvar project-root-project-name-func 'project-root-project-name-from-dir
   "Function to generate cute name for project.")
 
+(defun regexify-ext-list (extensions)
+  "Turn a list of extensions to a regexp."
+  (concat ".*\\.\\(" (mapconcat (lambda (x) (format "%s" x))
+                                extensions "\\|") "\\)\\'"))
+
+(defvar project-root-file-regexp
+  '(org md rst txt c cc cxx cpp c++ h hpp hxx java f for f77 f90 f95 f03 f08
+  py pl rb el lisp cl scheme mk)
+  "Project file regular expression.")
+(setq project-root-file-regexp
+      (if (executable-find "ctags")
+        (regexify-ext-list
+         (let ((maps project-root-file-regexp))
+           (with-temp-buffer
+             (call-process "ctags" nil t nil "--list-maps")
+             (goto-char (point-min))
+             (while (re-search-forward "\\*\\.\\([^ \t\n]+\\)[ \t\n]" nil t)
+               (add-to-list 'maps (intern (match-string 1)))))
+           maps))
+        (regexify-ext-list project-root-file-regexp)))
+
 (defun project-root-run-default-command ()
   "Run the command in :default-command, if there is one."
   (interactive)
@@ -250,15 +271,21 @@ described in PROJECT."
   "Grab the value (if any) for key in PROJECT. If PROJECT is
 omitted then attempt to get the value for the current
 project."
-  (let ((project (or project project-details)))
-    (plist-get
-     (cdr
-      (assoc
-       (progn
-         (string-match "\\([^@]+\\)" (car project))
-         (match-string-no-properties 1 (car project)))
-       project-roots))
-     key)))
+  (let ((project (or project project-details))
+        val)
+    (setq val
+          (plist-get
+           (cdr
+            (assoc
+             (progn
+               (string-match "\\([^@]+\\)" (car project))
+               (match-string-no-properties 1 (car project)))
+             project-roots))
+           key))
+    (when (and (eq :filename-regex key)
+               (null val))
+      (setq val project-root-file-regexp))
+    val))
 
 (defun project-root-set-data (prop val &optional p)
   "Set PROP of P to VAL. P is a project, VAL is a property symbol, val is
@@ -423,11 +450,6 @@ current-directory."
   "Check to see if P or `project-details' is valid"
   (let ((p (or p project-details)))
     (and p (file-exists-p (cdr p)))))
-
-(defun regexify-ext-list (extensions)
-  "Turn a list of extensions to a regexp."
-  (concat ".*\\.\\(" (mapconcat (lambda (x) (format "%s" x))
-                                extensions "\\|") "\\)\\'"))
 
 (defmacro with-project-root (&rest body)
   "Run BODY with default-directory set to the project root. Error

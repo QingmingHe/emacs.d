@@ -956,6 +956,21 @@ Enable `global-project-mode' only when all following conditions are meet:
   :init-value nil
   :require 'project)
 
+(defun prj/re-turn-on-project-minor-mode (arg)
+  "Try re-turn-on `project-minor-mode'. With prefix ARG toggle off and then on
+`project-minor-mode' for all buffers, otherwise for current buffer. This is
+very useful when you have changed some settings of `project-roots'"
+  (interactive "P")
+  (mapc
+   (lambda (buf)
+     (with-current-buffer buf
+       (when project-minor-mode
+         (project-minor-mode -1))
+       (project-minor-mode)))
+   (if arg
+       (buffer-list)
+     `(,(current-buffer)))))
+
 (provide 'project)
 
 ;;; project.el ends here
