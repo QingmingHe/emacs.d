@@ -76,6 +76,9 @@ library.")
   "Whether add `ac-source-prj/gtags' or `ac-source-prj/etags' to `ac-sources'
 for project buffers.")
 
+(defvar prj/use-tags t
+  "Whether use ctags or gtags for handling project.")
+
 (defvar prj/ac-etags-source-defined nil
   "Whether ac-source-prj/etags has been defined.")
 
@@ -910,6 +913,7 @@ List of include paths, include \"-I\" flag."
               ;; add update tags hook, determine tags tool, generate tags,
               ;; setup ac souces
               (unless (or
+                       (not prj/use-tags)
                        (string=
                         "none"
                         (setq tags-tool (project-root-data :tags-tool p)))
