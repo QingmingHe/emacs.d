@@ -856,7 +856,9 @@ List of include paths, include \"-I\" flag."
     (prj/ac-define-etags-source)
     (setq prj/ac-etags-source-defined t))
   (add-to-list 'ac-sources 'ac-source-prj/etags)
-  (unless auto-complete-mode
+  (when (and
+         (member major-mode ac-modes)
+         (not auto-complete-mode))
     (auto-complete-mode)))
 
 (defun prj/ac-gtags-setup ()
@@ -865,7 +867,9 @@ List of include paths, include \"-I\" flag."
     (prj/ac-define-gtags-source)
     (setq prj/ac-gtags-source-defined t))
   (add-to-list 'ac-sources 'ac-source-prj/gtags)
-  (unless auto-complete-mode
+  (when (and
+         (member major-mode ac-modes)
+         (not auto-complete-mode))
     (auto-complete-mode)))
 
 (defun prj/use-auto-complete (p)
