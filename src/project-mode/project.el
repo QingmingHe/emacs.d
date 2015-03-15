@@ -788,20 +788,19 @@ List of include paths, include \"-I\" flag."
 ;;; auto complete ac-sources
 
 (defun prj/ac-gtags-candidate ()
-  (if (memq major-mode ac-gtags-modes)
-      (ignore-errors
-        (with-temp-buffer
-          (when (eq (call-process "global" nil t nil "-ci" ac-prefix) 0)
-            (goto-char (point-min))
-            (let (candidates)
-              (while (and (not (eobp))
-                          (push
-                           (buffer-substring-no-properties
-                            (line-beginning-position)
-                            (line-end-position))
-                           candidates)
-                          (eq (forward-line) 0)))
-              (nreverse candidates)))))))
+  (ignore-errors
+    (with-temp-buffer
+      (when (eq (call-process "global" nil t nil "-ci" ac-prefix) 0)
+        (goto-char (point-min))
+        (let (candidates)
+          (while (and (not (eobp))
+                      (push
+                       (buffer-substring-no-properties
+                        (line-beginning-position)
+                        (line-end-position))
+                       candidates)
+                      (eq (forward-line) 0)))
+          (nreverse candidates))))))
 
 (defun prj/ac-etags-get-tags-candidates (tags-file)
   "Get all tags candidates from TAGS-FILE. Returns a list of tag string."
