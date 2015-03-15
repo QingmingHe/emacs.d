@@ -427,7 +427,7 @@ current-directory."
 (defun regexify-ext-list (extensions)
   "Turn a list of extensions to a regexp."
   (concat ".*\\.\\(" (mapconcat (lambda (x) (format "%s" x))
-                                extensions "\\|") "\\)"))
+                                extensions "\\|") "\\)\\'"))
 
 (defmacro with-project-root (&rest body)
   "Run BODY with default-directory set to the project root. Error
