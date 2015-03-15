@@ -73,7 +73,8 @@ library.")
 (make-variable-buffer-local 'prj/buffer-mode-lighter)
 
 (defvar prj/use-auto-complete nil
-  "Whether use auto complete etags for project.")
+  "Whether add `ac-source-prj/gtags' or `ac-source-prj/etags' to `ac-sources'
+for project buffers.")
 
 (defvar prj/ac-etags-source-defined nil
   "Whether ac-source-prj/etags has been defined.")
@@ -455,10 +456,10 @@ saved before killed."
     (when (and p fname)
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
-        (shell-command
-         (format
-          "%s --gtagslabel=%s --gtagsconf=%s --single-update %s"
-          prj/global-exec gtags-label gtags-conf fname))))))
+        (call-process prj/global-exec nil nil nil
+         (format "--gtagslabel=%s" gtags-label)
+         (format "--gtagsconf=%s" gtags-conf)
+         (format "--single-update=%s" fname))))))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
@@ -466,9 +467,8 @@ saved before killed."
          (p (or p (project-root-fetch)))
          (tags-file (project-root-data :tags-file p)))
     (when (and p fname tags-file)
-      (shell-command
-       (format "%s %s %s"
-               prj/etags-update-script tags-file fname)))))
+      (call-process
+       prj/etags-update-script nil nil nil tags-file fname))))
 
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."

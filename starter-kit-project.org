@@ -35,7 +35,7 @@ First define projects.
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
          :filename-regex ,(regexify-ext-list '(py f90 org))
-         :exclude-paths (".git" "build")
+         :exclude-paths ("build")
          :lighter "pyPkgs")
         ("GTD"
          :root-contains-files ("inbox.org" "projects.org" "notes.org")
