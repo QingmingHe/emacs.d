@@ -6,10 +6,6 @@
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
-(when (executable-find "ctags")
-  (require 'auto-complete-etags))
-(when (executable-find "gtags")
-  (require 'auto-complete-gtags))
 (when (executable-find "clang")
   (require 'auto-complete-clang))
 
@@ -83,12 +79,7 @@ I want to use =TAB= for these things:
 
 ** Fortran
 
-#+begin_src emacs-lisp
-(add-hook 'f90-mode-hook
-          (lambda ()
-            (when (featurep 'auto-complete-etags)
-              (add-to-list 'ac-sources 'ac-source-etags))))
-#+end_src
+Use project-ac-etags which is set up itself.
 
 ** Emacs lisp
 
@@ -172,10 +163,6 @@ added.
 #+begin_src emacs-lisp
 (defun my-c-c++-ac-setup ()
   (when (derived-mode-p 'c-mode 'c++-mode)
-    (when (featurep 'auto-complete-etags)
-      (add-to-list 'ac-sources 'ac-source-etags))
-    (when (featurep 'auto-complete-gtags)
-      (add-to-list 'ac-sources 'ac-source-gtags))
     (when (featurep 'auto-complete-clang)
       (add-to-list 'ac-sources 'ac-source-clang))
     (setq ac-sources

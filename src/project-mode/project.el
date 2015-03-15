@@ -28,16 +28,9 @@
 (defvar prj/use-helm-if-possible t
   "Use helm for completing if possible.")
 
-(defvar prj/helm-mini-include-commands t
-  "Whether include source of some useful commands in `prj/helm-mini'.")
-
 (defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
-
-(defvar prj/use-gtags nil
-  "Use gtags or ctags?")
-(make-variable-buffer-local 'prj/use-gtags)
 
 (defvar prj/tags-tool-found
   (or (executable-find "gtags") (executable-find "ctags"))
@@ -78,6 +71,31 @@ library.")
 (defvar prj/buffer-mode-lighter nil
   "Mode line linghter for current buffer if `project-minor-mode' is on.")
 (make-variable-buffer-local 'prj/buffer-mode-lighter)
+
+(defvar prj/use-auto-complete nil
+  "Whether use auto complete etags for project.")
+
+(defvar prj/ac-etags-source-defined nil
+  "Whether ac-source-prj/etags has been defined.")
+
+(defvar prj/ac-gtags-source-defined nil
+  "Whether ac-source-prj/gtags has been defined.")
+
+(defface prj/ac-etags-candidate-face
+  '((t (:background "gainsboro" :foreground "deep sky blue")))
+  "Face for etags candidate")
+
+(defface prj/ac-etags-selection-face
+  '((t (:background "deep sky blue" :foreground "white")))
+  "Face for the etags selected candidate.")
+
+(defface prj/ac-gtags-candidate-face
+  '((t (:background "lightgray" :foreground "navy")))
+  "Face for gtags candidate")
+
+(defface prj/ac-gtags-selection-face
+  '((t (:background "navy" :foreground "white")))
+  "Face for the gtags selected candidate.")
 
 (defvar prj/buffer-project nil
   "Buffer local `project-details'.")
@@ -381,8 +399,7 @@ saved before killed."
 ;;; project tags
 
 (defun prj/generate-etags ()
-  "Make $PROJECT-TAGS at project root. You'd better generate tags file at
-project root, otherwise prj can't update tags file."
+  "Generate TAGS at project root."
   (interactive)
   (let* ((p (or prj/buffer-project (project-root-fetch)))
          (default-directory (cdr p))
@@ -412,7 +429,7 @@ project root, otherwise prj can't update tags file."
               (ido-read-file-name "Gtags configuration file: ")))))
 
 (defun prj/generate-gtags ()
-  "Run gtags at user specified path."
+  "Run gtags at project root."
   (interactive)
   (let* ((p (or prj/buffer-project (project-root-fetch)))
          (default-directory (cdr p))
@@ -425,9 +442,9 @@ project root, otherwise prj can't update tags file."
     (message "Done")))
 
 (defun prj/generate-tags ()
-  "Generate tags file by ctags or gtags."
+  "Generate tags file at project root by ctags or gtags."
   (interactive)
-  (if prj/use-gtags
+  (if (project-root-data :use-gtags prj/buffer-project)
       (prj/generate-gtags)
     (prj/generate-etags)))
 
@@ -456,10 +473,11 @@ project root, otherwise prj can't update tags file."
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
   (when (and
-         (buffer-file-name))
+         (buffer-file-name)
+         prj/buffer-project)
     (when prj/update-tags-verbose
       (message "Updating tags for %s ..." (buffer-file-name)))
-    (if prj/use-gtags
+    (if (project-root-data :use-gtags prj/buffer-project)
         (prj/update-gtags-single-file prj/buffer-project)
       (prj/update-etags-single-file prj/buffer-project))
     (when prj/update-tags-verbose
@@ -489,7 +507,7 @@ all modified buffers."
                 (setq p prj/buffer-project)
                 (not (string=
                       "none"
-                      (project-root-data :tags-tool prj/buffer-project))))
+                      (project-root-data :tags-tool p))))
                (progn
                  (puthash (car p) (cons f (gethash (car p) prj-files)) prj-files)
                  (remove-hook 'after-save-hook 'prj/update-tags-single-file t))
@@ -512,7 +530,7 @@ all modified buffers."
          (message "Updating tags file for %s ..." key))
        (setq p (assoc key project-root-seen-projects))
        (with-current-buffer (get-file-buffer (car value))
-         (if prj/use-gtags
+         (if (project-root-data :use-gtags prj/buffer-project)
              (if (= 1 (length value))
                  (setq proc
                        (start-process
@@ -767,6 +785,101 @@ List of include paths, include \"-I\" flag."
                                ("Remove from seen projects" . prj/helm-remove-seen-projects)))))
         :buffer "*project helm mini*"))
 
+;;; auto complete ac-sources
+
+(defun prj/ac-gtags-candidate ()
+  (if (memq major-mode ac-gtags-modes)
+      (ignore-errors
+        (with-temp-buffer
+          (when (eq (call-process "global" nil t nil "-ci" ac-prefix) 0)
+            (goto-char (point-min))
+            (let (candidates)
+              (while (and (not (eobp))
+                          (push
+                           (buffer-substring-no-properties
+                            (line-beginning-position)
+                            (line-end-position))
+                           candidates)
+                          (eq (forward-line) 0)))
+              (nreverse candidates)))))))
+
+(defun prj/ac-etags-get-tags-candidates (tags-file)
+  "Get all tags candidates from TAGS-FILE. Returns a list of tag string."
+  (let (tags buf b0 b1 pm)
+    (with-temp-buffer
+      (insert-file-contents tags-file)
+      (setq pm (point-max))
+      (goto-char (point-min))
+      (while (setq b0 (search-forward "\177" pm t))
+        (setq b1 (search-forward "\001" pm t))
+        (when (and b1 (> (setq b1 (1- b1)) b0))
+          (setq tags (cons (buffer-substring-no-properties b0 b1) tags)))))
+    tags))
+
+(defun prj/ac-etags-candidates ()
+  "Get etags candidates from tags file of current project."
+  (let* ((p (or prj/buffer-project (project-root-fetch)))
+         (tags-file (when p (project-root-data :tags-file p)))
+         (tags-mod-time (when tags-file (nth 5 (file-attributes tags-file)))))
+    (when (and p tags-file)
+      (when (or
+             (null (project-root-data :tags-completion-table p))
+             (null (project-root-data :tags-mod-time p))
+             (time-less-p
+              (project-root-data :tags-mod-time p)
+              tags-mod-time))
+        (project-root-set-data :tags-mod-time tags-mod-time p)
+        (project-root-set-data
+         :tags-completion-table
+         (prj/ac-etags-get-tags-candidates tags-file)
+         p))
+      (project-root-data :tags-completion-table p))))
+
+(defun prj/ac-define-etags-source ()
+  (require 'auto-complete)
+  (ac-define-source prj/etags
+    '((candidates . prj/ac-etags-candidates)
+      (candidate-face . prj/ac-etags-candidate-face)
+      (selection-face . prj/ac-etags-selection-face)
+      (requires . 3))))
+
+(defun prj/ac-define-gtags-source ()
+    (require 'auto-complete)
+    (ac-define-source prj/gtags
+      '((candidates . prj/ac-gtags-candidate)
+        (candidate-face . prj/ac-gtags-candidate-face)
+        (selection-face . prj/ac-gtags-selection-face)
+        (requires . 3))))
+
+(defun prj/ac-etags-setup ()
+  (interactive)
+  (unless prj/ac-etags-source-defined
+    (prj/ac-define-etags-source)
+    (setq prj/ac-etags-source-defined t))
+  (add-to-list 'ac-sources 'ac-source-prj/etags)
+  (unless auto-complete-mode
+    (auto-complete-mode)))
+
+(defun prj/ac-gtags-setup ()
+  (interactive)
+  (unless prj/ac-gtags-source-defined
+    (prj/ac-define-gtags-source)
+    (setq prj/ac-gtags-source-defined t))
+  (add-to-list 'ac-sources 'ac-source-prj/gtags)
+  (unless auto-complete-mode
+    (auto-complete-mode)))
+
+(defun prj/use-auto-complete (p)
+  (let ((yes? prj/use-auto-complete)
+        prj/local-use-ac)
+    (when (numberp
+           (setq prj/local-use-ac
+                 (project-root-data :use-auto-complete p)))
+      (if (> prj/local-use-ac 0)
+          (setq yes? t)
+        (setq yes? nil)))
+    yes?))
+
 ;;; project minor/global mode
 
 (define-minor-mode project-minor-mode
@@ -791,7 +904,8 @@ List of include paths, include \"-I\" flag."
                (if (setq lght (project-root-data :lighter p))
                    (format " Prj:%s" lght)
                  " Prj"))
-              ;; add update tags hook, determine tags tool, generate tags
+              ;; add update tags hook, determine tags tool, generate tags,
+              ;; setup ac souces
               (unless (or
                        (string=
                         "none"
@@ -800,29 +914,32 @@ List of include paths, include \"-I\" flag."
                 (when (project-root-file-is-project-file fname p)
                   (add-hook 'after-save-hook
                             'prj/update-tags-single-file nil t))
-                (cond ((string= "gtags" tags-tool) (setq prj/use-gtags t))
-                      ((string= "ctags" tags-tool) (setq prj/use-gtags nil))
-                      (t (setq prj/use-gtags nil)))
-                (if prj/use-gtags
+                (cond ((string= "gtags" tags-tool) (project-root-set-data :use-gtags t p))
+                      ((string= "ctags" tags-tool) (project-root-set-data :use-gtags nil p))
+                      (t (project-root-set-data :use-gtags nil p)))
+                (if (project-root-data :use-gtags p)
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
                   (unless (file-exists-p prj/etags-tags-file)
                     (prj/generate-etags))
                   (project-root-set-data
                    :tags-file
-                   (expand-file-name prj/etags-tags-file))
-                  (setq-local tags-file-name
-                              (expand-file-name prj/etags-tags-file))))))))
+                   (expand-file-name prj/etags-tags-file)))
+                (when (prj/use-auto-complete p)
+                  (if (project-root-data :use-gtags p)
+                      (prj/ac-gtags-setup)
+                    (prj/ac-etags-setup))))
+              (run-hooks (project-root-data :prj-setup-hooks p))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
 (defun project-mode-on-safe ()
   "Enable `global-project-mode' if it is safe to do so.
 
 Enable `global-project-mode' only when all following conditions are meet:
-1. a project is found;
-2. buffer has a file name;
-3. file exists;
-4. file is a project file."
++ buffer has a file name;
++ file exists;
++ file is not a remote file;
++ a project is found. "
   (let ((fname (buffer-file-name)))
     (when (and
            fname

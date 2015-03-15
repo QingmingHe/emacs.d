@@ -13,6 +13,7 @@ First define projects.
 (global-project-mode 1)
 (prj/setup)
 (setq prj/update-tags-verbose nil)
+(setq prj/use-auto-complete t)
 
 (setq project-roots
       `(("CExamples"
@@ -29,6 +30,7 @@ First define projects.
          :root-contains-files (".EmacsConfig-root.el")
          :filename-regex ,(regexify-ext-list '(el pl py org))
          :exclude-paths ("backups" "auto-save-list")
+         :use-auto-complete -1
          :lighter "Econf")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")

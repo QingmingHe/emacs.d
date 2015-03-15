@@ -132,7 +132,7 @@ back.
   ;; to force update etags cache of helm-tags, type C-u-<SPC>-t-a
   "ta" (lambda (arg)
          (interactive "P")
-         (if prj/use-gtags
+         (if (project-root-data :use-gtags prj/buffer-project)
              ;; for some reason `exit' symbol should be `catch' TODO
              (catch 'exit
                (helm-gtags-select))
@@ -141,7 +141,7 @@ back.
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()
          (interactive)
-         (if prj/use-gtags
+         (if (project-root-data :use-gtags prj/buffer-project)
              (helm-gtags-pop-stack)
            (pop-tag-mark)))
   "ota" 'helm-org-agenda-files-headings
@@ -150,10 +150,6 @@ back.
          (cond ((eq major-mode 'org-mode)
                 (helm-org-in-buffer-headings))
                (t (call-interactively 'helm-semantic-or-imenu))))
-  "vt" (lambda ()
-         (interactive)
-         (unless prj/use-gtags
-           (etu/visit-tags-table)))
   "sw" 'helm-swoop
   "oc" 'occur-dwim
 
