@@ -152,22 +152,10 @@ You can key in command in char mode and copy/paste in line mode. The follow
 function and kbd provide easy toggling.
 
 #+BEGIN_SRC emacs-lisp
-(defun my-toggle-term-line-char-mode ()
-  "Toggle term between line mode and char mode"
-  (interactive)
-  (if (term-in-line-mode)
-      (progn
-        (message "Switch to char mode!")
-        (term-char-mode))
-    (progn
-      (message "Switch to line mode")
-      (term-line-mode))))
-
 (eval-after-load "term"
   `(add-hook 'term-mode-hook
              (lambda ()
-               (define-key term-mode-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
-               (define-key term-raw-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode))))
+               (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode))))
 #+END_SRC
 
 ** Shell script
