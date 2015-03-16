@@ -92,6 +92,10 @@ is pre-populated with some generally applicable aliases.
 #+end_src
 
 *** Tips
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
+
 **** Multiple eshells
 You can create eshell by just *M-x eshell*, or if can run *C-u 2 M-x eshell*
 to create a eshell numbered 2. If eshell 2 already exists, you will switch to
