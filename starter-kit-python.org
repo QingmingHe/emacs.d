@@ -21,20 +21,25 @@ To install jedi manually:
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-;; show doc by popup is too annoying, just show in minibuffer
-(setq jedi:tooltip-method nil)
-(setq jedi:complete-on-dot t)
-(cond ((file-directory-p (expand-file-name ".python-environments" starter-kit-dir))
-       nil)
-      ((executable-find "jediepcserver.py")
-       (setq jedi:server-command
-             `(,(executable-find "python") ,(executable-find "jediepcserver.py"))))
-      (t
-       (setq jedi:server-command
-             `(,(executable-find "python")
-               ,(expand-file-name
-                 "jediepcserver.py"
-                 (file-name-directory (locate-library "jedi")))))))
+(if (eq 0 (call-process-shell-command "python -c \"import jedi;import epc\""
+                                      nil nil nil))
+    (setq jedi-is-installed t)
+  (setq jedi-is-installed nil))
+(when jedi-is-installed
+  ;; show doc by popup is too annoying, just show in minibuffer
+  (setq jedi:tooltip-method nil)
+  (setq jedi:complete-on-dot t)
+  (cond ((file-directory-p (expand-file-name ".python-environments" starter-kit-dir))
+         nil)
+        ((executable-find "jediepcserver.py")
+         (setq jedi:server-command
+               `(,(executable-find "python") ,(executable-find "jediepcserver.py"))))
+        (t
+         (setq jedi:server-command
+               `(,(executable-find "python")
+                 ,(expand-file-name
+                   "jediepcserver.py"
+                   (file-name-directory (locate-library "jedi"))))))))
 #+END_SRC
 
 ** Configuration for python mode
@@ -48,7 +53,8 @@ To install jedi manually:
   myself.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
-  (jedi:setup)
+  (when jedi-is-installed
+    (jedi:setup))
   (highlight-indentation-current-column-mode)
   (setq imenu-create-index-function 'python-imenu-create-index)
   (modify-syntax-entry ?_ "w")
@@ -61,7 +67,6 @@ To install jedi manually:
     (prettify-symbols-mode 1)))
 (eval-after-load "python"
   `(progn
-     (require 'jedi)
      (add-hook 'python-mode-hook 'my-python-conf)))
 #+END_SRC
 
@@ -118,6 +123,9 @@ Or you can use *M-x C-u run-python* command to run Python interpreter. Here
 #+end_src
 
 ** Run Windows Python interpreter in Cygwin platform
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
 
 Don't do this. You will fall into a pit. If you have to, there are several
 ways:
