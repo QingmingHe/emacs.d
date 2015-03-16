@@ -68,7 +68,7 @@ is pre-populated with some generally applicable aliases.
   (define-key eshell-mode-map "\C-a" 'eshell-bol)
   (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
   (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
-  (define-key eshell-mode-map [tab] 'helm-esh-pcomplete)
+  (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
   (evil-define-key 'normal eshell-mode-map (kbd "G") 'my-eshell-goto-bottom)
   (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history))
 (add-hook 'eshell-mode-hook 'my-eshell-keybinding)
