@@ -139,7 +139,7 @@ previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
 (eval-after-load "shell"
   `(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
-(setq explicit-shell-file-name "/usr/bin/bash")
+(setq explicit-shell-file-name (executable-find "bash"))
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
 
