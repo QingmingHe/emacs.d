@@ -101,10 +101,6 @@ for project buffers.")
   '((t (:background "navy" :foreground "white")))
   "Face for the gtags selected candidate.")
 
-(defvar prj/buffer-project nil
-  "Buffer local `project-details'.")
-(make-variable-buffer-local 'prj/buffer-project)
-
 (defun __file__ ()
   "Get the name of current file."
   (cond ((stringp (car-safe current-load-list)) (car current-load-list))
@@ -405,7 +401,7 @@ saved before killed."
 (defun prj/generate-etags ()
   "Generate TAGS at project root."
   (interactive)
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p))
          (tags-file prj/etags-tags-file))
     (when (file-exists-p tags-file)
@@ -435,7 +431,7 @@ saved before killed."
 (defun prj/generate-gtags ()
   "Run gtags at project root."
   (interactive)
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p))
          (gtags-label (prj/get-gtags-label p))
          (gtags-conf (prj/get-gtags-conf p)))
@@ -448,7 +444,7 @@ saved before killed."
 (defun prj/generate-tags ()
   "Generate tags file at project root by ctags or gtags."
   (interactive)
-  (if (project-root-data :use-gtags prj/buffer-project)
+  (if (project-root-data :use-gtags project-details)
       (prj/generate-gtags)
     (prj/generate-etags)))
 
@@ -477,12 +473,12 @@ saved before killed."
   "Update tags for single file by ctags or gtags."
   (when (and
          (buffer-file-name)
-         prj/buffer-project)
+         project-details)
     (when prj/update-tags-verbose
       (message "Updating tags for %s ..." (buffer-file-name)))
-    (if (project-root-data :use-gtags prj/buffer-project)
-        (prj/update-gtags-single-file prj/buffer-project)
-      (prj/update-etags-single-file prj/buffer-project))
+    (if (project-root-data :use-gtags project-details)
+        (prj/update-gtags-single-file project-details)
+      (prj/update-etags-single-file project-details))
     (when prj/update-tags-verbose
       (message "Done"))))
 
@@ -507,7 +503,7 @@ all modified buffers."
                 (setq f (buffer-file-name))
                 (buffer-modified-p))
            (if (and
-                (setq p prj/buffer-project)
+                (setq p project-details)
                 (not (string=
                       "none"
                       (project-root-data :tags-tool p))))
@@ -533,7 +529,7 @@ all modified buffers."
          (message "Updating tags file for %s ..." key))
        (setq p (assoc key project-root-seen-projects))
        (with-current-buffer (get-file-buffer (car value))
-         (if (project-root-data :use-gtags prj/buffer-project)
+         (if (project-root-data :use-gtags p)
              (if (= 1 (length value))
                  (setq proc
                        (start-process
@@ -625,7 +621,7 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/helm-buffers-candidates ()
   (let (buffers
-        (p (or prj/buffer-project (project-root-fetch))))
+        (p (or project-details (project-root-fetch))))
     (when p
       (mapc
        (lambda (buffer)
@@ -704,7 +700,7 @@ List of include paths, include \"-I\" flag."
                  (project-root-find-cmd) tags-file))))))
 
 (defun prj/helm-create-new-file (file)
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p)))
     (let ((default-directory
             (ido-read-directory-name "Directory: ")))
@@ -713,7 +709,7 @@ List of include paths, include \"-I\" flag."
       (find-file (read-string "File name: ")))))
 
 (defun prj/helm-files-candidates ()
-  (let ((p (or prj/buffer-project (project-root-fetch))))
+  (let ((p (or project-details (project-root-fetch))))
     (when p
       (let ((default-directory (cdr p)))
         (project-root-files)))))
@@ -820,7 +816,7 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/ac-etags-candidates ()
   "Get etags candidates from tags file of current project."
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (tags-file (when p (project-root-data :tags-file p)))
          (tags-mod-time (when tags-file (nth 5 (file-attributes tags-file)))))
     (when (and p tags-file)
@@ -893,8 +889,7 @@ List of include paths, include \"-I\" flag."
   :lighter prj/buffer-mode-lighter
   (if project-minor-mode
       (progn
-        (let ((p (or prj/buffer-project
-                     (setq prj/buffer-project (project-root-fetch))))
+        (let ((p (or project-details (project-root-fetch)))
               (fname (buffer-file-name))
               lght
               tags-tool)
@@ -952,7 +947,7 @@ Enable `global-project-mode' only when all following conditions are meet:
            fname
            (file-exists-p fname)
            (not (file-remote-p fname))
-           (setq prj/buffer-project (project-root-fetch)))
+           (project-root-fetch))
       (project-minor-mode))))
 
 (define-globalized-minor-mode global-project-mode project-minor-mode

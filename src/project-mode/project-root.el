@@ -182,6 +182,9 @@ in `project-root-file-find-process')")
 (defvar project-roots nil
   "An alist describing the projects and how to find them.")
 
+(defvar project-roots-cache nil
+  "An alist containing other project data for inner usage.")
+
 (defvar project-root-max-search-depth 20
   "Don't go any further than this many levels when searching down
 a filesystem tree")
@@ -204,20 +207,18 @@ Use this to exclude portions of your project: \"-not -regex \\\".*vendor.*\\\"\"
                                 extensions "\\|") "\\)\\'"))
 
 (defvar project-root-file-regexp
-  '(org md rst txt c cc cxx cpp c++ h hpp hxx java f for f77 f90 f95 f03 f08
-  py pl rb el lisp cl scheme mk)
-  "Project file regular expression.")
-(setq project-root-file-regexp
-      (if (executable-find "ctags")
+  (let ((maps
+         '(org md rst txt c cc cxx cpp c++ h hpp hxx java f for f77 f90 f95
+               f03 f08 py pl rb el lisp cl scheme mk)))
+    (if (executable-find "ctags")
         (regexify-ext-list
-         (let ((maps project-root-file-regexp))
-           (with-temp-buffer
-             (call-process "ctags" nil t nil "--list-maps")
-             (goto-char (point-min))
-             (while (re-search-forward "\\*\\.\\([^ \t\n]+\\)[ \t\n]" nil t)
-               (add-to-list 'maps (intern (match-string 1)))))
+         (with-temp-buffer
+           (call-process "ctags" nil t nil "--list-maps")
+           (goto-char (point-min))
+           (while (re-search-forward "\\*\\.\\([^ \t\n]+\\)[ \t\n]" nil t)
+             (add-to-list 'maps (intern (match-string 1))))
            maps))
-        (regexify-ext-list project-root-file-regexp)))
+      (regexify-ext-list maps))))
 
 (defun project-root-run-default-command ()
   "Run the command in :default-command, if there is one."
@@ -268,20 +269,14 @@ described in PROJECT."
         (file-name-as-directory root)))))
 
 (defun project-root-data (key &optional project)
-  "Grab the value (if any) for key in PROJECT. If PROJECT is
-omitted then attempt to get the value for the current
-project."
-  (let ((project (or project project-details))
+  "Grab the value (if any) for key in PROJECT. If PROJECT is omitted then
+attempt to get the value for the current project."
+  (let ((p (or project project-details))
         val)
     (setq val
-          (plist-get
-           (cdr
-            (assoc
-             (progn
-               (string-match "\\([^@]+\\)" (car project))
-               (match-string-no-properties 1 (car project)))
-             project-roots))
-           key))
+          (or
+           (plist-get (cdr (assoc (car p) project-roots)) key)
+           (plist-get (cdr (assoc (car p) project-roots-cache)) key)))
     (when (and (eq :filename-regex key)
                (null val))
       (setq val project-root-file-regexp))
@@ -297,10 +292,12 @@ project."
 anything."
   (let ((p (or p (project-root-fetch))))
     (when p
+      (unless (assoc (car p) project-roots-cache)
+        (add-to-list 'project-roots-cache `(,(car p))))
       (put-alist
        (car p)
-       (plist-put (cdr (assoc (car p) project-roots)) prop val)
-       project-roots))))
+       (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)
+       project-roots-cache))))
 
 (defun project-root-bookmarks (&optional project)
   "Grab the bookmarks (if any) for PROJECT."
@@ -410,14 +407,11 @@ will be used as defined in `project-roots'."
       (project-root-set-project project))))
 
 (defun project-root-set-project (p)
-  "Save seen projects to `project-root-storage-file'. If a duplicate project
-found, append \"@PATH\" to name of the project with the original one
-untouched."
-  (if (not project-root-seen-projects)
+  "Save seen projects to `project-root-storage-file' and set buffer local
+`project-details'."
+  (unless project-root-seen-projects
       (project-root-load-roots))
   (unless (member p project-root-seen-projects)
-    (when (assoc (car p) project-root-seen-projects)
-      (setcar p (format "%s@%s" (car p) (cdr p))))
     (add-to-list 'project-root-seen-projects p)
     (project-root-save-roots))
   (setq project-details p))
