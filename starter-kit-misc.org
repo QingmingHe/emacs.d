@@ -334,8 +334,7 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 #+begin_src emacs-lisp
 (when *cygwin*
   (setq tramp-use-ssh-controlmaster-options nil))
-(when (executable-find "rsync")
-  (setq tramp-default-method "rsync"))
+(setq tramp-default-method "ssh")
 #+end_src
 
 ** Auto Hot Key
