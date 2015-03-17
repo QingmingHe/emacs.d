@@ -30,6 +30,7 @@ tramp
 .emacs-bmk-bmenu-state.el
 .emacs-desktop
 Cask
+eww-bookmarks
 
 ## directories
 backups/*
