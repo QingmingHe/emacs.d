@@ -1,3 +1,4 @@
+alias clear eshell-clear-buffer
 alias ll ls -lAh $*
 alias gaa git add --all .
 alias gch git checkout $*
