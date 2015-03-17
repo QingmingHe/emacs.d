@@ -169,3 +169,16 @@ function and kbd provide easy toggling.
 (eval-after-load "sh-script"
   `(define-key sh-mode-map (kbd "C-c C-c") 'sh-send-line-or-region-and-step))
 #+end_src
+
+** Clear comint buffer
+
+#+begin_src emacs-lisp
+(defun comint-clear-buffer ()
+  (interactive)
+  (let ((comint-buffer-maximum-size 0))
+    (comint-truncate-buffer)))
+(defun eshell-clear-buffer ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
+#+end_src

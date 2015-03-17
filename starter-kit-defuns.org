@@ -323,16 +323,3 @@ visit if current buffer is not visiting a file."
                          (ido-read-file-name "Find file (as root): ")))
     (find-alternate-file (concat "/su::" buffer-file-name))))
 #+end_src
-
-** Clear comint buffer
-
-#+begin_src emacs-lisp
-(defun comint-clear-buffer ()
-  (interactive)
-  (let ((comint-buffer-maximum-size 0))
-    (comint-truncate-buffer)))
-(defun eshell-clear-buffer ()
-  (interactive)
-  (let ((inhibit-read-only t))
-    (erase-buffer)))
-#+end_src
