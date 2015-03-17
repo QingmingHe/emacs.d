@@ -89,7 +89,7 @@ Examples:
       (buffer-string))))
 #+END_SRC
 
-** Open w32 program at point in Dired
+** Open w32 program at point in Dired and eshell
 
 #+BEGIN_SRC emacs-lisp
 (defun dired-open-w32-prog-at-point (arg)
@@ -103,6 +103,14 @@ to program from minibuffer."
     (when prog-argv
       (setq prog-argv (cygwin-to-win-path prog-argv)))
     (w32-shell-execute "open" prog-name (format "\"%s\"" prog-argv))))
+
+;; eshell alias: alias wf 'eshell-open-w32-prog $*'
+(defun eshell-open-w32-prog (args)
+  (w32-shell-execute
+   "open"
+   (expand-file-name (car args))
+   (when (cdr args) (mapconcat 'concat (cdr args) " "))
+   nil))
 
 (when *cygwin*
   (eval-after-load "dired"
