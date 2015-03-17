@@ -14,7 +14,8 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (setq eshell-cmpl-cycle-completions nil
       eshell-save-history-on-exit t
       eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'"
-      eshell-history-size 1000
+      ;; I'd like to keep all the history
+      eshell-history-size 10000
       eshell-hist-ignoredups t
       eshell-scroll-to-bottom-on-output nil
       eshell-scroll-show-maximum-output t)
