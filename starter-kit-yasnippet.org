@@ -11,18 +11,13 @@ inspired by TextMate's templating syntax.
 
 ** yas everywhere
 #+BEGIN_SRC emacs-lisp
+;; Only use snippets distributed with the Starter Kit
+(setq yas-snippet-dirs (expand-file-name "snippets" starter-kit-dir))
+;; Auto indentation is too slow
+(setq yas-indent-line 'fixed)
 (require 'yasnippet)
 (yas-global-mode 1)
 #+END_SRC
-
-** Load Snippets Distributed with the Starter Kit
-   :PROPERTIES:
-   :CUSTOM_ID: default-snippets
-   :END:
-Load the snippets defined in the =./snippets/= directory.
-#+begin_src emacs-lisp
-(yas-load-directory (expand-file-name "snippets" starter-kit-dir))
-#+end_src
 
 ** Configure Yasnippets for Org Mode
    :PROPERTIES:
@@ -63,15 +58,6 @@ automatically, but just as in snippet.
    (add-hook hook 'yas-conf-fixed-indent))
  '(python-mode-hook c-mode-common-hook f90-mode-hook))
 #+end_src
-
-** Rebind key of yas
-
-using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
-
-#+BEGIN_SRC emacs-lisp
-(define-key yas-minor-mode-map (kbd "<tab>") nil)
-(define-key yas-minor-mode-map (kbd "TAB") nil)
-#+END_SRC
 
 ** Use popup
 #+begin_src emacs-lisp

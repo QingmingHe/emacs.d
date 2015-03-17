@@ -1,7 +1,13 @@
 # -*- mode: snippet; require-final-newline: nil -*-
 # name: program
-# key: prog
+# key: pg
 # --
+! -*- coding: utf-8 -*-
+!============================================================================
+!> Description of the program ...
+!! @author Qingming He, NECP
+!! @date `(format-time-string "%Y-%m-%d %T")`
+!============================================================================
 program ${1:main}
 
   implicit none

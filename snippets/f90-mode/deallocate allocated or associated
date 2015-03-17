@@ -1,6 +1,6 @@
 # -*- mode: snippet; require-final-newline: nil -*-
 # name: deallocate allocated or associated
-# key: ifa
+# key: ra
 # --
 if (${1:`(yas-choose-value '("allocated" "associated"))`}($2)) deallocate($2)
 $0

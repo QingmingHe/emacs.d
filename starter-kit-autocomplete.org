@@ -38,25 +38,41 @@
 (global-auto-complete-mode t)
 #+END_SRC
 
-** Super TAB
+** TODO Super TAB
 
 I want to use =TAB= for these things:
-1. Trigger auto complete. This can be realised by using intrinsic
-   =ac-set-trigger-key=.
-2. Expand common part of all candidates if possible. This can be realised by
-   =ac-expand-common= function which will try to expand common part when
-   =ac-dwim= is nil.
-3. Refresh candidates menu after I've typed in new characters. =ac-update=
-   Just do this kind of thing.
-4. If auto complete is not alive, fall back to
-   [[help:yas-next-field-or-maybe-expand][yas-next-field-or-maybe-expand]] if [[help:yas-next-field-or-maybe-expand][yas-next-field-or-maybe-expand]], otherwise
-   just [[help:indent-according-to-mode][indent-according-to-mode]].
 
 #+begin_src emacs-lisp
 (setq ac-dwim nil)
 (setq ac-auto-start nil)
-(ac-set-trigger-key "TAB")
-(define-key ac-mode-map (kbd "M-n") 'auto-complete)
+(ac-set-trigger-key nil)
+(setq yas-fallback-behavior 'return-nil)
+(eval-after-load 'yasnippet
+  `(progn
+     (define-key yas-minor-mode-map (kbd "<tab>") nil)
+     (define-key yas-minor-mode-map (kbd "TAB") nil)))
+
+(defun tab-expand-or-ac ()
+  (interactive)
+  (let* ((bnds (bounds-of-thing-at-point 'symbol))
+         (b0 (car bnds))
+         (b1 (cdr bnds))
+         (p (point)))
+    (cond ((and b0
+                b1
+                (<= (- p b0) 2)
+                (= p b1)
+                (yas-expand)))
+          ((and b0
+                b1
+                (= p b1)
+                (auto-complete-1 :triggers 'trigger-key)))
+          ((yas--snippets-at-point)
+           (when (looking-back " ")
+             (backward-delete-char))
+           (yas-next-field))
+          (t
+           (indent-according-to-mode)))))
 
 (defun ac-refresh-candidates ()
   (interactive)
@@ -67,14 +83,8 @@ I want to use =TAB= for these things:
 
 (define-key ac-completing-map "\t" 'ac-refresh-candidates)
 (define-key ac-completing-map [tab] 'ac-refresh-candidates)
-
-(defun ac-fallback-command (&optional except-command)
-  "Redefine `ac-fallback-command' in `auto-complete-mode'."
-  (interactive)
-  (cond ((yas--snippets-at-point)
-         (yas-next-field))
-        (t
-         (indent-according-to-mode))))
+(define-key ac-mode-map (kbd "M-n") 'auto-complete)
+(define-key ac-mode-map [tab] 'tab-expand-or-ac)
 #+end_src
 
 ** Fortran
