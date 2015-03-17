@@ -169,6 +169,9 @@ back.
   "fm" 'flycheck-buffer
   "ne" (lambda ()
          (interactive)
+         (unless flycheck-mode
+           (flycheck-mode)
+           (flycheck-buffer))
          (let ((pos (flycheck-next-error-pos nil nil))
                (counts (length (flycheck-count-errors flycheck-current-errors))))
            (if pos
