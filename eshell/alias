@@ -1,19 +1,19 @@
-alias gd git diff $*
-alias gr git remote $*
-alias wff win-find-file $1 t
-alias wdd win-dired $1 t
-alias gb git branch $*
-alias gl git pull $*
-alias gp git push $*
-alias clean-white-spaces clean-white-spaces t $1
-alias la ls -la $*
-alias dd dired-other-window $1
-alias ll ls -l $*
-alias ff find-file-other-window $1
-alias ctw cygwin-to-win-path $1
-alias gc magit-commit
-alias g git status
-alias ga git add $*
-alias gm magit-merge $*
-alias gch git checkout $*
+alias ll ls -lAh $*
 alias gaa git add --all .
+alias gch git checkout $*
+alias gm magit-merge $*
+alias ga git add $*
+alias g git status
+alias gc magit-commit
+alias ctw cygwin-to-win-path $1
+alias ff find-file-other-window $1
+alias dd dired-other-window $1
+alias la ls -la $*
+alias clean-white-spaces clean-white-spaces t $1
+alias gp git push $*
+alias gl git pull $*
+alias gb git branch $*
+alias wdd win-dired $1 t
+alias wff win-find-file $1 t
+alias gr git remote $*
+alias gd git diff $*
