@@ -85,6 +85,16 @@ Use smartparens to handle curly braces and block comment.
                                             (sp-cc-block-comment "RET"))))
 #+end_src
 
+*** Minibuffer
+
+#+begin_src emacs-lisp
+(defun conditionally-enable-parens-mode ()
+  (when (eq this-command 'eval-expression)
+    (smartparens-mode 1)
+    (define-key sp-pair-overlay-keymap (kbd "C-g") nil)))
+(add-hook 'minibuffer-setup-hook 'conditionally-enable-parens-mode)
+#+end_src
+
 ** Show function name in the header line                                        :which:function:mode:
 
 #+begin_src emacs-lisp

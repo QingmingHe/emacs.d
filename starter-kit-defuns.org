@@ -308,3 +308,18 @@ or =defcustom= with =setq= or use =eval-defun=.
    (list (read-shell-command "Path: ")))
   (setenv "PATH" (concat path ":" (getenv "PATH"))))
 #+end_src
+
+** Sudo edit files that require =root= permissions
+
+#+begin_src emacs-lisp
+(defun sudo-edit (&optional arg)
+  "Edit currently visited file as root.
+
+With prefix ARG prompt for a file to visit. Will also prompt for a file to
+visit if current buffer is not visiting a file."
+  (interactive "P")
+  (if (or arg (not buffer-file-name))
+      (find-file (concat "/su::"
+                         (ido-read-file-name "Find file (as root): ")))
+    (find-alternate-file (concat "/su::" buffer-file-name))))
+#+end_src
