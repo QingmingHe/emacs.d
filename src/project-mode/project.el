@@ -891,7 +891,7 @@ List of include paths, include \"-I\" flag."
                          (when (eq 0
                                    (string-match
                                     (regexp-quote (expand-file-name elem (cdr p)))
-                                    (or (buffer-file-name) "")))
+                                    default-directory))
                            (throw 'buf-match (setq yes? t))))))
                 prj/local-use-ac)))))
     yes?))
