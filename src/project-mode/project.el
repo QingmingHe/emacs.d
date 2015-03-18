@@ -871,7 +871,7 @@ List of include paths, include \"-I\" flag."
          (not auto-complete-mode))
     (auto-complete-mode)))
 
-(defun prj/use-auto-complete (p &optional buf)
+(defun prj/use-auto-complete (p buf)
   (let ((yes? prj/use-auto-complete)
         (prj/local-use-ac (project-root-data :use-auto-complete p)))
     (cond ((numberp prj/local-use-ac)
