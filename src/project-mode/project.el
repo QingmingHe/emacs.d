@@ -444,7 +444,7 @@ saved before killed."
 (defun prj/generate-tags ()
   "Generate tags file at project root by ctags or gtags."
   (interactive)
-  (if (project-root-data :use-gtags project-details)
+  (if (project-root-data :-use-gtags project-details)
       (prj/generate-gtags)
     (prj/generate-etags)))
 
@@ -464,7 +464,7 @@ saved before killed."
   "Update TAGS for current project file."
   (let* ((fname (buffer-file-name))
          (p (or p (project-root-fetch)))
-         (tags-file (project-root-data :tags-file p)))
+         (tags-file (project-root-data :-tags-file p)))
     (when (and p fname tags-file)
       (call-process
        prj/etags-update-script nil nil nil tags-file fname))))
@@ -476,7 +476,7 @@ saved before killed."
          project-details)
     (when prj/update-tags-verbose
       (message "Updating tags for %s ..." (buffer-file-name)))
-    (if (project-root-data :use-gtags project-details)
+    (if (project-root-data :-use-gtags project-details)
         (prj/update-gtags-single-file project-details)
       (prj/update-etags-single-file project-details))
     (when prj/update-tags-verbose
@@ -529,7 +529,7 @@ all modified buffers."
          (message "Updating tags file for %s ..." key))
        (setq p (assoc key project-root-seen-projects))
        (with-current-buffer (get-file-buffer (car value))
-         (if (project-root-data :use-gtags p)
+         (if (project-root-data :-use-gtags p)
              (if (= 1 (length value))
                  (setq proc
                        (start-process
@@ -545,7 +545,7 @@ all modified buffers."
            (setq proc
                  (eval
                   `(start-process key nil prj/etags-update-script
-                                  (project-root-data :tags-file p) ,@value))))
+                                  (project-root-data :-tags-file p) ,@value))))
          (when prj/update-tags-verbose
            (set-process-sentinel
             proc
@@ -685,13 +685,14 @@ List of include paths, include \"-I\" flag."
                            " "))))
 
 (defun prj/helm-gen-tags (proot)
-  (let ((default-directory proot))
+  (let* ((default-directory proot)
+         (p (project-root-fetch)))
     (if (y-or-n-p "Use GNU global? ")
         (shell-command
          (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
                  (project-root-find-cmd)
-                 (prj/get-gtags-label)
-                 (prj/get-gtags-conf)))
+                 (prj/get-gtags-label p)
+                 (prj/get-gtags-conf p)))
       (let ((tags-file prj/etags-tags-file))
         (when (file-exists-p tags-file)
           (delete-file tags-file))
@@ -817,21 +818,21 @@ List of include paths, include \"-I\" flag."
 (defun prj/ac-etags-candidates ()
   "Get etags candidates from tags file of current project."
   (let* ((p (or project-details (project-root-fetch)))
-         (tags-file (when p (project-root-data :tags-file p)))
+         (tags-file (when p (project-root-data :-tags-file p)))
          (tags-mod-time (when tags-file (nth 5 (file-attributes tags-file)))))
     (when (and p tags-file)
       (when (or
-             (null (project-root-data :tags-completion-table p))
-             (null (project-root-data :tags-mod-time p))
+             (null (project-root-data :-tags-completion-table p))
+             (null (project-root-data :-tags-mode-time p))
              (time-less-p
-              (project-root-data :tags-mod-time p)
+              (project-root-data :-tags-mode-time p)
               tags-mod-time))
-        (project-root-set-data :tags-mod-time tags-mod-time p)
+        (project-root-set-data :-tags-mode-time tags-mod-time p)
         (project-root-set-data
-         :tags-completion-table
+         :-tags-completion-table
          (prj/ac-etags-get-tags-candidates tags-file)
          p))
-      (project-root-data :tags-completion-table p))))
+      (project-root-data :-tags-completion-table p))))
 
 (defun prj/ac-define-etags-source ()
   (require 'auto-complete)
@@ -930,19 +931,19 @@ List of include paths, include \"-I\" flag."
                 (when (project-root-file-is-project-file fname p)
                   (add-hook 'after-save-hook
                             'prj/update-tags-single-file nil t))
-                (cond ((string= "gtags" tags-tool) (project-root-set-data :use-gtags t p))
-                      ((string= "ctags" tags-tool) (project-root-set-data :use-gtags nil p))
-                      (t (project-root-set-data :use-gtags nil p)))
-                (if (project-root-data :use-gtags p)
+                (cond ((string= "gtags" tags-tool) (project-root-set-data :-use-gtags t p))
+                      ((string= "ctags" tags-tool) (project-root-set-data :-use-gtags nil p))
+                      (t (project-root-set-data :-use-gtags nil p)))
+                (if (project-root-data :-use-gtags p)
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
                   (unless (file-exists-p prj/etags-tags-file)
                     (prj/generate-etags))
                   (project-root-set-data
-                   :tags-file
+                   :-tags-file
                    (expand-file-name prj/etags-tags-file)))
                 (when (prj/use-auto-complete p (current-buffer))
-                  (if (project-root-data :use-gtags p)
+                  (if (project-root-data :-use-gtags p)
                       (prj/ac-gtags-setup)
                     (prj/ac-etags-setup))))
               (run-hooks (project-root-data :prj-setup-hooks p))))))
