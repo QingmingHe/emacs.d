@@ -1,0 +1,8 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: type ... end type
+# key: tp
+# key: ty
+# --
+type :: $1
+  $0
+end type $1
