@@ -187,3 +187,57 @@ Use *jk* key chord to quite everything.
 (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-mode 1)
 #+end_src
+
+** TODO Super TAB
+
+I want to use =TAB= for these things:
+
+#+begin_src emacs-lisp
+(setq ac-dwim nil)
+(setq ac-auto-start nil)
+(setq yas-fallback-behavior 'return-nil)
+
+(defun tab-for-anything ()
+  (interactive)
+  (let* ((bnds (bounds-of-thing-at-point 'symbol))
+         (b0 (car bnds))
+         (b1 (cdr bnds))
+         (p (point)))
+    (cond ((and yas-minor-mode
+                b0
+                b1
+                (<= (- p b0) 2)
+                (= p b1)
+                (yas-expand)))
+          ((and b0
+                b1
+                (= p b1)
+                (auto-complete-1)))
+          ((and yas-minor-mode
+                (yas--snippets-at-point))
+           (when (and (looking-back " ")
+                      (looking-at "\n"))
+             (delete-backward-char 1))
+           (yas-next-field))
+          (t
+           (indent-according-to-mode)))))
+
+(defun ac-refresh-candidates ()
+  (interactive)
+  (ac-update t)
+  (ac-expand-common)
+  (when (eq 1 (length ac-candidates))
+    (ac-abort)))
+
+(eval-after-load 'yasnippet
+  `(progn
+     (define-key yas-minor-mode-map (kbd "<tab>") nil)
+     (define-key yas-minor-mode-map (kbd "TAB") nil)
+     (define-key yas-keymap [(tab)] nil)
+     (define-key yas-keymap (kbd "TAB") nil)))
+(eval-after-load 'auto-complete
+  `(progn
+     (define-key ac-completing-map "\t" 'ac-refresh-candidates)
+     (define-key ac-completing-map [tab] 'ac-refresh-candidates)
+     (define-key ac-mode-map (read-kbd-macro "TAB") 'tab-for-anything)))
+#+end_src

@@ -36,56 +36,8 @@
 
 ;; enable auto complete in all modes
 (global-auto-complete-mode t)
-#+END_SRC
-
-** TODO Super TAB
-
-I want to use =TAB= for these things:
-
-#+begin_src emacs-lisp
-(setq ac-dwim nil)
-(setq ac-auto-start nil)
-(ac-set-trigger-key nil)
-(setq yas-fallback-behavior 'return-nil)
-(eval-after-load 'yasnippet
-  `(progn
-     (define-key yas-minor-mode-map (kbd "<tab>") nil)
-     (define-key yas-minor-mode-map (kbd "TAB") nil)))
-
-(defun tab-expand-or-ac ()
-  (interactive)
-  (let* ((bnds (bounds-of-thing-at-point 'symbol))
-         (b0 (car bnds))
-         (b1 (cdr bnds))
-         (p (point)))
-    (cond ((and b0
-                b1
-                (<= (- p b0) 2)
-                (= p b1)
-                (yas-expand)))
-          ((and b0
-                b1
-                (= p b1)
-                (auto-complete-1 :triggers 'trigger-key)))
-          ((yas--snippets-at-point)
-           (when (looking-back " ")
-             (backward-delete-char))
-           (yas-next-field))
-          (t
-           (indent-according-to-mode)))))
-
-(defun ac-refresh-candidates ()
-  (interactive)
-  (ac-update t)
-  (ac-expand-common)
-  (when (eq 1 (length ac-candidates))
-    (ac-abort)))
-
-(define-key ac-completing-map "\t" 'ac-refresh-candidates)
-(define-key ac-completing-map [tab] 'ac-refresh-candidates)
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
-(define-key ac-mode-map [tab] 'tab-expand-or-ac)
-#+end_src
+#+END_SRC
 
 ** Fortran
 
