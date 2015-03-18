@@ -19,7 +19,14 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 ;;
-;; + Commentary
+;;; Commentary:
+;; +. features:
+;;    - Handle tags file automatically. Generating, updating, ...
+;;    - Provide a preconfigured `helm' to list project buffers, files and seen
+;;      projects.
+;;    - Two `auto-complete' sources `prj/ac-source-etags' and
+;;      `prj/ac-source-gtags' which handles ac-source for each project.
+;;    - Some useful command to run find, grep, ... at project files or buffers.
 
 (require 'project-root)
 
@@ -483,13 +490,14 @@ saved before killed."
       (message "Done"))))
 
 (defun prj/save-buffers-and-update-tags-sentinel (proc event)
+  "Message something after tags file have been updated for a project."
   (when (eq (process-status proc) 'exit)
     (if (zerop (process-exit-status proc))
         (message "Updating tags for %s Done." proc)
       (message "Updating tags for %s failed." proc))))
 
 (defun prj/save-buffers-and-update-tags ()
-  "Update tags file for modified buffers of projects asynchronously then save
+  "Update tags file for modified buffers of projects asynchronously and save
 all modified buffers."
   (interactive)
   (let ((prj-files (make-hash-table :test 'equal))
@@ -754,6 +762,7 @@ List of include paths, include \"-I\" flag."
      (helm-marked-candidates))))
 
 (defun prj/helm-mini ()
+  "Pre-configured `helm' to list project buffers, project files and seen projects."
   (interactive)
   (require 'helm)
   (helm :sources `(((name . "Project Buffers")
@@ -788,6 +797,7 @@ List of include paths, include \"-I\" flag."
 ;;; auto complete ac-sources
 
 (defun prj/ac-gtags-candidate ()
+  "Get auto complete candidates by GNU global. Returns a list of tag string."
   (ignore-errors
     (with-temp-buffer
       (when (eq (call-process "global" nil t nil "-ci" ac-prefix) 0)
@@ -873,6 +883,8 @@ List of include paths, include \"-I\" flag."
     (auto-complete-mode)))
 
 (defun prj/use-auto-complete (p buf)
+  "Determine whether the BUF (buffer) of P (project) use `prj/ac-source-etags'
+or `prj/ac-source-gtags'."
   (let ((yes? prj/use-auto-complete)
         (prj/local-use-ac (project-root-data :use-auto-complete p)))
     (cond ((numberp prj/local-use-ac)
