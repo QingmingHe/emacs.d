@@ -1,0 +1,8 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: select case end select
+# key: se
+# --
+select case ($0)
+case ()
+case default
+end select

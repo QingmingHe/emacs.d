@@ -1,18 +1,20 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: program
-# key: pg
-# key: pr
+# name: module
+# key: mod
+# key: mo
 # --
 ! -*- coding: utf-8 -*-
 !============================================================================
-!> Description of the program ...
+!> Description of the module ...
 !! @author Qingming He, NECP
 !! @date `(format-time-string "%Y-%m-%d %T")`
 !============================================================================
-program ${1:main}
+module $1
 
   implicit none
 
   $0
 
-end program $1
+contains
+
+end module $1
