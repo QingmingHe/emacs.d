@@ -50,7 +50,7 @@
            (file-exists-p (concat gtd-root "/source/user-settings.org")))
       (org-babel-load-file (concat gtd-root "/source/user-settings.org")))
     ;; load up the starter kit.
-    ;; As the initial value of org-babel-load-languages is '(emacs-lisp . t),
+    ;; As the initial value of `org-babel-load-languages' is '(emacs-lisp . t),
     ;; only the emacs-lisp code block will be loaded.
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 
