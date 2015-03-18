@@ -127,3 +127,5 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
 *** key bindings
 - *w* copies file name to ring. *C-u 0 w* copies full path.
 - *!* run shell command, *&* run shell command synchronously.
+- *#* to flag all auto save files for deletion.
+- *~* to flag all backup files for deletion.
