@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: real(8) :: ...
+# key: re
+# --
+real(8) :: $0 !< 

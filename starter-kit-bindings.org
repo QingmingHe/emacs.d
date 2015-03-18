@@ -217,7 +217,7 @@ I want to use =TAB= for these things:
           ((and yas-minor-mode
                 (yas--snippets-at-point))
            (when (and (looking-back " ")
-                      (looking-at "\n"))
+                      (looking-at "[\]\}\)\n]"))
              (delete-backward-char 1))
            (yas-next-field))
           (t
