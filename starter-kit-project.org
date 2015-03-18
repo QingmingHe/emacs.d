@@ -23,6 +23,7 @@ First define projects.
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
+         :use-auto-complete (f90-mode)
          :lighter "SUGAR")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")

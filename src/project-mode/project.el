@@ -871,15 +871,29 @@ List of include paths, include \"-I\" flag."
          (not auto-complete-mode))
     (auto-complete-mode)))
 
-(defun prj/use-auto-complete (p)
+(defun prj/use-auto-complete (p &optional buf)
   (let ((yes? prj/use-auto-complete)
-        prj/local-use-ac)
-    (when (numberp
-           (setq prj/local-use-ac
-                 (project-root-data :use-auto-complete p)))
-      (if (> prj/local-use-ac 0)
-          (setq yes? t)
-        (setq yes? nil)))
+        (prj/local-use-ac (project-root-data :use-auto-complete p)))
+    (cond ((numberp prj/local-use-ac)
+           (if (> prj/local-use-ac 0)
+               (setq yes? t)
+             (setq yes? nil)))
+          ((listp prj/local-use-ac)
+           (setq yes? nil)
+           (with-current-buffer buf
+             (catch 'buf-match
+               (mapc
+                (lambda (elem)
+                  (cond ((symbolp elem)
+                         (when (eq major-mode elem)
+                           (throw 'buf-match (setq yes? t))))
+                        ((stringp elem)
+                         (when (eq 0
+                                   (string-match
+                                    (regexp-quote (expand-file-name elem (cdr p)))
+                                    (or (buffer-file-name) "")))
+                           (throw 'buf-match (setq yes? t))))))
+                prj/local-use-ac)))))
     yes?))
 
 ;;; project minor/global mode
@@ -927,7 +941,7 @@ List of include paths, include \"-I\" flag."
                   (project-root-set-data
                    :tags-file
                    (expand-file-name prj/etags-tags-file)))
-                (when (prj/use-auto-complete p)
+                (when (prj/use-auto-complete p (current-buffer))
                   (if (project-root-data :use-gtags p)
                       (prj/ac-gtags-setup)
                     (prj/ac-etags-setup))))
