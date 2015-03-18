@@ -209,7 +209,8 @@ I want to use =TAB= for these things:
                 (<= (- p b0) 2)
                 (= p b1)
                 (yas-expand)))
-          ((and b0
+          ((and auto-complete-mode
+                b0
                 b1
                 (= p b1)
                 (auto-complete-1)))
