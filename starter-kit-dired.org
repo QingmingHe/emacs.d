@@ -77,13 +77,17 @@ buffer."
 
 ** Find name Dired
 
-+ Use [[elisp:find-name-dired]] instead of [[elisp:find-dired]] for the former's
-  simplicity.
++ Use [[help:find-name-dired][find-name-dired]] instead of [[help:find-dired][find-dired]] for the former's simplicity.
 + By default Emacs will pass *-exec* to find and that makes it very slow. It is
   better to collate the matches and then use *xargs* to run the command. To do
   this instead add this to your =~/.emacs=:
++ You can refer to [[https://github.com/typester/emacs/blob/master/lisp/find-dired.el][find dired source]] to get the description of
+  [[help:find-ls-option][find-ls-option]]. In short, [[help:car][car]] of it is passed to *find* and [[help:cdr][cdr]] is to tell
+  Dired how to parse the output.
++ From [[http://stackoverflow.com/questions/14602291/dired-how-to-get-really-human-readable-output-find-ls-option][stackoverflow]] you can get the answer to get human readable size and
+  align Dired output. It may be a bug of *find-dired.el*.
 #+begin_src emacs-lisp
-(setq find-ls-option '("-print0 | xargs -0 ls -ld" . "-ld"))
+(setq find-ls-option '("-print0 | xargs -0 ls -alhd" . ""))
 #+end_src
 
 ** Ido Dired and move to file's line
