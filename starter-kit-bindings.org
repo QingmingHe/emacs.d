@@ -33,7 +33,8 @@ Key Bindings.
 
 1. *C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
    yank thing after cursor. This is always not I mean. What I want is to yank
-   selected region or symbol at point.
+   selected region or symbol at point. This can also mimic
+   [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 2. Append thing at point or active region to =regexp-search-ring= and use
    *M-n* to recover it in minibuffer.
 

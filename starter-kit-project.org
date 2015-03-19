@@ -28,6 +28,11 @@ First define projects.
          :root-contains-files (".EmacsConfig-root.el")
          :exclude-paths ("backups" "auto-save-list")
          :lighter "Econf")
+        ("UFP"
+         :root-contains-files (".UFP-root.el")
+         :exclude-paths ("Debug" "input" "kintab" "output" "plib" "scratch"
+                         "ulib" "文档")
+         :lighter "UFP")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
          :exclude-paths ("build")

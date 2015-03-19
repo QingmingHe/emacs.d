@@ -323,3 +323,26 @@ visit if current buffer is not visiting a file."
                          (ido-read-file-name "Find file (as root): ")))
     (find-alternate-file (concat "/su::" buffer-file-name))))
 #+end_src
+
+** Convert coding system
+
+#+begin_src emacs-lisp
+(defun convert-chinese-gbk-to-utf-8-unix-file (f &optional not-kill)
+  (interactive (list (ido-read-file-name "file to convert: ")))
+  (with-current-buffer (find-file-noselect f)
+    (revert-buffer-with-coding-system 'chinese-gbk)
+    (set-buffer-file-coding-system 'utf-8-unix)
+    (save-buffer)
+    (unless not-kill
+      (kill-buffer))))
+
+(defun convert-chinese-gbk-to-utf-8-unix-buffer ()
+  (interactive)
+  (convert-chinese-gbk-to-utf-8-unix-file (buffer-file-name) t))
+
+(defun dired-do-convert-chinese-gbk-to-utf-8-unix ()
+  (interactive)
+  (mapc
+   'convert-chinese-gbk-to-utf-8-unix-file
+   (dired-get-marked-files)))
+#+end_src
