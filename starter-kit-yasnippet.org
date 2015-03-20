@@ -15,6 +15,8 @@ inspired by TextMate's templating syntax.
 (setq yas-snippet-dirs (expand-file-name "snippets" starter-kit-dir))
 ;; Auto indentation is too slow
 (setq yas-indent-line 'fixed)
+;; Don't re-activate snippet fields after undo/redo
+(setq yas-snippet-revival nil)
 (require 'yasnippet)
 (yas-global-mode 1)
 #+END_SRC
@@ -25,23 +27,21 @@ inspired by TextMate's templating syntax.
    :END:
 
 The latest version of yasnippets doesn't play well with Org-mode, the
-following function allows these two to play nicely together. In Org-mode, a
-white space should be spared or yas-next-field will not work.
+following function allows these two to play nicely together.
 #+begin_src emacs-lisp
-(defun yas/org-very-safe-expand ()
+(defun yas/org-expand-or-next-field ()
   (let ((yas-fallback-behavior 'return-nil))
-    (unless (or
-             (evil-normal-state-p)
-             (org-at-heading-p)
-             (org-at-block-p))
-      (yas-expand))))
+    (cond ((and
+            (not (evil-normal-state-p))
+            (not (org-at-heading-p))
+            (yas-expand)))
+          ((yas--snippets-at-point)
+           (yas-next-field)
+           t))))
 
 (defun yas/org-setup ()
   ;; yasnippet (using the new org-cycle hooks)
-  (make-variable-buffer-local 'yas/trigger-key)
-  (setq yas/trigger-key [tab])
-  (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-  (define-key yas-keymap [tab] 'yas-next-field))
+  (add-to-list 'org-tab-first-hook 'yas/org-expand-or-next-field))
 
 (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src

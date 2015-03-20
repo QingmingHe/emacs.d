@@ -1,5 +1,5 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: real(8) :: ...
-# key: re
+# name: allocatable
+# key: al
 # --
-real(8)$1 :: $0 !< 
+allocatable
