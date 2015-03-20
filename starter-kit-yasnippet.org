@@ -46,19 +46,6 @@ following function allows these two to play nicely together.
 (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
-** Indentation configuration for prog mode
-
-Indent in some prog mode may be confusing. Set fixed so yas will not indent
-automatically, but just as in snippet.
-#+begin_src emacs-lisp
-(defun yas-conf-fixed-indent ()
-  (setq-local yas-indent-line 'fixed))
-(mapc
- (lambda (hook)
-   (add-hook hook 'yas-conf-fixed-indent))
- '(python-mode-hook c-mode-common-hook f90-mode-hook))
-#+end_src
-
 ** Use popup
 #+begin_src emacs-lisp
 (eval-after-load 'popup

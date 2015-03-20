@@ -189,17 +189,20 @@ Use *jk* key chord to quite everything.
 (key-chord-mode 1)
 #+end_src
 
-** TODO Super TAB
-
-I want to use =TAB= for these things:
+** Super TAB for program modes
 
 #+begin_src emacs-lisp
 (setq ac-dwim nil)
+;; don't let ac auto start
 (setq ac-auto-start nil)
+;; so `yas-expand' will return nil if not expanded
 (setq yas-fallback-behavior 'return-nil)
+;; so snippet can be triggered inside snippet
 (setq yas-triggers-in-field t)
 
 (defun tab-for-anything ()
+  "Try to `yas-expand', `auto-complete-1', `yas-next-field',
+`indent-according-to-mode'."
   (interactive)
   (let* ((bnds (bounds-of-thing-at-point 'symbol))
          (b0 (car bnds))
@@ -219,13 +222,14 @@ I want to use =TAB= for these things:
           ((and yas-minor-mode
                 (yas--snippets-at-point))
            (when (and (looking-back " ")
-                      (looking-at "[\]\}\)\n ]"))
+                      (looking-at "[\]\}\)\n\[\(\{ ]"))
              (delete-backward-char 1))
            (yas-next-field))
           (t
            (indent-according-to-mode)))))
 
 (defun ac-refresh-candidates ()
+  "Refresh `ac-candidates' and expand common part."
   (interactive)
   (ac-update t)
   (ac-expand-common)
