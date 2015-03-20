@@ -5,5 +5,4 @@
 [[help:${1:`
 (helm-comp-read "Symbol name: "
                 (loop for x being the symbols
-                      if (or (boundp x) (fboundp x))
                       collect (symbol-name x)))`}][$1]]

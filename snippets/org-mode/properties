@@ -1,0 +1,6 @@
+#name : Properties
+#key : pro
+# --
+ :PROPERTIES:
+ :$1: $0
+ :END:

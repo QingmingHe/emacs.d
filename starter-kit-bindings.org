@@ -236,7 +236,7 @@ Use *jk* key chord to quite everything.
   (when (eq 1 (length ac-candidates))
     (ac-abort)))
 
-(defun prog-mode-setup-tab ()
+(defun setup-tab-for-anything ()
   (define-key yas-minor-mode-map (kbd "<tab>") nil)
   (define-key yas-minor-mode-map (kbd "TAB") nil)
   (define-key yas-keymap [(tab)] nil)
@@ -245,5 +245,5 @@ Use *jk* key chord to quite everything.
   (define-key ac-completing-map [tab] 'ac-refresh-candidates)
   (define-key ac-mode-map (read-kbd-macro "TAB") 'tab-for-anything))
 
-(add-hook 'prog-mode-hook 'prog-mode-setup-tab)
+(add-hook 'prog-mode-hook 'setup-tab-for-anything)
 #+end_src

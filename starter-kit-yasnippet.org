@@ -19,7 +19,35 @@ inspired by TextMate's templating syntax.
 (setq yas-snippet-revival nil)
 (require 'yasnippet)
 (yas-global-mode 1)
+;; disable tab for `yas-minor-mode' and `yas-keymap' for each mode has its
+;; own tab
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-keymap [(tab)] nil)
+(define-key yas-keymap (kbd "TAB") nil)
 #+END_SRC
+
+** Snippet mode
+*** Snippet for snippet
+
+The original snippet for snippet is too long too ugly. What I want are only
+=name= and =key= directives.
+#+begin_src emacs-lisp
+(setq yas-new-snippet-default "\
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: $1
+# key: ${2:$1}
+# --
+$0")
+#+end_src
+
+*** Tab for snippet mode
+
+#+begin_src emacs-lisp
+(defun snippet-mode-setup ()
+  (define-key yas-keymap (read-kbd-macro "TAB") 'yas-next-field))
+(add-hook 'snippet-mode-hook 'snippet-mode-setup)
+#+end_src
 
 ** Configure Yasnippets for Org Mode
    :PROPERTIES:
