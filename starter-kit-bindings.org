@@ -78,16 +78,20 @@ Key Bindings.
 
 ** Hungry delete
 
+Use "\177" instead of [backspace] to define [[help:hungry-backspace][hungry-backspace]]. Learned from
+=python.el=.
 #+begin_src emacs-lisp
 (require 'hungry-delete)
 (mapc
  (lambda (map)
-   (define-key map [backspace] 'hungry-backspace))
+   (define-key map "\177" 'hungry-backspace))
  `(,prog-mode-map
    ,org-mode-map
    ,text-mode-map))
-(eval-after-load "cc-mode"
-  `(define-key c-mode-base-map [backspace] 'hungry-delete))
+(eval-after-load 'cc-mode
+  `(define-key c-mode-base-map "\177" 'hungry-backspace))
+(eval-after-load 'python
+  `(define-key python-mode-map "\177" 'hungry-backspace))
 #+end_src
 
 ** Move beginning of line
@@ -202,7 +206,7 @@ Use *jk* key chord to quite everything.
 
 (defun tab-for-anything ()
   "Try to `yas-expand', `auto-complete-1', `yas-next-field',
-`indent-according-to-mode'."
+`indent-for-tab-command'."
   (interactive)
   (let* ((bnds (bounds-of-thing-at-point 'symbol))
          (b0 (car bnds))
@@ -226,7 +230,7 @@ Use *jk* key chord to quite everything.
              (delete-backward-char 1))
            (yas-next-field))
           (t
-           (indent-according-to-mode)))))
+           (indent-for-tab-command)))))
 
 (defun ac-refresh-candidates ()
   "Refresh `ac-candidates' and expand common part."

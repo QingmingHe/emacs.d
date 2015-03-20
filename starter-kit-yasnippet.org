@@ -34,7 +34,7 @@ The original snippet for snippet is too long too ugly. What I want are only
 =name= and =key= directives.
 #+begin_src emacs-lisp
 (setq yas-new-snippet-default "\
-# -*- mode: snippet; require-final-newline: nil -*-
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
 # name: $1
 # key: ${2:$1}
 # --
