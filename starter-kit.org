@@ -269,6 +269,7 @@ interested in the actual code implementing the starter kit.
     (eval-when-compile (require 'subr-x)))
   (when (window-system)
     (require 'pos-tip))
+  (require 'popup)
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be
