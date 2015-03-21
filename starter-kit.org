@@ -552,6 +552,7 @@ windows.
   (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"
                       (format-time-string "%Y-%m-%d&%T"))))
 (add-hook 'emacs-startup-hook 'my-start-up-display t)
+(setq debug-on-error nil)
 #+END_SRC
 
 * Footnotes
