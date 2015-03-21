@@ -247,7 +247,7 @@ Use *jk* key chord to quite everything.
   (define-key yas-keymap (kbd "TAB") nil)
   (define-key ac-completing-map "\t" 'ac-refresh-candidates)
   (define-key ac-completing-map [tab] 'ac-refresh-candidates)
-  (define-key ac-mode-map (read-kbd-macro "TAB") 'tab-for-anything))
+  (local-set-key (read-kbd-macro "TAB") 'tab-for-anything))
 
 (add-hook 'prog-mode-hook 'setup-tab-for-anything)
 #+end_src
