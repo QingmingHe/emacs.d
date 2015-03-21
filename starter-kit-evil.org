@@ -158,6 +158,7 @@ back.
   "ff" 'ido-find-file
   "ss" 'prj/save-buffers-and-update-tags
   "kk" 'kill-this-buffer
+  "as" 'prj/add-new-source
 
   ;; project
   "pp" 'prj/helm-mini

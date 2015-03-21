@@ -10,6 +10,7 @@ Use gtags, etags, imenu ... to handle projects.
 First define projects.
 #+BEGIN_SRC emacs-lisp
 (setq prj/update-tags-verbose nil)
+(setq prj/touch-cmake-at-create t)
 (require 'project)
 (global-project-mode 1)
 (prj/setup)

@@ -32,6 +32,13 @@
 
 ;;; project configure/initialize
 
+(defvar prj/touch-cmake-at-create nil
+  "Whether touch CMakeLists.txt at creating new project file by
+`prj/add-new-source'.")
+
+(defvar prj/cmake-list-file "CMakeLists.txt"
+  "CMake file.")
+
 (defvar prj/use-helm-if-possible t
   "Use helm for completing if possible.")
 
@@ -355,6 +362,45 @@ under certain directory. This function need not run at project root."
                        (mapcar 'car project-root-seen-projects))
                       project-root-seen-projects)))))
     (find-file path)))
+
+(defun prj/go-up-dir-find-file (file &optional p path-begin)
+  "Go up directory to find FILE starts from PATH-BEGIN till root of
+project. FILE should be name without directory. If P is not given,
+`project-details' is used, if `project-details' is `nil', `project-root-fetch'
+is used to obtain P. If PATH-BEGIN is not given, `default-directory' is
+used. Returns a list of full file names whose file name is FILE in a sequence
+from project root to PATH-BEGIN."
+  (let ((p (or p project-details (project-root-fetch)))
+        (dir (or path-begin default-directory))
+        jump-out
+        file-full-path)
+    (when p
+      (while (not jump-out)
+        (when (file-exists-p (expand-file-name file dir))
+          (setq file-full-path (cons (expand-file-name file dir) file-full-path)))
+        (when (string= (cdr p) dir)
+          (setq jump-out t))
+        (setq dir (file-name-directory (directory-file-name dir)))))
+    file-full-path))
+
+(defun prj/add-new-source (file &optional p)
+  "Add new source file to project and touch `prj/cmake-list-file' if
+`prj/touch-cmake-at-create' is t."
+  (interactive (list
+                (expand-file-name
+                 (read-string "File name: ")
+                 (ido-read-directory-name "Where to place: "))))
+  (let ((p (or p project-details (project-root-fetch))))
+    (if p
+        (progn
+          (find-file file)
+          (when prj/touch-cmake-at-create
+            (mapc
+             (lambda (cmake-file)
+               (call-process "touch" nil 0 nil cmake-file))
+             (prj/go-up-dir-find-file
+              prj/cmake-list-file p (file-name-directory file)))))
+      (message "Project is not found!"))))
 
 (defun prj/kill-buffers-dir ()
   "Kill all buffers under directory, Dired buffers included. The buffers are
@@ -923,7 +969,6 @@ or `prj/ac-source-gtags'."
           (when (and
                  p
                  fname
-                 (file-exists-p fname)
                  (not (file-remote-p fname)))
             (let ((default-directory (cdr p)))
               ;; mode line lighter
@@ -932,8 +977,18 @@ or `prj/ac-source-gtags'."
                (if (setq lght (project-root-data :lighter p))
                    (format " Prj:%s" lght)
                  " Prj"))
+              ;; touch `prj/cmake-list-file' if needed
+              (when (and
+                     prj/touch-cmake-at-create
+                     (string-match project-root-file-regexp fname)
+                     (= (point-min) (point-max)))
+                (mapc
+                 (lambda (cmake-file)
+                   (call-process "touch" nil nil nil cmake-file))
+                 (prj/go-up-dir-find-file prj/cmake-list-file p
+                                          (file-name-directory fname))))
               ;; add update tags hook, determine tags tool, generate tags,
-              ;; setup ac souces
+              ;; setup ac sources
               (unless (or
                        (not prj/use-tags)
                        (string=
@@ -972,7 +1027,6 @@ Enable `global-project-mode' only when all following conditions are meet:
   (let ((fname (buffer-file-name)))
     (when (and
            fname
-           (file-exists-p fname)
            (not (file-remote-p fname))
            (project-root-fetch))
       (project-minor-mode))))
