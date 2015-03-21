@@ -11,14 +11,14 @@
       debug-on-quit nil)
 
 ;; determine system type and emacs version
-(setq *cygwin* (eq 'cygwin system-type))
-(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+(setq *cygwin* (eq system-type 'cygwin))
+(setq *linux*  (eq system-type 'gnu/linux))
 (if (< emacs-major-version 24)
     (error "Emacs version should be >= 24.3")
   (when (< emacs-minor-version 3)
     (error "Emacs version should be >= 24.3")))
-(when (eq system-type 'windows-nt)
-  (error "Native Windows is not supported"))
+(unless (or *cygwin* *linux*)
+  (error "Only support cygwin or gnu/linux system"))
 
 ;; get environment variables and paths
 (setq gtd-root (getenv "GTD_ROOT"))
