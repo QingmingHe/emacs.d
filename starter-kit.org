@@ -265,8 +265,7 @@ interested in the actual code implementing the starter kit.
   session.
   #+name: starter-kit-load-on-startup
   #+begin_src emacs-lisp
-  (when (> emacs-minor-version 3)
-    (eval-when-compile (require 'subr-x)))
+  (eval-when-compile (require 'subr-x))
   (when (window-system)
     (require 'pos-tip))
   (require 'popup)
@@ -459,9 +458,7 @@ everyone using the starter kit.
   (starter-kit-fast-load "evil")
   (when *cygwin*
     (starter-kit-fast-load "win32"))
-  ;; Configure org 8.* bundled with Emacs 24.4
-  (when (> emacs-minor-version 3)
-    (starter-kit-fast-load "org"))
+  (starter-kit-fast-load "org")
   (starter-kit-fast-load "gui")
   ;; I nuver use ibuffer
   ;; (starter-kit-fast-load "ibuffer")

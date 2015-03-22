@@ -13,12 +13,11 @@ Fortran is a major language for scientific computation but a minor for other.
   (setq-local er/try-expand-list
               (append er/try-expand-list
                       '(f90-mark-block)))
-  (when (> emacs-minor-version 3)
-    (setq prettify-symbols-alist
-          '(("/=" . ?≠)
-            (">=" . ?≥)
-            ("<=" . ?≤)))
-    (prettify-symbols-mode 1))
+  (setq prettify-symbols-alist
+        '(("/=" . ?≠)
+          (">=" . ?≥)
+          ("<=" . ?≤)))
+  (prettify-symbols-mode 1)
   (evil-define-key 'normal f90-mode-map
     "J" 'my-f90-join-lines))
 (eval-after-load "f90"
