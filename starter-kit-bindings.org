@@ -79,23 +79,23 @@ Key Bindings.
 ** Hungry delete
 
 + Original hungry delete is incompatible with evil mode. To overwrite
-  [[help:evil-delete-backward-char-and-join][evil-delete-backward-char-and-join]], [[help:local-set-key][local-set-key]] is used. I don't know why
-  [[help:remap][remap]] doesn't work at all.
+  [[help:evil-delete-backward-char-and-join][evil-delete-backward-char-and-join]], [[help:evil-local-set-key][evil-local-set-key]] is used.
 + Python mode has its own backspace command so don't active hungry delete for
   it.
 + Don't skip empty line in hungry deleting!
 #+begin_src emacs-lisp
 (setq hungry-delete-chars-to-skip " \t")
-(require 'hungry-delete)
 (setq turn-off-hungry-delete-modes
       `(python-mode))
+(require 'hungry-delete)
+(eval-after-load 'evil
+  `(evil-global-set-key 'insert [backspace] 'hungry-delete-backward))
 (defun turn-on-hungry-delete-mode ()
   "Turn on hungry delete mode if the buffer is appropriate."
   (unless (or (window-minibuffer-p (selected-window))
               (equal (substring (buffer-name) 0 1) " ")
               buffer-read-only
               (member major-mode turn-off-hungry-delete-modes))
-    (local-set-key [backspace] 'hungry-delete-backward)
     (hungry-delete-mode t)))
 (global-hungry-delete-mode)
 #+end_src
