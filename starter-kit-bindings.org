@@ -82,14 +82,6 @@ I NEVER use hippie.
 (define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
 #+end_src
 
-** Hungry delete
-
-#+begin_src emacs-lisp
-(global-hungry-delete-mode)
-(eval-after-load 'evil
-  `(define-key evil-insert-state-map [remap evil-delete-backward-char] 'hungry-delete-backward))
-#+end_src
-
 ** Move beginning of line
 
 This function is copied form prelude. The differences are:
@@ -164,3 +156,13 @@ to expand or contract region.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
+
+** Electric indent mode
+
+In Emacs-24.4, [[help:electric-indent-mode][electric-indent-mode]] works well with [[help:f90-mode][f90-mode]] and
+[[help:python-mode][python-mode]]. It will not mesh your indentation anymore. With =electric indent
+mode= on, just type =RET= and the current line and the newline will be
+indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-and-indent]].
+#+begin_src emacs-lisp
+(electric-indent-mode 1)
+#+end_src
