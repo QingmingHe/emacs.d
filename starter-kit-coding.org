@@ -51,38 +51,15 @@ a lambda doesn't already exist in the list.
 (add-hook 'prog-mode-hook 'run-starter-kit-coding-hook)
 #+end_src
 
-** Handle parens                                                                :smartparens:
+** Handle parens
 
+[[help:show-paren-mode][show-paren-mode]] and [[help:electric-pair-mode][electric-pair-mode]] are lighter than smartparens and
+minimally intrusive.
 #+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp
-(require 'smartparens-config)
 (show-paren-mode 1)
-(smartparens-global-mode t)
-(smartparens-global-strict-mode t)
-#+end_src
-
-*** CC
-
-Use smartparens to handle curly braces and block comment.
-#+begin_src emacs-lisp
-(defun sp-cc-block-comment (&rest __ignored)
-  (save-excursion
-    (forward-line -1)
-    (end-of-line)
-    (insert "*"))
-  (save-excursion
-    (insert "\n")
-    (indent-according-to-mode))
-  (indent-according-to-mode))
-
-(defun sp-cc-var-comment (&rest __ignored)
-  (backward-char 1)
-  (insert "*< "))
-
-(sp-with-modes '(c-mode c++-mode)
-  (sp-local-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
-  (sp-local-pair "/*" "*/" :post-handlers '((sp-cc-var-comment "SPC")
-                                            (sp-cc-block-comment "RET"))))
+(electric-pair-mode 1)
+(setq electric-pair-open-newline-between-pairs t)
 #+end_src
 
 ** Show function name in the header line                                        :which:function:mode:

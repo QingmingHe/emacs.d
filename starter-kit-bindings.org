@@ -83,17 +83,12 @@ I NEVER use hippie.
 #+end_src
 
 ** Hungry delete
+   :PROPERTIES:
+   :tangle:   no
+   :END:
 
 #+begin_src emacs-lisp
-(require 'hungry-delete)
-(mapc
- (lambda (map)
-   (define-key map [backspace] 'hungry-backspace))
- `(,prog-mode-map
-   ,org-mode-map
-   ,text-mode-map))
-(eval-after-load "cc-mode"
-  `(define-key c-mode-base-map [backspace] 'hungry-delete))
+(global-hungry-delete-mode)
 #+end_src
 
 ** Move beginning of line
