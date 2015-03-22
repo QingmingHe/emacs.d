@@ -4,9 +4,6 @@
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 * Starter Kit Bindings
-
-Key Bindings.
-
 ** Incremental search
 *** Use regexp search by default
 + *C-s* to repeat search
@@ -107,12 +104,14 @@ This function is copied form prelude. The differences are:
         (move-beginning-of-line 1)))))
 (global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
 #+end_src
+
 ** Text scale
 
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 #+end_src
+
 ** Org mode
 
 #+begin_src emacs-lisp
@@ -258,4 +257,14 @@ pair mode=. So share =M-DEL= between [[help:hungry-delete-backward][hungry-delet
       (call-interactively 'hungry-delete-backward)
     (call-interactively 'backward-kill-word)))
 (define-key global-map (kbd "M-DEL") 'backward-kill-word-or-hungry-delete)
+#+end_src
+
+** Electric indent mode
+
+In Emacs-24.4, [[help:electric-indent-mode][electric-indent-mode]] works well with [[help:f90-mode][f90-mode]] and
+[[help:python-mode][python-mode]]. It will not mesh your indentation anymore. With =electric indent
+mode= on, just type =RET= and the current line and the newline will be
+indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-and-indent]].
+#+begin_src emacs-lisp
+(electric-indent-mode 1)
 #+end_src
