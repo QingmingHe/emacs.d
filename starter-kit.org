@@ -463,7 +463,8 @@ everyone using the starter kit.
   (when (> emacs-minor-version 3)
     (starter-kit-fast-load "org"))
   (starter-kit-fast-load "gui")
-  (starter-kit-fast-load "ibuffer")
+  ;; I nuver use ibuffer
+  ;; (starter-kit-fast-load "ibuffer")
   (starter-kit-fast-load "dired")
   (starter-kit-fast-load "project")
   (starter-kit-fast-load "flycheck")
@@ -487,7 +488,6 @@ everyone using the starter kit.
   (starter-kit-fast-load "fortran")
   (starter-kit-fast-load "latex")
   (starter-kit-fast-load "graphviz")
-  (starter-kit-fast-load "rnc")
   (starter-kit-fast-load "cc")
   (starter-kit-fast-load "js")
   #+END_SRC

@@ -2,6 +2,9 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Coding
+
+Some features shared by all programming languages and several languages with
+light configurations.
 ** Prog mode hooks
 A single hook holding those functions which should be run in *every*
 code buffer.
@@ -110,3 +113,33 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
              '("\\.ahk$"  . ahk-mode))
 (autoload 'ahk-mode "ahk-mode" "Mode for editing AutoHotKey configuration file." t)
 #+end_src
+
+** Rnc
+*** What is rnc
+
+#+BEGIN_QUOTE
+RELAX NG is a simple schema language for XML, based on [RELAX] and [TREX]. A
+RELAX NG schema specifies a pattern for the structure and content of an XML
+document. A RELAX NG schema thus identifies a class of XML documents
+consisting of those documents that match the pattern.
+
+Two syntaxes have been defined for RELAX NG. The original syntax uses XML;
+with this syntax an RELAX NG schema is itself an XML document. Subsequently, a
+compact non-XML syntax has been defined.
+#+END_QUOTE
+
+The compact format file has a "rnc" suffix and rnc-mode provide a major mode
+for these files.
+
+*** Basic Setup
+
+#+BEGIN_SRC emacs-lisp
+(autoload 'rnc-mode "rnc-mode" "Rnc mode" t)
+(add-to-list 'auto-mode-alist '("\\.rnc\\'" . rnc-mode))
+#+END_SRC
+
+*** rnc along with imemu
+
+#+BEGIN_SRC emacs-lisp
+(setq rnc-enable-imenu t)
+#+END_SRC
