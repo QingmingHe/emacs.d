@@ -82,14 +82,6 @@ I NEVER use hippie.
 (define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
 #+end_src
 
-** Hungry delete
-
-#+begin_src emacs-lisp
-(global-hungry-delete-mode)
-(eval-after-load 'evil
-  `(define-key evil-normal-state-map [remap evil-delete-backward-char] 'hungry-delete-backward))
-#+end_src
-
 ** Move beginning of line
 
 This function is copied form prelude. The differences are:
