@@ -76,30 +76,6 @@ Key Bindings.
 (define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
 #+end_src
 
-** Hungry delete
-
-+ Original hungry delete is incompatible with evil mode. To overwrite
-  [[help:evil-delete-backward-char-and-join][evil-delete-backward-char-and-join]], [[help:evil-local-set-key][evil-local-set-key]] is used.
-+ Python mode has its own backspace command so don't active hungry delete for
-  it.
-+ Don't skip empty line in hungry deleting!
-#+begin_src emacs-lisp
-(setq hungry-delete-chars-to-skip " \t")
-(setq turn-off-hungry-delete-modes
-      `(python-mode))
-(require 'hungry-delete)
-(eval-after-load 'evil
-  `(evil-global-set-key 'insert [backspace] 'hungry-delete-backward))
-(defun turn-on-hungry-delete-mode ()
-  "Turn on hungry delete mode if the buffer is appropriate."
-  (unless (or (window-minibuffer-p (selected-window))
-              (equal (substring (buffer-name) 0 1) " ")
-              buffer-read-only
-              (member major-mode turn-off-hungry-delete-modes))
-    (hungry-delete-mode t)))
-(global-hungry-delete-mode)
-#+end_src
-
 ** Move beginning of line
 
 This function is copied form prelude. The differences are:
@@ -266,4 +242,20 @@ Use *jk* key chord to quite everything.
 (define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
 (define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
 (define-key popup-menu-keymap (kbd "M-p") 'popup-previous)
+#+end_src
+
+** Hungry delete
+
+It's too difficult to combine =hungry delete mode=, =evil mode= and =electric
+pair mode=. So share =M-DEL= between [[help:hungry-delete-backward][hungry-delete-backward]] and
+[[help:backward-kill-word][backward-kill-word]]. If there are more than one spaces, run
+[[help:hungry-delete-backward][hungry-delete-backward]]; otherwise run [[help:backward-kill-word][backward-kill-word]].
+#+begin_src emacs-lisp
+(setq hungry-delete-chars-to-skip " \t")
+(defun backward-kill-word-or-hungry-delete ()
+  (interactive)
+  (if (looking-back "[ \t\n\r\f\v]\\{2,\\}")
+      (call-interactively 'hungry-delete-backward)
+    (call-interactively 'backward-kill-word)))
+(define-key global-map (kbd "M-DEL") 'backward-kill-word-or-hungry-delete)
 #+end_src
