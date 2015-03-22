@@ -437,8 +437,7 @@ interested in the actual code implementing the starter kit.
            (let ((default-directory path))
              (call-process-shell-command (cdr pkg-command) nil 0 nil))))))
    '(("evil" . "make")
-     ("eim" . "make")
-     ("auctex" . "make lisp")))
+     ("eim" . "make")))
   #+end_src
 
 ** Starter kit core
