@@ -228,11 +228,6 @@ lines of codes.
 (setq scroll-margin 4)
 #+END_SRC
 
-** New line and indent
-#+BEGIN_SRC emacs-lisp
-(define-key global-map (kbd "RET") 'newline-and-indent)
-#+END_SRC
-
 ** Garbage collection
 
 Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We

@@ -165,3 +165,13 @@ to expand or contract region.
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
+
+** Electric indent mode
+
+In Emacs-24.4, [[help:electric-indent-mode][electric-indent-mode]] works well with [[help:f90-mode][f90-mode]] and
+[[help:python-mode][python-mode]]. It will not mesh your indentation anymore. With =electric indent
+mode= on, just type =RET= and the current line and the newline will be
+indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-and-indent]].
+#+begin_src emacs-lisp
+(electric-indent-mode 1)
+#+end_src
