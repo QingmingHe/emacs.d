@@ -418,3 +418,31 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
     (turn-on-flyspell))
   (add-hook 'rst-mode-hook 'my-rst-config)
 #+END_SRC
+
+** Key Chord mode
+
+Use *jk* key chord to quite everything.
+#+begin_src emacs-lisp
+  (require 'key-chord)
+  (eval-after-load 'evil
+    `(progn
+       (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
+       (key-chord-define evil-normal-state-map "jk" 'keyboard-quit)
+       (key-chord-define evil-visual-state-map "jk" 'keyboard-quit)))
+  (key-chord-define minibuffer-local-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-ns-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-completion-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-must-match-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
+  (key-chord-mode 1)
+#+end_src
+
+** anzu and evil anzu
+
+#+begin_src emacs-lisp
+(eval-after-load 'evil
+  `(require 'evil-anzu))
+(global-anzu-mode +1)
+(global-set-key (kbd "M-%") 'anzu-query-replace-regexp)
+#+end_src
+>>>>>>> fe3594d7104b541d2133338005a137597e4f0e17

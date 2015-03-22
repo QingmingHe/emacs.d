@@ -189,6 +189,7 @@ back.
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
+  "sgc" 'anzu-query-replace-regexp
   "co" 'comment-or-uncomment-region
   "iw" 'ispell-word)
 #+END_SRC

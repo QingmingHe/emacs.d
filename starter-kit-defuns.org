@@ -346,3 +346,11 @@ visit if current buffer is not visiting a file."
    'convert-chinese-gbk-to-utf-8-unix-file
    (dired-get-marked-files)))
 #+end_src
+
+** Move key bindings
+
+#+begin_src emacs-lisp
+(defun move-key-binding (keymap-from keymap-to key)
+  (define-key keymap-from key nil)
+  (define-key keymap-to key (lookup-key keymap-from key)))
+#+end_src
