@@ -5,7 +5,7 @@
 
 Fortran is a major language for scientific computation but a minor for other.
 
-** Fortran config
+** Fortran configuration
 #+BEGIN_SRC emacs-lisp
 (defun my-f90-config ()
   (modify-syntax-entry ?_ "w")
@@ -22,7 +22,6 @@ Fortran is a major language for scientific computation but a minor for other.
     "J" 'my-f90-join-lines))
 (eval-after-load "f90"
   `(progn
-     (require 'f90-eldoc)
      (require 'expand-region)
      (add-hook 'f90-mode-hook 'my-f90-config)))
 #+END_SRC
@@ -80,16 +79,6 @@ type(SomeType) :: atype ! object of SomeType"
           (f90-join-lines arg)))
     (f90-join-lines t)))
 #+END_SRC
-
-** Some commands
-1. f90-end-of-block
-2. f90-beginning-of-block
-3. ...
-** F90 eldoc
-
-#+begin_src emacs-lisp
-(autoload 'f90-turn-on-eldoc-mode "f90-eldoc" "Turn on f90 eldoc mode" t)
-#+end_src
 
 ** F90 expand region
 
