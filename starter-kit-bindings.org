@@ -87,7 +87,7 @@ I NEVER use hippie.
 #+begin_src emacs-lisp
 (global-hungry-delete-mode)
 (eval-after-load 'evil
-  `(define-key evil-normal-state-map [remap evil-delete-backward-char] 'hungry-delete-backward))
+  `(define-key evil-insert-state-map [remap evil-delete-backward-char] 'hungry-delete-backward))
 #+end_src
 
 ** Move beginning of line
