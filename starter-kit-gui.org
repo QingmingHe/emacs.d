@@ -1,7 +1,34 @@
-#+TITLE: Starter Kit Theme
+#+TITLE: Starter Kit Gui
 #+OPTIONS: toc:nil num:nil ^:nil
 
-* Starter Kit Theme
+* Starter Kit Gui
+** All kinds of preferences
+#+begin_src emacs-lisp
+(setq visible-bell t
+      echo-keystrokes 0.1
+      font-lock-maximum-decoration t
+      transient-mark-mode t
+      color-theme-is-global t
+      delete-by-moving-to-trash t
+      shift-select-mode nil
+      truncate-partial-width-windows nil
+      uniquify-buffer-name-style 'forward
+      whitespace-style '(trailing lines space-before-tab
+                                  indentation space-after-tab
+                                  empty)
+      whitespace-line-column 100
+      ediff-window-setup-function 'ediff-setup-windows-plain
+      oddmuse-directory (concat starter-kit-dir "oddmuse")
+      xterm-mouse-mode t)
+#+end_src
+
+** Window numbering
+
+Changing from one window to another is so easy in Emacs with window number,
+you just key in *M-n* to jump to n-th window numbered by the plugin.
+#+BEGIN_SRC emacs-lisp
+(window-numbering-mode 1)
+#+END_SRC
 
 ** Highlight indentation
 
@@ -17,6 +44,55 @@ vertically by default.
 #+BEGIN_SRC emacs-lisp
 (setq split-height-threshold nil)
 (setq split-width-threshold 160)
+#+END_SRC
+
+** All kinds of bars
+
+You really don't need this; trust me.
+#+begin_src emacs-lisp
+(menu-bar-mode -1)
+(column-number-mode 1)
+(when window-system
+  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  (blink-cursor-mode -1)
+  (scroll-bar-mode 0)
+  (tooltip-mode -1)
+  (tool-bar-mode -1)
+  (when (require 'mwheel nil 'no-error) (mouse-wheel-mode t)))
+#+end_src
+
+** UTF-8 coding system
+
+#+begin_src emacs-lisp
+(setq locale-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+#+end_src
+
+** Diminish minor modes
+
+The minor mode list is too long and occupy all the mode line. I want to know
+other data on the mode line.
+#+BEGIN_SRC emacs-lisp
+(eval-after-load "undo-tree"               '(diminish 'undo-tree-mode))
+(eval-after-load "flyspell"                '(diminish 'flyspell-mode))
+(eval-after-load "auto-complete"           '(diminish 'auto-complete-mode))
+(eval-after-load "eldoc"                   '(diminish 'eldoc-mode))
+(eval-after-load "magit"                   '(diminish 'magit-auto-revert-mode))
+(eval-after-load "smartparens"             '(diminish 'smartparens-mode))
+(eval-after-load "cdlatex"                 '(diminish 'org-cdlatex-mode))
+(eval-after-load "outline"                 '(diminish 'outline-minor-mode))
+(eval-after-load "abbrev"                  '(diminish 'abbrev-mode))
+(eval-after-load "highlight-indentation"   '(diminish 'highlight-indentation-current-column-mode))
+(eval-after-load "hideshow"                '(diminish 'hs-minor-mode))
+(eval-after-load "whitespace-cleanup-mode" '(diminish 'whitespace-cleanup-mode))
+(eval-after-load "fic-mode"                '(diminish 'fic-mode))
+(eval-after-load "yasnippet"               '(diminish 'yas-minor-mode))
+(eval-after-load "anzu"                    '(diminish 'anzu-mode))
+(diminish 'auto-fill-function)
 #+END_SRC
 
 ** Font for English and Chinese
@@ -63,13 +139,15 @@ WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
 
 ** Fringe
 
-Don't show fringe in GUI, it's too ugly.
 #+BEGIN_SRC emacs-lisp
 (when (window-system)
   (fringe-mode '(4 . 0)))
 #+END_SRC
 
 ** Power line
+   :PROPERTIES:
+   :tangle:   no
+   :END:
 
 My powerline theme based on powerline-default-theme.
 #+begin_src emacs-lisp
@@ -124,14 +202,6 @@ My powerline theme based on powerline-default-theme.
 #+begin_src emacs-lisp
 (load-theme 'zenburn t)
 (set-face-background 'highlight-indentation-current-column-face "#4F4F4F")
-;; (set-face-attribute 'mode-line nil
-;;                       :box nil
-;;                       :underline nil
-;;                       :inverse-video nil)
-;; (set-face-attribute 'mode-line-inactive nil
-;;                       :box nil
-;;                       :underline nil
-;;                       :inverse-video nil)
 #+end_src
 
 ** Solarized theme

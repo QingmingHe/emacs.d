@@ -1,0 +1,29 @@
+#+TITLE: Starter Kit Misc Text
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Misc Text
+
+Text modes other than Org mode come here.
+
+** Text mode
+
+#+begin_src emacs-lisp
+(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'text-mode-hook 'turn-on-flyspell)
+#+end_src
+
+** Csv mode
+
+#+begin_src emacs-lisp
+(setq csv-separators '("," ";" "|" " "))
+#+end_src
+
+** Rst mode (reStructuredText)
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
+  (autoload 'rst-mode "rst")
+  (defun my-rst-config ()
+    (turn-on-flyspell))
+  (add-hook 'rst-mode-hook 'my-rst-config)
+#+END_SRC

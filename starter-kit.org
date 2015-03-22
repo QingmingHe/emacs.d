@@ -462,7 +462,7 @@ everyone using the starter kit.
   ;; Configure org 8.* bundled with Emacs 24.4
   (when (> emacs-minor-version 3)
     (starter-kit-fast-load "org"))
-  (starter-kit-fast-load "theme")
+  (starter-kit-fast-load "gui")
   (starter-kit-fast-load "ibuffer")
   (starter-kit-fast-load "dired")
   (starter-kit-fast-load "project")
@@ -474,12 +474,13 @@ everyone using the starter kit.
   (starter-kit-fast-load "dictionary")
   (starter-kit-fast-load "bindings")
   (starter-kit-fast-load "quickrun")
-  (starter-kit-fast-load "occur")
   (starter-kit-fast-load "gud")
   (starter-kit-fast-load "flyspell")
+  (starter-kit-fast-load "misc-text")
+  (starter-kit-fast-load "search")
   ;; prog mode should be loaded finally
-  (starter-kit-fast-load "shell")
   (starter-kit-fast-load "coding")
+  (starter-kit-fast-load "shell")
   (starter-kit-fast-load "python")
   (starter-kit-fast-load "nxml")
   (starter-kit-fast-load "lisp")
@@ -545,8 +546,8 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 This should be placed at end of starter kit and configures the initial
 windows.
 #+BEGIN_SRC emacs-lisp
+(setq inhibit-splash-screen t)
 (defun my-start-up-display ()
-  (setq inhibit-splash-screen t)
   (switch-to-buffer "*scratch*")
   (setq default-directory temporary-file-directory)
   (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"

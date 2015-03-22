@@ -4,15 +4,8 @@
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 * Starter Kit Misc
-Things that don't fit anywhere else.
 
-** Menu bar, scroll bar, column number
-You really don't need this; trust me.
-#+name: starter-kit-no-menu
-#+begin_src emacs-lisp
-(menu-bar-mode -1)
-(column-number-mode 1)
-#+end_src
+Things that don't fit anywhere else.
 
 ** Ensure server safe in windows
 
@@ -34,63 +27,8 @@ emacsclient -t FILE
   (server-start))
 #+END_SRC
 
-** Diminish minor modes
-
-The minor mode list is too long and occupy all the mode line. I want to know
-other data on the mode line.
-#+BEGIN_SRC emacs-lisp
-(eval-after-load "undo-tree"               '(diminish 'undo-tree-mode))
-(eval-after-load "flyspell"                '(diminish 'flyspell-mode))
-(eval-after-load "auto-complete"           '(diminish 'auto-complete-mode))
-(eval-after-load "eldoc"                   '(diminish 'eldoc-mode))
-(eval-after-load "magit"                   '(diminish 'magit-auto-revert-mode))
-(eval-after-load "smartparens"             '(diminish 'smartparens-mode))
-(eval-after-load "cdlatex"                 '(diminish 'org-cdlatex-mode))
-(eval-after-load "outline"                 '(diminish 'outline-minor-mode))
-(eval-after-load "abbrev"                  '(diminish 'abbrev-mode))
-(eval-after-load "highlight-indentation"   '(diminish 'highlight-indentation-current-column-mode))
-(eval-after-load "hideshow"                '(diminish 'hs-minor-mode))
-(eval-after-load "whitespace-cleanup-mode" '(diminish 'whitespace-cleanup-mode))
-(eval-after-load "fic-mode"                '(diminish 'fic-mode))
-(eval-after-load "yasnippet"               '(diminish 'yas-minor-mode))
-(diminish 'auto-fill-function)
-#+END_SRC
-
-** Window systems
-#+srcname: starter-kit-window-view-stuff
-#+begin_src emacs-lisp
-  (when window-system
-    (setq frame-title-format '(buffer-file-name "%f" ("%b")))
-    (blink-cursor-mode -1)
-    (scroll-bar-mode 0)
-    (tooltip-mode -1)
-    (tool-bar-mode -1)
-    (when (require 'mwheel nil 'no-error) (mouse-wheel-mode t)))
-
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
-
-  (setq visible-bell t
-        echo-keystrokes 0.1
-        font-lock-maximum-decoration t
-        inhibit-startup-message t
-        transient-mark-mode t
-        color-theme-is-global t
-        delete-by-moving-to-trash t
-        shift-select-mode nil
-        truncate-partial-width-windows nil
-        uniquify-buffer-name-style 'forward
-        whitespace-style '(trailing lines space-before-tab
-                                    indentation space-after-tab
-                                    empty)
-        whitespace-line-column 100
-        ediff-window-setup-function 'ediff-setup-windows-plain
-        oddmuse-directory (concat starter-kit-dir "oddmuse")
-        xterm-mouse-mode t)
-#+end_src
-
 ** Winner mode
+
 Winner mode enables you goto previous windows configuration easily.
 #+BEGIN_SRC emacs-lisp
 (winner-mode 1)
@@ -107,6 +45,7 @@ previously visited the same file.
 #+END_SRC
 
 ** Transparently open compressed files
+
 #+begin_src emacs-lisp
 (auto-compression-mode t)
 #+end_src
@@ -117,45 +56,9 @@ previously visited the same file.
 (recentf-mode 1)
 #+end_src
 
-** Ido mode
-+ ido-mode is like magic pixie dust!
-+ Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
-  *C-l* in minibuffer to refresh ido candidates.
-+ Use *C-d* to enter dired from file switching.
-#+srcname: starter-kit-loves-ido-mode
-#+begin_src emacs-lisp
-(setq ido-enable-prefix nil
-      ido-enable-flex-matching t
-      ido-create-new-buffer 'always
-      ido-use-filename-at-point nil
-      ido-use-virtual-buffers t
-      ido-auto-merge-work-directories-length -1
-      ido-save-directory-list-file (concat starter-kit-dir ".ido.last")
-      ido-max-prospects 10)
-;; disable ido faces to see flx highlights.
-(setq ido-enable-flex-matching t)
-(setq ido-use-faces nil)
-(require 'ido)
-(require 'flx-ido)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
-;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
-(global-set-key (kbd "C-x C-f") 'ido-find-file)
-(defun ido-setup-key-bindings ()
-  (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
-  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
-(add-hook 'ido-setup-hook 'ido-setup-key-bindings)
-#+end_src
+** Seed the random number
 
-** Tabs, alias, random
 #+begin_src emacs-lisp
-(set-default 'indent-tabs-mode nil)
-(set-default 'indicate-empty-lines t)
-
-(defalias 'yes-or-no-p 'y-or-n-p)
-(defalias 'gc 'magit-commit)
-;; Seed the random-number generator
 (random t)
 #+end_src
 
@@ -206,6 +109,7 @@ live in the =/tmp= directory.
 #+END_SRC
 
 ** 80 Column Rule
+
 It's a good habit to obey to 80 column rule. In the convenience of adding
 continuation marker in code such as Fortran, two columns are spared.
 #+BEGIN_SRC emacs-lisp
@@ -213,7 +117,8 @@ continuation marker in code such as Fortran, two columns are spared.
 #+END_SRC
 
 ** Disable recentering
-   For smooth scrolling and disabling the auto-recentering of emacs screen when
+
+For smooth scrolling and disabling the auto-recentering of emacs screen when
 moving cursor. Set scroll margin to be 4 so that an ape can see the following
 lines of codes.
 #+BEGIN_SRC emacs-lisp
@@ -229,58 +134,6 @@ Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We
 set it to be 20 MB to save time.
 #+BEGIN_SRC emacs-lisp
 (setq gc-cons-threshold 20000000)
-#+END_SRC
-
-** Grep
-*** Key bindings
-
-#+begin_src emacs-lisp
-(defun grep-display-error-dwim ()
-  (interactive)
-  (compile-goto-error)
-  (other-window -1))
-
-(eval-after-load "grep"
-  `(progn
-     (define-key grep-mode-map (kbd "j") 'compilation-next-error)
-     (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
-     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
-#+end_src
-
-*** Grep set up
-
-#+begin_src emacs-lisp
-(setq grep-highlight-matches t)
-#+end_src
-
-*** Grep ignore directories and files
-
-Don't grep repositories and some files.
-#+BEGIN_SRC emacs-lisp
-(eval-after-load "grep"
-  `(progn
-     (dolist (dir '(".git"
-                    ".cvs"
-                    ".svn"
-                    ".hg"))
-       (add-to-list 'grep-find-ignored-directories dir))
-     (dolist (file '("#*"
-                     "*.mod"))
-       (add-to-list 'grep-find-ignored-files file))))
-#+END_SRC
-
-*** Wgrep
-
-#+begin_src emacs-lisp
-(setq wgrep-auto-save-buffer t)
-#+end_src
-
-** Window numbering
-
-Changing from one window to another is so easy in Emacs with window number,
-you just key in *M-n* to jump to n-th window numbered by the plugin.
-#+BEGIN_SRC emacs-lisp
-(window-numbering-mode 1)
 #+END_SRC
 
 ** Ediff and diff
@@ -334,36 +187,6 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 (setq tramp-default-method "ssh")
 #+end_src
 
-** Auto Hot Key
-
-To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
-*capslock* every time you start up PC:
-+ Click the Start button Picture of the Start button , click All Programs,
-  right-click the Startup folder, and then click Open.
-+ Right-click the [[~/.emacs.d/starter-kit-ahk.ahk][starter-kit-ahk]] script, and then click Create Shortcut. The
-  new shortcut appears in the same location as the original item.
-+ Drag the shortcut into the Startup folder.
-
-#+begin_src emacs-lisp
-(setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
-(add-to-list 'auto-mode-alist
-             '("\\.ahk$"  . ahk-mode))
-(autoload 'ahk-mode "ahk-mode" "Mode for editing AutoHotKey configuration file." t)
-#+end_src
-
-** Text mode
-
-#+begin_src emacs-lisp
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
-(add-hook 'text-mode-hook 'turn-on-flyspell)
-#+end_src
-
-** Csv mode
-
-#+begin_src emacs-lisp
-(setq csv-separators '("," ";" "|" " "))
-#+end_src
-
 ** Pinyin input
 
 #+begin_src emacs-lisp
@@ -396,29 +219,4 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
     "py.txt"
     (file-name-directory (locate-library "eim")))
    starter-kit-eim-py-bank))
-#+end_src
-
-** CMake mode
-
-#+BEGIN_SRC emacs-lisp
-(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
-#+END_SRC
-
-** Rst mode (reStructuredText)
-
-#+BEGIN_SRC emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
-  (autoload 'rst-mode "rst")
-  (defun my-rst-config ()
-    (turn-on-flyspell))
-  (add-hook 'rst-mode-hook 'my-rst-config)
-#+END_SRC
-
-** anzu and evil anzu
-
-#+begin_src emacs-lisp
-(eval-after-load 'evil
-  `(require 'evil-anzu))
-(global-anzu-mode +1)
-(global-set-key (kbd "M-%") 'anzu-query-replace-regexp)
 #+end_src

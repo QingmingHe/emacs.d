@@ -87,3 +87,26 @@ minimally intrusive.
 (add-hook 'lisp-interaction-mode-hook 'starter-kit-turn-off-which-func t)
 (which-function-mode 1)
 #+end_src
+
+** CMake mode
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+#+END_SRC
+
+** Auto Hot Key
+
+To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
+*capslock* every time you start up PC:
++ Click the Start button Picture of the Start button , click All Programs,
+  right-click the Startup folder, and then click Open.
++ Right-click the [[~/.emacs.d/starter-kit-ahk.ahk][starter-kit-ahk]] script, and then click Create Shortcut. The
+  new shortcut appears in the same location as the original item.
++ Drag the shortcut into the Startup folder.
+
+#+begin_src emacs-lisp
+(setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
+(add-to-list 'auto-mode-alist
+             '("\\.ahk$"  . ahk-mode))
+(autoload 'ahk-mode "ahk-mode" "Mode for editing AutoHotKey configuration file." t)
+#+end_src
