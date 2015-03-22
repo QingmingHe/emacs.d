@@ -426,6 +426,21 @@ interested in the actual code implementing the starter kit.
   (ensure-packages-compiled)
   #+end_src
 
+- Compile some packages that are installed manually
+
+  #+begin_src emacs-lisp
+  (mapc
+   (lambda (pkg-command)
+     (let ((path (file-name-directory (locate-library (car pkg-command)))))
+       (when (file-exists-p path)
+         (unless (was-compiled-p path)
+           (let ((default-directory path))
+             (call-process-shell-command (cdr pkg-command) nil 0 nil))))))
+   '(("evil" . "make")
+     ("eim" . "make")
+     ("auctex" . "make lisp")))
+  #+end_src
+
 ** Starter kit core
    :PROPERTIES:
    :CUSTOM_ID: starter-kit-core
