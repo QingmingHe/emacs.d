@@ -220,3 +220,10 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
     (file-name-directory (locate-library "eim")))
    starter-kit-eim-py-bank))
 #+end_src
+
+** Aliases
+
++ Answer *y* rather than *yes*.
+#+begin_src emacs-lisp
+(defalias 'yes-or-no-p 'y-or-n-p)
+#+end_src
