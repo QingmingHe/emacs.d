@@ -149,7 +149,7 @@ Use *jk* key chord to quite everything.
           (t
            (indent-for-tab-command)))))
 
-(defun ac-refresh-candidates ()
+(defun ac-expand-common-or-abort ()
   "Refresh `ac-candidates' and expand common part."
   (interactive)
   (ac-update t)
@@ -162,10 +162,15 @@ Use *jk* key chord to quite everything.
   (define-key yas-minor-mode-map (kbd "TAB") nil)
   (define-key yas-keymap [(tab)] nil)
   (define-key yas-keymap (kbd "TAB") nil)
-  (define-key ac-completing-map "\t" 'ac-refresh-candidates)
-  (define-key ac-completing-map [tab] 'ac-refresh-candidates)
+  (define-key ac-completing-map "\t" 'ac-expand-common-or-abort)
+  (define-key ac-completing-map [tab] 'ac-expand-common-or-abort)
   (local-set-key (read-kbd-macro "TAB") 'tab-for-anything))
 
+(defun ac-auto-refresh-candidates ()
+  (when (and auto-complete-mode ac-candidates)
+    (ac-update t)))
+
+(add-hook 'post-self-insert-hook 'ac-auto-refresh-candidates)
 (add-hook 'prog-mode-hook 'setup-tab-for-anything)
 #+end_src
 
