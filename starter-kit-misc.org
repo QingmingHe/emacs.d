@@ -231,3 +231,9 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 #+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
+
+** Git and magit
+
+#+begin_src emacs-lisp
+(setq magit-completing-read-function 'magit-ido-completing-read)
+#+end_src

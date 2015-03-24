@@ -235,7 +235,6 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 (ido-everywhere 1)
 (flx-ido-mode 1)
 ;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
-(global-set-key (kbd "C-x C-f") 'ido-find-file)
 (defun ido-setup-key-bindings ()
   (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
   (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))

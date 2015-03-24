@@ -155,7 +155,7 @@ back.
 
   ;; buffers, files
   "bb" 'helm-mini
-  "ff" 'ido-find-file
+  "ff" 'helm-find-files
   "ss" 'prj/save-buffers-and-update-tags
   "kk" 'kill-this-buffer
   "as" 'prj/add-new-source
