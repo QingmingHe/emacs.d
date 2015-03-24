@@ -158,9 +158,18 @@ back.
   "ff" 'helm-find-files
   "ss" 'prj/save-buffers-and-update-tags
   "kk" 'kill-this-buffer
-
-  ;; project
   "pp" 'prj/helm-mini
+  "gs" 'magit-status
+  "gr" (lambda ()
+         "Run `magit-grep' if a Git repository is found for current project;
+otherwise run `rgrep'."
+         (interactive)
+         (if (and
+              (or project-details
+                  (setq project-details (project-root-fetch)))
+              (prj/go-up-dir-find-file ".git" project-details))
+             (call-interactively 'magit-grep)
+           (call-interactively 'rgrep)))
 
   ;; ace jump
   "w" 'ace-jump-word-mode
