@@ -211,6 +211,7 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 #+end_src
 
 ** Ido mode
+
 + ido-mode is like magic pixie dust!
 + Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
   *C-l* in minibuffer to refresh ido candidates.

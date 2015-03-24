@@ -51,6 +51,7 @@ previously visited the same file.
 #+end_src
 
 ** Save a list of recent files visited.
+
 #+begin_src emacs-lisp
 (setq recentf-max-saved-items 1000)
 (recentf-mode 1)
@@ -99,11 +100,13 @@ live in the =/tmp= directory.
 #+END_SRC
 
 ** Always auto revert file
+
 #+BEGIN_SRC emacs-lisp
 (global-auto-revert-mode 1)
 #+END_SRC
 
 ** Enable erase buffer
+
 #+BEGIN_SRC emacs-lisp
 (put 'erase-buffer 'disabled nil)
 #+END_SRC
@@ -154,6 +157,7 @@ Recover previous windows configuration when quitting ediff.
 (put 'narrow-to-defun 'disable nil)
 (put 'narrow-to-region 'disable nil)
 #+end_src
+
 ** Executable scripts
 
 #+begin_src emacs-lisp
