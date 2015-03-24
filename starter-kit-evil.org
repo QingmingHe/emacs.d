@@ -161,14 +161,14 @@ back.
   "pp" 'prj/helm-mini
   "gs" 'magit-status
   "gr" (lambda ()
-         "Run `magit-grep' if a Git repository is found for current project;
+         "Run `vc-git-grep' if a Git repository is found for current project;
 otherwise run `rgrep'."
          (interactive)
          (if (and
               (or project-details
                   (setq project-details (project-root-fetch)))
               (prj/go-up-dir-find-file ".git" project-details))
-             (call-interactively 'magit-grep)
+             (call-interactively 'vc-git-grep)
            (call-interactively 'rgrep)))
 
   ;; ace jump
