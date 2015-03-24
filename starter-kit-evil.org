@@ -158,7 +158,6 @@ back.
   "ff" 'helm-find-files
   "ss" 'prj/save-buffers-and-update-tags
   "kk" 'kill-this-buffer
-  "as" 'prj/add-new-source
 
   ;; project
   "pp" 'prj/helm-mini
@@ -170,6 +169,9 @@ back.
   ;; misc
   "fm" 'flycheck-buffer
   "ne" (lambda ()
+         "Go to next error of flycheck. If flycheck is not enabled, enabled it
+and then check the buffer. Move to first error if reached last error position
+before call this command."
          (interactive)
          (unless flycheck-mode
            (flycheck-mode)
@@ -190,7 +192,13 @@ back.
            (message "sdcv is not installed!")))
   "qr" 'quickrun
   "sgc" 'anzu-query-replace-regexp
-  "co" 'comment-or-uncomment-region
+  "co" (lambda ()
+         "If region is active, comment or un-comment the region; otherwise
+comment or un-comment current line."
+         (interactive)
+         (if (region-active-p)
+             (comment-or-uncomment-region (region-beginning) (region-end))
+           (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
   "iw" 'ispell-word)
 #+END_SRC
 
