@@ -50,10 +50,11 @@ previously visited the same file.
 (auto-compression-mode t)
 #+end_src
 
-** Save a list of recent files visited.
+** Save a list of recent files visited
 
 #+begin_src emacs-lisp
-(setq recentf-max-saved-items 1000)
+(setq recentf-max-saved-items 1000
+      recentf-exclude '("/tmp/" "/ssh:"))
 (recentf-mode 1)
 #+end_src
 
@@ -232,7 +233,7 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
-** Git and magit
+** Git and Magit
 
 #+begin_src emacs-lisp
 (setq magit-completing-read-function 'magit-ido-completing-read)

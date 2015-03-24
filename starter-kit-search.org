@@ -95,7 +95,7 @@ Don't grep repositories and some files.
   (isearch-yank-string
    (if (region-active-p)
        (buffer-substring (region-beginning) (region-end))
-     (thing-at-point-no-properties'symbol))))
+     (thing-at-point-no-properties 'symbol))))
 (define-key isearch-mode-map (kbd "C-w") 'isearch-yank-dwim)
 
 (defadvice isearch-forward-regexp (before ifr-ring-before activate)
@@ -132,9 +132,6 @@ Don't grep repositories and some files.
 
 + Push region or symbol at point to regexp-history so that occur will set the
   default regexp as what's been pushed.
-+ The hydra has to be summoned with a prefix body key and any one head
-  key. But I want the hydra summoned immediately I call =occur=. So advice
-  occur to summon the hydra by performing =hydra-?-occur-next=.
 + It's better recenter window after goto or display occur. Just do a little
   hack by =defadvice=.
 
@@ -151,10 +148,6 @@ Don't grep repositories and some files.
     (when thing
       (push thing regexp-history)))
   (call-interactively 'occur))
-(defadvice occur (around hydra-occur-dwim activate)
-  ad-do-it
-  (pop-to-buffer "*Occur*")
-  (ignore-errors (hydra-?-occur-next)))
 (defadvice occur-mode-goto-occurrence (after omgo-after activate)
   (recenter))
 (defadvice occur-mode-goto-occurrence-other-window (after omgoow-after activate)
