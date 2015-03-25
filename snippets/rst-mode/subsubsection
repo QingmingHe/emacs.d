@@ -1,0 +1,8 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: subsubsection
+# key: sb
+# --
+${1:SubSubSection}
+${1:$(make-string (string-width text) ?\+)}
+
+$0

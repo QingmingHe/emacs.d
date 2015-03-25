@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .. table::
+# key: ta
+# --
+.. table:: ${1:Caption}
+
+    $0
