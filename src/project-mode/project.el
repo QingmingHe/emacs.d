@@ -168,14 +168,14 @@ expanded.  Otherwise will be recognized as path relative to project root."
                                           (mapcar 'car files))))
           (find-file (cdr (assoc file project-files)))))))
 
-(defun prj/occur (pattern)
+(defun prj/occur (pattern &optional p)
   "Run multiple occur on project buffers. Whether a file is a project file is
 determined by `project-root-file-is-project-file'."
   (interactive
    (list
     (read-string (format "pattern (default \"%s\"): " (symbol-at-point))
                  nil nil (prj/thing-at-point-no-properties 'symbol))))
-  (let* ((p (or project-details (project-root-fetch)))
+  (let* ((p (or p (project-root-fetch)))
          (buffers (let (buffers)
                     (mapc
                      (lambda (buf)
@@ -187,17 +187,22 @@ determined by `project-root-file-is-project-file'."
                     buffers)))
     (multi-occur buffers pattern)))
 
-(defun prj/grep (grep-regexp dir)
+(defun prj/grep (grep-regexp wildcard dir &optional p)
   "Run grep with find at project files."
   (interactive
    (list (read-string
           (format "regexp (default \"%s\"): " (symbol-at-point))
           nil nil (prj/thing-at-point-no-properties 'symbol))
+         (read-string
+          (format "file name wildcard (default \"*.%s\"): "
+                  (file-name-extension (buffer-name)))
+          nil nil (format "*.%s" (file-name-extension (buffer-name))))
          (ido-read-directory-name "Dir to run grep: ")))
-  (grep
-   (format "%s | xargs grep -nH -e \"%s\""
-           (project-root-find-cmd nil dir)
-           grep-regexp)))
+  (let ((p (or p (project-root-fetch))))
+    (grep
+     (format "%s | xargs grep -nH -e \"%s\""
+             (project-root-find-cmd wildcard dir p)
+             grep-regexp))))
 
 (defun prj/goto-project (&optional p)
   "Go to root of a selected project in Dired."
@@ -635,10 +640,19 @@ List of include paths, include \"-I\" flag."
        (message (car kill-ring)))
      (helm-marked-candidates))))
 
+(defun prj/helm-grep-project (proot)
+  (let ((default-directory proot))
+    (call-interactively 'prj/grep)))
+
+(defun prj/helm-occur-project (proot)
+  (let ((default-directory proot))
+    (call-interactively 'prj/occur)))
+
 (defun prj/helm-mini ()
   "Pre-configured `helm' to list project buffers, project files and seen projects."
   (interactive)
-  (require 'helm)
+  (unless (featurep 'helm)
+    (require 'helm))
   (helm :sources `(((name . "Project Buffers")
                     (candidates . prj/helm-buffers-candidates)
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)
@@ -665,7 +679,9 @@ List of include paths, include \"-I\" flag."
                     (candidates . prj/helm-seen-projects)
                     (action . (("Find project root in Dired" . find-file)
                                ("Generate TAGS" . prj/helm-gen-tags)
-                               ("Remove from seen projects" . prj/helm-remove-seen-projects)))))
+                               ("Remove from seen projects" . prj/helm-remove-seen-projects)
+                               ("Run grep at project files" . prj/helm-grep-project)
+                               ("Run multi occur at project buffers" . prj/helm-occur-project)))))
         :buffer "*project helm mini*"))
 
 ;;; auto complete ac-sources
