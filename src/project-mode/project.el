@@ -255,32 +255,17 @@ running this function."
                                           (mapcar 'car project-files)))))
         (find-file (cdr (assoc file project-files))))))
 
-(defun prj/grep ()
-  "Run grep at selected project files."
-  (interactive)
-  (with-project-root
-      (let (files
-            selected-files
-            grep-regexp)
-        (setq files (project-root-files))
-        (if (and (featurep 'helm) prj/use-helm-if-possible)
-            (setq selected-files
-                  (helm-comp-read "Files: "
-                                  (mapcar 'car files)
-                                  :marked-candidates t))
-          (setq selected-files (mapcar 'car files)))
-        (setq grep-regexp
-              (read-string
-               (format "regexp (default \"%s\"): " (symbol-at-point))
-               nil nil (symbol-at-point)))
-        (grep (format "grep -nH -e %s %s"
-                grep-regexp
-                (mapconcat 'concat
-                           (mapcar
-                            (lambda (f)
-                              (cdr (assoc f files)))
-                            selected-files)
-                           " "))))))
+(defun prj/grep (grep-regexp &optional dir)
+  "Run grep at project files."
+  (interactive
+   (list (read-string
+          (format "regexp (default \"%s\"): " (symbol-at-point))
+          nil nil (symbol-at-point))
+         (ido-read-directory-name "Dir to run grep: ")))
+  (grep
+   (format "%s | xargs grep -nH -e '%s'"
+           (project-root-find-cmd nil dir)
+           grep-regexp)))
 
 (defun prj/find-grep-dir ()
   "Run grep with find under certain directory.

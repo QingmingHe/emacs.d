@@ -483,17 +483,14 @@ available)."
         (call-interactively 'ack)
         (error "`ack' not bound"))))
 
-(defun project-root-files ()
+(defun project-root-files (&optional p)
   "Return an alist of all filenames in the project and their path.
 
 Files with duplicate filenames are suffixed with the name of the
 directory they are found in so that they are unique."
-  (let ((file-alist nil))
+  (let ((p (or p (project-root-fetch))))
     (mapcar (lambda (file)
-              (let ((file-cons (cons (project-root-filename file)
-                                     (expand-file-name file))))
-                (add-to-list 'file-alist file-cons)
-                file-cons))
+              (cons (file-relative-name file (cdr p)) file))
             (split-string (shell-command-to-string
                            (project-root-find-cmd))))))
 
@@ -515,15 +512,15 @@ directory they are found in so that they are unique."
        (expand-file-name exclude-path (cdr p)))
      exclude-paths)))
 
-(defun project-root-find-cmd (&rest pattern)
+(defun project-root-find-cmd (&rest pattern dir p)
   (let ((pattern (car pattern))
-        (p (progn (project-root-fetch) project-details)))
-    (concat (project-root-find-executable) " " (cdr p)
+        (p (or p (project-root-fetch))))
+    (concat (project-root-find-executable) " " (or dir (cdr p))
             (project-root-find-prune
              (project-root-exclude-paths p)
              t)
             ", -type f -regex \"" (project-root-data :filename-regex p) "\" "
-            (if pattern (concat " -name '*" pattern "*' "))
+            (when pattern (concat " -name '" pattern "' "))
             project-root-find-options)))
 
 (defun project-root-filename (file)
