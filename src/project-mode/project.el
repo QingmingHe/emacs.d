@@ -39,9 +39,6 @@
 (defvar prj/cmake-list-file "CMakeLists.txt"
   "CMake file.")
 
-(defvar prj/use-helm-if-possible t
-  "Use helm for completing if possible.")
-
 (defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
@@ -161,180 +158,46 @@ expanded.  Otherwise will be recognized as path relative to project root."
 
 ;;; project files/buffers
 
-(defun prj/occur (arg)
-  "Run multiple occur on selected project files.
-
-If arg is nil, run `helm-multi-swoop', otherwise run `multi-occur'.
- All selected project files will be opened before running `helm-multi-swoop'
-or `multi-occur' for that these two functions can only applies to buffers. You
-may need to kill buffers after running this function."
-  (interactive "P")
-  (if (featurep 'helm)
-      (with-project-root
-          (let (prj-files selected-files buffers)
-            (setq prj-files (project-root-files))
-            (setq selected-files (helm-comp-read
-                                  "Select files to run occur: "
-                                  (mapcar 'car prj-files)
-                                  :marked-candidates t))
-            (setq buffers (mapcar
-                           (lambda (f)
-                             (find-file-noselect
-                              (cdr (assoc f prj-files))))
-                           selected-files))
-            (if (and
-                 (featurep 'helm-swoop)
-                 prj/use-helm-if-possible
-                 (not arg))
-                (helm-multi-swoop nil (mapcar 'buffer-name buffers))
-              (multi-occur
-               buffers
-               (read-string
-                (format "List lines matching (default \"%s\"): " (symbol-at-point))
-                nil nil (symbol-at-point))))))
-    (message "Helm is required!")))
-
-(defun prj/occur-dir (arg)
-  "Run multiple occur on found files under given directory.
-
-`grep-find-ignored-directories' and `grep-find-ignored-files' will be ignored
-by default.  If arg is nil, run `helm-multi-swoop', otherwise run
-`multi-occur'. All found files will be opened before running
-`helm-multi-swoop' or `multi-occur'. You may need to kill buffers after
-running this function."
-  (interactive "P")
-  (let ((default-directory
-          (ido-read-directory-name "Dir to run find: " default-directory))
-        cycles
-        find-regexp
-        find-file-cmd
-        files
-        buffers
-        str)
-    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
-      (add-to-list 'cycles str))
-    (while (not (string-empty-p (setq str (read-string "File name regexp: "))))
-      (add-to-list 'find-regexp str))
-    (unless find-regexp
-      (setq find-regexp '("*")))
-    (setq find-file-cmd
-          (find-cmd `(prune (name ,@grep-find-ignored-directories ,@cycles))
-                    `(not (name ,@grep-find-ignored-files))
-                    `(name ,@find-regexp)
-                    '(type "f")))
-    (setq files
-          (split-string (shell-command-to-string find-file-cmd) "\n"))
-    (when (and (featurep 'helm) prj/use-helm-if-possible)
-      (setq files
-            (helm-comp-read
-             "Select files to run occur. [M-a] to mark all: "
-             files
-             :marked-candidates t)))
-    (setq buffers
-          (mapcar 'find-file-noselect files))
-    (if (and
-         (featurep 'helm-swoop)
-         prj/use-helm-if-possible
-         (not arg))
-        (helm-multi-swoop nil (mapcar 'buffer-name buffers))
-      (multi-occur
-       buffers
-       (read-string
-        (format "List lines matching (default \"%s\"): " (symbol-at-point))
-        nil nil (symbol-at-point))))))
-
 (defun prj/find-file ()
-  "Find a project file by `helm-comp-read' or `ido-completing-read'."
+  "Find a file from a list of those that exist in the current project."
   (interactive)
-  (with-project-root
-      (let* ((project-files (project-root-files))
-             (file (if (and (featurep 'helm) prj/use-helm-if-possible)
-                       (helm-comp-read "Find file in project: "
-                                       (mapcar 'car project-files))
-                     (ido-completing-read "Find file in project: "
-                                          (mapcar 'car project-files)))))
-        (find-file (cdr (assoc file project-files))))))
+  (let ((p (or project-details (project-root-fetch))))
+    (if p
+        (let* ((files (project-root-files p 'identity))
+               (file (ido-completing-read "Find file in project: "
+                                          (mapcar 'car files))))
+          (find-file (cdr (assoc file project-files)))))))
 
-(defun prj/grep (grep-regexp &optional dir)
-  "Run grep at project files."
+(defun prj/occur (pattern)
+  "Run multiple occur on project buffers. Whether a file is a project file is
+determined by `project-root-file-is-project-file'."
+  (interactive
+   (list
+    (read-string (format "pattern (default \"%s\"): " (symbol-at-point))
+                 nil nil (prj/thing-at-point-no-properties 'symbol))))
+  (let* ((p (or project-details (project-root-fetch)))
+         (buffers (let (buffers)
+                    (mapc
+                     (lambda (buf)
+                       (with-current-buffer buf
+                         (when (project-root-file-is-project-file
+                                buffer-file-name p)
+                           (setq buffers (cons buf buffers)))))
+                     (buffer-list))
+                    buffers)))
+    (multi-occur buffers pattern)))
+
+(defun prj/grep (grep-regexp dir)
+  "Run grep with find at project files."
   (interactive
    (list (read-string
           (format "regexp (default \"%s\"): " (symbol-at-point))
-          nil nil (symbol-at-point))
+          nil nil (prj/thing-at-point-no-properties 'symbol))
          (ido-read-directory-name "Dir to run grep: ")))
   (grep
-   (format "%s | xargs grep -nH -e '%s'"
+   (format "%s | xargs grep -nH -e \"%s\""
            (project-root-find-cmd nil dir)
            grep-regexp)))
-
-(defun prj/find-grep-dir ()
-  "Run grep with find under certain directory.
-
-The difference between this function and `prj/grep' is that `prj/grep' only
-applies to selected project files and this function applies to any found files
-under certain directory. This function need not run at project root."
-  (interactive)
-  (let ((default-directory
-          (ido-read-directory-name "Dir to run find: " default-directory))
-        (grep-regexp
-         (read-string
-          (format "grep regexp (default \"%s\"): " (symbol-at-point))
-          nil nil (symbol-at-point)))
-        find-file-cmd
-        cycles
-        find-regexp
-        str)
-    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
-      (add-to-list 'cycles str))
-    (while (not (string-empty-p (setq str (read-string "File name regexp: "))))
-      (add-to-list 'find-regexp str))
-    (unless find-regexp
-      (setq find-regexp '("*")))
-    (setq find-file-cmd
-          (find-cmd
-           `(prune (name ,@grep-find-ignored-directories ,@cycles))
-           `(not (name ,@grep-find-ignored-files))
-           `(name ,@find-regexp)
-           '(type "f")))
-    (find-grep
-     (format "%s -exec grep -nH -e %s {} +"
-             find-file-cmd
-             grep-regexp))))
-
-(defun prj/find-dired ()
-  "Run find and go into Dired mode on a buffer of the output."
-  (interactive)
-  (let ((dir
-         (ido-read-directory-name "Dir to run find: " default-directory))
-        (find-cmd-prune
-         (when (y-or-n-p "Ignore grep-find-ignored-directories?")
-           grep-find-ignored-directories))
-        (find-cmd-not
-         (when (y-or-n-p "Ignore grep-find-ignored-files?")
-           grep-find-ignored-files))
-        find-cmd-name
-        str)
-    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
-      (add-to-list 'find-cmd-prune str))
-    (when find-cmd-prune
-      (setq find-cmd-prune `(prune (name ,@find-cmd-prune))))
-    (while (not (string-empty-p (setq str (read-string "files to ignore: "))))
-      (add-to-list 'find-cmd-not str))
-    (when find-cmd-not
-      (setq find-cmd-not `(not (name ,@find-cmd-not))))
-    (while (not (string-empty-p (setq str (read-string "file name regexp: "))))
-      (add-to-list 'find-cmd-name str))
-    (when find-cmd-name
-      (setq find-cmd-name `(name ,@find-cmd-name)))
-    (find-dired
-     dir
-     (mapconcat
-      'concat
-      (nthcdr
-       2
-       (split-string
-        (find-cmd find-cmd-prune find-cmd-not find-cmd-name)))
-      " "))))
 
 (defun prj/goto-project (&optional p)
   "Go to root of a selected project in Dired."
@@ -386,26 +249,6 @@ from project root to PATH-BEGIN."
              (prj/go-up-dir-find-file
               prj/cmake-list-file p (file-name-directory file)))))
       (message "Project is not found!"))))
-
-(defun prj/kill-buffers-dir ()
-  "Kill all buffers under directory, Dired buffers included. The buffers are
-saved before killed."
-  (interactive)
-  (let ((dir (ido-read-directory-name "Directory: ")))
-    (mapcar
-     (lambda (buffer)
-       (progn (set-buffer buffer)
-              (when (equal
-                     0
-                     (string-match-p
-                      dir (expand-file-name default-directory)))
-                (when (and
-                       (buffer-file-name)
-                       (buffer-modified-p))
-                  (save-buffer))
-                (message (format "Kill %s" (or (buffer-file-name) (buffer-name))))
-                (kill-buffer buffer))))
-     (buffer-list))))
 
 (defun prj/kill-project-buffers (&optional p)
   "Kill all opened buffers of project. The buffers are saved before killed."
