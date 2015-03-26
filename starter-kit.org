@@ -497,7 +497,7 @@ everyone using the starter kit.
   (starter-kit-fast-load "nxml")
   (starter-kit-fast-load "lisp")
   (starter-kit-fast-load "fortran")
-  ;; (starter-kit-fast-load "latex")
+  (starter-kit-fast-load "latex")
   (starter-kit-fast-load "graphviz")
   (starter-kit-fast-load "cc")
   (starter-kit-fast-load "js")

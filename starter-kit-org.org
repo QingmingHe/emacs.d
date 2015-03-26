@@ -190,7 +190,7 @@ file using the `org-babel-lob-ingest' function.
       org-export-kill-product-buffer-when-displayed t
       org-export-odt-preferred-output-format "doc"
       org-tags-column 80
-      org-pretty-entities t
+      org-pretty-entities nil
       org-refile-use-outline-path 'file
       org-outline-path-complete-in-steps t)
 #+END_SRC
