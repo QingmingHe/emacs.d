@@ -1,6 +1,6 @@
 #name : LATEX
-#contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
+#key: la
 # --
-#+BEGIN_LATEX
+#+begin_latex
 ${0}
-#+END_LATEX
+#+end_latex
