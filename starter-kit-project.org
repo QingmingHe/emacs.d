@@ -34,6 +34,10 @@ First define projects.
          :exclude-paths ("Debug" "input" "kintab" "output" "plib" "scratch"
                          "ulib" "文档")
          :lighter "UFP")
+        ("RMET21"
+         :root-contains-files ("RMET21" "GEXSCO" "SLAMBD" "WLUTIL")
+         :exclude-paths ("BROADR" "BUILD" "BUILD_CYGWIN" "CMAKE")
+         :lighter "RMET21")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
          :exclude-paths ("build")
