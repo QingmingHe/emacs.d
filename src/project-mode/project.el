@@ -50,6 +50,9 @@ library.")
 (defvar prj/global-exec (executable-find "global")
   "Executable of GNU global.")
 
+(defvar prj/ctags-exec (executable-find "ctags")
+  "Executable of Exuberant Ctags.")
+
 (defvar prj/gtags-conf-file-guess
   `(,(expand-file-name "~/.globalrc")
     "/usr/share/gtags/gtags.conf"
@@ -345,6 +348,28 @@ from project root to PATH-BEGIN."
          (format "--gtagslabel=%s" gtags-label)
          (format "--gtagsconf=%s" gtags-conf)
          (format "--single-update=%s" fname))))))
+
+(defun prj/update-etags-files (tags-file &rest files)
+  "Update TAGS-FILE for FILES."
+  (let (p0 p1)
+    (with-temp-buffer
+      (insert-file-contents tags-file)
+      (mapc
+       (lambda (f)
+         (goto-char (point-min))
+         (while (search-forward (format "\f\n%s," f) nil t)
+           (save-excursion
+             (if (search-forward "\f" nil t)
+                 (setq p1 (line-beginning-position))
+               (setq p1 (point-max))))
+           (forward-line -1)
+           (setq p0 (line-beginning-position))
+           (delete-region p0 p1)))
+       files)
+      (write-region (point-min) (point-max) tags-file nil 0))
+    (eval
+     `(call-process
+       prj/ctags-exec nil 0 nil "-e" "-o" tags-file "-a" ,@files))))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
