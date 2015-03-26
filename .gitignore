@@ -44,6 +44,7 @@ url/*
 elpa/archives/
 irony/
 pyim/
+src/auctex/
 
 ## exported and encrypted files
 *gpg
