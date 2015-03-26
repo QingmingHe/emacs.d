@@ -1,4 +1,4 @@
 #name : Author
-#contributor : Rick Moynihan <rick@sourcesmouth.co.uk>
+#key: au
 # --
 #+AUTHOR: ${1:`user-full-name`}

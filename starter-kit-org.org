@@ -29,8 +29,8 @@ at root of org package.
   ;; other minor mode
   (eldoc-mode)
   (turn-on-flyspell)
-  ;; math
-  (org-cdlatex-mode)
+  ;; math. you can turn it on manually
+  ;; (org-cdlatex-mode)
   ;; navigation
   (local-set-key "\M-\C-n" 'outline-next-visible-heading)
   (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
@@ -195,7 +195,7 @@ file using the `org-babel-lob-ingest' function.
       org-outline-path-complete-in-steps t)
 #+END_SRC
 
-** Org export to PDF
+** Org export to pdf and html
 *** XeLaTeX
 Use XeLaTeX to export PDF and compile two times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
@@ -207,39 +207,40 @@ compile it.
 #+END_SRC
 
 *** Source highlight
-Use minted for source highlight in exported LaTeX, first include the latex
-exporter.
-#+BEGIN_SRC emacs-lisp
-(require 'ox-latex)
-#+END_SRC
 
-Then add minted to the default packages.
+Use minted to highlight source code in exported LaTeX.
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'org-latex-packages-alist '("" "minted"))
-#+END_SRC
-
-Finally tell the latex export to use the minted package for source code
-coloration.
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-listings 'minted)
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (setq org-latex-listings 'minted))
 #+END_SRC
 
 *** MathJaX
 
-Use MathJaX instead of LaTeX to support math for that LaTeX is too slow to
-generate math pictures. The latest MathJaX engine is used.
-
-To enable LaTeX if you like, just add to head of org file:
+Use MathJaX instead of LaTeX to support math in html for that LaTeX is too
+slow to generate math pictures. To enable LaTeX if you like, just add to head
+of org file:
 #+BEGIN_SRC text
 #+OPTIONS: tex:imagemagick
 #+END_SRC
 
+New in MathJax v2.0 is the ability to have equations to be numbered
+automatically which is turned off by default. To activate it:
 #+BEGIN_SRC emacs-lisp
-(setq org-html-mathjax-options '((path "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
-                                 (scale "100")
-                                 (align "center")
-                                 (indent "2em")
-                                 (mathml t)))
+(with-eval-after-load 'ox-html
+  (setq org-html-mathjax-template
+        (format "%s%s" org-html-mathjax-template
+                "
+<script type=\"text/x-mathjax-config\">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: \"AMS\" } }
+});
+</script>"))
+  (setq org-html-mathjax-options '((path "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+                                   (scale "100")
+                                   (align "center")
+                                   (indent "2em")
+                                   (mathml t))))
 #+END_SRC
 
 ** Getting Things Done
@@ -403,3 +404,12 @@ idea what it means.
 
 + You can use *C-c '* to edit source code in its own mode.
 + Powerful *C-c C-c* at code block, table, ...
+
+*** Math
+
+The best way is:
+\begin{equation}
+\label{eq:1}
+y = sin(x)
+\end{equation}
+which can be referenced by \ref{eq:1}. This both works in html and latex.
