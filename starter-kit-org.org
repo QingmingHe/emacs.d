@@ -44,6 +44,41 @@ at root of org package.
 (add-hook 'org-mode-hook 'my-org-config)
 #+end_src
 
+** The very busy ctrl-c-ctrl-c
+
+*** Batch replace label and references
+
+It's painful to update references once a label is changed. Fortunately we have
+the powerful [[help:query-replace-regexp][query-replace-regexp]] which can replace a label and all its
+references at once.
+#+begin_src emacs-lisp
+(defun org-query-replace-label-and-ref ()
+  "Batch replace label and its reference in current buffer by
+`query-replace-regexp'. This command will act inside of braces of \\label,
+\\eqref or \\ref latex keywords and return t; Otherwise do nothing and return
+nil."
+  (interactive)
+  (when (and
+         (looking-at "[^}]*}")
+         (looking-back "\\\\\\(label\\|eqref\\|ref\\){[^{]*"))
+    (let (ref)
+      (save-excursion
+        (setq ref
+              (buffer-substring-no-properties
+               (1+ (search-backward "{"))
+               (1- (search-forward "}")))))
+      (query-replace-regexp (format "\\\\\\(label\\|eqref\\|ref\\){%s}"
+                                    (regexp-quote ref))
+                            (format "\\\\\\1{%s}"
+                                    (read-string
+                                     (format "Replace \"%s\" with: " ref)))
+                            nil (point-min) (point-max)))
+    t))
+
+(with-eval-after-load 'org
+  (add-hook 'org-ctrl-c-ctrl-c-hook 'org-query-replace-label-and-ref))
+#+end_src
+
 ** Use RET and TAB in org mode
 
 + Use RET to follow link in org mode. Problem is that press RET will open a
