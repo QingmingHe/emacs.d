@@ -1,5 +1,5 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
 # name: table formula
-# key: tb
+# key: tf
 # --
 #+TBLFM: $0
