@@ -25,6 +25,8 @@ commands are defined:
 
 \\{LaTeX-math-mode-map}" t nil)
 
+(add-to-list 'auto-mode-alist '("\\.tex\\'" . TeX-latex-mode))
+
 (setq Tex-auto-save t)
 (setq Tex-parse-self t)
 (setq-default Tex-master nil)

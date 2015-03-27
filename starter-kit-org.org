@@ -163,6 +163,7 @@ much more like reading and editing of code using its major mode.
 #+begin_src emacs-lisp
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
+  (setq org-highlight-latex-and-related '(latex entities))
 #+end_src
 
 ** The Library of Babel

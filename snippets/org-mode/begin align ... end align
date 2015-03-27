@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: begin align ... end align
+# key: al
+# --
+\begin{align}
+$0
+\end{align}
