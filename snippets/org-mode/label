@@ -1,5 +1,5 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
-# name: $$ ... $$
-# key: eq
+# name: label
+# key: la
 # --
-$$ $0 $$
+\label{$0}

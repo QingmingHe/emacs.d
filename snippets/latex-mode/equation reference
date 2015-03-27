@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: equation reference
+# key: ref
+# --
+equation \eqref{$0}
