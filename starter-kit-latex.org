@@ -2,6 +2,37 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit LaTeX
+** Install latex
+
+First install the latest *texlive*. Then install *auctex*:
+#+begin_src sh
+cd ~/.emacs.d/auctex-11.88/
+./configure
+make
+make install
+#+end_src
+
+** cdlatex
+
+I use *yasnippet* to expand math command, latex environments, ... So
+[[help:cdlatex-command-alist-default][cdlatex-command-alist-default]] is of no use. The cdlatex-style of inserting
+math symbols with prefix =`= and ='= is very strange and disturbing. I use
+[[help:helm-insert-latex-math][helm-insert-latex-math]] instead.
+#+begin_src emacs-lisp
+(with-eval-after-load 'cdlatex
+  (setq cdlatex-command-alist-comb nil)
+  (define-key cdlatex-mode-map
+    (cdlatex-get-kbd-vector cdlatex-math-symbol-prefix)
+    'self-insert-command)
+  (define-key cdlatex-mode-map
+    (cdlatex-get-kbd-vector cdlatex-math-modify-prefix)
+    'self-insert-command))
+#+end_src
+
+*tesmathp* which is bundled with *auctex* is needed by *cdlatex*. However,
+*auctex* is not that easy to install. So I take *texmathp* alone from *auctex*
+*and add it to my load path [[file:src/texmathp/][file:~/.emacs.d/src/texmathp/]].
+
 ** Customary Customization
 
 #+BEGIN_QUOTE

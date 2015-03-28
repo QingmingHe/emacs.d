@@ -21,17 +21,15 @@ make autoloads
 at root of org package.
 
 ** Org-Mode Hook
-   :PROPERTIES:
-   :CUSTOM_ID: keybindings
-   :END:
+
++ On the key bindings of org-cdlatex, see also [[file:starter-kit-latex.org::*cdlatex][cdlatex]].
 #+begin_src emacs-lisp
 (defun my-org-config ()
   ;; other minor mode
   (eldoc-mode)
   (turn-on-flyspell)
-  ;; math.
-  (when (locate-library "texmathp")
-    (org-cdlatex-mode))
+  ;; math
+  (org-cdlatex-mode)
   ;; navigation
   (local-set-key "\M-\C-n" 'outline-next-visible-heading)
   (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
@@ -42,7 +40,15 @@ at root of org package.
   (local-set-key "\M-\C-l" 'org-table-sort-lines)
   ;; display images
   (local-set-key "\M-I" 'org-toggle-iimage-in-org))
-(add-hook 'org-mode-hook 'my-org-config)
+(with-eval-after-load 'org
+  (add-hook 'org-mode-hook 'my-org-config)
+  ;; I use `helm-insert-latex-math' instead
+  (define-key org-cdlatex-mode-map
+    (cdlatex-get-kbd-vector cdlatex-math-symbol-prefix)
+    'self-insert-command)
+  (define-key org-cdlatex-mode-map
+    (cdlatex-get-kbd-vector cdlatex-math-modify-prefix)
+    'self-insert-command))
 #+end_src
 
 ** The very busy ctrl-c-ctrl-c
