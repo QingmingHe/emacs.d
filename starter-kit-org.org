@@ -43,12 +43,8 @@ at root of org package.
 (with-eval-after-load 'org
   (add-hook 'org-mode-hook 'my-org-config)
   ;; I use `helm-insert-latex-math' instead
-  (define-key org-cdlatex-mode-map
-    (cdlatex-get-kbd-vector cdlatex-math-symbol-prefix)
-    'self-insert-command)
-  (define-key org-cdlatex-mode-map
-    (cdlatex-get-kbd-vector cdlatex-math-modify-prefix)
-    'self-insert-command))
+  (define-key org-cdlatex-mode-map "`" 'self-insert-command)
+  (define-key org-cdlatex-mode-map "'" 'self-insert-command))
 #+end_src
 
 ** The very busy ctrl-c-ctrl-c
