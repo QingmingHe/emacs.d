@@ -83,7 +83,7 @@ other data on the mode line.
 (eval-after-load "eldoc"                   '(diminish 'eldoc-mode))
 (eval-after-load "magit"                   '(diminish 'magit-auto-revert-mode))
 (eval-after-load "smartparens"             '(diminish 'smartparens-mode))
-(eval-after-load "cdlatex"                 '(diminish 'org-cdlatex-mode))
+;; (eval-after-load "cdlatex"                 '(diminish 'org-cdlatex-mode))
 (eval-after-load "outline"                 '(diminish 'outline-minor-mode))
 (eval-after-load "abbrev"                  '(diminish 'abbrev-mode))
 (eval-after-load "highlight-indentation"   '(diminish 'highlight-indentation-current-column-mode))

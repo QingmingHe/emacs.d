@@ -3,6 +3,5 @@
 # key: eq
 # --
 \begin{equation}
-\label{label}
 $0
 \end{equation}

@@ -25,6 +25,9 @@
 (setq dropbox-root (getenv "DROPBOX_ROOT"))
 (setq midnight-root (getenv "MIDNIGHT_ROOT"))
 (setq cygwin-root (getenv "CYGWIN_ROOT"))
+(setq auctex-root (locate-library "auctex"))
+(when auctex-root
+  (setq auctex-root (file-name-directory auctex-root)))
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")

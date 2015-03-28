@@ -29,8 +29,9 @@ at root of org package.
   ;; other minor mode
   (eldoc-mode)
   (turn-on-flyspell)
-  ;; math. you can turn it on manually
-  ;; (org-cdlatex-mode)
+  ;; math.
+  (when (locate-library "texmathp")
+    (org-cdlatex-mode))
   ;; navigation
   (local-set-key "\M-\C-n" 'outline-next-visible-heading)
   (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
@@ -45,7 +46,6 @@ at root of org package.
 #+end_src
 
 ** The very busy ctrl-c-ctrl-c
-
 *** Batch replace label and references
 
 It's painful to update references once a label is changed. Fortunately we have
@@ -77,6 +77,27 @@ nil."
 
 (with-eval-after-load 'org
   (add-hook 'org-ctrl-c-ctrl-c-hook 'org-query-replace-label-and-ref))
+#+end_src
+
+*** Preview latex fragments
+
+#+begin_src emacs-lisp
+(defun org-preview-latex-fragments-at-point ()
+  "Preview latex fragments at point. "
+  (interactive)
+  (when (and
+         (org-inside-LaTeX-fragment-p)
+         (not
+          (and
+           (looking-at "[^}]*}")
+           (looking-back "\\\\label{[^{]*")))
+         (not
+          (member (overlays-at (point)) org-latex-fragment-image-overlays)))
+    (call-interactively 'org-preview-latex-fragment)
+    t))
+
+(with-eval-after-load 'org
+  (add-hook 'org-ctrl-c-ctrl-c-hook 'org-preview-latex-fragments-at-point))
 #+end_src
 
 ** Use RET and TAB in org mode
@@ -233,12 +254,18 @@ file using the `org-babel-lob-ingest' function.
 
 ** Org export to pdf and html
 *** XeLaTeX
-Use XeLaTeX to export PDF and compile two times to generate references. You
+
+Use XeLaTeX to export PDF and compile three times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
 compile it.
 #+BEGIN_SRC emacs-lisp
 (setq org-latex-to-pdf-process
       '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+(setq org-latex-pdf-process
+      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 #+END_SRC
 
@@ -250,6 +277,21 @@ Use minted to highlight source code in exported LaTeX.
   (add-to-list 'org-latex-packages-alist '("" "minted"))
   (setq org-latex-listings 'minted))
 #+END_SRC
+
+*** Preview latex fragments
+
+Use *dvipng* to preview latex fragments in org. As *minted* is used to
+highlight source in latex, *-shell-escape* command should be passed to
+latex. However, the dvipng method call latex directly without the command and
+a user option to control it (See [[http://orgmode.org/worg/org-tutorials/org-latex-preview.html][org tutorial]]). I have to define a advice to
+evade this problem.
+#+begin_src emacs-lisp
+(setq org-latex-create-formula-image-program 'dvipng)
+(defadvice org-preview-latex-fragment (around preview-without-minted activate)
+  (let ((org-latex-packages-alist
+         (remove '("" "minted") org-latex-packages-alist)))
+    ad-do-it))
+#+end_src
 
 *** MathJaX
 
