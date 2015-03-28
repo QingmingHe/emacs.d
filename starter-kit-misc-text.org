@@ -21,15 +21,18 @@ Text modes other than Org mode come here.
 ** Rst mode (reStructuredText)
 
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
-  (autoload 'rst-mode "rst")
-  (defun my-rst-config ()
-    (turn-on-flyspell))
-  (add-hook 'rst-mode-hook 'my-rst-config)
+(add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
+(autoload 'rst-mode "rst")
+(defun my-rst-config ()
+  (turn-on-flyspell))
+(with-eval-after-load 'rst
+  (add-hook 'rst-mode-hook 'my-rst-config))
 #+END_SRC
 
 ** Info mode
 
+To open \*.info file with [[help:Info-mode][Info-mode]], type *I* in Dired or pass prefix argument
+to [[help:info][info]] and then select the info file.
 #+begin_src emacs-lisp
 (with-eval-after-load 'info
   (define-key Info-mode-map (kbd "j") 'next-line)
