@@ -440,6 +440,12 @@ interested in the actual code implementing the starter kit.
      ("eim" . "make")))
   #+end_src
 
+- Load auto load file
+
+  #+begin_src emacs-lisp
+  (load-file autoload-file)
+  #+end_src
+
 ** Starter kit core
    :PROPERTIES:
    :CUSTOM_ID: starter-kit-core

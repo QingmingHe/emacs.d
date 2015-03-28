@@ -20,7 +20,6 @@ viper
 *.tar.bz2
 
 ## misc
-loaddefs.el*
 auto-save-list
 custom.el
 places
