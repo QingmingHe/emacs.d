@@ -1,5 +1,7 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
-# name: brackets
-# key: br
+# name: begin any ... end any
+# key: beg
 # --
-\left($0\right)
+\begin{$1}
+$0
+\end{$1}

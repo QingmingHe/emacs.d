@@ -27,3 +27,11 @@ Text modes other than Org mode come here.
     (turn-on-flyspell))
   (add-hook 'rst-mode-hook 'my-rst-config)
 #+END_SRC
+
+** Info mode
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'info
+  (define-key Info-mode-map (kbd "j") 'next-line)
+  (define-key Info-mode-map (kbd "k") 'previous-line))
+#+end_src

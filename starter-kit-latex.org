@@ -3,6 +3,9 @@
 
 * Starter Kit LaTeX
 ** Install latex
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
 
 First install the latest *texlive*. Then install *auctex*:
 #+begin_src sh
