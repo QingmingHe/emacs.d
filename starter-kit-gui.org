@@ -53,7 +53,7 @@ You really don't need this; trust me.
 (menu-bar-mode -1)
 (column-number-mode 1)
 (when window-system
-  (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+  (setq frame-title-format '(buffer-file-name "%f" (:eval default-directory)))
   (blink-cursor-mode -1)
   (scroll-bar-mode 0)
   (tooltip-mode -1)

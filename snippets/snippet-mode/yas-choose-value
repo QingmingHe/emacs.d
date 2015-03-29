@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: yas-choose-value
+# key: yc
+# --
+`(yas-choose-value '($0))`
