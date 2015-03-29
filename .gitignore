@@ -30,6 +30,7 @@ tramp
 .emacs-desktop
 Cask
 eww-bookmarks
+.aspell.en.pws
 
 ## directories
 backups/*
