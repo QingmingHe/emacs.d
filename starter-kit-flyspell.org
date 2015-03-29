@@ -48,7 +48,11 @@ All these codes are copied from
 (setq ispell-extra-args (flyspell-detect-ispell-args t))
 ;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
 ;; personal dictionary
-(setq ispell-personal-dictionary (concat starter-kit-dir ".aspell.en.pws"))
+(if dropbox-root
+    (setq ispell-personal-dictionary
+          (concat dropbox-root "/dict/.aspell.en.pws"))
+  (setq ispell-personal-dictionary
+        (concat starter-kit-dir ".aspell.en.pws")))
 (defadvice ispell-word (around my-ispell-word activate)
   (let ((old-ispell-extra-args ispell-extra-args))
     (ispell-kill-ispell t)
