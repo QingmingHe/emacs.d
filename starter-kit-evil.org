@@ -204,7 +204,7 @@ comment or un-comment current line."
          (if (region-active-p)
              (comment-or-uncomment-region (region-beginning) (region-end))
            (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
-  "iw" 'ispell-word)
+  "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 
 ** Quit by escape
