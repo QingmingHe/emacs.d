@@ -156,7 +156,13 @@ back.
   ;; buffers, files
   "bb" 'helm-mini
   "ff" 'helm-find-files
-  "ss" 'prj/save-buffers-and-update-tags
+  "ss" (lambda (arg)
+         "With prefix ARG, save all buffers and update tags for these files;
+otherwise save current buffer."
+         (interactive "P")
+         (if arg
+             (prj/save-buffers-and-update-tags)
+           (save-buffer)))
   "kk" 'kill-this-buffer
   "pp" 'prj/helm-mini
   "gs" 'magit-status
