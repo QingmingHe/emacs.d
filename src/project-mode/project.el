@@ -126,10 +126,6 @@ for project buffers.")
 (defvar prj/package-path (file-name-directory (__file__))
   "Absolute path of project mode package.")
 
-(defvar prj/etags-update-script
-  (expand-file-name "etags-update.pl" prj/package-path)
-  "Perl script to update TAGS file for a given set of files.")
-
 (defun prj/rel-or-abs-path (path p)
   "Get path.
 
@@ -349,9 +345,13 @@ from project root to PATH-BEGIN."
          (format "--gtagsconf=%s" gtags-conf)
          (format "--single-update=%s" fname))))))
 
-(defun prj/update-etags-files (tags-file &rest files)
-  "Update TAGS-FILE for FILES."
-  (let (p0 p1)
+(defun prj/update-etags-files (tags-file files &optional proc-name)
+  "Update TAGS-FILE for FILES. FILES should be a list of files whose tags are
+to be updated. PROC-NAME is the name of ctags process. Returns process handle
+of ctags."
+  (let ((last-time (current-time))
+        (proc-name (or proc-name "prj/update-etags-files"))
+        p0 p1 elapsed-time)
     (with-temp-buffer
       (insert-file-contents tags-file)
       (mapc
@@ -366,18 +366,18 @@ from project root to PATH-BEGIN."
            (delete-region p0 p1)))
        files)
       (write-region (point-min) (point-max) tags-file nil 0))
+    (setq elapsed-time (float-time (time-since last-time)))
     (eval
-     `(call-process
-       prj/ctags-exec nil 0 nil "-e" "-o" tags-file "-a" ,@files))))
+     `(start-process
+       proc-name nil prj/ctags-exec "-e" "-o" tags-file "-a" ,@files))))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
   (let* ((fname (buffer-file-name))
-         (p (or p (project-root-fetch)))
+         (p (or p project-details (project-root-fetch)))
          (tags-file (project-root-data :-tags-file p)))
     (when (and p fname tags-file)
-      (call-process
-       prj/etags-update-script nil nil nil tags-file fname))))
+      (prj/update-etags-files tags-file `(,fname)))))
 
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
@@ -453,10 +453,10 @@ all modified buffers."
                       key nil prj/global-exec "-u"
                       (format "--gtagslabel=%s" (prj/get-gtags-label p))
                       (format "--gtagsconf=%s" (prj/get-gtags-conf p)))))
-           (setq proc
-                 (eval
-                  `(start-process key nil prj/etags-update-script
-                                  (project-root-data :-tags-file p) ,@value))))
+           (setq proc (prj/update-etags-files
+                       (project-root-data :-tags-file p)
+                       value
+                       key)))
          (when prj/update-tags-verbose
            (set-process-sentinel
             proc
