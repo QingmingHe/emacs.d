@@ -80,6 +80,8 @@ is splitted vertically and limited to 10 lines height."
   `(add-hook 'compilation-finish-functions 'show-compile-window-not-success))
 
 (eval-after-load "f90" `(define-key f90-mode-map (kbd "<f5>") 'compile-dwim))
+(with-eval-after-load 'fortran
+  (define-key fortran-mode-map (kbd "<f5>") 'compile-dwim))
 (eval-after-load "cc-mode"
   `(progn
      (define-key c-mode-map (kbd "<f5>") 'compile-dwim)

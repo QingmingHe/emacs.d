@@ -1,9 +1,9 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
 # name: equation split
-# key: equation split
+# key: sp
 # --
 \begin{split}
-% a & = b + c \\
+% a & = b + c \\\\
 %   & = d + e
 $0
 \end{split}

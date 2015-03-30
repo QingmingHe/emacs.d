@@ -2,7 +2,6 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Flycheck
-
 ** Only check automatically after saving
 
 + Don't always check buffer, it's too slow.
@@ -36,7 +35,7 @@ codes:
 The built in fortran-gfortran doesn't support Chinese errors and warnings. An
 =flycheck-fortran-gfortran-zh= plugin is used.
 #+BEGIN_SRC emacs-lisp
-(defun my-flycheck-fortran-setup ()
+(defun my-flycheck-f90-setup ()
   (when (and
          (executable-find "gfortran")
          (buffer-file-name)
@@ -48,7 +47,22 @@ The built in fortran-gfortran doesn't support Chinese errors and warnings. An
   `(progn
      (require 'flycheck)
      (require 'flycheck-fortran-gfortran-zh)
-     (add-hook 'f90-mode-hook 'my-flycheck-fortran-setup)))
+     (add-hook 'f90-mode-hook 'my-flycheck-f90-setup)))
+
+(defun my-flycheck-f77-setup ()
+  (when (and
+         (executable-find "gfortran")
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
+    (setq flycheck-gfortran-language-standard "legacy")
+    (setq flycheck-gfortran-layout 'fixed)
+    (flycheck-select-checker 'fortran-gfortran-zh)
+    (flycheck-mode)
+    (flycheck-buffer)))
+(with-eval-after-load 'fortran
+  (require 'flycheck)
+  (require 'flycheck-fortran-gfortran-zh)
+  (add-hook 'fortran-mode-hook 'my-flycheck-f77-setup))
 #+END_SRC
 
 ** Python
