@@ -210,7 +210,12 @@ comment or un-comment current line."
          (if (region-active-p)
              (comment-or-uncomment-region (region-beginning) (region-end))
            (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
-  "iw" 'flyspell-correct-word-before-point)
+  "iw" 'flyspell-correct-word-before-point
+  "I" (lambda ()
+        (interactive)
+        (evil-insert 1)
+        (insert " ")
+        (backward-char)))
 #+END_SRC
 
 ** Quit by escape
