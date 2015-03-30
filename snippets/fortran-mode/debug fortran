@@ -1,0 +1,8 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: debug fortran
+# key: de
+# --
+C+BEGIN_DEBUG
+      WRITE(*,*) $0
+      PAUSE
+C+END_DEBUG
