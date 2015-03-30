@@ -27,8 +27,6 @@
 (global-unset-key (kbd "C-x c"))
 (eval-after-load "helm"
   `(progn
-     (define-key helm-map (kbd "C-f") 'helm-next-page)
-     (define-key helm-map (kbd "C-b") 'helm-previous-page)
      (define-key helm-map (kbd "C-c C-c") 'helm-toggle-visible-mark)))
 
 ;; helm eshell
