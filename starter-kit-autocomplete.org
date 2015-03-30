@@ -162,6 +162,7 @@ added.
 #+end_src
 
 ** Hippie expand: at times perhaps too hip
+
 #+begin_src emacs-lisp
 (global-set-key (kbd "M-/") 'hippie-expand)
 (when (boundp 'hippie-expand-try-functions-list)

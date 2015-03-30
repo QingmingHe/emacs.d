@@ -23,6 +23,7 @@
 (global-set-key (kbd "C-c y") 'helm-yas-complete)
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-M-/") 'helm-dabbrev)
 (global-unset-key (kbd "C-x c"))
 (eval-after-load "helm"
   `(progn

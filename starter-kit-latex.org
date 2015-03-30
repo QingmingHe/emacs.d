@@ -46,8 +46,7 @@ your ~/.emacs.
 #+BEGIN_SRC emacs-lisp
 (when auctex-root
   (load "auctex" t)
-  (load "preview-latex" t)
-  (load "subdirs" t))
+  (load "preview-latex" t))
 
 ;; `helm-insert-latex-math' need `LaTeX-math-mode' which is not autoloaded by
 ;; default.
