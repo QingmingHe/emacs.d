@@ -24,7 +24,7 @@ To install jedi manually:
 ;; show doc by popup is too annoying, just show in minibuffer
 (setq jedi:tooltip-method nil)
 (setq jedi:complete-on-dot t)
-(cond ((file-directory-p "~/.emacs.d/.python-environments")
+(cond ((file-directory-p (concat starter-kit-dir ".python-environments"))
        nil)
       ((executable-find "jediepcserver.py")
        (setq jedi:server-command

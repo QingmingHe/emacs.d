@@ -43,7 +43,6 @@ url/*
 .cask/
 elpa/archives/
 irony/
-pyim/
 
 ## exported and encrypted files
 *gpg

@@ -352,43 +352,6 @@ The setup is very personal. May be this subsection should be moved to
    "TODO=\"DONE\"|TODO=\"CANCELLED\"" (if (org-before-first-heading-p) 'file 'tree)))
 #+end_src
 
-** Other
-The author copy codes below from
-[[https://github.com/redguardtoo/emacs.d/blob/master/init-org.el]] and have no
-idea what it means.
-
-#+BEGIN_SRC emacs-lisp :tangle no
-(eval-after-load 'org
-   '(progn
-      (require 'org-clock)
-      ; @see http://irreal.org/blog/?p=671
-      (setq org-src-fontify-natively t)
-      (require 'org-fstree)
-      (setq org-ditaa-jar-path (format "%s%s" (if *cygwin* "c:/cygwin" "")
-                                       (expand-file-name "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")) )
-      (defun soft-wrap-lines ()
-        "Make lines wrap at window edge and on word boundary,
-        in current buffer."
-        (interactive)
-        (setq truncate-lines nil)
-        (setq word-wrap t)
-        )
-      (add-hook 'org-mode-hook '(lambda ()
-                                  (setq evil-auto-indent nil)
-                                  (soft-wrap-lines)
-                                  ))))
-
-(defadvice org-open-at-point (around org-open-at-point-choose-browser activate)
-  (let ((browse-url-browser-function
-         (cond ((equal (ad-get-arg 0) '(4))
-                'browse-url-generic)
-               ((equal (ad-get-arg 0) '(16))
-                'choose-browser)
-               (t
-                (lambda (url &optional new)
-                  (w3m-browse-url url t))))))
-    ad-do-it))
-#+END_SRC
 ** Tips and comments
 *** Key bindings
 

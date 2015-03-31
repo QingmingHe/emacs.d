@@ -159,9 +159,34 @@ previously visited the same file.
 
 ** Hippie expand: at times perhaps too hip
 #+begin_src emacs-lisp
-  (when (boundp 'hippie-expand-try-functions-list)
-    (delete 'try-expand-line hippie-expand-try-functions-list)
-    (delete 'try-expand-list hippie-expand-try-functions-list))
+(setq my-english-words-list (concat starter-kit-dir "dict/english-words.txt"))
+
+(defun try-expand-by-dict (old)
+  (unless old
+    (he-init-string (he-lisp-symbol-beg) (point))
+    (if (not (he-string-member he-search-string he-tried-table))
+        (setq he-tried-table (cons he-search-string he-tried-table)))
+    (setq he-expand-list
+          (and (not (equal he-search-string ""))
+               (split-string
+                (shell-command-to-string
+                 (format
+                  "grep -e \"^%s\" %s"
+                  (buffer-substring-no-properties (he-lisp-symbol-beg) (point))
+                  my-english-words-list))))))
+  (if (null he-expand-list)
+      (if old (he-reset-string))
+    (he-substitute-string (car he-expand-list))
+    (setq he-expand-list (cdr he-expand-list))
+    t))
+
+(setq hippie-expand-try-functions-list
+      '(try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers
+        try-expand-dabbrev-from-kill
+        try-expand-by-dict))
 #+end_src
 
 ** Backup files
@@ -197,7 +222,7 @@ live in the =/tmp= directory.
 ** Bookmark
 
 #+BEGIN_SRC emacs-lisp
-(setq bmkp-bmenu-state-file (expand-file-name "~/.emacs.d/.emacs-bmk-bmenu-state.el"))
+(setq bmkp-bmenu-state-file (concat starter-kit-dir ".emacs-bmk-bmenu-state.el"))
 #+END_SRC
 
 ** Always auto revert file
@@ -409,11 +434,12 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 ** Pinyin input
 
 #+begin_src emacs-lisp
-(defvar starter-kit-eim-py-bank (expand-file-name
-                             "eim-user-bank.txt"
-                             (if dropbox-root
-                                 (expand-file-name "dict" dropbox-root)
-                               (expand-file-name "~/.emacs.d/pyim")))
+(defvar starter-kit-eim-py-bank
+  (expand-file-name
+   "eim-user-bank.txt"
+   (if dropbox-root
+       (expand-file-name "dict" dropbox-root)
+     (concat starter-kit-dir "dict")))
   "Pinyin word bank file. This should be the full path of the bank file.")
 (autoload 'eim-use-package "eim" "Another emacs input method" t)
 ;; 不使用tooltip
