@@ -1,6 +1,0 @@
-#name : LATEX
-#key: la
-# --
-#+begin_latex
-$0
-#+end_latex
