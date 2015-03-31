@@ -171,11 +171,11 @@ previously visited the same file.
                (split-string
                 (shell-command-to-string
                  (format
-                  "grep -e \"^%s\" %s"
+                  "grep \"^%s\" %s"
                   (buffer-substring-no-properties (he-lisp-symbol-beg) (point))
                   my-english-words-list))))))
   (if (null he-expand-list)
-      (if old (he-reset-string))
+      (progn (when old (he-reset-string)) nil)
     (he-substitute-string (car he-expand-list))
     (setq he-expand-list (cdr he-expand-list))
     t))
