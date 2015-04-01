@@ -88,7 +88,8 @@ Don't grep repositories and some files.
 *C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
 yank thing after cursor. This is always not I mean. What I want is to yank
 selected region or symbol at point. Besides, the cursor should be placed at
-end of the match string at point rather than the next match. This can also
+end of the match string at point for forward searching or beginning of the
+match for backward searching rather than the next match. This can also
 mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 #+begin_src emacs-lisp
 (defun isearch-yank-dwim ()
@@ -108,7 +109,9 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
        (format
         "\\_<%s\\_>"
         (regexp-quote (buffer-substring-no-properties p0 p1)))))
-    (goto-char p0)
+    (if isearch-forward
+        (goto-char p0)
+      (goto-char p1))
     (setq isearch-regexp t
           isearch-string str
           isearch-message
