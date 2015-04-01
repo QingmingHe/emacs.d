@@ -94,7 +94,9 @@ Don't grep repositories and some files.
   (interactive)
   (isearch-yank-string
    (if (region-active-p)
-       (buffer-substring (region-beginning) (region-end))
+       (prog1
+           (buffer-substring (region-beginning) (region-end))
+         (keyboard-escape-quit))
      (thing-at-point-no-properties 'symbol))))
 (define-key isearch-mode-map (kbd "C-w") 'isearch-yank-dwim)
 
@@ -119,6 +121,20 @@ Don't grep repositories and some files.
             (thing-at-point-no-properties 'symbol)))
     (when thing
       (setq regexp-search-ring (append regexp-search-ring `(,thing))))))
+#+end_src
+
+*** Anzu replace from isearch
+
+#+begin_src emacs-lisp
+(defun evil-replace-from-isearch ()
+  (interactive)
+  (let ((from-str
+         (if isearch-regexp
+             isearch-string
+           (regexp-quote isearch-string))))
+    (isearch-exit)
+    (evil-ex (concat "%s/" from-str "/"))))
+(define-key isearch-mode-map (kbd "M-%") 'evil-replace-from-isearch)
 #+end_src
 
 *** Pinyin search
