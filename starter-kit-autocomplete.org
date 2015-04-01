@@ -24,8 +24,7 @@
  ac-sources
  '(ac-source-abbrev
    ac-source-dictionary
-   ac-source-words-in-same-mode-buffers
-   ac-source-filename))
+   ac-source-words-in-same-mode-buffers))
 
 (setq ac-use-menu-map t)
 (setq ac-use-quick-help t)
@@ -162,10 +161,38 @@ added.
 #+end_src
 
 ** Hippie expand: at times perhaps too hip
+*** Expand by dict
 
+I use [[file:starter-kit-dictionary.org::*English%20words%20dict][English words dict]] instead.
+#+begin_src emacs-lisp
+(setq my-english-words-dict (concat starter-kit-dir "dict/english-words.txt"))
+
+(defun try-expand-by-dict (old)
+  (unless old
+    (he-init-string (he-lisp-symbol-beg) (point))
+    (unless (he-string-member he-search-string he-tried-table)
+      (setq he-tried-table (cons he-search-string he-tried-table)))
+    (setq he-expand-list
+          (and (not (equal he-search-string ""))
+               (split-string
+                (shell-command-to-string
+                 (format
+                  "grep \"^%s\" %s"
+                  (buffer-substring-no-properties (he-lisp-symbol-beg) (point))
+                  my-english-words-dict))))))
+  (if (not he-expand-list)
+      (progn (when old (he-reset-string) nil))
+    (he-substitute-string (car he-expand-list))
+    (setq he-expand-list (cdr he-expand-list))
+    t))
+#+end_src
+
+*** Set hippie expand functions
 #+begin_src emacs-lisp
 (global-set-key (kbd "M-/") 'hippie-expand)
-(when (boundp 'hippie-expand-try-functions-list)
-  (delete 'try-expand-line hippie-expand-try-functions-list)
-  (delete 'try-expand-list hippie-expand-try-functions-list))
+(setq hippie-expand-try-functions-list
+      '(try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers))
 #+end_src
