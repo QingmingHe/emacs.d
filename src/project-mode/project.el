@@ -714,7 +714,7 @@ List of include paths, include \"-I\" flag."
   "Get auto complete candidates by GNU global. Returns a list of tag string."
   (ignore-errors
     (with-temp-buffer
-      (when (eq (call-process "global" nil t nil "-ci" ac-prefix) 0)
+      (when (eq (call-process prj/global-exec nil t nil "-ci" ac-prefix) 0)
         (goto-char (point-min))
         (let (candidates)
           (while (and (not (eobp))
@@ -726,37 +726,28 @@ List of include paths, include \"-I\" flag."
                       (eq (forward-line) 0)))
           (nreverse candidates))))))
 
-(defun prj/ac-etags-get-tags-candidates (tags-file)
-  "Get all tags candidates from TAGS-FILE. Returns a list of tag string."
-  (let (tags buf b0 b1 pm)
+(defun prj/ac-etags-get-tags-candidates (tags-file &optional prefix)
+  "Get all tags candidates matching PREFIX from TAGS-FILE. Returns a list of
+tag string."
+  (let (tags buf b0 b1 pm last-time elapsed-time)
+    (setq last-time (current-time))
     (with-temp-buffer
       (insert-file-contents tags-file)
       (setq pm (point-max))
       (goto-char (point-min))
-      (while (setq b0 (search-forward "\177" pm t))
+      (while (search-forward (format "\177%s" (or prefix "")) pm t)
+        (setq b0 (1+ (search-backward "\177")))
         (setq b1 (search-forward "\001" (line-end-position) t))
         (when (and b1 (> (setq b1 (1- b1)) b0))
           (setq tags (cons (buffer-substring-no-properties b0 b1) tags)))))
+    (setq elapsed-time (float-time (time-since last-time)))
     tags))
 
 (defun prj/ac-etags-candidates ()
   "Get etags candidates from tags file of current project."
   (let* ((p (or project-details (project-root-fetch)))
-         (tags-file (when p (project-root-data :-tags-file p)))
-         (tags-mod-time (when tags-file (nth 5 (file-attributes tags-file)))))
-    (when (and p tags-file)
-      (when (or
-             (null (project-root-data :-tags-completion-table p))
-             (null (project-root-data :-tags-mode-time p))
-             (time-less-p
-              (project-root-data :-tags-mode-time p)
-              tags-mod-time))
-        (project-root-set-data :-tags-mode-time tags-mod-time p)
-        (project-root-set-data
-         :-tags-completion-table
-         (prj/ac-etags-get-tags-candidates tags-file)
-         p))
-      (project-root-data :-tags-completion-table p))))
+         (tags-file (when p (project-root-data :-tags-file p))))
+    (prj/ac-etags-get-tags-candidates tags-file ac-prefix)))
 
 (defun prj/ac-define-etags-source ()
   (require 'auto-complete)
