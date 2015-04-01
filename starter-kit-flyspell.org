@@ -45,7 +45,10 @@ All these codes are copied from
 ;; we will append to the ispell process when ispell-send-string()
 ;; ispell-extra-args is the command arguments which will *always* be used when
 ;; start ispell process
-(setq ispell-extra-args (flyspell-detect-ispell-args t))
+(with-eval-after-load 'flyspell
+  (add-hook 'flyspell-mode-hook
+            (lambda ()
+              (setq ispell-extra-args (flyspell-detect-ispell-args t)))))
 ;; (setq ispell-cmd-args (flyspell-detect-ispell-args))
 ;; personal dictionary
 (if dropbox-root
@@ -93,6 +96,14 @@ All these codes are copied from
 ** Flyspell use popup
 
 #+begin_src emacs-lisp
+(defadvice flyspell-correct-word-before-point (around my-fcwbp activate)
+  (let ((old-ispell-extra-args ispell-extra-args))
+    (ispell-kill-ispell t)
+    (setq ispell-extra-args (flyspell-detect-ispell-args))
+    ad-do-it
+    (setq ispell-extra-args old-ispell-extra-args)
+    (ispell-kill-ispell t)))
+
 (defun flyspell-emacs-popup-textual (event poss word)
   "A textual flyspell popup menu."
   (require 'popup)
