@@ -2,4 +2,4 @@
 # name: IMPLICIT REAL(A-H, O-Z), INTEGER(I-N)
 # key: im
 # --
-IMPLICIT REAL(A-H, O-Z), INTEGER(I-N)
+implicit real(a-h, o-z), integer(i-n)

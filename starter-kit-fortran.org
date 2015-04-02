@@ -20,10 +20,18 @@ Fortran is a major language for scientific computation but a minor for other.
   (prettify-symbols-mode 1)
   (evil-define-key 'normal f90-mode-map
     "J" 'my-f90-join-lines))
+
 (eval-after-load "f90"
   `(progn
      (require 'expand-region)
      (add-hook 'f90-mode-hook 'my-f90-config)))
+
+(defun my-fortran-config ()
+  (evil-define-key 'normal fortran-mode-map
+    "J" 'my-fortran-join-lines))
+
+(with-eval-after-load 'fortran
+  (add-hook 'fortran-mode-hook 'my-fortran-config))
 #+END_SRC
 
 ** Fortran indent
@@ -78,7 +86,31 @@ type(SomeType) :: atype ! object of SomeType"
         (dotimes (var nlines)
           (f90-join-lines arg)))
     (f90-join-lines t)))
+
+(defun my-fortran-join-lines ()
+  (interactive)
+  (fortran-join-line -1))
 #+END_SRC
+
+** Down case Fortran buffer
+
+#+begin_src emacs-lisp
+(defun fortran-downcase-buffer ()
+  "Down case all words in current buffer in `fortran-mode'. Let words in
+comment and string untouched."
+  (interactive)
+  (if (eq major-mode 'fortran-mode)
+      (save-excursion
+        (goto-char (point-min))
+        (while (not (eobp))
+          (forward-word)
+          (let ((sp (syntax-ppss)))
+            (unless (or
+                     (nth 3 sp)
+                     (nth 4 sp))
+              (downcase-word -1)))))
+    (error "Current buffer is not fortran-mode!")))
+#+end_src
 
 ** F90 expand region
 
