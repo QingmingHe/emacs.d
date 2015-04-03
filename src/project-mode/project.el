@@ -746,8 +746,28 @@ tag string."
 (defun prj/ac-etags-candidates ()
   "Get etags candidates from tags file of current project."
   (let* ((p (or project-details (project-root-fetch)))
-         (tags-file (when p (project-root-data :-tags-file p))))
-    (prj/ac-etags-get-tags-candidates tags-file ac-prefix)))
+         (tags-file (when p (project-root-data :-tags-file p)))
+         (last-tags-file-mod-time
+          (when p (project-root-data :-last-tags-file-mod-time p)))
+         (last-ac-cache (when p (project-root-data :-last-ac-cache p)))
+         (last-ac-prefix (when p (project-root-data :-last-ac-prefix p)))
+         (last-ac-prefix-len (when last-ac-prefix (length last-ac-prefix)))
+         (ac-prefix-len (when ac-prefix (length ac-prefix)))
+         (tags-file-mod-time (nth 5 (file-attributes tags-file)))
+         last-time elapsed-time)
+    (setq last-time (current-time))
+    (if (and
+         last-ac-prefix
+         ac-prefix
+         (>= ac-prefix-len last-ac-prefix-len)
+         (string= (substring ac-prefix 0 last-ac-prefix-len) last-ac-prefix)
+         (not (time-less-p last-tags-file-mod-time tags-file-mod-time)))
+        (all-completions ac-prefix last-ac-cache)
+      (setq last-ac-cache (prj/ac-etags-get-tags-candidates tags-file ac-prefix))
+      (project-root-set-data :-last-tags-file-mod-time tags-file-mod-time)
+      (project-root-set-data :-last-ac-prefix ac-prefix)
+      (project-root-set-data :-last-ac-cache last-ac-cache)
+      last-ac-cache)))
 
 (defun prj/ac-define-etags-source ()
   (require 'auto-complete)
