@@ -160,3 +160,61 @@ type(SomeType) :: atype ! object of SomeType"
         (t
          (f90-end-of-block))))
 #+end_src
+
+** Fortran jump item
+
+#+begin_src emacs-lisp
+(defun f90-evil-jump-item ()
+  (interactive)
+  (cond ((or
+          (>
+           (nth 0 (parse-partial-sexp (line-beginning-position) (point)))
+           0)
+          (string-match
+           "[\[({]"
+           (buffer-substring-no-properties (point) (1+ (point)))))
+         (call-interactively 'evil-jump-item))
+        ((save-excursion
+           (back-to-indentation)
+           (looking-at "end *\\(function\\|subroutine\\|module\\|program\\)"))
+         (call-interactively 'f90-beginning-of-subprogram)
+         (back-to-indentation))
+        ((save-excursion
+           (back-to-indentation)
+           (looking-at "\\(\\([a-zA-Z_]+[ \t]+\\)?\\(function\\|subroutine\\)\\|\\(module\\|program\\)\\)"))
+         (call-interactively 'f90-end-of-subprogram))
+        ((save-excursion
+           (forward-line 0)
+           (looking-at f90-end-block-re))
+         (call-interactively 'f90-beginning-of-block))
+        ((save-excursion
+           (back-to-indentation)
+           (or
+            (looking-at f90-blocks-re)
+            (looking-at f90-else-like-re)))
+         (push-mark (point) t)
+         (catch 'goto-else-or-end
+           (while t
+             (forward-line 1)
+             (cond ((save-excursion
+                      (back-to-indentation)
+                      (looking-at f90-blocks-re))
+                    (f90-end-of-block))
+                   ((save-excursion
+                      (back-to-indentation)
+                      (looking-at f90-else-like-re))
+                    (back-to-indentation)
+                    (throw 'goto-else-or-end t))
+                   ((save-excursion
+                      (forward-line 0)
+                      (looking-at f90-end-block-re))
+                    (end-of-line)
+                    (throw 'goto-else-or-end t))))))
+        ((save-excursion
+           (forward-line 0)
+           (looking-at "[ \t]*[!\n]"))
+         (call-interactively 'f90-beginning-of-block)
+         (back-to-indentation))
+        (t
+         (call-interactively 'evil-jump-item))))
+#+end_src
