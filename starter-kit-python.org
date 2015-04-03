@@ -66,9 +66,9 @@ To install jedi manually:
           ("<=" . ?≤)
           ("lambda" . ?λ)))
   (prettify-symbols-mode 1))
-(eval-after-load "python"
-  `(progn
-     (add-hook 'python-mode-hook 'my-python-conf)))
+
+(with-eval-after-load 'python
+  (add-hook 'python-mode-hook 'my-python-conf t))
 #+END_SRC
 
 ** Use Cython mode
