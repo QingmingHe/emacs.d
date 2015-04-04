@@ -19,18 +19,24 @@ Fortran is a major language for scientific computation but a minor for other.
           ("<=" . ?≤)))
   (prettify-symbols-mode 1)
   (evil-define-key 'normal f90-mode-map
-    "J" 'my-f90-join-lines))
+    "J" 'my-f90-join-lines)
+  (evil-define-key 'normal f90-mode-map
+    "%" 'f-evil-jump-item))
 
 (eval-after-load "f90"
   `(progn
+     (require 'fortran)
      (require 'expand-region)
      (add-hook 'f90-mode-hook 'my-f90-config)))
 
 (defun my-fortran-config ()
   (evil-define-key 'normal fortran-mode-map
-    "J" 'my-fortran-join-lines))
+    "J" 'my-fortran-join-lines)
+  (evil-define-key 'normal fortran-mode-map
+    "%" 'f-evil-jump-item))
 
 (with-eval-after-load 'fortran
+  (require 'f90)
   (add-hook 'fortran-mode-hook 'my-fortran-config))
 #+END_SRC
 
@@ -180,4 +186,103 @@ comment and string untouched."
          (end-of-line))
         (t
          (f90-end-of-block))))
+#+end_src
+
+** Fortran jump item
+
+#+begin_src emacs-lisp
+(defun f-beginning-of-subprogram ()
+  (if (eq major-mode 'f90-mode)
+      (progn
+        (f90-beginning-of-subprogram)
+        (back-to-indentation))
+    (fortran-beginning-of-subprogram)
+    (back-to-indentation)))
+
+(defun f-end-of-subprogram ()
+  (if (eq major-mode 'f90-mode)
+      (f90-end-of-subprogram)
+    (fortran-end-of-subprogram)
+    (end-of-line 0)))
+
+(defun f-line-match-block (line)
+  (and
+   (string-match (concat "\\`[ \t]*" f90-blocks-re) line)
+   (not (string-match "type[ \t]*(.+)" line))))
+
+(defun f-evil-jump-item (arg)
+  (interactive "P")
+  (push-mark (point) t)
+  (let ((current-line
+         (buffer-substring-no-properties
+          (line-beginning-position)
+          (line-end-position)))
+        (current-char
+         (buffer-substring-no-properties (point) (1+ (point))))
+        (parens-depth
+         (nth 0 (parse-partial-sexp (line-beginning-position) (point)))))
+    (cond
+     ;; jump to arg percent of current buffer
+     (arg
+      (evil-jump-item arg))
+     ;; inside parens
+     ((or
+       (> parens-depth 0)
+       (string-match "[\[({]" current-char))
+      (evil-jump-item))
+     ;; end of sub-program
+     ((string-match
+       "\\`[ \t]*\\(end *\\(function\\|subroutine\\|module\\|program\\)\\|end[ \t]*\\'\\)"
+       current-line)
+      (f-beginning-of-subprogram))
+     ;; beginning of sub-program
+     ((string-match
+       "\\`[ \t]*\\(\\([a-zA-Z_]+[ \t]+\\)?\\(function\\|subroutine\\)\\|\\(module\\|program\\)\\)"
+       current-line)
+      (f-end-of-subprogram))
+     ;; end of block
+     ((string-match f90-end-block-re current-line)
+      (f90-beginning-of-block))
+     ;; one line if statement
+     ((and
+       (string-match "\\`[ \t]*if" current-line)
+       (not (string-match "\\_<then\\_>" current-line)))
+      (evil-jump-item))
+     ;; beginning or else like block
+     ((or
+       (f-line-match-block current-line)
+       (string-match (concat "\\`[ \t]*" f90-else-like-re) current-line))
+      (catch 'goto-else-or-end
+        (while t
+          (forward-line 1)
+          (let ((current-line
+                 (buffer-substring-no-properties
+                  (line-beginning-position)
+                  (line-end-position))))
+            (cond
+             ;; beginning of inside block
+             ((f-line-match-block current-line)
+              (if (and
+                   (string-match "\\`[ \t]*if" current-line)
+                   (not (string-match "\\_<then\\_>" current-line)))
+                  (forward-line 1)
+                (f90-end-of-block)))
+             ;; else like statement
+             ((string-match
+               (concat "\\`[ \t]*" f90-else-like-re)
+               current-line)
+              (back-to-indentation)
+              (throw 'goto-else-or-end t))
+             ;; end of block
+             ((string-match f90-end-block-re current-line)
+              (end-of-line)
+              (throw 'goto-else-or-end t)))))))
+     ;; comment or blank line
+     ((string-match "\\`\\(c\\|[ \t]*[!\n]\\)" current-line)
+      (f90-beginning-of-block)
+      (back-to-indentation))
+     ;; otherwise run `evil-jump-item' or go to beginning of block
+     (t
+      (unless (ignore-errors (evil-jump-item))
+        (f90-beginning-of-block))))))
 #+end_src
