@@ -98,12 +98,17 @@ live in the =/tmp= directory.
 (put 'erase-buffer 'disabled nil)
 #+END_SRC
 
-** 80 Column Rule
+** 80 Column Rule; auto fill
 
 It's a good habit to obey to 80 column rule. In the convenience of adding
 continuation marker in code such as Fortran, two columns are spared.
 #+BEGIN_SRC emacs-lisp
 (setq default-fill-column 78)
+(defadvice do-auto-fill (around my-indent-after-fill activate)
+  (let ((p (point)))
+    ad-do-it
+    (when (/= p (point))
+      (indent-for-tab-command))))
 #+END_SRC
 
 ** Disable recentering
