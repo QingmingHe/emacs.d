@@ -75,6 +75,7 @@ To install jedi manually:
    :PROPERTIES:
    :CUSTOM_ID: cython
    :END:
+
 #+begin_src emacs-lisp
     (add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
     (add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
@@ -82,6 +83,7 @@ To install jedi manually:
 #+end_src
 
 ** Set up for Sconstruct
+
 [[http://www.scons.org/][SCons]] is a software construction tool written in python. The /input card/ or
 /script/ for SCons is *SConstruct*, which can be treated as Python script.
 #+BEGIN_SRC emacs-lisp
@@ -160,6 +162,7 @@ quickrun. The dired way is perfect only if you don't use
 matplotlib. Matplotlib can not create configuration directory for some reason.
 
 ** Rst in Python doc
+
 #+begin_src emacs-lisp
 (defun indirect-region-py-rst ()
   "Edit doc string in indirect buffer in rst-mode."
@@ -178,6 +181,7 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
 (eval-after-load "python"
   `(define-key python-mode-map (kbd "C-c '") 'indirect-region-py-rst))
 #+end_src
+
 ** Python shell send do what I mean
 
 [[help:python-shell-send-region][python-shell-send-region]] is sometimes strange, don't use it.
@@ -219,4 +223,30 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
             (buffer-substring-no-properties b0 b1))))))
 (eval-after-load "python"
   `(define-key python-mode-map (kbd "C-c C-c") 'python-shell-send-dwim))
+#+end_src
+
+** Look up python documentation
+
+#+begin_src emacs-lisp
+(defun look-up-pydoc (module)
+  (interactive
+   (list
+    (let* ((b (bounds-of-thing-at-point 'symbol))
+           (b0 (car b))
+           (b1 (cdr b))
+           (default-mod (when b
+                          (buffer-substring-no-properties b0 b1))))
+      (read-string
+       (format "module (default \"%s\"): " default-mod)
+       nil nil default-mod))))
+  (let ((buf (get-buffer-create (format "*pydoc:%s*" module))))
+    (with-current-buffer buf
+      (erase-buffer)
+      (call-process "python" nil t nil "-m" "pydoc" module)
+      (setq imenu-generic-expression
+            '(("Class" "^    class *\\(.+\\)$" 1)
+              ("Function" "^    \\([a-zA-Z0-9_]+\\)(.*)$" 1)))
+      (setq buffer-read-only t))
+    (pop-to-buffer buf)
+    (goto-char (point-min))))
 #+end_src

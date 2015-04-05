@@ -261,10 +261,6 @@ Use XeLaTeX to export PDF and compile three times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
 compile it.
 #+BEGIN_SRC emacs-lisp
-(setq org-latex-to-pdf-process
-      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 (setq org-latex-pdf-process
       '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"

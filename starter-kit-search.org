@@ -72,7 +72,7 @@ Don't grep repositories and some files.
 (global-set-key (kbd "C-M-r") 'isearch-backward)
 #+end_src
 
-*** Activate occur easily inside isearch
+*** Activate occur and swoop easily inside isearch
 
 #+begin_src emacs-lisp
 (define-key isearch-mode-map (kbd "C-o")
@@ -81,6 +81,7 @@ Don't grep repositories and some files.
       (occur (if isearch-regexp
                  isearch-string
                (regexp-quote isearch-string))))))
+(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
 #+end_src
 
 *** Isearch yank do what I mean

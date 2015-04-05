@@ -78,8 +78,8 @@ All these codes are copied from
 ;; NO spell check for embedded snippets
 (defadvice org-mode-flyspell-verify (after org-mode-flyspell-verify-hack activate)
   (let ((rlt ad-return-value)
-        (begin-regexp "^[ \t]*#\\+begin_\\(src\\|html\\|latex\\)")
-        (end-regexp "^[ \t]*#\\+end_\\(src\\|html\\|latex\\)")
+        (begin-regexp "^[ \t]*\\(#\\+begin_\\(src\\|html\\|latex\\)\\|\\\\begin{\\)")
+        (end-regexp "^[ \t]*\\(#\\+end_\\(src\\|html\\|latex\\)\\|\\\\end{\\)")
         old-flag
         b e)
     (when ad-return-value

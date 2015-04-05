@@ -149,7 +149,7 @@ back.
          (interactive)
          (cond ((eq major-mode 'org-mode)
                 (helm-org-in-buffer-headings))
-               (t (call-interactively 'helm-semantic-or-imenu))))
+               (t (call-interactively 'helm-imenu))))
   "sw" 'helm-swoop
   "oc" 'occur-dwim
 
