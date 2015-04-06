@@ -233,7 +233,7 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 ** Auto indent after yank
 
 #+begin_src emacs-lisp
-(dolist (command '(yank yank-pop evil-paste-after evil-paste-before insert-for-yank))
+(dolist (command '(insert-for-yank))
    (eval `(defadvice ,command (after indent-region activate)
             (and (not current-prefix-arg)
                  (member major-mode '(emacs-lisp-mode lisp-mode clojure-mode
