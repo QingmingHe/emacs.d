@@ -87,6 +87,8 @@ back.
 
 #+begin_src emacs-lisp
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-normal-state-map (kbd "j") 'next-line)
+(define-key evil-normal-state-map (kbd "k") 'previous-line)
 #+end_src
 
 *** Ex completion map
@@ -214,7 +216,6 @@ before call this command."
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
-  "sgc" 'anzu-query-replace-regexp
   "co" (lambda ()
          "If region is active, comment or un-comment the region; otherwise
 comment or un-comment current line."
@@ -222,12 +223,7 @@ comment or un-comment current line."
          (if (region-active-p)
              (comment-or-uncomment-region (region-beginning) (region-end))
            (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
-  "iw" 'flyspell-correct-word-before-point
-  "I" (lambda ()
-        (interactive)
-        (evil-insert 1)
-        (insert " ")
-        (backward-char)))
+  "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 
 ** Quit by escape

@@ -63,6 +63,10 @@ minimally intrusive.
 (show-paren-mode 1)
 (electric-pair-mode 1)
 (setq electric-pair-open-newline-between-pairs t)
+(setq electric-pair-pairs
+      '((?\" . ?\")
+        (?{ . ?})
+        (?< . ?>)))
 #+end_src
 
 ** Show function name in the header line                                        :which:function:mode:

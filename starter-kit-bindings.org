@@ -9,24 +9,26 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (set-default 'indent-tabs-mode nil)
 #+end_src
 
-** Move beginning of line
+** Move beginning/end of line
 
-This function is copied form prelude.
 #+begin_src emacs-lisp
-(defun move-beginning-of-line-dwim (arg)
-  "Move point to previous char position of indentation or beginning of line."
-  (interactive "^p")
-  (setq arg (or arg 1))
-  (when (/= arg 1)
-    (let ((line-move-visual nil))
-      (forward-line (1- arg))))
-  (let ((orig-point (point)))
-    (back-to-indentation)
-    (when (= orig-point (point))
-      (move-beginning-of-line 1))))
+(defun move-beginning-of-line-dwim ()
+  (interactive)
+  (let* ((orig-point (point))
+         (cur-point (beginning-of-visual-line)))
+    (when (and
+           (= orig-point cur-point)
+           (= (line-beginning-position) cur-point))
+      (back-to-indentation))))
+
 (global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
+(global-set-key [remap move-end-of-line] 'end-of-visual-line)
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "0") 'move-beginning-of-line-dwim))
+  (define-key evil-normal-state-map (kbd "0") 'move-beginning-of-line-dwim)
+  (define-key evil-normal-state-map (kbd "$") 'end-of-visual-line))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-a") 'move-beginning-of-line-dwim)
+  (define-key org-mode-map (kbd "C-e") 'end-of-visual-line))
 #+end_src
 
 ** Text scale
@@ -100,24 +102,39 @@ Use *jk* key chord to quite everything.
 #+end_src
 
 *** Banish the Shift key in evil normal/insert state
+     :PROPERTIES:
+     :TANGLE:   no
+     :END:
 
+Do you really need it?
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil
   (key-chord-define evil-normal-state-map "33" "#")
   (key-chord-define evil-normal-state-map "44" "$")
   (key-chord-define evil-normal-state-map "55" "%")
-  (key-chord-define evil-normal-state-map "66" "^")
   (key-chord-define evil-normal-state-map "88" "*"))
+#+end_src
+
+*** Use key chord to select window
+
+#+begin_src emacs-lisp
+(key-chord-define-global ";a" 'select-window-1)
+(key-chord-define-global ";b" 'select-window-2)
+(key-chord-define-global ";c" 'select-window-3)
+(key-chord-define-global ";d" 'select-window-4)
+(key-chord-define-global ";e" 'select-window-5)
+(key-chord-define-global ";f" 'select-window-6)
+(key-chord-define-global ";;" 'select-window-0)
 #+end_src
 
 *** Append a space in evil insert state
 
 #+begin_src emacs-lisp
-(defun evil-insert-state-insert-space ()
+(defun evil-insert-state-append-space ()
   (interactive)
   (insert " ")
   (backward-char))
-(key-chord-define evil-insert-state-map "df" 'evil-insert-state-insert-space)
+(key-chord-define evil-insert-state-map "df" 'evil-insert-state-append-space)
 #+end_src
 
 ** Super TAB for program modes
