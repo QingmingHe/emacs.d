@@ -82,6 +82,8 @@ Don't grep repositories and some files.
                  isearch-string
                (regexp-quote isearch-string))))))
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+(with-eval-after-load 'evil
+  (define-key evil-motion-state-map (kbd "M-i") 'helm-swoop-from-evil-search))
 #+end_src
 
 *** Isearch yank do what I mean

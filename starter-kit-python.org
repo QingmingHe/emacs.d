@@ -82,7 +82,7 @@ To install jedi manually:
     (add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode))
 #+end_src
 
-** Set up for Sconstruct
+** Set up for SConstruct
 
 [[http://www.scons.org/][SCons]] is a software construction tool written in python. The /input card/ or
 /script/ for SCons is *SConstruct*, which can be treated as Python script.
@@ -234,8 +234,9 @@ matplotlib. Matplotlib can not create configuration directory for some reason.
     (let* ((b (bounds-of-thing-at-point 'symbol))
            (b0 (car b))
            (b1 (cdr b))
-           (default-mod (when b
-                          (buffer-substring-no-properties b0 b1))))
+           (default-mod
+             (when b
+               (buffer-substring-no-properties b0 b1))))
       (read-string
        (format "module (default \"%s\"): " default-mod)
        nil nil default-mod))))

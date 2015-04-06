@@ -105,7 +105,6 @@ back.
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  "<SPC>" 'evil-execute-in-emacs-state
   ;; fold and unfold
   "zo" (lambda ()
          (interactive)
@@ -176,6 +175,13 @@ otherwise save current buffer."
   ;; ace jump
   "w" 'ace-jump-word-mode
   "l" 'ace-jump-line-mode
+
+  ;; replace
+  "rd" 'anzu-query-replace-at-cursor-thing
+  "rb" (lambda ()
+         (interactive)
+         (let ((anzu-replace-at-cursor-thing 'buffer))
+           (anzu-query-replace-at-cursor-thing)))
 
   ;; misc
   "fm" 'flycheck-buffer

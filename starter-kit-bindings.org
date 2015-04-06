@@ -93,6 +93,7 @@ to expand or contract region.
 #+end_src
 
 ** Key Chord mode
+*** Use *jk* to quite every thing
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
@@ -108,6 +109,17 @@ Use *jk* key chord to quite everything.
 (key-chord-define minibuffer-local-must-match-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-mode 1)
+#+end_src
+
+*** Banish the Shift key in evil normal state
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil
+  (key-chord-define evil-normal-state-map "33" "#")
+  (key-chord-define evil-normal-state-map "44" "$")
+  (key-chord-define evil-normal-state-map "55" "%")
+  (key-chord-define evil-normal-state-map "66" "^")
+  (key-chord-define evil-normal-state-map "88" "*"))
 #+end_src
 
 ** Super TAB for program modes
