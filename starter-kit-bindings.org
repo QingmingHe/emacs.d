@@ -11,12 +11,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 ** Move beginning of line
 
-This function is copied form prelude. The differences are:
-+ It moves to previous char position of indentation instead of
-  indentation. This favors inserting new word at beginning of line.
-+ If there is no white space between indentation and beginning, create a white
-  space and go to beginning of line.
-
+This function is copied form prelude.
 #+begin_src emacs-lisp
 (defun move-beginning-of-line-dwim (arg)
   "Move point to previous char position of indentation or beginning of line."
@@ -27,18 +22,11 @@ This function is copied form prelude. The differences are:
       (forward-line (1- arg))))
   (let ((orig-point (point)))
     (back-to-indentation)
-    (when (looking-back "[ \t]+" (line-beginning-position))
-      (backward-char 1))
     (when (= orig-point (point))
-      (if (and
-           (looking-back "^" (line-beginning-position))
-           (looking-at "[^ \t\n]")
-           (not buffer-read-only))
-          (progn
-            (insert " ")
-            (backward-char 1))
-        (move-beginning-of-line 1)))))
+      (move-beginning-of-line 1))))
 (global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "0") 'move-beginning-of-line-dwim))
 #+end_src
 
 ** Text scale
@@ -111,7 +99,7 @@ Use *jk* key chord to quite everything.
 (key-chord-mode 1)
 #+end_src
 
-*** Banish the Shift key in evil normal state
+*** Banish the Shift key in evil normal/insert state
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil
@@ -120,6 +108,16 @@ Use *jk* key chord to quite everything.
   (key-chord-define evil-normal-state-map "55" "%")
   (key-chord-define evil-normal-state-map "66" "^")
   (key-chord-define evil-normal-state-map "88" "*"))
+#+end_src
+
+*** Append a space in evil insert state
+
+#+begin_src emacs-lisp
+(defun evil-insert-state-insert-space ()
+  (interactive)
+  (insert " ")
+  (backward-char))
+(key-chord-define evil-insert-state-map "df" 'evil-insert-state-insert-space)
 #+end_src
 
 ** Super TAB for program modes

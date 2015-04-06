@@ -83,6 +83,12 @@ back.
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
 #+end_src
 
+*** Normal state map
+
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
+#+end_src
+
 *** Ex completion map
 
 #+begin_src emacs-lisp
