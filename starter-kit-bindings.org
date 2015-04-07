@@ -47,20 +47,31 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (global-set-key "\C-cj" 'org-clock-goto)
 #+end_src
 
-** Upper case word or symbol
+** Cycle case of word or region
 
 #+begin_src emacs-lisp
-(define-key global-map (kbd "M-u")
-  (lambda (arg)
-    (interactive "P")
-    (cond ((equal arg '(4))
-           (let ((b (bounds-of-thing-at-point 'word)))
-             (upcase-region (car b) (cdr b))))
-          (arg
-           (upcase-word arg))
-          (t
-           (let ((b (bounds-of-thing-at-point 'symbol)))
-             (upcase-region (car b) (cdr b)))))))
+(defun upcase-word-or-region ()
+  (interactive)
+  (if (region-active-p)
+      (upcase-region (region-beginning) (region-end))
+    (let ((b (bounds-of-thing-at-point 'word)))
+      (upcase-region (car b) (cdr b)))))
+(defun downcase-word-or-region ()
+  (interactive)
+  (if (region-active-p)
+      (downcase-region (region-beginning) (region-end))
+    (let ((b (bounds-of-thing-at-point 'word)))
+      (downcase-region (car b) (cdr b)))))
+(defun capitalize-word-or-region ()
+  (interactive)
+  (if (region-active-p)
+      (capitalize-region (region-beginning) (region-end))
+    (let ((b (bounds-of-thing-at-point 'word)))
+      (capitalize-region (car b) (cdr b)))))
+(key-combo-define-global (kbd "M-u")
+                         '(capitalize-word-or-region
+                           upcase-word-or-region
+                           downcase-word-or-region))
 #+end_src
 
 ** Expand region
@@ -102,11 +113,9 @@ Use *jk* key chord to quite everything.
 #+end_src
 
 *** Banish the Shift key in evil normal/insert state
-     :PROPERTIES:
-     :TANGLE:   no
-     :END:
 
-Do you really need it?
+Do you really need them? Once accustomed to key chords below, I can not play
+with vim any longer.
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil
   (key-chord-define evil-normal-state-map "33" "#")
@@ -117,14 +126,15 @@ Do you really need it?
 
 *** Use key chord to select window
 
+Meta key is too far away to press. I use six windows at most.
 #+begin_src emacs-lisp
-(key-chord-define-global ";a" 'select-window-1)
-(key-chord-define-global ";b" 'select-window-2)
-(key-chord-define-global ";c" 'select-window-3)
-(key-chord-define-global ";d" 'select-window-4)
-(key-chord-define-global ";e" 'select-window-5)
-(key-chord-define-global ";f" 'select-window-6)
-(key-chord-define-global ";;" 'select-window-0)
+(key-chord-define-global "ja" 'select-window-1)
+(key-chord-define-global "jb" 'select-window-2)
+(key-chord-define-global "jc" 'select-window-3)
+(key-chord-define-global "jd" 'select-window-4)
+(key-chord-define-global "je" 'select-window-5)
+(key-chord-define-global "jf" 'select-window-6)
+(key-chord-define-global "jg" 'select-window-0)
 #+end_src
 
 *** Append a space in evil insert state
@@ -135,6 +145,30 @@ Do you really need it?
   (insert " ")
   (backward-char))
 (key-chord-define evil-insert-state-map "df" 'evil-insert-state-append-space)
+#+end_src
+
+*** Misc
+
+#+begin_src emacs-lisp
+(key-chord-define-global "iw" 'flyspell-correct-word-before-point)
+#+end_src
+
+** key combo
+*** Active global key combo
+
+#+begin_src emacs-lisp
+(global-key-combo-mode 1)
+#+end_src
+
+*** Use one key to cycle single, double letter and upper case letter
+
+#+begin_src emacs-lisp :tangle no
+(dotimes (i 26)
+  (let ((j (+ i 97))
+        (k (+ i 65)))
+    (key-combo-define evil-insert-state-map (format "%c" j)
+                      `(,(format "%c" j) ,(format "%c%c" j j)
+                        ,(format "%c" k)))))
 #+end_src
 
 ** Super TAB for program modes
