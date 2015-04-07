@@ -30,6 +30,7 @@ Fortran is a major language for scientific computation but a minor for other.
      (add-hook 'f90-mode-hook 'my-f90-config)))
 
 (defun my-fortran-config ()
+  (modify-syntax-entry ?_ "w")
   (evil-define-key 'normal fortran-mode-map
     "J" 'my-fortran-join-lines)
   (evil-define-key 'normal fortran-mode-map
@@ -44,10 +45,11 @@ Fortran is a major language for scientific computation but a minor for other.
 
 Default indentation for Fortran is not that friendly.
 #+BEGIN_SRC emacs-lisp
-(setq fortran-do-indent 2)
-(setq fortran-if-indent 2)
-(setq fortran-structure-indent 2)
-(setq fortran-continuation-indent 2)
+(setq fortran-do-indent 1)
+(setq fortran-if-indent 1)
+(setq fortran-structure-indent 1)
+(setq fortran-continuation-indent 1)
+(setq fortran-comment-indent-style 'relative)
 (setq f90-do-indent 2)
 (setq f90-if-indent 2)
 (setq f90-structure-indent 2)

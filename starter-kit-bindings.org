@@ -5,6 +5,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 * Starter Kit Bindings
 ** No tab
+
 #+begin_src emacs-lisp
 (set-default 'indent-tabs-mode nil)
 #+end_src
@@ -99,6 +100,7 @@ to expand or contract region.
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
 (require 'key-chord)
+(setq key-chord-two-keys-delay 0.05)
 (eval-after-load 'evil
   `(progn
      (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
@@ -145,6 +147,24 @@ Meta key is too far away to press. I use six windows at most.
   (insert " ")
   (backward-char))
 (key-chord-define evil-insert-state-map "df" 'evil-insert-state-append-space)
+#+end_src
+
+*** Banish shift key
+
+#+begin_src emacs-lisp
+(defun banish-shift-by-key-chord ()
+  (interactive)
+  (dotimes (i 26)
+    (let ((j (+ i 97))
+          (k (+ i 65)))
+      (key-chord-define
+       evil-insert-state-local-map
+       (format "%c%c" j j)
+       (format "%c" k))))
+  (key-chord-define evil-insert-state-local-map "--" "_")
+  (key-chord-define evil-insert-state-local-map "99" "(")
+  (key-chord-define evil-insert-state-local-map "00" ")")
+  (key-chord-define evil-insert-state-local-map "88" "*"))
 #+end_src
 
 *** Misc
@@ -204,8 +224,8 @@ Meta key is too far away to press. I use six windows at most.
           ((and yas-minor-mode
                 (yas--snippets-at-point))
            (when (and (looking-back " ")
-                      (looking-at "[\]\}\)\n\[\(\{ ]"))
-             (delete-backward-char 1))
+                      (looking-at "[\]})\n\[({, ]"))
+             (delete-region (1- p) p))
            (yas-next-field))
           (t
            (indent-for-tab-command)))))
@@ -219,6 +239,7 @@ Meta key is too far away to press. I use six windows at most.
     (ac-abort)))
 
 (defun setup-tab-for-anything ()
+  (interactive)
   (define-key yas-minor-mode-map (kbd "<tab>") nil)
   (define-key yas-minor-mode-map (kbd "TAB") nil)
   (define-key yas-keymap [(tab)] nil)
@@ -227,12 +248,19 @@ Meta key is too far away to press. I use six windows at most.
   (define-key ac-completing-map [tab] 'ac-expand-common-or-abort)
   (local-set-key (read-kbd-macro "TAB") 'tab-for-anything))
 
+(defun disable-tab-for-yas-prog ()
+  (interactive)
+  (when (derived-mode-p 'prog-mode)
+    (define-key yas-keymap [(tab)] nil)
+    (define-key yas-keymap (kbd "TAB") nil)))
+
 (defun ac-auto-refresh-candidates ()
   (when (and auto-complete-mode ac-candidates)
     (ac-update t)))
 
 (add-hook 'post-self-insert-hook 'ac-auto-refresh-candidates)
 (add-hook 'prog-mode-hook 'setup-tab-for-anything)
+(add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
 #+end_src
 
 ** Popup

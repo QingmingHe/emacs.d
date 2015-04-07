@@ -1,0 +1,16 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: function
+# expand-env: ((yas-indent-line 'fixed))
+# key: fn
+# --
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C
+C
+      function $1() result($2)
+
+      implicit none
+
+      $0
+
+      end function $1

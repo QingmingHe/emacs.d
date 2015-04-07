@@ -491,7 +491,6 @@ everyone using the starter kit.
   (starter-kit-fast-load "browser")
   (starter-kit-fast-load "dictionary")
   (starter-kit-fast-load "bindings")
-  (starter-kit-fast-load "quickrun")
   (starter-kit-fast-load "gud")
   (starter-kit-fast-load "flyspell")
   (starter-kit-fast-load "misc-text")

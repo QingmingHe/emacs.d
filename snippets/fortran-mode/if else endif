@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: if else endif
+# key: if
+# --
+if ($0) then
+else
+endif
