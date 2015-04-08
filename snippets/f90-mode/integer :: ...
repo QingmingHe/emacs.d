@@ -2,4 +2,4 @@
 # name: integer :: ...
 # key: in
 # --
-integer :: $0 !<
+integer$1 :: $0 !

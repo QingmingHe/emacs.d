@@ -4,6 +4,12 @@
 This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 * Starter Kit Bindings
+** Align
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-\\") 'align-regexp)
+#+end_src
+
 ** No tab
 
 #+begin_src emacs-lisp

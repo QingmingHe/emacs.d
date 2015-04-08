@@ -2,4 +2,4 @@
 # name: character :: ...
 # key: ch
 # --
-character($1) :: $0 !< 
+character($1)$2 :: $0 !

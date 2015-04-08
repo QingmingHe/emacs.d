@@ -5,9 +5,9 @@
 # --
 ! -*- coding: utf-8 -*-
 !============================================================================
-!> Description of the module ...
-!! @author Qingming He, NECP
-!! @date `(format-time-string "%Y-%m-%d %T")`
+! Description of the module ...
+! @author Qingming He, NECP
+! @date `(format-time-string "%Y-%m-%d %T")`
 !============================================================================
 module $1
 

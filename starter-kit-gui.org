@@ -116,6 +116,7 @@ other data on the mode line.
 (eval-after-load "fic-mode"                '(diminish 'fic-mode))
 (eval-after-load "yasnippet"               '(diminish 'yas-minor-mode))
 (eval-after-load "anzu"                    '(diminish 'anzu-mode))
+(eval-after-load "key-combo"               '(diminish 'key-combo-mode))
 (diminish 'auto-fill-function)
 #+END_SRC
 

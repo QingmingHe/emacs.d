@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: interface ... end interface
+# key: interface ... end interface
+# --
+interface
+ $0
+end interface
