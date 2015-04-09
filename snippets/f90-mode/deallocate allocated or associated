@@ -3,4 +3,4 @@
 # key: da
 # --
 if (${1:`(yas-choose-value '("allocated" "associated"))`}($2)) deallocate($2)
-$0
+allocate($2($0))

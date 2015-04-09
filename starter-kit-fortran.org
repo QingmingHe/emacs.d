@@ -75,8 +75,13 @@ type(SomeType) :: atype ! object of SomeType"
     (align-regexp begin end "\\(\\s-*\\)::" 1 1 nil)
     (align-regexp begin end "::\\(\\s-*\\)" 1 1 nil)
     (align-regexp begin end "\\(\\s-*\\)!" 1 1 nil)))
-(eval-after-load "f90"
-  `(define-key f90-mode-map (kbd "C-c C-i") 'my-f90-align-declare))
+(defun f90-align-comment-or-regexp (arg)
+  (interactive "P")
+  (if arg
+      (call-interactively 'align-regexp)
+    (align-regexp (region-beginning) (region-end) "\\(\\s-*\\)!" 1 1 nil)))
+(with-eval-after-load 'f90
+  (define-key f90-mode-map (kbd "M-\\") 'f90-align-comment-or-regexp))
 #+END_SRC
 
 ** Fortran join lines
@@ -209,7 +214,7 @@ comment and string untouched."
 
 (defun f-line-match-block (line)
   (and
-   (string-match (concat "\\`[ \t]*" f90-blocks-re) line)
+   (string-match (concat "\\`[ \t]*\\([a-zA-Z_]+:[ \t]*\\)?" f90-blocks-re) line)
    (not (string-match "type[ \t]*(.+)" line))))
 
 (defun f-evil-jump-item (arg)

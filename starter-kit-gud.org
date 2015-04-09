@@ -142,6 +142,8 @@ is splitted vertically and limited to 10 lines height."
 (add-hook 'kill-buffer-hook 'turn-off-gobal-linum-after-gud)
 
 (eval-after-load "f90" `(define-key f90-mode-map (kbd "C-<f5>") 'run-gdb-dwim))
+(with-eval-after-load 'fortran
+  (define-key fortran-mode-map (kbd "C-<f5>") 'run-gdb-dwim))
 (eval-after-load "cc-mode"
   `(progn
      (define-key c-mode-map (kbd "C-<f5>") 'run-gdb-dwim)
