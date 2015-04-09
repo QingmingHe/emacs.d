@@ -113,6 +113,15 @@ back.
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
+  ;; select window
+  "1" 'select-window-1
+  "2" 'select-window-2
+  "3" 'select-window-3
+  "4" 'select-window-4
+  "5" 'select-window-5
+  "6" 'select-window-6
+  "0" 'select-window-0
+
   ;; fold and unfold
   "zo" (lambda ()
          (interactive)
