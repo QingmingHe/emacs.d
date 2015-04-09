@@ -20,6 +20,9 @@
       ediff-window-setup-function 'ediff-setup-windows-plain
       oddmuse-directory (concat starter-kit-dir "oddmuse")
       xterm-mouse-mode t)
+(if (window-system)
+    (setq linum-format "%d")
+  (setq linum-format "%d "))
 #+end_src
 
 ** Rainbow delimiters
