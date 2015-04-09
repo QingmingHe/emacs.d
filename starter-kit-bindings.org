@@ -320,7 +320,8 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
       ido-use-virtual-buffers t
       ido-auto-merge-work-directories-length -1
       ido-save-directory-list-file (concat starter-kit-dir ".ido.last")
-      ido-max-prospects 10)
+      ido-max-prospects 10
+      ido-use-filename-at-point 'guess)
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
@@ -329,9 +330,11 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 (ido-mode 1)
 (ido-everywhere 1)
 (flx-ido-mode 1)
+(global-set-key (kbd "C-x C-f") 'ido-find-file)
 ;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
 (defun ido-setup-key-bindings ()
   (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
-  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
+  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match)
+  (define-key ido-completion-map (kbd "C-j") 'ido-restrict-to-matches))
 (add-hook 'ido-setup-hook 'ido-setup-key-bindings)
 #+end_src
