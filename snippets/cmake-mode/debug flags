@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: debug flags
+# key: debug flags
+# --
+-g -O0 -fbacktrace -fcheck=all -Wall -pg

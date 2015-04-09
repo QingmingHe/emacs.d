@@ -185,7 +185,13 @@ otherwise save current buffer."
   "l" 'ace-jump-line-mode
 
   ;; replace
-  "rd" 'anzu-query-replace-at-cursor-thing
+  "rd" (lambda ()
+         (interactive)
+         (cond ((eq major-mode 'f90-mode)
+                (let ((anzu-replace-at-cursor-thing 'f90-subprogram))
+                  (anzu-query-replace-at-cursor-thing)))
+               (t
+                (anzu-query-replace-at-cursor-thing))))
   "rb" (lambda ()
          (interactive)
          (let ((anzu-replace-at-cursor-thing 'buffer))

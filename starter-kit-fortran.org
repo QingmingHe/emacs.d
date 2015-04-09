@@ -288,3 +288,20 @@ comment and string untouched."
       (unless (ignore-errors (evil-jump-item))
         (f90-beginning-of-block))))))
 #+end_src
+
+** Hack [[help:bounds-of-thing-at-point][bounds-of-thing-at-point]] for Fortran
+
+#+begin_src emacs-lisp
+(defadvice bounds-of-thing-at-point (around bnds-of-f90-subprogram activate)
+  (setq ad-return-value
+        (if (equal thing 'f90-subprogram)
+            (save-excursion
+              (cons
+               (progn
+                 (f90-beginning-of-subprogram)
+                 (point))
+               (progn
+                 (f90-end-of-subprogram)
+                 (point))))
+          ad-do-it)))
+#+end_src
