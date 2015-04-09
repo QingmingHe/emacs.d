@@ -247,3 +247,11 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
                  (let ((mark-even-if-inactive transient-mark-mode))
                    (indent-region (region-beginning) (region-end) nil))))))
 #+end_src
+
+** Enable disabled commands
+
+#+begin_src emacs-lisp
+(put 'upcase-region 'disabled nil)
+;; may be dangerous
+;; (setq disabled-command-function nil)
+#+end_src

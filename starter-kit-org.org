@@ -29,7 +29,7 @@ at root of org package.
   (eldoc-mode)
   (turn-on-flyspell)
   ;; (visual-line-mode 1)
-  (adaptive-wrap-prefix-mode 1)
+  ;; (adaptive-wrap-prefix-mode 1)
   (org-cdlatex-mode))
 (with-eval-after-load 'org
   (add-hook 'org-mode-hook 'my-org-config)
