@@ -20,8 +20,29 @@
       ediff-window-setup-function 'ediff-setup-windows-plain
       oddmuse-directory (concat starter-kit-dir "oddmuse")
       xterm-mouse-mode t)
-(unless (window-system)
-  (setq linum-format "%d "))
+#+end_src
+
+** Line number in terminal
+
+There is no fringe in terminal and it's hard to distinguish line number and
+code if there is no margin between. Approach as follows just mimic the fringe
+in GUI Emacs.
+#+begin_src emacs-lisp
+(unless window-system
+  (defun set-linum-format-str ()
+    (setq-local linum-format-fmt
+                (let ((w (length (number-to-string
+                                  (count-lines (point-min) (point-max))))))
+                  (concat "%" (number-to-string w) "d"))))
+
+  (add-hook 'linum-before-numbering-hook 'set-linum-format-str)
+
+  (defun linum-format-fn (line)
+    (concat
+     (propertize (format linum-format-fmt line) 'face 'linum)
+     (propertize " " 'face 'secondary-selection)))
+
+  (setq linum-format 'linum-format-fn))
 #+end_src
 
 ** Rainbow delimiters
