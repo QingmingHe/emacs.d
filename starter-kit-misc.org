@@ -252,6 +252,7 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 
 #+begin_src emacs-lisp
 (put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 ;; may be dangerous
 ;; (setq disabled-command-function nil)
 #+end_src

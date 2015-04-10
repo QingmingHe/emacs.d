@@ -35,14 +35,10 @@ a lambda doesn't already exist in the list.
     (hideshowvis-symbols)))
 (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs)
 
-;; Use relative line number. Set linum-relative-current-symbol to be empty
-;; string so that linum-relative will show the real line number at current
-;; line. Linum mode is too slow.
 (defun starter-kit-turn-on-linum ()
   (interactive)
-  (make-local-variable 'linum-relative-current-symbol)
-  (setq linum-relative-current-symbol "")
   (linum-mode 1))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-linum)
 
 (setq fic-highlighted-words '("FIXME" "TODO" "BUG" "KLUDGE" "DEBUG"))
 (add-hook 'starter-kit-coding-hook 'turn-on-fic-mode)
@@ -98,6 +94,7 @@ minimally intrusive.
 
 #+BEGIN_SRC emacs-lisp
 (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+(add-hook 'cmake-mode-hook 'starter-kit-turn-on-linum)
 #+END_SRC
 
 ** Auto Hot Key

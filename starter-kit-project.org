@@ -36,7 +36,8 @@ First define projects.
          :lighter "UFP")
         ("RMET21"
          :root-contains-files ("RMET21" "GEXSCO" "SLAMBD" "WLUTIL")
-         :exclude-paths ("BROADR" "BUILD" "BUILD_CYGWIN" "CMAKE")
+         :exclude-paths ("BROADR" "BUILD" "BUILD_CYGWIN" "CMAKE" "build_debug"
+                         "build_release" "TESTS")
          :lighter "RMET21")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")

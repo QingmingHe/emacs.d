@@ -266,6 +266,7 @@ Meta key is too far away to press. I use six windows at most.
 
 (add-hook 'post-self-insert-hook 'ac-auto-refresh-candidates)
 (add-hook 'prog-mode-hook 'setup-tab-for-anything)
+(add-hook 'cmake-mode-hook 'setup-tab-for-anything)
 (add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
 #+end_src
 
@@ -335,6 +336,6 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 (defun ido-setup-key-bindings ()
   (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
   (define-key ido-completion-map (kbd "C-p") 'ido-prev-match)
-  (define-key ido-completion-map (kbd "C-j") 'ido-restrict-to-matches))
+  (define-key ido-completion-map (kbd "C-c C-c") 'ido-restrict-to-matches))
 (add-hook 'ido-setup-hook 'ido-setup-key-bindings)
 #+end_src

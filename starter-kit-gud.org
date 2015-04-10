@@ -89,6 +89,7 @@ is splitted vertically and limited to 10 lines height."
 #+end_src
 
 ** Gdb
+*** Run gdb as I mean
 
 #+begin_src emacs-lisp
 (setq gdb-show-main nil)
@@ -120,9 +121,6 @@ is splitted vertically and limited to 10 lines height."
          (args
           (read-shell-command "Arguments passed to program: "))
          (src-buffer (current-buffer)))
-    (unless global-linum-mode
-      (global-linum-mode))
-    (setq linum-format 'dynamic)
     (if (y-or-n-p "Use IDE? ")
         (progn
           (gdb (format "gdb -i=mi --cd=%s --args %s %s" dir prog args))
@@ -133,14 +131,6 @@ is splitted vertically and limited to 10 lines height."
       (pop-to-buffer src-buffer)
       (other-window -1))))
 
-(defun turn-off-gobal-linum-after-gud ()
-  (interactive)
-  (when (and
-         (derived-mode-p 'gud-mode)
-         global-linum-mode)
-    (global-linum-mode -1)))
-(add-hook 'kill-buffer-hook 'turn-off-gobal-linum-after-gud)
-
 (eval-after-load "f90" `(define-key f90-mode-map (kbd "C-<f5>") 'run-gdb-dwim))
 (with-eval-after-load 'fortran
   (define-key fortran-mode-map (kbd "C-<f5>") 'run-gdb-dwim))
@@ -148,6 +138,80 @@ is splitted vertically and limited to 10 lines height."
   `(progn
      (define-key c-mode-map (kbd "C-<f5>") 'run-gdb-dwim)
      (define-key c++-mode-map (kbd "C-<f5>") 'run-gdb-dwim)))
+#+end_src
+
+*** Highlight current GUD line
+
+Add color to the current GUD line (obrigado google)
+#+begin_src emacs-lisp
+(defvar gud-overlay
+  (let* ((ov (make-overlay (point-min) (point-min))))
+    (overlay-put ov 'face 'secondary-selection)
+    ov)
+  "Overlay variable for GUD highlighting.")
+
+(defadvice gud-display-line (after my-gud-highlight act)
+  "Highlight current line."
+  (let* ((ov gud-overlay)
+         (bf (gud-find-file true-file)))
+    (save-excursion
+      (set-buffer bf)
+      (move-overlay ov (line-beginning-position) (line-end-position)
+                    (current-buffer)))))
+
+(defun gud-kill-buffer-remove-ov ()
+  (if (eq major-mode 'gud-mode)
+      (delete-overlay gud-overlay)))
+
+(add-hook 'kill-buffer-hook 'gud-kill-buffer-remove-ov)
+#+end_src
+
+*** The very busy control-c control-c for GUD
+
+#+begin_src emacs-lisp
+(defvar gud-ctrl-c-ctrl-c-hook nil
+  "The very busy control-c control-c in GUD.")
+
+(defun run-gud-ctrl-c-ctrl-c ()
+  (interactive)
+  (let (return-val)
+    (catch 'fn-return-t
+      (mapc
+       (lambda (fn)
+         (setq return-val (call-interactively fn))
+         (when return-val
+           (throw 'fn-return-t return-val)))
+       gud-ctrl-c-ctrl-c-hook))))
+
+(with-eval-after-load 'gud
+  (define-key gud-mode-map (kbd "C-c C-c") 'run-gud-ctrl-c-ctrl-c))
+
+(defun gud-pulse-break ()
+  (interactive)
+  (require 'pulse)
+  (let* ((b (bounds-of-thing-at-point 'filename))
+         (b0 (car b))
+         (b1 (cdr b))
+         (fname-linum (when b
+                  (buffer-substring-no-properties b0 b1)))
+         linum
+         fname)
+    (when fname-linum
+      (string-match "\\([^:]+\\):?\\([0-9]+\\)?" fname-linum)
+      (setq fname (match-string 1 fname-linum))
+      (setq linum (match-string 2 fname-linum)))
+    (when (and
+           fname
+           linum
+           (file-exists-p fname))
+      (find-file-other-window fname)
+      (when linum
+        (goto-line (string-to-int linum))
+        (pulse-momentary-highlight-one-line (point)))
+      (other-window -1)
+      t)))
+
+(add-hook 'gud-ctrl-c-ctrl-c-hook 'gud-pulse-break)
 #+end_src
 
 ** Pdb

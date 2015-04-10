@@ -209,6 +209,7 @@ iparity
 iparity_prefix
 iparity_scatter
 iparity_suffix
+is_iostat_end
 ishft
 ishftc
 iso_c_binding
