@@ -68,6 +68,8 @@ To install jedi manually:
   (prettify-symbols-mode 1))
 
 (with-eval-after-load 'python
+  (require 'highlight-indentation)
+  (set-face-background 'highlight-indentation-current-column-face "#4F4F4F")
   (add-hook 'python-mode-hook 'my-python-conf t))
 #+END_SRC
 
