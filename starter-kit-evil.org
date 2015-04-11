@@ -123,6 +123,16 @@ back.
   "0" 'select-window-0
 
   ;; fold and unfold
+  "zz" (lambda ()
+         "Toggle fold all lines larger than indentation on current line. Learn
+from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guides-in-emacs."
+         (interactive)
+         (let ((col 1))
+           (save-excursion
+             (back-to-indentation)
+             (setq col (1+ (current-column)))
+             (set-selective-display
+              (if selective-display nil (or col 1))))))
   "zo" (lambda ()
          (interactive)
          (cond (outline-minor-mode (show-entry))

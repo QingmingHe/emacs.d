@@ -2,6 +2,14 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Flycheck
+** Preferences for flycheck
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'flycheck
+  (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+(setq flycheck-display-errors-delay 0.5)
+#+end_src
+
 ** Only check automatically after saving
 
 + Don't always check buffer, it's too slow.
