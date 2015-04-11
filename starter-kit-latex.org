@@ -48,17 +48,7 @@ your ~/.emacs.
   (load "auctex" t)
   (load "preview-latex" t))
 
-;; `helm-insert-latex-math' need `LaTeX-math-mode' which is not autoloaded by
-;; default.
 (when auctex-root
-  (autoload 'LaTeX-math-mode "latex" "\
-A minor mode with easy access to TeX math macros.
-
-Easy insertion of LaTeX math symbols.  If you give a prefix argument, the
-symbols will be surrounded by dollar signs.  The following commands are
-defined:
-
-\\{LaTeX-math-mode-map}" t nil)
   (add-to-list 'auto-mode-alist '("\\.tex\\'" . TeX-latex-mode)))
 
 (setq Tex-auto-save t)

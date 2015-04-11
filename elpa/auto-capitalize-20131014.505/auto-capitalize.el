@@ -362,14 +362,3 @@ This should be installed as an `after-change-function'."
 				      0)))))))))
 
 ;;; auto-capitalize.el ends here
-
-;; 1 Jun 2009: It does not work with Aquamacs 1.7/GNUEmacs 22. Only the first word in the buffer
-;; (or the first word typed after mode activation) is capitalized.
-;; Maybe the code is too old (1998). -- Rikal
-
-;; 29 Aug 2009: Added auto-capitalize-sentence-end which should probably work on older and current day emacsen
-;; tested on 23.0.90, please test on your emacs
-;; -- dtaht
-
-;; 30 Nov 2010: @Rikal: Are you ending sentences as required (e.g.: with two spaces)? Check "C-h f sentence-end RET".
-;; -- elena

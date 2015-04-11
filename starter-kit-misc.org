@@ -207,7 +207,6 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
                                  (expand-file-name "dict" dropbox-root)
                                (expand-file-name "pyim" starter-kit-dir)))
   "Pinyin word bank file. This should be the full path of the bank file.")
-(autoload 'eim-use-package "eim" "Another emacs input method" t)
 ;; 不使用tooltip
 (setq eim-use-tooltip nil)
 (register-input-method
@@ -219,7 +218,6 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 ;; 默认的multilingual text输入法
 (setq default-input-method "eim-py")
 ;; 输入;暂时输入英文
-(autoload 'eim-insert-ascii "eim-extra" "Use a key to insert English." t)
 (global-set-key ";" 'eim-insert-ascii)
 ;; install py bank for eim if needed
 (unless (file-exists-p (file-name-directory starter-kit-eim-py-bank))

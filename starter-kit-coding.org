@@ -111,7 +111,6 @@ To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
 (setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
 (add-to-list 'auto-mode-alist
              '("\\.ahk$"  . ahk-mode))
-(autoload 'ahk-mode "ahk-mode" "Mode for editing AutoHotKey configuration file." t)
 #+end_src
 
 ** Rnc
@@ -134,7 +133,6 @@ for these files.
 *** Basic Setup
 
 #+BEGIN_SRC emacs-lisp
-(autoload 'rnc-mode "rnc-mode" "Rnc mode" t)
 (add-to-list 'auto-mode-alist '("\\.rnc\\'" . rnc-mode))
 #+END_SRC
 

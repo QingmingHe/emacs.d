@@ -1,7 +1,7 @@
 ;;; goto-chg.el --- goto last change
 ;;--------------------------------------------------------------------
 ;;
-;; Copyright (C) 2002-2008, David Andersson
+;; Copyright (C) 2002-2008,2013 David Andersson
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -22,7 +22,9 @@
 ;;
 ;; Author: David Andersson <l.david.andersson(at)sverige.nu>
 ;; Created: 16 May 2002
-;; Version: 1.4
+;; Version: 1.6
+;; Package-Version: 20131228.1459
+;; Keywords: convenience, matching
 ;;
 ;;; Commentary:
 ;;
@@ -41,12 +43,16 @@
 ;;   (global-set-key [(control ?.)] 'goto-last-change)
 ;;   (global-set-key [(control ?,)] 'goto-last-change-reverse)
 ;;
-;; Works with emacs-19.29, 19.31, 20.3, 20.7, 21.1, 21.4 and 22.1.
+;; Works with emacs-19.29, 19.31, 20.3, 20.7, 21.1, 21.4, 22.1 and 23.1
 ;; Works with XEmacs-20.4 and 21.4 (but see todo about `last-command' below)
 ;;
 ;;--------------------------------------------------------------------
 ;; History
 ;;
+;; Ver 1.6 2013-12-12 David Andersson
+;;    Add keywords; Cleanup comments
+;; Ver 1.5 2013-12-11 David Andersson
+;;    Autoload and document `goto-last-change-reverse'
 ;; Ver 1.4 2008-09-20 David Andersson
 ;;    Improved property change description; Update comments.
 ;; Ver 1.3 2007-03-14 David Andersson
@@ -70,9 +76,6 @@
 ;;        chronological order. (Naa, highlight-changes-mode does that).
 ;;todo: Inverse indication that a change has been saved or not
 ;;todo: Highlight the range of text involved in the last change?
-;;todo: Function that goes in reverse direction. Either a function
-;;        'goto-next-change' only callable after 'goto-last-change'
-;;        or enter a minor mode similar to isearch.
 ;;todo: See session-jump-to-last-change in session.el?
 ;;todo: Unhide invisible text (e.g. outline mode) like isearch do.
 ;;todo: XEmacs sets last-command to `t' after an error, so you cannot reverse
@@ -105,6 +108,9 @@ Optional third argument is the replacement, which defaults to \"...\"."
 
 (defun glc-adjust-pos2 (pos p1 p2 adj)
   ;; Helper function to glc-adjust-pos
+  ;; p1, p2: interval where an edit occured
+  ;; adj: amount of text added (positive) or removed (negativ) by the edit
+  ;; Return pos if well before p1, or pos+adj if well after p2, or nil if too close
   (cond ((<= pos (- p1 glc-current-span))
 	 pos)
 	((> pos (+ p2 glc-current-span))
@@ -125,19 +131,10 @@ Deletion edits before POS returns a smaller value.
 	 pos)
 	((numberp (car e))		; (beg . end)==insertion
 	 (glc-adjust-pos2 pos (car e) (car e) (- (cdr e) (car e))))
-;; 	 (cond ((< pos (- (car e) glc-current-span)) pos)
-;; 	       ((> pos (+ (car e) glc-current-span)) (+ pos (- (cdr e) (car e))))
-;; 	       (t nil)))
 	((stringp (car e))		; (string . pos)==deletion
 	 (glc-adjust-pos2 pos (abs (cdr e)) (+ (abs (cdr e)) (length (car e))) (- (length (car e)))))
-;; 	 (cond ((< pos (- (abs (cdr e)) glc-current-span)) pos)
-;; 	       ((> pos (+ (abs (cdr e)) (length (car e)) glc-current-span)) (- pos (length (car e))))
-;; 	       (t nil)))
 	((null (car e))			; (nil prop val beg . end)==prop change
 	 (glc-adjust-pos2 pos (nth 3 e) (nthcdr 4 e) 0))
-;; 	 (cond ((< pos (- (nth 3 e) glc-current-span)) pos)
-;; 	       ((> pos (+ (nthcdr 4 e) glc-current-span)) pos)
-;; 	       (t nil)))
 	(t				; (marker . dist)==marker moved
 	 pos)))
 
@@ -164,7 +161,7 @@ or nil if the point was closer than `glc-current-span' to some edit in R.
 (defun glc-get-pos (e)
   "If E represents an edit, return a position value in E, the position
 where the edit took place. Return nil if E represents no real change.
-\nE is a entry in the buffer-undo-list."
+\nE is an entry in the buffer-undo-list."
   (cond ((numberp e) e)			; num==changed position
 	((atom e) nil)			; nil==command boundary
 	((numberp (car e)) (cdr e))	; (beg . end)==insertion
@@ -176,7 +173,7 @@ where the edit took place. Return nil if E represents no real change.
 (defun glc-get-descript (e &optional n)
   "If E represents an edit, return a short string describing E.
 Return nil if E represents no real change.
-\nE is a entry in the buffer-undo-list."
+\nE is an entry in the buffer-undo-list."
   (let ((nn (or (format "T-%d: " n) "")))
     (cond ((numberp e) "New position")	; num==changed position
 	  ((atom e) nil)		; nil==command boundary
@@ -197,7 +194,7 @@ Return nil if E represents no real change.
 
 (defun glc-is-positionable (e)
   "Return non-nil if E is an insertion, deletion or text property change.
-\nE is a entry in the buffer-undo-list."
+\nE is an entry in the buffer-undo-list."
   (and (not (numberp e)) (glc-get-pos e)))
 
 (defun glc-is-filetime (e)
@@ -209,8 +206,8 @@ that is, it was previously saved or unchanged. Nil otherwise."
 (defun goto-last-change (arg)
 "Go to the point where the last edit was made in the current buffer.
 Repeat the command to go to the second last edit, etc.
-A preceding \\[universal-argument] - (minus) will reverse direction for the next command in
-the sequence, to go back to a more recent edit.
+\nTo go back to more recent edit, the reverse of this command, use \\[goto-last-change-reverse]
+or precede this command with \\[universal-argument] - (minus).
 \nIt does not go to the same point twice even if there has been many edits
 there. I call the minimal distance between distinguishable edits \"span\".
 Set variable `glc-default-span' to control how close is \"the same point\".
@@ -297,8 +294,10 @@ discarded. See variable `undo-limit'."
     (setq glc-probe-depth new-probe-depth)
     (goto-char pos)))
 
-;; ;;;###autoload
+;;;###autoload
 (defun goto-last-change-reverse (arg)
+  "Go back to more recent changes after \\[goto-last-change] have been used.
+See `goto-last-change' for use of prefix argument."
   (interactive "P")
   ;; Negate arg, all kinds
   (cond ((eq arg nil)  (setq arg '-))

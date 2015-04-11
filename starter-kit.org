@@ -253,10 +253,6 @@ interested in the actual code implementing the starter kit.
   (setq autoload-file (concat starter-kit-dir "loaddefs.el"))
   (setq package-user-dir (concat starter-kit-dir "elpa"))
   (setq custom-file (concat starter-kit-dir "custom.el"))
-  ;; path of evil
-  (setq starter-kit-evil-dir (concat starter-kit-dir "src/evil/"))
-  ;; add path of undo-tree and goto-chg to load path
-  (add-to-list 'load-path (concat starter-kit-evil-dir "lib"))
   (add-to-list 'custom-theme-load-path (concat starter-kit-dir "themes"))
   #+end_src
 
@@ -424,20 +420,6 @@ interested in the actual code implementing the starter kit.
      (nthcdr 2 (directory-files package-user-dir t))))
 
   (ensure-packages-compiled)
-  #+end_src
-
-- Compile some packages that are installed manually
-
-  #+begin_src emacs-lisp
-  (mapc
-   (lambda (pkg-command)
-     (let ((path (file-name-directory (locate-library (car pkg-command)))))
-       (when (file-exists-p path)
-         (unless (was-compiled-p path)
-           (let ((default-directory path))
-             (call-process-shell-command (cdr pkg-command) nil nil nil))))))
-   '(("evil" . "make")
-     ("eim" . "make")))
   #+end_src
 
 - Load auto load file

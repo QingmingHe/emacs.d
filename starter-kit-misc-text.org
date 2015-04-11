@@ -22,7 +22,6 @@ Text modes other than Org mode come here.
 
 #+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.rst\\'" . rst-mode))
-(autoload 'rst-mode "rst")
 (defun my-rst-config ()
   (turn-on-flyspell))
 (with-eval-after-load 'rst

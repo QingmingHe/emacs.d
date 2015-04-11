@@ -27,7 +27,6 @@
 ** Configurations
 
 #+BEGIN_SRC emacs-lisp
-(autoload 'c-turn-on-eldoc-mode "c-eldoc" "Show function API in the minibuffer." t)
 (setq c-eldoc-includes " -I./ ")
 (setq c-eldoc-buffer-regenerate-time 60)
 (defun my-c-common-config ()
