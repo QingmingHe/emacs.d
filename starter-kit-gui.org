@@ -166,7 +166,6 @@ other data on the mode line.
 (require 'chinese-fonts-setup)
 #+end_src
 
-
 *** Install font
 **** Windows
 
