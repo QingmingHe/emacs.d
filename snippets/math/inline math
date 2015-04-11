@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: inline math
+# key: in
+# --
+\\( $0 \\)

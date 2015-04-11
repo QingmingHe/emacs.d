@@ -40,6 +40,15 @@ several years.
 (evil-mode 1)
 #+END_SRC
 
+** Evil numbers
+
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "+") 'evil-numbers/inc-at-pt)
+(define-key evil-visual-state-map (kbd "+") 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map (kbd "-") 'evil-numbers/dec-at-pt)
+(define-key evil-visual-state-map (kbd "-") 'evil-numbers/dec-at-pt)
+#+end_src
+
 ** Go to change
 
 It is so happy to key in *g;* or *C-o* to go to last change and *g* or *C-i*,
@@ -74,6 +83,14 @@ back.
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
 #+end_src
 
+*** Normal state map
+
+#+begin_src emacs-lisp
+(define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
+(define-key evil-normal-state-map (kbd "j") 'next-line)
+(define-key evil-normal-state-map (kbd "k") 'previous-line)
+#+end_src
+
 *** Ex completion map
 
 #+begin_src emacs-lisp
@@ -96,7 +113,15 @@ back.
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  "<SPC>" 'evil-execute-in-emacs-state
+  ;; select window
+  "1" 'select-window-1
+  "2" 'select-window-2
+  "3" 'select-window-3
+  "4" 'select-window-4
+  "5" 'select-window-5
+  "6" 'select-window-6
+  "0" 'select-window-0
+
   ;; fold and unfold
   "zo" (lambda ()
          (interactive)
@@ -123,14 +148,16 @@ back.
   ;; to force update etags cache of helm-tags, type C-u-<SPC>-t-a
   "ta" (lambda (arg)
          (interactive "P")
-         (if prj/use-gtags
-             (helm-gtags-select)
+         (if (project-root-data :use-gtags project-details)
+             ;; for some reason `exit' symbol should be `catch' TODO
+             (catch 'exit
+               (helm-gtags-select))
            (helm-etags-select arg)))
   "dta" 'helm-gtags-dwim
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()
          (interactive)
-         (if prj/use-gtags
+         (if (project-root-data :use-gtags project-details)
              (helm-gtags-pop-stack)
            (pop-tag-mark)))
   "ota" 'helm-org-agenda-files-headings
@@ -138,46 +165,80 @@ back.
          (interactive)
          (cond ((eq major-mode 'org-mode)
                 (helm-org-in-buffer-headings))
-               (t (call-interactively 'helm-semantic-or-imenu))))
-  "vt" (lambda ()
-         (interactive)
-         (unless prj/use-gtags
-           (etu/visit-tags-table)))
+               (t (call-interactively 'helm-imenu))))
   "sw" 'helm-swoop
   "oc" 'occur-dwim
 
   ;; buffers, files
   "bb" 'helm-mini
-  "ff" 'helm-find-files
-  "ss" (lambda ()
-         (interactive)
-         (mapc
-          (lambda (buffer)
-            (with-current-buffer buffer
-              (when (and
-                     (buffer-file-name)
-                     (buffer-modified-p))
-                (save-buffer))))
-          (buffer-list)))
-
-  ;; project
+  "ff" 'ido-find-file
+  "ss" (lambda (arg)
+         "With prefix ARG, save all buffers and update tags for these files;
+otherwise save current buffer."
+         (interactive "P")
+         (if arg
+             (prj/save-buffers-and-update-tags)
+           (save-buffer)))
+  "kk" 'kill-this-buffer
   "pp" 'prj/helm-mini
+  "gs" 'magit-status
+  "gr" (lambda ()
+         "Run `prj/grep' if a project root is found; otherwise run `rgrep'."
+         (interactive)
+         (if project-details
+             (call-interactively 'prj/grep)
+           (call-interactively 'rgrep)))
 
   ;; ace jump
   "w" 'ace-jump-word-mode
   "l" 'ace-jump-line-mode
 
+  ;; replace
+  "rd" (lambda ()
+         (interactive)
+         (cond ((eq major-mode 'f90-mode)
+                (let ((anzu-replace-at-cursor-thing 'f90-subprogram))
+                  (anzu-query-replace-at-cursor-thing)))
+               (t
+                (anzu-query-replace-at-cursor-thing))))
+  "rb" (lambda ()
+         (interactive)
+         (let ((anzu-replace-at-cursor-thing 'buffer))
+           (anzu-query-replace-at-cursor-thing)))
+
   ;; misc
-  "ne" 'flycheck-next-error
+  "fm" 'flycheck-buffer
+  "ne" (lambda ()
+         "Go to next error of flycheck. If flycheck is not enabled, enabled it
+and then check the buffer. Move to first error if reached last error position
+before call this command."
+         (interactive)
+         (unless flycheck-mode
+           (flycheck-mode)
+           (flycheck-buffer))
+         (let ((pos (flycheck-next-error-pos nil nil))
+               (counts (length (flycheck-count-errors flycheck-current-errors))))
+           (if pos
+               (goto-char pos)
+             (if (> counts 0)
+                 (progn
+                   (goto-char (point-min))
+                   (flycheck-next-error))
+               (message "No error")))))
   "sd" (lambda ()
          (interactive)
          (if (executable-find "sdcv")
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
-  "sgc" 'anzu-query-replace-regexp
-  "co" 'comment-or-uncomment-region
-  "iw" 'ispell-word)
+  "co" (lambda ()
+         "If region is active, comment or un-comment the region; otherwise
+comment or un-comment current line."
+         (interactive)
+         (if (region-active-p)
+             (comment-or-uncomment-region (region-beginning) (region-end))
+           (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
+  "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 
 ** Quit by escape
@@ -225,7 +286,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
    (magit-branch-manager-mode . emacs)
    (diff-mode                 . emacs)
    (Man-mode                  . emacs)
-   (gud-mode                  . emacs)
+   (gud-mode                  . insert)
    (eshell-mode               . insert)
    (shell-mode                . insert)))
 #+END_SRC

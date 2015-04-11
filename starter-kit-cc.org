@@ -35,12 +35,11 @@
   (modify-syntax-entry ?_ "w")
   (c-set-offset 'substatement-open 0)
   (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
-  (when (> emacs-minor-version 3)
-    (setq prettify-symbols-alist
-          '(("!=" . ?≠)
-            (">=" . ?≥)
-            ("<=" . ?≤)))
-    (prettify-symbols-mode 1)))
+  (setq prettify-symbols-alist
+        '(("!=" . ?≠)
+          (">=" . ?≥)
+          ("<=" . ?≤)))
+  (prettify-symbols-mode 1))
 (eval-after-load "cc-mode"
   `(progn
      (add-hook 'c-mode-hook 'my-c-common-config)

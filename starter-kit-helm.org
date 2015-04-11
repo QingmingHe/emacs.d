@@ -2,13 +2,12 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Helm
-
 ** Install helm
 
-   #+BEGIN_SRC sh :tangle no
-     cd /path/to/helm-dir
-     make autoloads
-   #+END_SRC
+#+BEGIN_SRC sh :tangle no
+  cd /path/to/helm-dir
+  make autoloads
+#+END_SRC
 
 ** Basic setup
 
@@ -18,17 +17,16 @@
 (require 'helm-config)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x b") 'helm-mini)
-(global-set-key (kbd "C-x p") 'prj/helm-mini)
+(global-set-key (kbd "C-c p") 'prj/helm-mini)
 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-h a") 'helm-apropos)
 (global-set-key (kbd "C-c y") 'helm-yas-complete)
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
+;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-M-/") 'helm-dabbrev)
 (global-unset-key (kbd "C-x c"))
 (eval-after-load "helm"
   `(progn
-     (define-key helm-map (kbd "C-f") 'helm-next-page)
-     (define-key helm-map (kbd "C-b") 'helm-previous-page)
      (define-key helm-map (kbd "C-c C-c") 'helm-toggle-visible-mark)))
 
 ;; helm eshell
@@ -73,33 +71,6 @@ Helm or ido sometimes do wrong things.
        (w3m-goto-url . nil)
        (rgrep . nil)))
 #+END_SRC
-
-** Remove duplicate eshell history
-    :PROPERTIES:
-    :TANGLE:   yes
-    :END:
-
-+ Remove duplicates in eshell history ring.
-+ Use [[elisp:write-region]] instead of [[elisp:write-file]] for that the previous is
-  faster and quite.
-+ This can be realized by set [[elisp:(describe-variable 'eshell-hist-ignoredups)][eshell-hist-ignoredups]] to be t.
-#+begin_src emacs-lisp
-(defadvice eshell-write-history (after remove-eshell-history-dup-after-write activate)
-  (with-temp-buffer
-    (insert-file-contents eshell-history-file-name)
-    (let ((his-ring
-           (delete-dups
-            (split-string
-             (buffer-substring-no-properties (point-min) (point-max))
-             "\n"))))
-      (with-temp-buffer
-        (mapc
-         (lambda (item)
-           (unless (string-empty-p item)
-             (insert (format "%s\n" item))))
-         his-ring)
-        (write-region (point-min) (point-max) eshell-history-file-name nil 'no-message)))))
-#+end_src
 
 ** Tips
 *** General

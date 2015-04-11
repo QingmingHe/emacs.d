@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: intent
+# key: in
+# --
+intent(${1:`(yas-choose-value '("in" "inout"))`})$0

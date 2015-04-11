@@ -21,34 +21,92 @@ make autoloads
 at root of org package.
 
 ** Org-Mode Hook
-   :PROPERTIES:
-   :CUSTOM_ID: keybindings
-   :END:
+
++ On the key bindings of org-cdlatex, see also [[file:starter-kit-latex.org::*cdlatex][cdlatex]].
 #+begin_src emacs-lisp
 (defun my-org-config ()
   ;; other minor mode
   (eldoc-mode)
   (turn-on-flyspell)
-  ;; math
-  (org-cdlatex-mode)
-  ;; navigation
-  (local-set-key "\M-\C-n" 'outline-next-visible-heading)
-  (local-set-key "\M-\C-p" 'outline-previous-visible-heading)
-  (local-set-key "\M-\C-u" 'outline-up-heading)
-  ;; table
-  (local-set-key "\M-\C-w" 'org-table-copy-region)
-  (local-set-key "\M-\C-y" 'org-table-paste-rectangle)
-  (local-set-key "\M-\C-l" 'org-table-sort-lines)
-  ;; display images
-  (local-set-key "\M-I" 'org-toggle-iimage-in-org))
-(add-hook 'org-mode-hook 'my-org-config)
+  ;; (visual-line-mode 1)
+  ;; (adaptive-wrap-prefix-mode 1)
+  (org-cdlatex-mode))
+(with-eval-after-load 'org
+  (add-hook 'org-mode-hook 'my-org-config)
+  ;; I use `helm-insert-latex-math' instead
+  (define-key org-cdlatex-mode-map "`" 'self-insert-command)
+  (define-key org-cdlatex-mode-map "'" 'self-insert-command))
 #+end_src
 
-** Use RET or follow link at point
+** The very busy ctrl-c-ctrl-c
+*** Batch replace label and references
+
+It's painful to update references once a label is changed. Fortunately we have
+the powerful [[help:query-replace-regexp][query-replace-regexp]] which can replace a label and all its
+references at once.
+#+begin_src emacs-lisp
+(defun org-query-replace-label-and-ref ()
+  "Batch replace label and its reference in current buffer by
+`query-replace-regexp'. This command will act inside of braces of \\label,
+\\eqref or \\ref latex keywords and return t; Otherwise do nothing and return
+nil."
+  (interactive)
+  (when (and
+         (looking-at "[^}\n]*}")
+         (looking-back "\\\\\\(label\\|eqref\\|ref\\){[^{\n]*"))
+    (let (ref)
+      (save-excursion
+        (setq ref
+              (buffer-substring-no-properties
+               (1+ (search-backward "{"))
+               (1- (search-forward "}")))))
+      (query-replace-regexp (format "\\\\\\(label\\|eqref\\|ref\\){%s}"
+                                    (regexp-quote ref))
+                            (format "\\\\\\1{%s}"
+                                    (read-string
+                                     (format "Replace \"%s\" with: " ref)))
+                            nil (point-min) (point-max)))
+    t))
+
+(with-eval-after-load 'org
+  (add-hook 'org-ctrl-c-ctrl-c-hook 'org-query-replace-label-and-ref))
+#+end_src
+
+*** Preview latex fragments
 
 #+begin_src emacs-lisp
+(defun org-preview-latex-fragments-at-point ()
+  "Preview latex fragments at point. "
+  (interactive)
+  (when (and
+         (org-inside-LaTeX-fragment-p)
+         (not
+          (and
+           (looking-at "[^}\n]*}")
+           (looking-back "\\\\label{[^{\n]*")))
+         (not
+          (member (overlays-at (point)) org-latex-fragment-image-overlays)))
+    (call-interactively 'org-preview-latex-fragment)
+    t))
+
+(with-eval-after-load 'org
+  (add-hook 'org-ctrl-c-ctrl-c-hook 'org-preview-latex-fragments-at-point))
+#+end_src
+
+** Use RET and TAB in org mode
+
++ Use RET to follow link in org mode. Problem is that press RET will open a
+  new line in [[help:evil-normal-state][evil-normal-state]].
++ In terminal TAB and C-i are the same. [[help:org-cycle][org-cycle]] is more important then
+  [[help:evil-jump-forward][evil-jump-forward]] in org mode. So remap it to org-cycle. There is no such
+  problem in gui Emacs.
+#+begin_src emacs-lisp
 (setq org-return-follows-link t)
-(define-key org-mode-map [remap evil-ret] 'org-return)
+(eval-after-load 'evil
+  `(progn
+     (define-key org-mode-map [remap evil-ret] 'org-return)
+     (unless (window-system)
+       (define-key org-mode-map [remap evil-jump-forward] 'org-cycle))))
 #+end_src
 
 ** Time and clock
@@ -154,6 +212,7 @@ much more like reading and editing of code using its major mode.
 #+begin_src emacs-lisp
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
+  (setq org-highlight-latex-and-related '(latex entities))
 #+end_src
 
 ** The Library of Babel
@@ -181,56 +240,74 @@ file using the `org-babel-lob-ingest' function.
       org-export-kill-product-buffer-when-displayed t
       org-export-odt-preferred-output-format "doc"
       org-tags-column 80
-      org-pretty-entities t
+      org-pretty-entities nil
       org-refile-use-outline-path 'file
       org-outline-path-complete-in-steps t)
 #+END_SRC
 
-** Org export to PDF
+** Org export to pdf and html
 *** XeLaTeX
-Use XeLaTeX to export PDF and compile two times to generate references. You
+
+Use XeLaTeX to export PDF and compile three times to generate references. You
 should note that TeX file should be saved as utf-8 encoded or XeLaTeX can't
 compile it.
 #+BEGIN_SRC emacs-lisp
-(setq org-latex-to-pdf-process
+(setq org-latex-pdf-process
       '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 #+END_SRC
 
 *** Source highlight
-Use minted for source highlight in exported LaTeX, first include the latex
-exporter.
+
+Use minted to highlight source code in exported LaTeX.
 #+BEGIN_SRC emacs-lisp
-(require 'ox-latex)
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (setq org-latex-listings 'minted))
 #+END_SRC
 
-Then add minted to the default packages.
-#+BEGIN_SRC emacs-lisp
-(add-to-list 'org-latex-packages-alist '("" "minted"))
-#+END_SRC
+*** Preview latex fragments
 
-Finally tell the latex export to use the minted package for source code
-coloration.
-#+BEGIN_SRC emacs-lisp
-(setq org-latex-listings 'minted)
-#+END_SRC
+Use *dvipng* to preview latex fragments in org. As *minted* is used to
+highlight source in latex, *-shell-escape* command should be passed to
+latex. However, the dvipng method call latex directly without the command and
+a user option to control it (See [[http://orgmode.org/worg/org-tutorials/org-latex-preview.html][org tutorial]]). I have to define a advice to
+evade this problem.
+#+begin_src emacs-lisp
+(setq org-latex-create-formula-image-program 'dvipng)
+(defadvice org-preview-latex-fragment (around preview-without-minted activate)
+  (let ((org-latex-packages-alist
+         (remove '("" "minted") org-latex-packages-alist)))
+    ad-do-it))
+#+end_src
 
 *** MathJaX
 
-Use MathJaX instead of LaTeX to support math for that LaTeX is too slow to
-generate math pictures. The latest MathJaX engine is used.
-
-To enable LaTeX if you like, just add to head of org file:
+Use MathJaX instead of LaTeX to support math in html for that LaTeX is too
+slow to generate math pictures. To enable LaTeX if you like, just add to head
+of org file:
 #+BEGIN_SRC text
 #+OPTIONS: tex:imagemagick
 #+END_SRC
 
+New in MathJax v2.0 is the ability to have equations to be numbered
+automatically which is turned off by default. To activate it:
 #+BEGIN_SRC emacs-lisp
-(setq org-html-mathjax-options '((path "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
-                                 (scale "100")
-                                 (align "center")
-                                 (indent "2em")
-                                 (mathml t)))
+(with-eval-after-load 'ox-html
+  (setq org-html-mathjax-template
+        (format "%s%s" org-html-mathjax-template
+                "
+<script type=\"text/x-mathjax-config\">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: \"AMS\" } }
+});
+</script>"))
+  (setq org-html-mathjax-options '((path "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+                                   (scale "100")
+                                   (align "center")
+                                   (indent "2em")
+                                   (mathml t))))
 #+END_SRC
 
 ** Getting Things Done
@@ -357,3 +434,12 @@ The setup is very personal. May be this subsection should be moved to
 
 + You can use *C-c '* to edit source code in its own mode.
 + Powerful *C-c C-c* at code block, table, ...
+
+*** Math
+
+The best way is:
+\begin{equation}
+\label{eq:1}
+y = sin(x)
+\end{equation}
+which can be referenced by \ref{eq:1}. This both works in html and latex.

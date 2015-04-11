@@ -14,9 +14,10 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (setq eshell-cmpl-cycle-completions nil
       eshell-save-history-on-exit t
       eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'"
-      eshell-history-size 250
+      ;; I'd like to keep all the history
+      eshell-history-size 10000
       eshell-hist-ignoredups t
-      eshell-scroll-to-bottom-on-output t
+      eshell-scroll-to-bottom-on-output nil
       eshell-scroll-show-maximum-output t)
 
 (defun my-esh-opt ()
@@ -68,7 +69,7 @@ is pre-populated with some generally applicable aliases.
   (define-key eshell-mode-map "\C-a" 'eshell-bol)
   (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
   (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
-  (define-key eshell-mode-map [tab] 'helm-esh-pcomplete)
+  (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
   (evil-define-key 'normal eshell-mode-map (kbd "G") 'my-eshell-goto-bottom)
   (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history))
 (add-hook 'eshell-mode-hook 'my-eshell-keybinding)
@@ -91,7 +92,35 @@ is pre-populated with some generally applicable aliases.
 (add-hook 'eshell-mode-hook 'eshell-turn-on-eldoc)
 #+end_src
 
+*** Remove duplicate eshell history
+
++ Remove duplicates in eshell history ring.
++ Use [[elisp:write-region]] instead of [[elisp:write-file]] for that the previous is
+  faster and quiet.
++ This can be realized by set [[elisp:(describe-variable 'eshell-hist-ignoredups)][eshell-hist-ignoredups]] to be t.
+#+begin_src emacs-lisp
+(defadvice eshell-write-history (after remove-eshell-history-dup-after-write activate)
+  (with-temp-buffer
+    (insert-file-contents eshell-history-file-name)
+    (let ((his-ring
+           (delete-dups
+            (split-string
+             (buffer-substring-no-properties (point-min) (point-max))
+             "\n"))))
+      (with-temp-buffer
+        (mapc
+         (lambda (item)
+           (unless (string-empty-p item)
+             (insert (format "%s\n" item))))
+         his-ring)
+        (write-region (point-min) (point-max) eshell-history-file-name nil 'no-message)))))
+#+end_src
+
 *** Tips
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
+
 **** Multiple eshells
 You can create eshell by just *M-x eshell*, or if can run *C-u 2 M-x eshell*
 to create a eshell numbered 2. If eshell 2 already exists, you will switch to
@@ -139,7 +168,7 @@ previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
 (eval-after-load "shell"
   `(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
-(setq explicit-shell-file-name "/usr/bin/bash")
+(setq explicit-shell-file-name (executable-find "bash"))
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
 
@@ -152,22 +181,10 @@ You can key in command in char mode and copy/paste in line mode. The follow
 function and kbd provide easy toggling.
 
 #+BEGIN_SRC emacs-lisp
-(defun my-toggle-term-line-char-mode ()
-  "Toggle term between line mode and char mode"
-  (interactive)
-  (if (term-in-line-mode)
-      (progn
-        (message "Switch to char mode!")
-        (term-char-mode))
-    (progn
-      (message "Switch to line mode")
-      (term-line-mode))))
-
 (eval-after-load "term"
   `(add-hook 'term-mode-hook
              (lambda ()
-               (define-key term-mode-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode)
-               (define-key term-raw-map (kbd "C-c C-j") 'my-toggle-term-line-char-mode))))
+               (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode))))
 #+END_SRC
 
 ** Shell script
@@ -175,4 +192,17 @@ function and kbd provide easy toggling.
 #+begin_src emacs-lisp
 (eval-after-load "sh-script"
   `(define-key sh-mode-map (kbd "C-c C-c") 'sh-send-line-or-region-and-step))
+#+end_src
+
+** Clear comint buffer
+
+#+begin_src emacs-lisp
+(defun comint-clear-buffer ()
+  (interactive)
+  (let ((comint-buffer-maximum-size 0))
+    (comint-truncate-buffer)))
+(defun eshell-clear-buffer ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)))
 #+end_src

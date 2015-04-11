@@ -11,17 +11,42 @@ inspired by TextMate's templating syntax.
 
 ** yas everywhere
 #+BEGIN_SRC emacs-lisp
+;; Only use snippets distributed with the Starter Kit
+(setq yas-snippet-dirs (expand-file-name "snippets" starter-kit-dir))
+;; Auto indentation is too slow
+(setq yas-indent-line 'fixed)
+;; Don't re-activate snippet fields after undo/redo
+(setq yas-snippet-revival nil)
 (require 'yasnippet)
 (yas-global-mode 1)
+;; disable tab for `yas-minor-mode' and `yas-keymap' for each mode has its
+;; own tab
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-keymap [(tab)] nil)
+(define-key yas-keymap (kbd "TAB") nil)
 #+END_SRC
 
-** Load Snippets Distributed with the Starter Kit
-   :PROPERTIES:
-   :CUSTOM_ID: default-snippets
-   :END:
-Load the snippets defined in the =./snippets/= directory.
+** Snippet mode
+*** Snippet for snippet
+
+The original snippet for snippet is too long too ugly. What I want are only
+=name= and =key= directives.
 #+begin_src emacs-lisp
-(yas-load-directory "~/.emacs.d/snippets")
+(setq yas-new-snippet-default "\
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: $1
+# key: ${2:$1}
+# --
+$0")
+#+end_src
+
+*** Tab for snippet mode
+
+#+begin_src emacs-lisp
+(defun snippet-mode-setup ()
+  (define-key yas-keymap (read-kbd-macro "TAB") 'yas-next-field))
+(add-hook 'snippet-mode-hook 'snippet-mode-setup)
 #+end_src
 
 ** Configure Yasnippets for Org Mode
@@ -30,71 +55,39 @@ Load the snippets defined in the =./snippets/= directory.
    :END:
 
 The latest version of yasnippets doesn't play well with Org-mode, the
-following function allows these two to play nicely together. In Org-mode, a
-white space should be spared or yas-next-field will not work.
+following function allows these two to play nicely together.
 #+begin_src emacs-lisp
-(defun yas/org-very-safe-expand ()
+(defun yas/org-expand-or-next-field ()
   (let ((yas-fallback-behavior 'return-nil))
-    (unless (or
-             (org-at-heading-p)
-             (org-at-block-p))
-      (yas-expand))))
+    (cond ((and
+            (not (evil-normal-state-p))
+            (not (org-at-heading-p))
+            (yas-expand)))
+          ((yas--snippets-at-point)
+           (yas-next-field)
+           t))))
 
 (defun yas/org-setup ()
   ;; yasnippet (using the new org-cycle hooks)
-  (make-variable-buffer-local 'yas/trigger-key)
-  (setq yas/trigger-key [tab])
-  (add-to-list 'org-tab-first-hook 'yas/org-very-safe-expand)
-  (define-key yas-keymap [tab] 'yas-next-field))
+  (add-to-list 'org-tab-first-hook 'yas/org-expand-or-next-field))
 
 (add-hook 'org-mode-hook #'yas/org-setup)
 #+end_src
 
-** Indentation configuration for prog mode
-
-Indent in some prog mode may be confusing. Set fixed so yas will not indent
-automatically, but just as in snippet.
-#+begin_src emacs-lisp
-(defun yas-conf-fixed-indent ()
-  (setq-local yas-indent-line 'fixed))
-(mapc
- (lambda (hook)
-   (add-hook hook 'yas-conf-fixed-indent))
- '(python-mode-hook c-mode-common-hook f90-mode-hook))
-#+end_src
-
-** Rebind key of yas
-
-using *TAB* as yas-expand conflicts with Latex-mode, so bind it to other key.
-
-#+BEGIN_SRC emacs-lisp
-(define-key yas-minor-mode-map (kbd "<tab>") nil)
-(define-key yas-minor-mode-map (kbd "TAB") nil)
-#+END_SRC
-
 ** Use popup
 #+begin_src emacs-lisp
-(eval-after-load 'popup
-  '(progn
-     (define-key popup-menu-keymap (kbd "M-n") 'popup-next)
-     (define-key popup-menu-keymap (kbd "TAB") 'popup-next)
-     (define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
-     (define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
-     (define-key popup-menu-keymap (kbd "M-p") 'popup-previous)))
-
 (defun yas-popup-isearch-prompt (prompt choices &optional display-fn)
-  (when (featurep 'popup)
-    (popup-menu*
-     (mapcar
-      (lambda (choice)
-        (popup-make-item
-         (or (and display-fn (funcall display-fn choice))
-             choice)
-         :value choice))
-      choices)
-     :prompt prompt
-     ;; start isearch mode immediately
-     :isearch t)))
+  (popup-menu*
+   (mapcar
+    (lambda (choice)
+      (popup-make-item
+       (or (and display-fn (funcall display-fn choice))
+           choice)
+       :value choice))
+    choices)
+   :prompt prompt
+   ;; start isearch mode immediately
+   :isearch t))
 
 (setq yas-prompt-functions
       '(yas-popup-isearch-prompt

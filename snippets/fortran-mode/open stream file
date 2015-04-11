@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: open stream file
+# key: open stream file
+# --
+open(NEWUNIT=$1, FILE=trim($2), ACCESS="stream", STATUS="${3:`(yas-choose-value '("replace" "old"))`}")
+$0
+close($1)

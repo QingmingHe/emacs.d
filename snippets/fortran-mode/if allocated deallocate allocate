@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: if allocated deallocate allocate
+# key: al
+# --
+if (allocated($1)) deallocate($1)
+allocate($1$0)

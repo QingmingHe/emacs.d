@@ -9,16 +9,69 @@
 + Program and argument strings passed to the program are double quoted so that white
   spaces in directory names are allowed.
 
+** Get Cygwin root
+
+#+begin_src emacs-lisp
+(defun downcase-string (str)
+  "Downcase string."
+  (with-temp-buffer
+    (insert str)
+    (downcase-region (point-min) (point-max))
+    (buffer-substring-no-properties (point-min) (point-max))))
+(defun get-cygwin-root (&optional cygwin-root slash regexp)
+  "Get path where Cygwin is installed in Windows system like \"D:/cygwin\".
+
+CYGWIN-ROOT: root of Cygwin installed on Windows. If not provided, this value
+will be obtained from environment variable \"CYGWIN_ROOT\" or read from
+minibuffer.
+slash: whether use slash \"/\" to split path.
+regexp: whether used for regexp matching. If used for regexp matching, all
+characters are downcased, backslashes are escaped."
+  (let ((cygwin-root
+         (or
+          cygwin-root
+          (getenv "CYGWIN_ROOT")
+          (setenv "CYGWIN_ROOT"
+                  (read-string "Root of Cygwin in Windows system: ")))))
+    (if slash
+        (progn
+          (setq cygwin-root (replace-regexp-in-string "\\\\" "/" cygwin-root))
+          (if regexp
+              (downcase-string cygwin-root)
+            cygwin-root))
+      (if regexp
+          (downcase-string (replace-regexp-in-string "/" "\\\\\\\\" cygwin-root))
+        (replace-regexp-in-string "/" "\\\\" cygwin-root)))))
+#+end_src
+
+** Win path to Cygwin path
+
+#+begin_src emacs-lisp
+(defun win-to-cygwin-path (win-path)
+  "Convert Windows path to Cygwin path.
+
+WIN-PATH: Windows path with backslashes escaped."
+  (with-temp-buffer
+    (insert win-path)
+    (goto-char (point-min))
+    (downcase-region 1 2)
+    (replace-regexp "\\\\" "/")
+    (goto-char (point-min))
+    (if (re-search-forward (get-cygwin-root nil t t) nil t)
+        (buffer-substring-no-properties (match-end 0) (point-max))
+      (format "/cygdrive/%s%s"
+              (buffer-substring-no-properties 1 2)
+              (buffer-substring-no-properties 3 (point-max))))))
+#+end_src
+
 ** Cygwin path to Windows path
 
 #+BEGIN_SRC emacs-lisp
 (defun cygwin-to-win-path (path &optional cygwin-root)
   "Transform Cygwin path to Windows path.
 
-path: Cygwin path.
-cygwin-root: root of Cygwin installed on Windows. D:/cygwin for example. If
-not given, get from environment variable \"CYGWIN_ROOT\" or read from
-minibuffer.
+PATH: Cygwin path.
+CYGWIN-ROOT: root of Cygwin installed on Windows.
 return: Windows path.
 
 Examples:
@@ -26,10 +79,7 @@ Examples:
 /home/user/.emacs.d/ -> D:/cygwin/home/user/.emacs.d/
 /cygdirve/d/Dropbox/ -> D:/Dropbox/"
   (if (not (string-match "^/cygdrive/" path))
-      (let ((cygwin-root (or
-                          cygwin-root
-                          (getenv "CYGWIN_ROOT")
-                          (setenv "CYGWIN_ROOT" (read-string "Root of Cygwin in Windows system: ")))))
+      (let ((cygwin-root (get-cygwin-root cygwin-root t)))
         (format "%s%s" cygwin-root (expand-file-name path)))
     (with-temp-buffer
       (insert path)
@@ -39,7 +89,7 @@ Examples:
       (buffer-string))))
 #+END_SRC
 
-** Open w32 program at point in Dired
+** Open w32 program at point in Dired and eshell
 
 #+BEGIN_SRC emacs-lisp
 (defun dired-open-w32-prog-at-point (arg)
@@ -53,6 +103,14 @@ to program from minibuffer."
     (when prog-argv
       (setq prog-argv (cygwin-to-win-path prog-argv)))
     (w32-shell-execute "open" prog-name (format "\"%s\"" prog-argv))))
+
+;; eshell alias: alias wf 'eshell-open-w32-prog $*'
+(defun eshell-open-w32-prog (args)
+  (w32-shell-execute
+   "open"
+   (expand-file-name (car args))
+   (when (cdr args) (mapconcat 'concat (cdr args) " "))
+   nil))
 
 (when *cygwin*
   (eval-after-load "dired"
@@ -74,7 +132,49 @@ TARGET: target program or file."
          (ido-read-file-name "Target: ")))
   (unless (string-match "\\.\\(lnk\\|url\\)\\'" name)
     (setq name (concat name ".lnk")))
-  (w32-shell-execute "open"
-                     (cygwin-to-win-path (concat starter-kit-dir "mkshortcut.vbs"))
-                     (format "\"%s\" \"%s\"" (cygwin-to-win-path (concat dir name)) (cygwin-to-win-path target))))
+  (w32-shell-execute
+   "open"
+   (cygwin-to-win-path (concat starter-kit-dir "mkshortcut.vbs"))
+   (format "\"%s\" \"%s\"" (cygwin-to-win-path (concat dir name)) (cygwin-to-win-path target))))
+#+end_src
+
+** Windows find file and Dired
+
+#+begin_src emacs-lisp
+(defun win-dired (win-path &optional other-window)
+  (interactive
+   (list
+    (read-string "Windows path: ")
+    (y-or-n-p "Other window?")))
+  (let ((cygwin-path (win-to-cygwin-path win-path)))
+    (if other-window
+        (dired-other-window cygwin-path)
+      (dired cygwin-path))))
+(defun win-find-file (win-path &optional other-window)
+  (interactive
+   (list
+    (read-string "Windows path: ")
+    (y-or-n-p "Other window?")))
+  (let ((cygwin-path (win-to-cygwin-path win-path)))
+    (if other-window
+        (find-file-other-window cygwin-path)
+      (find-file cygwin-path))))
+#+end_src
+
+** Usage of these functions
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
+
+*** Used in eshell
+**** Escape or no escape
+
+When used like this, no escape.
+#+begin_src sh
+win-dired "D:\projects\SUGAR\SUGAR\test\test_MOX\SUGAR" t
+#+end_src
+
+You have to escape when use elisp form in eshell:
+#+begin_src sh
+(win-dired "D:\\projects\\SUGAR\\SUGAR\\test\\test_MOX\\SUGAR")
 #+end_src

@@ -1,0 +1,195 @@
+#+TITLE: Starter Kit Search
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Search
+
+Include =isearch=, =replace=, =grep=, =occur= and so on.
+
+** Grep
+*** Key bindings
+
+#+begin_src emacs-lisp
+(defun grep-display-error-dwim ()
+  (interactive)
+  (compile-goto-error)
+  (other-window -1))
+
+(eval-after-load "grep"
+  `(progn
+     (define-key grep-mode-map (kbd "j") 'compilation-next-error)
+     (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
+     (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
+#+end_src
+
+*** Grep set up
+
+#+begin_src emacs-lisp
+(setq grep-highlight-matches t)
+#+end_src
+
+*** Grep ignore directories and files
+
+Don't grep repositories and some files.
+#+BEGIN_SRC emacs-lisp
+(eval-after-load "grep"
+  `(progn
+     (dolist (dir '(".git"
+                    ".cvs"
+                    ".svn"
+                    ".hg"))
+       (add-to-list 'grep-find-ignored-directories dir))
+     (dolist (file '("#*"
+                     "*.mod"))
+       (add-to-list 'grep-find-ignored-files file))))
+#+END_SRC
+
+*** Wgrep
+
+#+begin_src emacs-lisp
+(setq wgrep-auto-save-buffer t)
+#+end_src
+
+** anzu and evil anzu
+
+#+begin_src emacs-lisp
+(setq anzu-deactivate-region t)
+(eval-after-load 'evil
+  `(require 'evil-anzu))
+(global-anzu-mode +1)
+(global-set-key (kbd "M-%") 'anzu-query-replace-regexp)
+#+end_src
+
+** Incremental search
+*** Use regexp search by default
+
++ *C-s* to repeat search
++ *C-y* to yank and *M-y* to cycle kill ring
++ *C-o* to call occur
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-s") 'isearch-forward-regexp)
+(global-set-key (kbd "\C-r") 'isearch-backward-regexp)
+(global-set-key (kbd "C-M-s") 'isearch-forward)
+(global-set-key (kbd "C-M-r") 'isearch-backward)
+#+end_src
+
+*** Activate occur and swoop easily inside isearch
+
+#+begin_src emacs-lisp
+(define-key isearch-mode-map (kbd "C-o")
+  (lambda () (interactive)
+    (let ((case-fold-search isearch-case-fold-search))
+      (occur (if isearch-regexp
+                 isearch-string
+               (regexp-quote isearch-string))))))
+(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+(with-eval-after-load 'evil
+  (define-key evil-motion-state-map (kbd "M-i") 'helm-swoop-from-evil-search))
+#+end_src
+
+*** Isearch yank do what I mean
+
+*C-w* is originally bound to =isearch-yank-word-or-char= which incrementally
+yank thing after cursor. This is always not I mean. What I want is to yank
+selected region or symbol at point. Besides, the cursor should be placed at
+end of the match string at point for forward searching or beginning of the
+match for backward searching rather than the next match. This can also
+mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
+#+begin_src emacs-lisp
+(defun isearch-yank-dwim ()
+  (interactive)
+  (let (str p p0 p1)
+    (if (region-active-p)
+        (progn
+          (setq p0 (region-beginning))
+          (setq p1 (region-end))
+          (setq str (regexp-quote (buffer-substring-no-properties p0 p1)))
+          (keyboard-escape-quit))
+      (setq p (bounds-of-thing-at-point 'symbol))
+      (setq p0 (car p))
+      (setq p1 (cdr p))
+      (setq
+       str
+       (format
+        "\\_<%s\\_>"
+        (regexp-quote (buffer-substring-no-properties p0 p1)))))
+    (if isearch-forward
+        (goto-char p0)
+      (goto-char p1))
+    (setq isearch-regexp t
+          isearch-string str
+          isearch-message
+          (mapconcat 'isearch-text-char-description isearch-string ""))
+    (isearch-search-and-update)))
+(define-key isearch-mode-map (kbd "C-w") 'isearch-yank-dwim)
+#+end_src
+
+*** Evil replace from isearch
+
+#+begin_src emacs-lisp
+(defun evil-replace-from-isearch ()
+  (interactive)
+  (let ((from-str
+         (if isearch-regexp
+             isearch-string
+           (regexp-quote isearch-string))))
+    (isearch-exit)
+    (evil-ex (concat "%s/" from-str))))
+(define-key isearch-mode-map (kbd "M-%") 'evil-replace-from-isearch)
+#+end_src
+
+*** Pinyin search
+
+#+begin_src emacs-lisp
+(define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
+#+end_src
+
+** Occur
+*** Occur do what I mean
+
++ Push region or symbol at point to regexp-history so that occur will set the
+  default regexp as what's been pushed.
++ It's better recenter window after goto or display occur. Just do a little
+  hack by =defadvice=.
+
+#+begin_src emacs-lisp
+(defun occur-dwim ()
+  (interactive)
+  (let (thing)
+    (setq thing
+          (if (region-active-p)
+              (buffer-substring-no-properties
+               (region-beginning)
+               (region-end))
+            (thing-at-point-no-properties 'symbol)))
+    (when thing
+      (push thing regexp-history)))
+  (call-interactively 'occur))
+(defadvice occur-mode-goto-occurrence (after omgo-after activate)
+  (recenter))
+(defadvice occur-mode-goto-occurrence-other-window (after omgoow-after activate)
+  (recenter))
+(defun occur-display-dwim ()
+  (interactive)
+  (occur-mode-goto-occurrence-other-window)
+  (other-window -1))
+#+end_src
+
+*** Key bindings
+
+#+begin_src emacs-lisp
+(define-key occur-mode-map (kbd "j") 'occur-next)
+(define-key occur-mode-map (kbd "k") 'occur-prev)
+(define-key occur-mode-map (kbd "d") 'occur-display-dwim)
+#+end_src
+
+** Tips
+*** Combine Dired with replace
+
+First to mark with regexp *%m* in Dired. Then press *Q* to do
+[[help:dired-do-query-replace-regexp][dired-do-query-replace-regexp]]. You can see what you want happens.
+
+*** Insert newline in minibuffer (replace)
+
+Press *C-q C-j* where *C-q* for [[help:quoted-insert][quoted-insert]] and *C-j* for a
+newline. However, I think a better idea is to copy text and yank into the
+minibuffer.

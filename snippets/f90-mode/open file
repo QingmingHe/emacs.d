@@ -1,6 +1,7 @@
 # -*- mode: snippet; require-final-newline: nil -*-
 # name: open file
 # key: op
+# key: o
 # --
 open(NEWUNIT=$1, FILE=trim($2), STATUS="${3:`(yas-choose-value '("replace" "old"))`}")
 rewind($1)

@@ -6,38 +6,25 @@
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
-(when (executable-find "ctags")
-  (require 'auto-complete-etags))
-(when (executable-find "gtags")
-  (require 'auto-complete-gtags))
 (when (executable-find "clang")
   (require 'auto-complete-clang))
 
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
 
-;; enable ac-gtags in several modes
-(when (featurep 'auto-complete-gtags)
-  (mapcar
-   (lambda (mode)
-     (add-to-list 'ac-gtags-modes mode))
-   '(f90-mode python-mode)))
-
 ;; add several modes to ac-modes so that global-auto-complete-mode can run on
 ;; these modes
 (mapc
  (lambda (mode)
    (add-to-list 'ac-modes mode))
- '(org-mode text-mode cmake-mode eshell-mode))
+ '(text-mode cmake-mode))
 
 ;; default ac-sources: basic ac-sources for all modes
 (setq-default
  ac-sources
- '(ac-source-yasnippet
-   ac-source-abbrev
+ '(ac-source-abbrev
    ac-source-dictionary
-   ac-source-words-in-same-mode-buffers
-   ac-source-filename))
+   ac-source-words-in-same-mode-buffers))
 
 (setq ac-use-menu-map t)
 (setq ac-use-quick-help t)
@@ -48,70 +35,12 @@
 
 ;; enable auto complete in all modes
 (global-auto-complete-mode t)
-#+END_SRC
-
-** Super TAB
-
-I want to use =TAB= for these things:
-1. Trigger auto complete. This can be realised by using intrinsic
-   =ac-set-trigger-key=.
-2. Expand common part of all candidates if possible. This can be realised by
-   =ac-expand-common= function which will try to expand common part when
-   =ac-dwim= is nil.
-3. Refresh candidates menu after I've typed in new characters. =ac-update=
-   Just do this kind of thing.
-4. If auto complete is not alive, fall back to
-   [[help:yas-next-field-or-maybe-expand][yas-next-field-or-maybe-expand]] if [[help:yas-next-field-or-maybe-expand][yas-next-field-or-maybe-expand]], otherwise
-   just [[help:indent-according-to-mode][indent-according-to-mode]].
-
-#+begin_src emacs-lisp
-(setq ac-dwim nil)
-(setq ac-auto-start nil)
-(ac-set-trigger-key "TAB")
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
-
-(defun ac-refresh-candidates ()
-  (interactive)
-  (ac-update t)
-  (ac-expand-common)
-  (when (eq 1 (length ac-candidates))
-    (ac-abort)))
-
-(define-key ac-completing-map "\t" 'ac-refresh-candidates)
-(define-key ac-completing-map [tab] 'ac-refresh-candidates)
-
-(defun ac-fallback-command (&optional except-command)
-  "Redefine `ac-fallback-command' in `auto-complete-mode'."
-  (interactive)
-  (cond ((yas--snippets-at-point)
-         (yas-next-field-or-maybe-expand))
-        (t
-         (indent-according-to-mode))))
-#+end_src
+#+END_SRC
 
 ** Fortran
 
-#+begin_src emacs-lisp
-(add-hook 'f90-mode-hook
-          (lambda ()
-            (when (featurep 'auto-complete-etags)
-              (add-to-list 'ac-sources 'ac-source-etags))
-            (when (featurep 'auto-complete-gtags)
-              (add-to-list 'ac-sources 'ac-source-gtags))))
-#+end_src
-
-** Python
-
-Jedi is setup in [[~/emacs.d/starter-kit-python.org][starter-kit-python]].
-
-#+begin_src emacs-lisp
-(add-hook 'python-mode-hook
-          (lambda ()
-            (when (featurep 'auto-complete-etags)
-              (add-to-list 'ac-sources 'ac-source-etags))
-            (when (featurep 'auto-complete-gtags)
-              (add-to-list 'ac-sources 'ac-source-gtags))))
-#+end_src
+Use project-ac-etags which is set up itself.
 
 ** Emacs lisp
 
@@ -195,10 +124,6 @@ added.
 #+begin_src emacs-lisp
 (defun my-c-c++-ac-setup ()
   (when (derived-mode-p 'c-mode 'c++-mode)
-    (when (featurep 'auto-complete-etags)
-      (add-to-list 'ac-sources 'ac-source-etags))
-    (when (featurep 'auto-complete-gtags)
-      (add-to-list 'ac-sources 'ac-source-gtags))
     (when (featurep 'auto-complete-clang)
       (add-to-list 'ac-sources 'ac-source-clang))
     (setq ac-sources
@@ -228,3 +153,46 @@ added.
 + Use *C-M-n* and *C-M-p* to scroll down and up in quick help.
 + *C-M-?* to persist ac-help which may be useful when help page is too long or
   you want to get help when filling arguments of the function.
+
+** Built in completion
+
+#+begin_src emacs-lisp
+(setq completion-ignore-case t)
+#+end_src
+
+** Hippie expand: at times perhaps too hip
+*** Expand by dict
+
+I use [[file:starter-kit-dictionary.org::*English%20words%20dict][English words dict]] instead.
+#+begin_src emacs-lisp
+(setq my-english-words-dict (concat starter-kit-dir "dict/english-words.txt"))
+
+(defun try-expand-by-dict (old)
+  (unless old
+    (he-init-string (he-lisp-symbol-beg) (point))
+    (unless (he-string-member he-search-string he-tried-table)
+      (setq he-tried-table (cons he-search-string he-tried-table)))
+    (setq he-expand-list
+          (and (not (equal he-search-string ""))
+               (split-string
+                (shell-command-to-string
+                 (format
+                  "grep \"^%s\" %s"
+                  (buffer-substring-no-properties (he-lisp-symbol-beg) (point))
+                  my-english-words-dict))))))
+  (if (not he-expand-list)
+      (progn (when old (he-reset-string) nil))
+    (he-substitute-string (car he-expand-list))
+    (setq he-expand-list (cdr he-expand-list))
+    t))
+#+end_src
+
+*** Set hippie expand functions
+#+begin_src emacs-lisp
+(global-set-key (kbd "M-/") 'hippie-expand)
+(setq hippie-expand-try-functions-list
+      '(try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-dabbrev
+        try-expand-dabbrev-all-buffers))
+#+end_src

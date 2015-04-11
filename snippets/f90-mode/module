@@ -1,0 +1,20 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: module
+# key: mod
+# key: mo
+# --
+! -*- coding: utf-8 -*-
+!============================================================================
+! Description of the module ...
+! @author Qingming He, NECP
+! @date `(format-time-string "%Y-%m-%d %T")`
+!============================================================================
+module $1
+
+  implicit none
+
+  $0
+
+contains
+
+end module $1

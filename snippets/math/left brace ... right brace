@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: left brace ... right brace
+# key: lr
+# --
+\left${1:\(} $0 \right${2:\)}

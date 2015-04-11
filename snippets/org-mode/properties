@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+#name : Properties
+#key : pro
+# --
+ :PROPERTIES:
+ :$1: $0
+ :END:

@@ -1,0 +1,13 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: equation reference
+# key: ref
+# --
+equation \eqref{${1:`
+(helm-comp-read "refer to: "
+                (let (labels)
+                  (save-excursion
+                    (goto-char (point-min))
+                    (while (re-search-forward "\\\\label{\\([^}]+\\)}" nil t)
+                      (setq labels
+                            (cons (match-string-no-properties 1) labels))))
+                  labels))`}}$0

@@ -1,0 +1,5 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: allocate
+# key: al
+# --
+allocate($0)

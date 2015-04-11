@@ -1,0 +1,8 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .. math ::
+# key: ma
+# --
+.. math::
+    :label: $1
+
+    $0

@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: matplotlib grid
+# key: gr
+# --
+plt.grid(True, which="${1:`(yas-choose-value '("both" "minor" "major"))`}")
+$0

@@ -2,6 +2,39 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit LaTeX
+** Install latex
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+
+First install the latest *texlive*. Then install *auctex*:
+#+begin_src sh
+cd ~/.emacs.d/auctex-11.88/
+./configure
+make
+make install
+#+end_src
+
+** cdlatex
+
+I use *yasnippet* to expand math command, latex environments, ... So
+[[help:cdlatex-command-alist-default][cdlatex-command-alist-default]] is of no use. The cdlatex-style of inserting
+math symbols with prefix =`= and ='= is very strange and disturbing. I use
+[[help:helm-insert-latex-math][helm-insert-latex-math]] instead.
+#+begin_src emacs-lisp
+(with-eval-after-load 'cdlatex
+  (setq cdlatex-command-alist-comb nil)
+  (define-key cdlatex-mode-map
+    (cdlatex-get-kbd-vector cdlatex-math-symbol-prefix)
+    'self-insert-command)
+  (define-key cdlatex-mode-map
+    (cdlatex-get-kbd-vector cdlatex-math-modify-prefix)
+    'self-insert-command))
+#+end_src
+
+*tesmathp* which is bundled with *auctex* is needed by *cdlatex*. However,
+*auctex* is not that easy to install. So I take *texmathp* alone from *auctex*
+*and add it to my load path [[file:src/texmathp/][file:~/.emacs.d/src/texmathp/]].
 
 ** Customary Customization
 
@@ -11,6 +44,23 @@ your ~/.emacs.
 #+END_QUOTE
 
 #+BEGIN_SRC emacs-lisp
+(when auctex-root
+  (load "auctex" t)
+  (load "preview-latex" t))
+
+;; `helm-insert-latex-math' need `LaTeX-math-mode' which is not autoloaded by
+;; default.
+(when auctex-root
+  (autoload 'LaTeX-math-mode "latex" "\
+A minor mode with easy access to TeX math macros.
+
+Easy insertion of LaTeX math symbols.  If you give a prefix argument, the
+symbols will be surrounded by dollar signs.  The following commands are
+defined:
+
+\\{LaTeX-math-mode-map}" t nil)
+  (add-to-list 'auto-mode-alist '("\\.tex\\'" . TeX-latex-mode)))
+
 (setq Tex-auto-save t)
 (setq Tex-parse-self t)
 (setq-default Tex-master nil)
@@ -29,7 +79,8 @@ inverse search, activate ... mode, though the author never succeed.
 
 #+BEGIN_SRC emacs-lisp
 (setq TeX-PDF-mode t)
-(add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
+(when auctex-root
+  (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode))
 (setq TeX-source-correlate-start-server t)
 (setq TeX-view-program-list '(("Evince" "evince -f --page-index=%(outpage) %o")))
 (setq TeX-view-program-selection '((output-pdf "Evince")))
@@ -64,7 +115,8 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
   (LaTeX-math-mode)
   (reftex-mode)
   (cdlatex-mode))
-(add-hook 'LaTeX-mode-hook 'my-latex-config)
+(when auctex-root
+  (add-hook 'LaTeX-mode-hook 'my-latex-config))
 #+END_SRC
 
 ** RefTeX

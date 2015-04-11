@@ -20,7 +20,6 @@ viper
 *.tar.bz2
 
 ## misc
-loaddefs.el*
 auto-save-list
 custom.el
 places
@@ -30,6 +29,7 @@ tramp
 .emacs-bmk-bmenu-state.el
 .emacs-desktop
 Cask
+eww-bookmarks
 .aspell.en.pws
 
 ## directories
@@ -43,6 +43,8 @@ url/*
 .cask/
 elpa/archives/
 irony/
+pyim/
+src/auctex/
 
 ## exported and encrypted files
 *gpg

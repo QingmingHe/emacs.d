@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: integral
+# key: int
+# --
+\int$0 \, \mathrm{d}${1:x}

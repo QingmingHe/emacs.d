@@ -48,3 +48,42 @@ sdcv is a command-line version of stardict.
 
 *** Use sdcv.el
 *helm-M-x ^sdcv* and you know what it means.
+
+** English words dict
+
+#+begin_src emacs-lisp
+(setq my-english-words-dict (concat starter-kit-dir "dict/english-words.txt"))
+
+(defun helm-english-words-search (&optional c)
+  (interactive)
+  (with-current-buffer (pop-to-buffer "*SDCV*")
+    (erase-buffer)
+    (call-process "sdcv" nil t nil "-n" (or c (car (helm-marked-candidates))))
+    (goto-char (point-min)))
+  (select-window-0))
+
+(defun helm-english-words ()
+  (interactive)
+  (let* ((b (bounds-of-thing-at-point 'word))
+         (b0 (car b))
+         (b1 (cdr b))
+         (word (buffer-substring-no-properties b0 b1)))
+    (helm :sources `(((name . "English words")
+                      (candidates . (lambda ()
+                                      (split-string
+                                       (shell-command-to-string
+                                        (format
+                                         "grep -i \"^%s\" %s"
+                                         ,word
+                                         ,my-english-words-dict)))))
+                      (action . (("Insert the word" . (lambda (c)
+                                                        (delete-region ,b0 ,b1)
+                                                        (insert c)))
+                                 ("Search word by sdcv" . helm-english-words-search)))))
+          :keymap (let ((map (make-sparse-keymap)))
+                    (set-keymap-parent map helm-map)
+                    (define-key map (kbd "C-j") 'helm-english-words-search)
+                    map))))
+
+(global-set-key (kbd "M-?") 'helm-english-words)
+#+end_src

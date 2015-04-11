@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .. figure::
+# key: fi
+# --
+.. figure:: ${1:FileName}
+    :align: ${2:center}
+    :figclass: ${3:align-center}
+
+    ${4:Caption}

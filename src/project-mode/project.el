@@ -19,37 +19,39 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program. If not, see <http://www.gnu.org/licenses/>.
 ;;
-;;; TODO
-;; + Commentary
-;; + prj/helm-mini: eshell command on project file/buffer(s)
-;; + prj/helm-mini: copy/insert file name
-;; + prj/helm-mini: source of useful commands
+;;; Commentary:
+;; +. features:
+;;    - Handle tags file automatically. Generating, updating, ...
+;;    - Provide a preconfigured `helm' to list project buffers, files and seen
+;;      projects.
+;;    - Two `auto-complete' sources `prj/ac-source-etags' and
+;;      `prj/ac-source-gtags' which handles ac-source for each project.
+;;    - Some useful command to run find, grep, ... at project files or buffers.
 
 (require 'project-root)
 
 ;;; project configure/initialize
 
-(defvar prj/use-helm-if-possible t
-  "Use helm for completing if possible.")
+(defvar prj/touch-cmake-at-create nil
+  "Whether touch CMakeLists.txt at creating new project file by
+`prj/add-new-source'.")
 
-(defvar prj/helm-mini-include-bookmarks nil
-  "Whether include `helm-source-bookmarks' in `prj/helm-mini'. This variable
-should be set before load this library.")
+(defvar prj/cmake-list-file "CMakeLists.txt"
+  "CMake file.")
 
-(defvar prj/helm-mini-include-commands t
-  "Whether include source of some useful commands in `prj/helm-mini'.")
-
-(defvar prj/helm-candidate-number-limit 9999
+(defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
-
-(defvar prj/use-gtags (if (executable-find "gtags") t nil)
-  "Use gtags or ctags?")
-(make-variable-buffer-local 'prj/use-gtags)
 
 (defvar prj/tags-tool-found
   (or (executable-find "gtags") (executable-find "ctags"))
   "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
+
+(defvar prj/global-exec (executable-find "global")
+  "Executable of GNU global.")
+
+(defvar prj/ctags-exec (executable-find "ctags")
+  "Executable of Exuberant Ctags.")
 
 (defvar prj/gtags-conf-file-guess
   `(,(expand-file-name "~/.globalrc")
@@ -61,19 +63,21 @@ library.")
     "/etc/gtags.conf")
   "Guesses of gtags configuration files.")
 
-(defvar prj/gtags-conf-file nil
+(defvar prj/gtags-conf-file
+  (let (gtags-conf)
+    (catch 'gtags-conf
+      (mapc
+       (lambda (f)
+         (when (file-exists-p f)
+           (message "[Prj] find gtags configuration file %s" f)
+           (setq gtags-conf f)
+           (throw 'gtags-conf f)))
+       prj/gtags-conf-file-guess))
+    gtags-conf)
   "Gtags configuration file.")
-
-(defvar prj/gtags-label-choices '("default" "ctags" "pygments" "native")
-  "Gtags label. If \"default\" gtags uses its built in parser; if \"ctags\"
-use ctags parser; ...")
 
 (defvar prj/etags-tags-file "TAGS"
   "TAGS file name.")
-
-(defvar prj/buffer-tags-file nil
-  "Buffer local `tags-file-name'.")
-(make-variable-buffer-local 'prj/buffer-tags-file)
 
 (defvar prj/update-tags-verbose t
   "Update tags file verbosely or not?")
@@ -82,9 +86,34 @@ use ctags parser; ...")
   "Mode line linghter for current buffer if `project-minor-mode' is on.")
 (make-variable-buffer-local 'prj/buffer-mode-lighter)
 
-(defvar prj/buffer-project nil
-  "Buffer local `project-details'.")
-(make-variable-buffer-local 'prj/buffer-project)
+(defvar prj/use-auto-complete nil
+  "Whether add `ac-source-prj/gtags' or `ac-source-prj/etags' to `ac-sources'
+for project buffers.")
+
+(defvar prj/use-tags t
+  "Whether use ctags or gtags for handling project.")
+
+(defvar prj/ac-etags-source-defined nil
+  "Whether ac-source-prj/etags has been defined.")
+
+(defvar prj/ac-gtags-source-defined nil
+  "Whether ac-source-prj/gtags has been defined.")
+
+(defface prj/ac-etags-candidate-face
+  '((t (:background "gainsboro" :foreground "deep sky blue")))
+  "Face for etags candidate")
+
+(defface prj/ac-etags-selection-face
+  '((t (:background "deep sky blue" :foreground "white")))
+  "Face for the etags selected candidate.")
+
+(defface prj/ac-gtags-candidate-face
+  '((t (:background "lightgray" :foreground "navy")))
+  "Face for gtags candidate")
+
+(defface prj/ac-gtags-selection-face
+  '((t (:background "navy" :foreground "white")))
+  "Face for the gtags selected candidate.")
 
 (defun __file__ ()
   "Get the name of current file."
@@ -96,10 +125,6 @@ use ctags parser; ...")
 
 (defvar prj/package-path (file-name-directory (__file__))
   "Absolute path of project mode package.")
-
-(defvar prj/etags-update-script
-  (expand-file-name "etags-update.pl" prj/package-path)
-  "Perl script to update TAGS file for a given set of files.")
 
 (defun prj/rel-or-abs-path (path p)
   "Get path.
@@ -116,23 +141,11 @@ expanded.  Otherwise will be recognized as path relative to project root."
   "Set up project mode generally.
 
 1. Load project root cache from \"~/.emacs.d/.project-roots;\"
-2. Add `project-root-save-roots' to `kill-emacs-hook';
-3. Get gtags conf file from guesses."
-  (interactive)
+2. Add `project-root-save-roots' to `kill-emacs-hook';"
   (message "[Prj] loading project roots form %s ..."
            project-root-storage-file)
   (project-root-load-roots)
-  (add-hook 'kill-emacs-hook 'project-root-save-roots)
-  (setq prj/tags-tool-found
-        (or (executable-find "gtags") (executable-find "ctags")))
-  (catch 'gtags-conf
-    (mapc
-     (lambda (f)
-       (when (file-exists-p f)
-         (message "[Prj] find gtags configuration file %s" f)
-         (setq prj/gtags-conf-file f)
-         (throw 'gtags-conf f)))
-     prj/gtags-conf-file-guess)))
+  (add-hook 'kill-emacs-hook 'project-root-save-roots))
 
 (defun prj/thing-at-point-no-properties (thing)
   "Get thing at point without properties."
@@ -144,195 +157,51 @@ expanded.  Otherwise will be recognized as path relative to project root."
 
 ;;; project files/buffers
 
-(defun prj/occur (arg)
-  "Run multiple occur on selected project files.
-
-If arg is nil, run `helm-multi-swoop', otherwise run `multi-occur'.
- All selected project files will be opened before running `helm-multi-swoop'
-or `multi-occur' for that these two functions can only applies to buffers. You
-may need to kill buffers after running this function."
-  (interactive "P")
-  (if (featurep 'helm)
-      (with-project-root
-          (let (prj-files selected-files buffers)
-            (setq prj-files (project-root-files))
-            (setq selected-files (helm-comp-read
-                                  "Select files to run occur: "
-                                  (mapcar 'car prj-files)
-                                  :marked-candidates t))
-            (setq buffers (mapcar
-                           (lambda (f)
-                             (find-file-noselect
-                              (cdr (assoc f prj-files))))
-                           selected-files))
-            (if (and
-                 (featurep 'helm-swoop)
-                 prj/use-helm-if-possible
-                 (not arg))
-                (helm-multi-swoop nil (mapcar 'buffer-name buffers))
-              (multi-occur
-               buffers
-               (read-string
-                (format "List lines matching (default \"%s\"): " (symbol-at-point))
-                nil nil (symbol-at-point))))))
-    (message "Helm is required!")))
-
-(defun prj/occur-dir (arg)
-  "Run multiple occur on found files under given directory..
-
-`grep-find-ignored-directories' and `grep-find-ignored-files' will be ignored
-by default.  If arg is nil, run `helm-multi-swoop', otherwise run
-`multi-occur'. All found files will be opened before running
-`helm-multi-swoop' or `multi-occur'. You may need to kill buffers after
-running this function."
-  (interactive "P")
-  (let ((default-directory
-          (ido-read-directory-name "Dir to run find: " default-directory))
-        cycles
-        find-regexp
-        find-file-cmd
-        files
-        buffers
-        str)
-    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
-      (add-to-list 'cycles str))
-    (while (not (string-empty-p (setq str (read-string "File name regexp: "))))
-      (add-to-list 'find-regexp str))
-    (unless find-regexp
-      (setq find-regexp '("*")))
-    (setq find-file-cmd
-          (find-cmd `(prune (name ,@grep-find-ignored-directories ,@cycles))
-                    `(not (name ,@grep-find-ignored-files))
-                    `(name ,@find-regexp)
-                    '(type "f")))
-    (setq files
-          (split-string (shell-command-to-string find-file-cmd) "\n"))
-    (when (and (featurep 'helm) prj/use-helm-if-possible)
-      (setq files
-            (helm-comp-read
-             "Select files to run occur. [M-a] to mark all: "
-             files
-             :marked-candidates t)))
-    (setq buffers
-          (mapcar 'find-file-noselect files))
-    (if (and
-         (featurep 'helm-swoop)
-         prj/use-helm-if-possible
-         (not arg))
-        (helm-multi-swoop nil (mapcar 'buffer-name buffers))
-      (multi-occur
-       buffers
-       (read-string
-        (format "List lines matching (default \"%s\"): " (symbol-at-point))
-        nil nil (symbol-at-point))))))
-
 (defun prj/find-file ()
-  "Find a project file by `helm-comp-read' or `ido-completing-read'."
+  "Find a file from a list of those that exist in the current project."
   (interactive)
-  (with-project-root
-      (let* ((project-files (project-root-files))
-             (file (if (and (featurep 'helm) prj/use-helm-if-possible)
-                       (helm-comp-read "Find file in project: "
-                                       (mapcar 'car project-files))
-                     (ido-completing-read "Find file in project: "
-                                          (mapcar 'car project-files)))))
-        (find-file (cdr (assoc file project-files))))))
+  (let ((p (or project-details (project-root-fetch))))
+    (if p
+        (let* ((files (project-root-files p 'identity))
+               (file (ido-completing-read "Find file in project: "
+                                          (mapcar 'car files))))
+          (find-file (cdr (assoc file project-files)))))))
 
-(defun prj/grep ()
-  "Run grep at selected project files."
-  (interactive)
-  (with-project-root
-      (let (files
-            selected-files
-            grep-regexp)
-        (setq files (project-root-files))
-        (if (and (featurep 'helm) prj/use-helm-if-possible)
-            (setq selected-files
-                  (helm-comp-read "Files: "
-                                  (mapcar 'car files)
-                                  :marked-candidates t))
-          (setq selected-files (mapcar 'car files)))
-        (setq grep-regexp
-              (read-string
-               (format "regexp (default \"%s\"): " (symbol-at-point))
-               nil nil (symbol-at-point)))
-        (grep (format "grep -nH -e %s %s"
-                grep-regexp
-                (mapconcat 'concat
-                           (mapcar
-                            (lambda (f)
-                              (cdr (assoc f files)))
-                            selected-files)
-                           " "))))))
+(defun prj/occur (pattern &optional p)
+  "Run multiple occur on project buffers. Whether a file is a project file is
+determined by `project-root-file-is-project-file'."
+  (interactive
+   (list
+    (read-string (format "pattern (default \"%s\"): " (symbol-at-point))
+                 nil nil (prj/thing-at-point-no-properties 'symbol))))
+  (let* ((p (or p (project-root-fetch)))
+         (buffers (let (buffers)
+                    (mapc
+                     (lambda (buf)
+                       (with-current-buffer buf
+                         (when (project-root-file-is-project-file
+                                buffer-file-name p)
+                           (setq buffers (cons buf buffers)))))
+                     (buffer-list))
+                    buffers)))
+    (multi-occur buffers pattern)))
 
-(defun prj/find-grep-dir ()
-  "Run grep with find under certain directory.
-
-The difference between this function and `prj/grep' is that `prj/grep' only
-applies to selected project files and this function applies to any found files
-under certain directory. This function need not run at project root."
-  (interactive)
-  (let ((default-directory
-          (ido-read-directory-name "Dir to run find: " default-directory))
-        (grep-regexp
+(defun prj/grep (grep-regexp wildcard dir &optional p)
+  "Run grep with find at project files."
+  (interactive
+   (list (read-string
+          (format "regexp (default \"%s\"): " (symbol-at-point))
+          nil nil (prj/thing-at-point-no-properties 'symbol))
          (read-string
-          (format "grep regexp (default \"%s\"): " (symbol-at-point))
-          nil nil (symbol-at-point)))
-        find-file-cmd
-        cycles
-        find-regexp
-        str)
-    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
-      (add-to-list 'cycles str))
-    (while (not (string-empty-p (setq str (read-string "File name regexp: "))))
-      (add-to-list 'find-regexp str))
-    (unless find-regexp
-      (setq find-regexp '("*")))
-    (setq find-file-cmd
-          (find-cmd
-           `(prune (name ,@grep-find-ignored-directories ,@cycles))
-           `(not (name ,@grep-find-ignored-files))
-           `(name ,@find-regexp)
-           '(type "f")))
-    (find-grep
-     (format "%s -exec grep -nH -e %s {} +"
-             find-file-cmd
+          (format "file name wildcard (default \"*.%s\"): "
+                  (file-name-extension (buffer-name)))
+          nil nil (format "*.%s" (file-name-extension (buffer-name))))
+         (ido-read-directory-name "Dir to run grep: ")))
+  (let ((p (or p (project-root-fetch))))
+    (grep
+     (format "%s | xargs grep -nH -e \"%s\""
+             (project-root-find-cmd wildcard dir p)
              grep-regexp))))
-
-(defun prj/find-dired ()
-  "Run find and go into Dired mode on a buffer of the output."
-  (interactive)
-  (let ((dir
-         (ido-read-directory-name "Dir to run find: " default-directory))
-        (find-cmd-prune
-         (when (y-or-n-p "Ignore grep-find-ignored-directories?")
-           grep-find-ignored-directories))
-        (find-cmd-not
-         (when (y-or-n-p "Ignore grep-find-ignored-files?")
-           grep-find-ignored-files))
-        find-cmd-name
-        str)
-    (while (not (string-empty-p (setq str (read-string "Dir to ignore: "))))
-      (add-to-list 'find-cmd-prune str))
-    (when find-cmd-prune
-      (setq find-cmd-prune `(prune (name ,@find-cmd-prune))))
-    (while (not (string-empty-p (setq str (read-string "files to ignore: "))))
-      (add-to-list 'find-cmd-not str))
-    (when find-cmd-not
-      (setq find-cmd-not `(not (name ,@find-cmd-not))))
-    (while (not (string-empty-p (setq str (read-string "file name regexp: "))))
-      (add-to-list 'find-cmd-name str))
-    (when find-cmd-name
-      (setq find-cmd-name `(name ,@find-cmd-name)))
-    (find-dired
-     dir
-     (mapconcat
-      'concat
-      (nthcdr
-       2
-       (split-string
-        (find-cmd find-cmd-prune find-cmd-not find-cmd-name)))
-      " "))))
 
 (defun prj/goto-project (&optional p)
   "Go to root of a selected project in Dired."
@@ -346,25 +215,44 @@ under certain directory. This function need not run at project root."
                       project-root-seen-projects)))))
     (find-file path)))
 
-(defun prj/kill-buffers-dir ()
-  "Kill all buffers under directory, Dired buffers included. The buffers are
-saved before killed."
-  (interactive)
-  (let ((dir (ido-read-directory-name "Directory: ")))
-    (mapcar
-     (lambda (buffer)
-       (progn (set-buffer buffer)
-              (when (equal
-                     0
-                     (string-match-p
-                      dir (expand-file-name default-directory)))
-                (when (and
-                       (buffer-file-name)
-                       (buffer-modified-p))
-                  (save-buffer))
-                (message (format "Kill %s" (or (buffer-file-name) (buffer-name))))
-                (kill-buffer buffer))))
-     (buffer-list))))
+(defun prj/go-up-dir-find-file (file &optional p path-begin)
+  "Go up directory to find FILE starts from PATH-BEGIN till root of
+project. FILE should be name without directory. If P is not given,
+`project-details' is used, if `project-details' is `nil', `project-root-fetch'
+is used to obtain P. If PATH-BEGIN is not given, `default-directory' is
+used. Returns a list of full file names whose file name is FILE in a sequence
+from project root to PATH-BEGIN."
+  (let ((p (or p project-details (project-root-fetch)))
+        (dir (or path-begin default-directory))
+        jump-out
+        file-full-path)
+    (when p
+      (while (not jump-out)
+        (when (file-exists-p (expand-file-name file dir))
+          (setq file-full-path (cons (expand-file-name file dir) file-full-path)))
+        (when (string= (cdr p) dir)
+          (setq jump-out t))
+        (setq dir (file-name-directory (directory-file-name dir)))))
+    file-full-path))
+
+(defun prj/add-new-source (file &optional p)
+  "Add new source file to project and touch `prj/cmake-list-file' if
+`prj/touch-cmake-at-create' is t."
+  (interactive (list
+                (expand-file-name
+                 (read-string "File name: ")
+                 (ido-read-directory-name "Where to place: "))))
+  (let ((p (or p project-details (project-root-fetch))))
+    (if p
+        (progn
+          (find-file file)
+          (when prj/touch-cmake-at-create
+            (mapc
+             (lambda (cmake-file)
+               (call-process "touch" nil 0 nil cmake-file))
+             (prj/go-up-dir-find-file
+              prj/cmake-list-file p (file-name-directory file)))))
+      (message "Project is not found!"))))
 
 (defun prj/kill-project-buffers (&optional p)
   "Kill all opened buffers of project. The buffers are saved before killed."
@@ -396,10 +284,9 @@ saved before killed."
 ;;; project tags
 
 (defun prj/generate-etags ()
-  "Make $PROJECT-TAGS at project root. You'd better generate tags file at
-project root, otherwise prj can't update tags file."
+  "Generate TAGS at project root."
   (interactive)
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p))
          (tags-file prj/etags-tags-file))
     (when (file-exists-p tags-file)
@@ -413,24 +300,23 @@ project root, otherwise prj can't update tags file."
 (defun prj/get-gtags-label (&optional p)
   "Get gtags label."
   (let ((p (or p (project-root-fetch))))
-    (or (getenv "GTAGSLABEL")
-        (project-root-data :gtags-label p)
-        (ido-completing-read
-         "Gtags label (You'd better set :gtags-label in project-roots): "
-         prj/gtags-label-choices))))
+    (or (project-root-data :gtags-label p)
+        (getenv "GTAGSLABEL")
+        "default")))
 
 (defun prj/get-gtags-conf (&optional p)
-  "Get gtags conf."
+  "Get gtags configuration file."
   (let ((p (or p (project-root-fetch))))
     (or (getenv "GTAGSCONF")
         (project-root-data :gtags-conf p)
         prj/gtags-conf-file
-        (ido-read-file-name "Gtags configuration file: "))))
+        (setq prj/gtags-conf-file
+              (ido-read-file-name "Gtags configuration file: ")))))
 
 (defun prj/generate-gtags ()
-  "Run gtags at user specified path."
+  "Run gtags at project root."
   (interactive)
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p))
          (gtags-label (prj/get-gtags-label p))
          (gtags-conf (prj/get-gtags-conf p)))
@@ -441,9 +327,9 @@ project root, otherwise prj can't update tags file."
     (message "Done")))
 
 (defun prj/generate-tags ()
-  "Generate tags file by ctags or gtags."
+  "Generate tags file at project root by ctags or gtags."
   (interactive)
-  (if prj/use-gtags
+  (if (project-root-data :-use-gtags project-details)
       (prj/generate-gtags)
     (prj/generate-etags)))
 
@@ -454,31 +340,132 @@ project root, otherwise prj can't update tags file."
     (when (and p fname)
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
-        (shell-command
-         (format
-          "global --gtagslabel=%s --gtagsconf=%s --single-update %s"
-          gtags-label gtags-conf fname))))))
+        (call-process prj/global-exec nil nil nil
+         (format "--gtagslabel=%s" gtags-label)
+         (format "--gtagsconf=%s" gtags-conf)
+         (format "--single-update=%s" fname))))))
+
+(defun prj/update-etags-files (tags-file files &optional proc-name)
+  "Update TAGS-FILE for FILES. FILES should be a list of files whose tags are
+to be updated. PROC-NAME is the name of ctags process. Returns process handle
+of ctags."
+  (let ((last-time (current-time))
+        (proc-name (or proc-name "prj/update-etags-files"))
+        p0 p1 elapsed-time)
+    (with-temp-buffer
+      (insert-file-contents tags-file)
+      (mapc
+       (lambda (f)
+         (goto-char (point-min))
+         (while (search-forward (format "\f\n%s," f) nil t)
+           (save-excursion
+             (if (search-forward "\f" nil t)
+                 (setq p1 (line-beginning-position))
+               (setq p1 (point-max))))
+           (setq p0 (- (line-beginning-position) 2))
+           (delete-region p0 p1)))
+       files)
+      (write-region (point-min) (point-max) tags-file nil 0))
+    (setq elapsed-time (float-time (time-since last-time)))
+    (eval
+     `(start-process
+       proc-name nil prj/ctags-exec "-e" "-o" tags-file "-a" ,@files))))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
-  (let ((fname (buffer-file-name))
-        (p (or p (project-root-fetch))))
-    (when (and p fname prj/buffer-tags-file)
-      (shell-command
-       (format "%s %s %s"
-               prj/etags-update-script prj/buffer-tags-file fname)))))
+  (let* ((fname (buffer-file-name))
+         (p (or p project-details (project-root-fetch)))
+         (tags-file (project-root-data :-tags-file p)))
+    (when (and p fname tags-file)
+      (prj/update-etags-files tags-file `(,fname)))))
 
 (defun prj/update-tags-single-file ()
   "Update tags for single file by ctags or gtags."
   (when (and
-         (buffer-file-name))
+         (buffer-file-name)
+         project-details)
     (when prj/update-tags-verbose
       (message "Updating tags for %s ..." (buffer-file-name)))
-    (if prj/use-gtags
-        (prj/update-gtags-single-file prj/buffer-project prj/buffer-project)
-      (prj/update-etags-single-file prj/buffer-project))
+    (if (project-root-data :-use-gtags project-details)
+        (prj/update-gtags-single-file project-details)
+      (prj/update-etags-single-file project-details))
     (when prj/update-tags-verbose
       (message "Done"))))
+
+(defun prj/save-buffers-and-update-tags-sentinel (proc event)
+  "Message something after tags file have been updated for a project."
+  (when (eq (process-status proc) 'exit)
+    (if (zerop (process-exit-status proc))
+        (message "Updating tags for %s Done." proc)
+      (message "Updating tags for %s failed." proc))))
+
+(defun prj/save-buffers-and-update-tags ()
+  "Update tags file for modified buffers of projects asynchronously and save
+all modified buffers."
+  (interactive)
+  (let ((prj-files (make-hash-table :test 'equal))
+        not-prj-buffers p f proc)
+    ;; get all modified buffers or files and classify them according to which
+    ;; project they belong to
+    (mapc
+     (lambda (buf)
+       (with-current-buffer buf
+         (when (and
+                (setq f (buffer-file-name))
+                (buffer-modified-p))
+           (if (and
+                (setq p project-details)
+                (not (string=
+                      "none"
+                      (project-root-data :tags-tool p))))
+               (progn
+                 (puthash (car p) (cons f (gethash (car p) prj-files)) prj-files)
+                 (remove-hook 'after-save-hook 'prj/update-tags-single-file t))
+             (add-to-list 'not-prj-buffers buf)))))
+     (buffer-list))
+    ;; save project buffers and update tags file using GNU global or
+    ;; etags-update.pl project-wisely
+    (maphash
+     (lambda (key value)
+       ;; save buffers and re-add the `prj/update-tags-single-file' to
+       ;; `after-save-hook'
+       (mapcar
+        (lambda (f)
+          (with-current-buffer (get-file-buffer f)
+            (save-buffer)
+            (add-hook 'after-save-hook 'prj/update-tags-single-file nil t)))
+        value)
+       ;; update tags
+       (when prj/update-tags-verbose
+         (message "Updating tags file for %s ..." key))
+       (setq p (assoc key project-root-seen-projects))
+       (with-current-buffer (get-file-buffer (car value))
+         (if (project-root-data :-use-gtags p)
+             (if (= 1 (length value))
+                 (setq proc
+                       (start-process
+                        key nil prj/global-exec
+                        (format "--gtagslabel=%s" (prj/get-gtags-label p))
+                        (format "--gtagsconf=%s" (prj/get-gtags-conf p))
+                        (format "--single-update=%s" (car value))))
+               (setq proc
+                     (start-process
+                      key nil prj/global-exec "-u"
+                      (format "--gtagslabel=%s" (prj/get-gtags-label p))
+                      (format "--gtagsconf=%s" (prj/get-gtags-conf p)))))
+           (setq proc (prj/update-etags-files
+                       (project-root-data :-tags-file p)
+                       value
+                       key)))
+         (when prj/update-tags-verbose
+           (set-process-sentinel
+            proc
+            'prj/save-buffers-and-update-tags-sentinel))))
+     prj-files)
+    ;; save non project buffers
+    (mapcar
+     (lambda (buf) (with-current-buffer buf (save-buffer)))
+     not-prj-buffers)))
 
 ;;; project compiler flags
 
@@ -545,7 +532,7 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/helm-buffers-candidates ()
   (let (buffers
-        (p (or prj/buffer-project (project-root-fetch))))
+        (p (or project-details (project-root-fetch))))
     (when p
       (mapc
        (lambda (buffer)
@@ -609,13 +596,14 @@ List of include paths, include \"-I\" flag."
                            " "))))
 
 (defun prj/helm-gen-tags (proot)
-  (let ((default-directory proot))
+  (let* ((default-directory proot)
+         (p (project-root-fetch)))
     (if (y-or-n-p "Use GNU global? ")
         (shell-command
          (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
                  (project-root-find-cmd)
-                 (prj/get-gtags-label)
-                 (prj/get-gtags-conf)))
+                 (prj/get-gtags-label p)
+                 (prj/get-gtags-conf p)))
       (let ((tags-file prj/etags-tags-file))
         (when (file-exists-p tags-file)
           (delete-file tags-file))
@@ -624,7 +612,7 @@ List of include paths, include \"-I\" flag."
                  (project-root-find-cmd) tags-file))))))
 
 (defun prj/helm-create-new-file (file)
-  (let* ((p (or prj/buffer-project (project-root-fetch)))
+  (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p)))
     (let ((default-directory
             (ido-read-directory-name "Directory: ")))
@@ -633,7 +621,7 @@ List of include paths, include \"-I\" flag."
       (find-file (read-string "File name: ")))))
 
 (defun prj/helm-files-candidates ()
-  (let ((p (or prj/buffer-project (project-root-fetch))))
+  (let ((p (or project-details (project-root-fetch))))
     (when p
       (let ((default-directory (cdr p)))
         (project-root-files)))))
@@ -656,9 +644,39 @@ List of include paths, include \"-I\" flag."
 (defun prj/helm-jump-to-dired-file (file)
   (dired-jump nil file))
 
+(defun prj/helm-copy-path-as-kill (candidate)
+  (let ((ch (read-char "f=full, d=directory, n=name: ")))
+    (mapc
+     (lambda (b)
+       (cond ((= ch ?f)
+              (if (bufferp b)
+                  (kill-new (buffer-file-name b))
+                (kill-new b)))
+             ((= ch ?d)
+              (if (bufferp b)
+                  (with-current-buffer b
+                    (kill-new default-directory))
+                (kill-new (file-name-directory b))))
+             ((= ch ?n)
+              (if (bufferp b)
+                  (kill-new (file-name-nondirectory (buffer-file-name b)))
+                (kill-new (file-name-nondirectory b)))))
+       (message (car kill-ring)))
+     (helm-marked-candidates))))
+
+(defun prj/helm-grep-project (proot)
+  (let ((default-directory proot))
+    (call-interactively 'prj/grep)))
+
+(defun prj/helm-occur-project (proot)
+  (let ((default-directory proot))
+    (call-interactively 'prj/occur)))
+
 (defun prj/helm-mini ()
+  "Pre-configured `helm' to list project buffers, project files and seen projects."
   (interactive)
-  (require 'helm)
+  (unless (featurep 'helm)
+    (require 'helm))
   (helm :sources `(((name . "Project Buffers")
                     (candidates . prj/helm-buffers-candidates)
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)
@@ -668,14 +686,16 @@ List of include paths, include \"-I\" flag."
                                ("Save buffer(s)" . prj/helm-save-buffers)
                                ("Kill buffer(s)" . prj/helm-kill-buffers)
                                ("Multi occur on buffer(s)" . prj/helm-multi-occur)
-                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop))))
+                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop)
+                               ("Copy buffer name(s) as kill" . prj/helm-copy-path-as-kill))))
                    ((name . "Project Files")
                     (candidates . prj/helm-files-candidates)
                     (candidate-number-limit . ,prj/helm-candidate-number-limit)
                     (action . (("Find file(s)" . prj/helm-find-files)
                                ("Find file other window" . find-file-other-window)
                                ("Jump to Dired" . prj/helm-jump-to-dired-file)
-                               ("Grep files" . prj/helm-grep-files))))
+                               ("Grep files" . prj/helm-grep-files)
+                               ("Copy file name(s) as kill" . prj/helm-copy-path-as-kill))))
                    ((name . "Create New File")
                     (dummy)
                     (action . prj/helm-create-new-file))
@@ -683,10 +703,136 @@ List of include paths, include \"-I\" flag."
                     (candidates . prj/helm-seen-projects)
                     (action . (("Find project root in Dired" . find-file)
                                ("Generate TAGS" . prj/helm-gen-tags)
-                               ("Remove from seen projects" . prj/helm-remove-seen-projects))))
-                   ,(when prj/helm-mini-include-bookmarks
-                      helm-source-bookmarks))
+                               ("Remove from seen projects" . prj/helm-remove-seen-projects)
+                               ("Run grep at project files" . prj/helm-grep-project)
+                               ("Run multi occur at project buffers" . prj/helm-occur-project)))))
         :buffer "*project helm mini*"))
+
+;;; auto complete ac-sources
+
+(defun prj/ac-gtags-candidate ()
+  "Get auto complete candidates by GNU global. Returns a list of tag string."
+  (ignore-errors
+    (with-temp-buffer
+      (when (eq (call-process prj/global-exec nil t nil "-ci" ac-prefix) 0)
+        (goto-char (point-min))
+        (let (candidates)
+          (while (and (not (eobp))
+                      (push
+                       (buffer-substring-no-properties
+                        (line-beginning-position)
+                        (line-end-position))
+                       candidates)
+                      (eq (forward-line) 0)))
+          (nreverse candidates))))))
+
+(defun prj/ac-etags-get-tags-candidates (tags-file &optional prefix)
+  "Get all tags candidates matching PREFIX from TAGS-FILE. Returns a list of
+tag string."
+  (let (tags buf b0 b1 pm last-time elapsed-time)
+    (setq last-time (current-time))
+    (with-temp-buffer
+      (insert-file-contents tags-file)
+      (setq pm (point-max))
+      (goto-char (point-min))
+      (while (search-forward (format "\177%s" (or prefix "")) pm t)
+        (setq b0 (1+ (search-backward "\177")))
+        (setq b1 (search-forward "\001" (line-end-position) t))
+        (when (and b1 (> (setq b1 (1- b1)) b0))
+          (setq tags (cons (buffer-substring-no-properties b0 b1) tags)))))
+    (setq elapsed-time (float-time (time-since last-time)))
+    tags))
+
+(defun prj/ac-etags-candidates ()
+  "Get etags candidates from tags file of current project."
+  (let* ((p (or project-details (project-root-fetch)))
+         (tags-file (when p (project-root-data :-tags-file p)))
+         (last-tags-file-mod-time
+          (when p (project-root-data :-last-tags-file-mod-time p)))
+         (last-ac-cache (when p (project-root-data :-last-ac-cache p)))
+         (last-ac-prefix (when p (project-root-data :-last-ac-prefix p)))
+         (last-ac-prefix-len (when last-ac-prefix (length last-ac-prefix)))
+         (ac-prefix-len (when ac-prefix (length ac-prefix)))
+         (tags-file-mod-time (nth 5 (file-attributes tags-file)))
+         last-time elapsed-time)
+    (setq last-time (current-time))
+    (if (and
+         last-ac-prefix
+         ac-prefix
+         (>= ac-prefix-len last-ac-prefix-len)
+         (string= (substring ac-prefix 0 last-ac-prefix-len) last-ac-prefix)
+         (not (time-less-p last-tags-file-mod-time tags-file-mod-time)))
+        (all-completions ac-prefix last-ac-cache)
+      (setq last-ac-cache (prj/ac-etags-get-tags-candidates tags-file ac-prefix))
+      (project-root-set-data :-last-tags-file-mod-time tags-file-mod-time)
+      (project-root-set-data :-last-ac-prefix ac-prefix)
+      (project-root-set-data :-last-ac-cache last-ac-cache)
+      last-ac-cache)))
+
+(defun prj/ac-define-etags-source ()
+  (require 'auto-complete)
+  (ac-define-source prj/etags
+    '((candidates . prj/ac-etags-candidates)
+      (candidate-face . prj/ac-etags-candidate-face)
+      (selection-face . prj/ac-etags-selection-face)
+      (requires . 3))))
+
+(defun prj/ac-define-gtags-source ()
+    (require 'auto-complete)
+    (ac-define-source prj/gtags
+      '((candidates . prj/ac-gtags-candidate)
+        (candidate-face . prj/ac-gtags-candidate-face)
+        (selection-face . prj/ac-gtags-selection-face)
+        (requires . 3))))
+
+(defun prj/ac-etags-setup ()
+  (interactive)
+  (unless prj/ac-etags-source-defined
+    (prj/ac-define-etags-source)
+    (setq prj/ac-etags-source-defined t))
+  (add-to-list 'ac-sources 'ac-source-prj/etags)
+  (when (and
+         (member major-mode ac-modes)
+         (not auto-complete-mode))
+    (auto-complete-mode)))
+
+(defun prj/ac-gtags-setup ()
+  (interactive)
+  (unless prj/ac-gtags-source-defined
+    (prj/ac-define-gtags-source)
+    (setq prj/ac-gtags-source-defined t))
+  (add-to-list 'ac-sources 'ac-source-prj/gtags)
+  (when (and
+         (member major-mode ac-modes)
+         (not auto-complete-mode))
+    (auto-complete-mode)))
+
+(defun prj/use-auto-complete (p buf)
+  "Determine whether the BUF (buffer) of P (project) use `prj/ac-source-etags'
+or `prj/ac-source-gtags'."
+  (let ((yes? prj/use-auto-complete)
+        (prj/local-use-ac (project-root-data :use-auto-complete p)))
+    (cond ((numberp prj/local-use-ac)
+           (if (> prj/local-use-ac 0)
+               (setq yes? t)
+             (setq yes? nil)))
+          ((listp prj/local-use-ac)
+           (setq yes? nil)
+           (with-current-buffer buf
+             (catch 'buf-match
+               (mapc
+                (lambda (elem)
+                  (cond ((symbolp elem)
+                         (when (eq major-mode elem)
+                           (throw 'buf-match (setq yes? t))))
+                        ((stringp elem)
+                         (when (eq 0
+                                   (string-match
+                                    (regexp-quote (expand-file-name elem (cdr p)))
+                                    default-directory))
+                           (throw 'buf-match (setq yes? t))))))
+                prj/local-use-ac)))))
+    yes?))
 
 ;;; project minor/global mode
 
@@ -695,68 +841,94 @@ List of include paths, include \"-I\" flag."
   :lighter prj/buffer-mode-lighter
   (if project-minor-mode
       (progn
-        (let ((p (or prj/buffer-project
-                     (setq prj/buffer-project (project-root-fetch))))
+        (let ((p (or project-details (project-root-fetch)))
               (fname (buffer-file-name))
               lght
               tags-tool)
           (when (and
                  p
                  fname
-                 (file-exists-p fname)
                  (not (file-remote-p fname)))
-            ;; mode line lighter
-            (setq
-             prj/buffer-mode-lighter
-             (if (setq lght (project-root-data :lighter p))
-                 (format " Prj:%s" lght)
-               " Prj"))
-            ;; add update tags hook, determine tags tool, generate tags
-            (unless (or
-                     (string=
-                      "none"
-                      (setq tags-tool (project-root-data :tags-tool p)))
-                     (not prj/tags-tool-found))
-              (when (project-root-file-is-project-file fname p)
-                (add-hook 'after-save-hook
-                          'prj/update-tags-single-file nil t))
-              (cond ((string= "gtags" tags-tool) (setq prj/use-gtags t))
-                    ((string= "ctags" tags-tool) (setq prj/use-gtags nil))
-                    (t (if (string-match ".+gtags$" prj/tags-tool-found)
-                           (setq prj/use-gtags t)
-                         (setq prj/use-gtags nil))))
-              (let ((default-directory (cdr p)))
-                (if prj/use-gtags
+            (let ((default-directory (cdr p)))
+              ;; mode line lighter
+              (setq
+               prj/buffer-mode-lighter
+               (if (setq lght (project-root-data :lighter p))
+                   (format " Prj:%s" lght)
+                 " Prj"))
+              ;; touch `prj/cmake-list-file' if needed
+              (when (and
+                     prj/touch-cmake-at-create
+                     (string-match project-root-file-regexp fname)
+                     (= (point-min) (point-max)))
+                (mapc
+                 (lambda (cmake-file)
+                   (call-process "touch" nil nil nil cmake-file))
+                 (prj/go-up-dir-find-file prj/cmake-list-file p
+                                          (file-name-directory fname))))
+              ;; add update tags hook, determine tags tool, generate tags,
+              ;; setup ac sources
+              (unless (or
+                       (not prj/use-tags)
+                       (string=
+                        "none"
+                        (setq tags-tool (project-root-data :tags-tool p)))
+                       (not prj/tags-tool-found))
+                (when (project-root-file-is-project-file fname p)
+                  (add-hook 'after-save-hook
+                            'prj/update-tags-single-file nil t))
+                (cond ((string= "gtags" tags-tool) (project-root-set-data :-use-gtags t p))
+                      ((string= "ctags" tags-tool) (project-root-set-data :-use-gtags nil p))
+                      (t (project-root-set-data :-use-gtags nil p)))
+                (if (project-root-data :-use-gtags p)
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
                   (unless (file-exists-p prj/etags-tags-file)
                     (prj/generate-etags))
-                  (setq prj/buffer-tags-file
-                        (expand-file-name prj/etags-tags-file))
-                  (setq-local tags-file-name
-                              (expand-file-name prj/etags-tags-file))))))))
+                  (project-root-set-data
+                   :-tags-file
+                   (expand-file-name prj/etags-tags-file)))
+                (when (prj/use-auto-complete p (current-buffer))
+                  (if (project-root-data :-use-gtags p)
+                      (prj/ac-gtags-setup)
+                    (prj/ac-etags-setup))))
+              (run-hooks (project-root-data :prj-setup-hooks p))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
 (defun project-mode-on-safe ()
   "Enable `global-project-mode' if it is safe to do so.
 
 Enable `global-project-mode' only when all following conditions are meet:
-1. a project is found;
-2. buffer has a file name;
-3. file exists;
-4. file is a project file."
++ buffer has a file name;
++ file exists;
++ file is not a remote file;
++ a project is found. "
   (let ((fname (buffer-file-name)))
     (when (and
            fname
-           (file-exists-p fname)
            (not (file-remote-p fname))
-           (setq prj/buffer-project (project-root-fetch)))
+           (project-root-fetch))
       (project-minor-mode))))
 
 (define-globalized-minor-mode global-project-mode project-minor-mode
   project-mode-on-safe
   :init-value nil
   :require 'project)
+
+(defun prj/re-turn-on-project-minor-mode (arg)
+  "Try re-turn-on `project-minor-mode'. With prefix ARG toggle off and then on
+`project-minor-mode' for all buffers, otherwise for current buffer. This is
+very useful when you have changed some settings of `project-roots'"
+  (interactive "P")
+  (mapc
+   (lambda (buf)
+     (with-current-buffer buf
+       (when project-minor-mode
+         (project-minor-mode -1))
+       (project-minor-mode)))
+   (if arg
+       (buffer-list)
+     `(,(current-buffer)))))
 
 (provide 'project)
 

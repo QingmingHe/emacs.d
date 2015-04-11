@@ -1,6 +1,6 @@
 # -*- mode: snippet; require-final-newline: nil -*-
 # name: debug
-# key: debug
+# key: de
 # --
 !#BEGIN_DEBUG
 write(*,*) $0

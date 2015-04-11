@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: IMPLICIT REAL(A-H, O-Z), INTEGER(I-N)
+# key: im
+# --
+implicit real(a-h, o-z), integer(i-n)

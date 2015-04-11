@@ -1,0 +1,11 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: conditional equation
+# key: conditional equation
+# --
+y =
+\left\{
+\begin{matrix}
+f(x), & x < 0   \\
+g(x), & x \ge 0
+\end{matrix}
+\right.

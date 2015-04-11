@@ -56,32 +56,6 @@
 ;;          :exclude-paths (".git" "tests")
 ;;          :gfortran-include-paths ("../BUILD_DEBUG/include"))))
 ;;
-;; I bind the following:
-;;
-;; (global-set-key (kbd "C-c p f") 'project-root-find-file)
-;; (global-set-key (kbd "C-c p g") 'project-root-grep)
-;; (global-set-key (kbd "C-c p a") 'project-root-ack)
-;; (global-set-key (kbd "C-c p d") 'project-root-goto-root)
-;; (global-set-key (kbd "C-c p p") 'project-root-run-default-command)
-;; (global-set-key (kbd "C-c p l") 'project-root-browse-seen-projects)
-;;
-;; (global-set-key (kbd "C-c p M-x")
-;;                 'project-root-execute-extended-command)
-;;
-;; (global-set-key
-;;  (kbd "C-c p v")
-;;  (lambda ()
-;;    (interactive)
-;;    (with-project-root
-;;        (let ((root (cdr project-details)))
-;;          (cond
-;;            ((file-exists-p ".svn")
-;;             (svn-status root))
-;;            ((file-exists-p ".git")
-;;             (git-status root))
-;;            (t
-;;             (vc-directory root nil)))))))
-;;
 ;; This defines one project called "Generic Perl Projects" by running
 ;; the tests path-matches and root-contains-files. Once these tests
 ;; have been satisfied and a project found then (the optional) :on-hit
@@ -99,21 +73,6 @@
 ;;  to `find` to actually find files for your project.
 ;; :exclude-paths can contain paths to omit when searching for files.
 
-;;; Bookmarks:
-
-;; If you fancy it you can add a :bookmarks property (with a list of
-;; strings) and when you run `project-root-browse-seen-projects' you
-;; will see the bookmarks listed under the project name, linking
-;; relatively to the project root. Also, the bookmarks will present
-;; themselves as anything candidates if you configure as instructed
-;; below.
-
-;;; The default command:
-
-;; If you give a project a :default-command property you can execute
-;; it by running `project-root-run-default-command'. Nothing fancy but
-;; very handy.
-
 ;;; installation:
 
 ;; Put this file into your `load-path' and evaulate (require
@@ -127,26 +86,7 @@
 ;; (with-project-root
 ;;  (shell-command-to-string "pwd"))
 
-;;; anything.el intergration
-
-;; If you want to add the bookmarks for the current project to the
-;; anything source list then use:
-;;
-;; (add-to-list 'anything-sources
-;;              project-root-anything-config-bookmarks)
-;;
-;; If you want to add the bookmarks for each of the files in the
-;; current project to the anything source list then use:
-;;
-;; (add-to-list 'anything-sources
-;;              project-root-anything-config-files)
-
 (require 'cl)
-
-(eval-when-compile
-  (defvar anything-project-root)
-  (require 'outline)
-  (require 'dired))
 
 (defun project-root-find-prune (paths &optional no-default-directory)
   (mapconcat (lambda (path)
@@ -182,6 +122,9 @@ in `project-root-file-find-process')")
 (defvar project-roots nil
   "An alist describing the projects and how to find them.")
 
+(defvar project-roots-cache nil
+  "An alist containing other project data for inner usage.")
+
 (defvar project-root-max-search-depth 20
   "Don't go any further than this many levels when searching down
 a filesystem tree")
@@ -195,30 +138,31 @@ Use this to exclude portions of your project: \"-not -regex \\\".*vendor.*\\\"\"
 (defvar project-root-storage-file "~/.emacs.d/.project-roots"
   "File, where seen projects info is saved.")
 
-(defvar project-root-project-name-func 'project-root-project-name-from-dir
-  "Function to generate cute name for project.")
+(defun regexify-ext-list (extensions)
+  "Turn a list of extensions to a regexp."
+  (concat ".*\\.\\(" (mapconcat (lambda (x) (format "%s" x))
+                                extensions "\\|") "\\)\\'"))
 
-(defun project-root-run-default-command ()
-  "Run the command in :default-command, if there is one."
-  (interactive)
-  (with-project-root
-      (let ((command (project-root-data
-                      :default-command project-details)))
-        (when command
-          (funcall command)))))
-
-(defun project-root-project-name (project)
-  (funcall project-root-project-name-func project))
+(defvar project-root-file-regexp
+  (let ((maps
+         '(org md rst txt c cc cxx cpp c++ h hpp hxx java f F for FOR f77 F77
+               f90 F90 f95 F95 f03 F03 f08 F08 py pl rb el lisp cl scheme mk)))
+    (if (executable-find "ctags")
+        (regexify-ext-list
+         (with-temp-buffer
+           (call-process "ctags" nil t nil "--list-maps")
+           (goto-char (point-min))
+           (while (re-search-forward "\\*\\.\\([^ \t\n]+\\)[ \t\n]" nil t)
+             (add-to-list 'maps (intern (match-string 1))))
+           maps))
+      (regexify-ext-list maps)))
+  "File regexp that will be recognized as a project file.")
 
 (defun project-root-path-matches (re)
   "Apply RE to the current buffer name returning the first
 match."
-  (let ((filename (cond
-                    ((string= major-mode "dired-mode")
-                     (dired-get-filename nil t))
-                    (buffer-file-name
-                     buffer-file-name))))
-    (when (and filename (not (null (string-match re filename))))
+  (let ((filename (or buffer-file-name (expand-file-name "c.c"))))
+    (when (and filename (string-match re filename))
       (match-string 1 filename))))
 
 (defun project-root-get-root (project)
@@ -247,87 +191,39 @@ described in PROJECT."
         (file-name-as-directory root)))))
 
 (defun project-root-data (key &optional project)
-  "Grab the value (if any) for key in PROJECT. If PROJECT is
-omitted then attempt to get the value for the current
-project."
-  (let ((project (or project project-details)))
-    (plist-get
-     (cdr
-      (assoc
-       (progn
-         (string-match "\\([^@]+\\)" (car project))
-         (match-string-no-properties 1 (car project)))
-       project-roots))
-     key)))
+  "Grab the value (if any) for key in PROJECT. If PROJECT is omitted then
+attempt to get the value for the current project."
+  (let ((p (or project project-details))
+        val)
+    (setq val
+          (or
+           (plist-get (cdr (assoc (car p) project-roots)) key)
+           (plist-get (cdr (assoc (car p) project-roots-cache)) key)))
+    (when (and (eq :filename-regex key)
+               (null val))
+      (setq val project-root-file-regexp))
+    (when (eq :exclude-paths key)
+      (mapc
+       (lambda (path)
+         (add-to-list 'val path))
+       project-root-rep-paths))
+    val))
 
-(defun project-root-bookmarks (&optional project)
-  "Grab the bookmarks (if any) for PROJECT."
-  (project-root-data :bookmarks project))
+(defun project-root-set-data (prop val &optional p)
+  "Set PROP of P to VAL. P is a project, VAL is a property symbol, val is
+anything."
+  (let ((p (or p (project-root-fetch))))
+    (when p
+      (unless (assoc (car p) project-roots-cache)
+        (add-to-list 'project-roots-cache `(,(car p))))
+      (put-alist
+       (car p)
+       (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)
+       project-roots-cache))))
 
 (defun project-root-project-name-from-dir (project)
   "Generate cute name for project from its directory name."
   (upcase-initials (car (last (split-string (cdr project) "/" t)))))
-
-(defun project-root-gen-org-url (project)
-  ;; The first link to the project root itself
-  (concat
-   (format "** [[file:%s][%s]] (%s)"
-           (cdr project)
-           (project-root-project-name project)
-           (cdr project))
-   (mapconcat
-    (lambda (b)
-      (let ((mark (concat (cdr project) b)))
-        (format "*** [[file:%s][%s]] (%s)" mark b mark)))
-    (project-root-bookmarks project)
-    "\n")
-   "\n"))
-
-(define-derived-mode project-root-list-mode org-mode "Project-List"
-  (setq buffer-read-only t))
-
-(dolist (keyfunc
-         `(("q" kill-this-buffer)
-           ("s" isearch-forward)
-           ("r" isearch-backward)
-           (,(kbd "RET")
-            (lambda () (interactive) (beginning-of-line)
-              (org-next-link) (org-open-at-point t)))
-           (,(kbd "C-d") (lambda () (interactive)
-                           (setq buffer-read-only nil)
-                           (delete-region
-                            (line-beginning-position)
-                            (line-beginning-position 2))
-                           (setq buffer-read-only t)))))
-
-  (define-key project-root-list-mode-map (car keyfunc) (cadr keyfunc)))
-
-(defun project-root-browse-seen-projects ()
-  "Browse the projects that have been seen so far this session."
-  (interactive)
-  (let ((current-project project-details)
-        (point-to nil))
-    (if (not project-root-seen-projects)
-        (project-root-load-roots))
-
-    (switch-to-buffer (get-buffer-create "*Seen Project List*"))
-    (erase-buffer)
-    (insert "* Seen projects\n")
-    (mapc (lambda (p)
-            (when (file-exists-p (cdr p))
-              (when (equal p current-project)
-                (setq point-to (point)))
-              (insert (project-root-gen-org-url p))))
-          project-root-seen-projects)
-
-    (project-root-list-mode)
-    ;; show everything at second level
-    (goto-char (point-min))
-    (show-children)
-    ;; expand bookmarks for current project only
-    (when point-to
-      (goto-char (+ point-to 3))
-      (show-children))))
 
 (defun project-root-save-roots ()
   "Saves seen projects info to file. Note that
@@ -345,7 +241,6 @@ project."
         (insert-file-contents project-root-storage-file)
         (setq project-root-seen-projects (read (buffer-string))))))
 
-;; TODO: refactor me
 (defun project-root-fetch (&optional dont-run-on-hit)
   "Attempt to fetch the root project for the current file. Tests
 will be used as defined in `project-roots'."
@@ -369,14 +264,11 @@ will be used as defined in `project-roots'."
       (project-root-set-project project))))
 
 (defun project-root-set-project (p)
-  "Save seen projects to `project-root-storage-file'. If a duplicate project
-found, append \"@PATH\" to name of the project with the original one
-untouched."
-  (if (not project-root-seen-projects)
+  "Save seen projects to `project-root-storage-file' and set buffer local
+`project-details'."
+  (unless project-root-seen-projects
       (project-root-load-roots))
   (unless (member p project-root-seen-projects)
-    (when (assoc (car p) project-root-seen-projects)
-      (setcar p (format "%s@%s" (car p) (cdr p))))
     (add-to-list 'project-root-seen-projects p)
     (project-root-save-roots))
   (setq project-details p))
@@ -415,11 +307,6 @@ current-directory."
   (let ((p (or p project-details)))
     (and p (file-exists-p (cdr p)))))
 
-(defun regexify-ext-list (extensions)
-  "Turn a list of extensions to a regexp."
-  (concat ".*\\.\\(" (mapconcat (lambda (x) (format "%s" x))
-                                extensions "\\|") "\\)"))
-
 (defmacro with-project-root (&rest body)
   "Run BODY with default-directory set to the project root. Error
 if not found. If `project-root' isn't defined then try and find
@@ -434,38 +321,33 @@ one."
            ,@body)
        (error "No project root found"))))
 
-(defun project-root-goto-root ()
-  "Open up the project root in dired."
-  (interactive)
-  (with-project-root (find-file default-directory)))
-
-(defun project-root-grep ()
-  "Run the grep command from the current project root."
-  (interactive)
-  (with-project-root (call-interactively 'grep)))
-
-(defun project-root-ack ()
-  "Run the ack command from the current project root (if ack is
-available)."
-  (interactive)
-  (with-project-root
-    (if (fboundp 'ack)
-        (call-interactively 'ack)
-        (error "`ack' not bound"))))
-
-(defun project-root-files ()
-  "Return an alist of all filenames in the project and their path.
-
-Files with duplicate filenames are suffixed with the name of the
-directory they are found in so that they are unique."
-  (let ((file-alist nil))
+(defun project-root-files (&optional p file-name-fn)
+  "Return an alist of all filenames in the project P. The `car' of each
+element in the alist is a simplified file name of full file name, the `cdr' is
+the full file name. If FILE-NAME-FN is symbol \"identity\",
+`project-root-identity-filename' is used to generate an identity file name for
+each project file. Otherwise the relative file name to the project root is
+used as the simplified file name."
+  (let ((p (or p (project-root-fetch)))
+        (file-name-fn (if file-name-fn
+                          (cond ((eq file-name-fn 'relative)
+                                 'file-relative-name)
+                                ((eq file-name-fn 'identity)
+                                 'project-root-identity-filename)
+                                (t
+                                 'file-relative-name))
+                        'file-relative-name)))
     (mapcar (lambda (file)
-              (let ((file-cons (cons (project-root-filename file)
-                                     (expand-file-name file))))
-                (add-to-list 'file-alist file-cons)
-                file-cons))
+              (cons (funcall file-name-fn file (cdr p)) file))
             (split-string (shell-command-to-string
                            (project-root-find-cmd))))))
+
+(defun project-root-identity-filename (file dir)
+  "Generate an identity file name for a project file. FILE is a project file,
+DIR is not used."
+  (let ((name (replace-regexp-in-string default-directory ""
+                                        (expand-file-name file))))
+    (mapconcat 'identity (reverse (split-string name "/")) "\\")))
 
 (setq .project-root-find-executable nil)
 (defun project-root-find-executable ()
@@ -482,46 +364,19 @@ directory they are found in so that they are unique."
          (exclude-paths (project-root-data :exclude-paths p)))
     (mapcar
      (lambda (exclude-path)
-       (concat (cdr p) exclude-path))
-     (if exclude-paths
-         (progn
-           (mapc
-            (lambda (path)
-              (add-to-list 'exclude-paths path))
-            project-root-rep-paths)
-           exclude-paths)
-       project-root-rep-paths))))
+       (expand-file-name exclude-path (cdr p)))
+     exclude-paths)))
 
-(defun project-root-find-cmd (&rest pattern)
-  (let ((pattern (car pattern))
-        (p (progn (project-root-fetch) project-details)))
-    ;; TODO: use find-cmd here
-    (concat (project-root-find-executable) " " default-directory
+(defun project-root-find-cmd (&optional pattern dir p)
+  (let* ((p (or p (project-root-fetch)))
+         (dir (or dir (cdr p))))
+    (concat (project-root-find-executable) " " dir " "
             (project-root-find-prune
-             (project-root-exclude-paths p))
+             (project-root-exclude-paths p)
+             t)
             ", -type f -regex \"" (project-root-data :filename-regex p) "\" "
-            (if pattern (concat " -name '*" pattern "*' "))
+            (when pattern (concat " -name \"" pattern "\" "))
             project-root-find-options)))
-
-(defun project-root-filename (file)
-  (let ((name (replace-regexp-in-string default-directory ""
-                                        (expand-file-name file))))
-    (mapconcat 'identity (reverse (split-string name "/")) "\\")))
-
-(defun project-root-find-file ()
-  "Find a file from a list of those that exist in the current project."
-  (interactive)
-  (with-project-root
-      (let* ((project-files (project-root-files))
-             (file (ido-completing-read "Find file in project: "
-                                        (mapcar 'car project-files))))
-        (find-file (cdr (assoc file project-files))))))
-
-(defun project-root-execute-extended-command ()
-  "Run `execute-extended-command' after having set
-`default-directory' to the root of the current project."
-  (interactive)
-  (with-project-root (execute-extended-command current-prefix-arg)))
 
 (defun project-root-under-exclude-path (filename &optional p)
   "Determine whether FILENAME is under exclude paths of a project. FILENAME
@@ -547,6 +402,7 @@ then the current project-details are used."
                    project-details))))
     (and
      p
+     filename
      (file-exists-p filename)
      (not (null (string-match
                  (regexp-quote (abbreviate-file-name (cdr p)))
@@ -558,7 +414,6 @@ function and project-root-file-in-project is that this function check
 whether a file is in project by checking paths, exclude paths and
 filename-regex."
   (let* ((p (or p (project-root-fetch)))
-         (filename (ignore-errors (expand-file-name filename)))
          (default-directory (if p (cdr p) default-directory)))
     (and
      p
@@ -566,113 +421,10 @@ filename-regex."
      (file-exists-p filename)
      (string-match
       (or (project-root-data :filename-regex p) ".+") filename)
-     (not (null (string-match
-                 (regexp-quote (expand-file-name (cdr p)))
-                 filename)))
+     (string-match
+      (regexp-quote (expand-file-name (cdr p)))
+      filename)
      (not (project-root-under-exclude-path filename p)))))
-
-(defun project-root-buffer-in-project (buffer &optional p)
-  "Check to see if buffer is in project"
-  (let ((filename (buffer-file-name buffer)))
-    (and filename (project-root-file-in-project filename p))))
-
-(defun ido-ignore-not-in-project (name)
-  "Function to use with ido-ignore-buffers.
- Ignores files that are not in current project."
-  (not (project-root-buffer-in-project (get-buffer name))))
-
-(defun project-root-switch-buffer (arg)
-  "ido-switch-buffer replacement. Ignore buffers that are not in current project,
-   fallback to original ido-switch-buffer if no current project.
-   Can be used with universal-argument to run orifinal function even in project."
-  (interactive "P")
-  (if (and (null arg) (or project-details (project-root-fetch)))
-      (with-project-root
-          (let ((ido-ignore-buffers
-                 (append '(ido-ignore-not-in-project) ido-ignore-files)))
-            (ido-switch-buffer)
-            ))
-    (ido-switch-buffer)))
-
-(defun project-root-projects-names ()
-  "Generates a list of pairs - project name and path."
-  (mapcar (lambda (project)
-            (cons (project-root-project-name project) (cdr project)))
-          project-root-seen-projects))
-
-(defun project-root-open-project ()
-  "Open project with ido-mode."
-  (interactive)
-  (let* ((project-names (project-root-projects-names))
-         (project (ido-completing-read "Select project: " (mapcar 'car project-names))))
-    (find-file (cdr (assoc project project-names)))))
-
-;;; anything.el config
-
-(defun project-root-anything-colourfy-hits (hits)
-  ;; delete the project-root part
-  (let ((highs (project-root-data :anything-highlight
-                                  anything-project-root)))
-    (mapcar
-     (lambda (hit)
-       (let ((new (replace-regexp-in-string
-                   (regexp-quote (cdr anything-project-root))
-                   ""
-                   hit)))
-         (when highs
-           (mapc (lambda (s)
-                   ;; propertize either the first group or the whole
-                   ;; string
-                   (when (string-match (car s) new)
-                     (put-text-property (or (match-beginning 1) 0)
-                                        (or (match-end 1) (length new))
-                                        'face (cdr s)
-                                        new)))
-                 highs))
-         (cons new hit)))
-     hits)))
-
-(defvar project-root-anything-config-files
-  '((name . "Project Files")
-    (init . (lambda ()
-              (unless project-details
-                (project-root-fetch))
-              (setq anything-project-root project-details)))
-    (candidates . (lambda ()
-                    (project-root-file-find-process anything-pattern)))
-    (candidate-transformer . project-root-anything-colourfy-hits)
-    (type . file)
-    (requires-pattern . 2)
-    (volatile)
-    (delayed)))
-
-(defvar project-root-anything-config-bookmarks
-  '((name . "Project Bookmarks")
-    (init . (lambda ()
-              (unless project-details
-                (project-root-fetch))
-              (setq anything-default-directory (cdr project-details)
-                    anything-project-root project-details)))
-    (candidates . (lambda ()
-                    (mapcar
-                     (lambda (b)
-                       (expand-file-name b anything-default-directory))
-                     (project-root-bookmarks anything-project-root))))
-    (type . file)))
-
-(defun project-root-file-find-process (pattern)
-  "Return a process which represents a find of all files matching and the
-hard-coded arguments in this function."
-  (when anything-project-root
-      (start-process-shell-command
-       "project-root-find"
-       nil
-       "find"
-       (cdr anything-project-root)
-       (find-to-string
-        `(and ,project-root-extra-find-args
-              (name ,(concat "*" pattern "*"))
-              (type "f"))))))
 
 (provide 'project-root)
 

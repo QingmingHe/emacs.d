@@ -3,6 +3,8 @@
 
 * Starter Kit Coding
 
+Some features shared by all programming languages and several languages with
+light configurations.
 ** Prog mode hooks
 A single hook holding those functions which should be run in *every*
 code buffer.
@@ -28,18 +30,15 @@ a lambda doesn't already exist in the list.
 
 (defun starter-kit-turn-on-hs ()
   (hs-minor-mode)
-  (hideshowvis-enable)
-  (hideshowvis-symbols))
+  (when (window-system)
+    (hideshowvis-enable)
+    (hideshowvis-symbols)))
 (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs)
 
-;; Use relative line number. Set linum-relative-current-symbol to be empty
-;; string so that linum-relative will show the real line number at current
-;; line. Linum mode is too slow.
 (defun starter-kit-turn-on-linum ()
   (interactive)
-  (make-local-variable 'linum-relative-current-symbol)
-  (setq linum-relative-current-symbol "")
   (linum-mode 1))
+(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-linum)
 
 (setq fic-highlighted-words '("FIXME" "TODO" "BUG" "KLUDGE" "DEBUG"))
 (add-hook 'starter-kit-coding-hook 'turn-on-fic-mode)
@@ -60,6 +59,9 @@ minimally intrusive.
 (show-paren-mode 1)
 (electric-pair-mode 1)
 (setq electric-pair-open-newline-between-pairs t)
+(setq electric-pair-pairs
+      '((?\" . ?\")
+        (?{ . ?})))
 #+end_src
 
 ** Show function name in the header line                                        :which:function:mode:
@@ -87,3 +89,57 @@ minimally intrusive.
 (add-hook 'lisp-interaction-mode-hook 'starter-kit-turn-off-which-func t)
 (which-function-mode 1)
 #+end_src
+
+** CMake mode
+
+#+BEGIN_SRC emacs-lisp
+(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+(add-hook 'cmake-mode-hook 'starter-kit-turn-on-linum)
+#+END_SRC
+
+** Auto Hot Key
+
+To automatically remap *capslock* to *ctrl* and *shift-capslock* to original
+*capslock* every time you start up PC:
++ Click the Start button Picture of the Start button , click All Programs,
+  right-click the Startup folder, and then click Open.
++ Right-click the [[~/.emacs.d/starter-kit-ahk.ahk][starter-kit-ahk]] script, and then click Create Shortcut. The
+  new shortcut appears in the same location as the original item.
++ Drag the shortcut into the Startup folder.
+
+#+begin_src emacs-lisp
+(setq ahk-syntax-directory (concat starter-kit-dir "src/ahk-mode/Syntax/"))
+(add-to-list 'auto-mode-alist
+             '("\\.ahk$"  . ahk-mode))
+(autoload 'ahk-mode "ahk-mode" "Mode for editing AutoHotKey configuration file." t)
+#+end_src
+
+** Rnc
+*** What is rnc
+
+#+BEGIN_QUOTE
+RELAX NG is a simple schema language for XML, based on [RELAX] and [TREX]. A
+RELAX NG schema specifies a pattern for the structure and content of an XML
+document. A RELAX NG schema thus identifies a class of XML documents
+consisting of those documents that match the pattern.
+
+Two syntaxes have been defined for RELAX NG. The original syntax uses XML;
+with this syntax an RELAX NG schema is itself an XML document. Subsequently, a
+compact non-XML syntax has been defined.
+#+END_QUOTE
+
+The compact format file has a "rnc" suffix and rnc-mode provide a major mode
+for these files.
+
+*** Basic Setup
+
+#+BEGIN_SRC emacs-lisp
+(autoload 'rnc-mode "rnc-mode" "Rnc mode" t)
+(add-to-list 'auto-mode-alist '("\\.rnc\\'" . rnc-mode))
+#+END_SRC
+
+*** rnc along with imemu
+
+#+BEGIN_SRC emacs-lisp
+(setq rnc-enable-imenu t)
+#+END_SRC

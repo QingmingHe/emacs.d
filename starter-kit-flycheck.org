@@ -2,10 +2,23 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Flycheck
+** Only check automatically after saving
 
-Don't always check buffer, it's too slow.
++ Don't always check buffer, it's too slow.
++ For languages such as Fortran, it's almost impossible to check syntax
+  correctly without any settings for Compiler (including [[help:flycheck-checker][flycheck-checker]] and
+  flycheck options). Further, these settings differs from buffer to buffer
+  which means that the *ONLY* way to set Compiler settings correctly is to use
+  =.dir-locals=. rather than write in =~/.emacs.d/init.el= or
+  =~/.emacs=. However, the sequences of loading =.dir-locals= and enabling
+  [[help:flycheck-mode][flycheck-mode]] which is defined in [[help:f90-mode-hook][f90-mode-hook]] are unclear. That is,
+  flycheck may has checked syntax of the buffer before loading =.dir-locals=
+  with incorrect settings. Many errors and warning will occur after
+  [[help:find-file][find-file]]. So time will be wasted at fixing non-existing errors.
++ If you want to check syntax immediately after [[help:find-file][find-file]], add [[help:flycheck-buffer][flycheck-buffer]]
+  to =~/.dir-locals= after setting other options.
 #+BEGIN_SRC emacs-lisp
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
+(setq flycheck-check-syntax-automatically '(save))
 #+END_SRC
 
 ** Fortran
@@ -20,14 +33,12 @@ codes:
 #+END_SRC
 
 The built in fortran-gfortran doesn't support Chinese errors and warnings. An
-=flycheck-fortran-gfortran-zh= plugin is used. Note that flycheck checker and
-options should be set before enabling flycheck or it will check syntax with
-default checker and options at flycheck mode being enabled.
-
+=flycheck-fortran-gfortran-zh= plugin is used.
 #+BEGIN_SRC emacs-lisp
-(defun my-flycheck-fortran-setup ()
+(setq my-flycheck-gfortran-found (executable-find "gfortran"))
+(defun my-flycheck-f90-setup ()
   (when (and
-         (executable-find "gfortran")
+         my-flycheck-gfortran-found
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
     (setq flycheck-gfortran-language-standard "f2008")
@@ -37,7 +48,22 @@ default checker and options at flycheck mode being enabled.
   `(progn
      (require 'flycheck)
      (require 'flycheck-fortran-gfortran-zh)
-     (add-hook 'f90-mode-hook 'my-flycheck-fortran-setup)))
+     (add-hook 'f90-mode-hook 'my-flycheck-f90-setup)))
+
+(defun my-flycheck-f77-setup ()
+  (when (and
+         my-flycheck-gfortran-found
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
+    (setq flycheck-gfortran-language-standard "legacy")
+    (setq flycheck-gfortran-layout 'fixed)
+    (flycheck-select-checker 'fortran-gfortran-zh)
+    (flycheck-mode)
+    (flycheck-buffer)))
+(with-eval-after-load 'fortran
+  (require 'flycheck)
+  (require 'flycheck-fortran-gfortran-zh)
+  (add-hook 'fortran-mode-hook 'my-flycheck-f77-setup))
 #+END_SRC
 
 ** Python
@@ -55,6 +81,7 @@ Select checker for that flake8 is not always available.
     (if (executable-find "flake8")
         (flycheck-select-checker 'python-flake8)
       (flycheck-select-checker 'python-pycompile))
+    (setq-local flycheck-check-syntax-automatically '(mode-enabled save))
     (flycheck-mode)))
 
 (eval-after-load "python"

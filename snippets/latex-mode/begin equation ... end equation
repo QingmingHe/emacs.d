@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: begin equation ... end equation
+# key: eq
+# --
+\begin{equation}
+$0
+\end{equation}

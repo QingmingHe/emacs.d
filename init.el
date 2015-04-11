@@ -11,20 +11,23 @@
       debug-on-quit nil)
 
 ;; determine system type and emacs version
-(setq *cygwin* (eq 'cygwin system-type))
-(setq *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)) )
+(setq *cygwin* (eq system-type 'cygwin))
+(setq *linux*  (eq system-type 'gnu/linux))
 (if (< emacs-major-version 24)
-    (error "Emacs version should be >= 24.3")
-  (when (< emacs-minor-version 3)
-    (error "Emacs version should be >= 24.3")))
-(when (eq system-type 'windows-nt)
-  (error "Native Windows is not supported"))
+    (error "Emacs version should be >= 24.4")
+  (when (< emacs-minor-version 4)
+    (error "Emacs version should be >= 24.4")))
+(unless (or *cygwin* *linux*)
+  (error "Only support cygwin or gnu/linux system"))
 
 ;; get environment variables and paths
 (setq gtd-root (getenv "GTD_ROOT"))
 (setq dropbox-root (getenv "DROPBOX_ROOT"))
 (setq midnight-root (getenv "MIDNIGHT_ROOT"))
 (setq cygwin-root (getenv "CYGWIN_ROOT"))
+(setq auctex-root (locate-library "auctex"))
+(when auctex-root
+  (setq auctex-root (file-name-directory auctex-root)))
 
 ;; load Org-mode from source when the ORG_HOME environment variable is set
 (when (getenv "ORG_HOME")
@@ -50,7 +53,7 @@
            (file-exists-p (concat gtd-root "/source/user-settings.org")))
       (org-babel-load-file (concat gtd-root "/source/user-settings.org")))
     ;; load up the starter kit.
-    ;; As the initial value of org-babel-load-languages is '(emacs-lisp . t),
+    ;; As the initial value of `org-babel-load-languages' is '(emacs-lisp . t),
     ;; only the emacs-lisp code block will be loaded.
     (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
 

@@ -1,5 +1,5 @@
 # -*- mode: snippet; require-final-newline: nil -*-
-# name: subfig
+# name: sub figure
 # key: subfig
 # --
 % You should use graphicx, caption and subfigure packages

@@ -281,8 +281,8 @@ or =defcustom= with =setq= or use =eval-defun=.
 
 (defun copy-buffer-directory-name-as-kill ()
   (interactive)
-  (kill-new default-directory)
-  (message default-directory))
+  (kill-new (expand-file-name default-directory))
+  (message (expand-file-name default-directory)))
 
 (defun locate-library-and-kill (lib-name)
   (interactive
@@ -307,4 +307,50 @@ or =defcustom= with =setq= or use =eval-defun=.
   (interactive
    (list (read-shell-command "Path: ")))
   (setenv "PATH" (concat path ":" (getenv "PATH"))))
+#+end_src
+
+** Sudo edit files that require =root= permissions
+
+#+begin_src emacs-lisp
+(defun sudo-edit (&optional arg)
+  "Edit currently visited file as root.
+
+With prefix ARG prompt for a file to visit. Will also prompt for a file to
+visit if current buffer is not visiting a file."
+  (interactive "P")
+  (if (or arg (not buffer-file-name))
+      (find-file (concat "/su::"
+                         (ido-read-file-name "Find file (as root): ")))
+    (find-alternate-file (concat "/su::" buffer-file-name))))
+#+end_src
+
+** Convert coding system
+
+#+begin_src emacs-lisp
+(defun convert-chinese-gbk-to-utf-8-unix-file (f &optional not-kill)
+  (interactive (list (ido-read-file-name "file to convert: ")))
+  (with-current-buffer (find-file-noselect f)
+    (revert-buffer-with-coding-system 'chinese-gbk)
+    (set-buffer-file-coding-system 'utf-8-unix)
+    (save-buffer)
+    (unless not-kill
+      (kill-buffer))))
+
+(defun convert-chinese-gbk-to-utf-8-unix-buffer ()
+  (interactive)
+  (convert-chinese-gbk-to-utf-8-unix-file (buffer-file-name) t))
+
+(defun dired-do-convert-chinese-gbk-to-utf-8-unix ()
+  (interactive)
+  (mapc
+   'convert-chinese-gbk-to-utf-8-unix-file
+   (dired-get-marked-files)))
+#+end_src
+
+** Move key bindings
+
+#+begin_src emacs-lisp
+(defun move-key-binding (keymap-from keymap-to key)
+  (define-key keymap-from key nil)
+  (define-key keymap-to key (lookup-key keymap-from key)))
 #+end_src

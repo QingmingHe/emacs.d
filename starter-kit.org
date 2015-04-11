@@ -265,10 +265,10 @@ interested in the actual code implementing the starter kit.
   session.
   #+name: starter-kit-load-on-startup
   #+begin_src emacs-lisp
-  (when (> emacs-minor-version 3)
-    (eval-when-compile (require 'subr-x)))
+  (eval-when-compile (require 'subr-x))
   (when (window-system)
     (require 'pos-tip))
+  (require 'popup)
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be
@@ -426,6 +426,26 @@ interested in the actual code implementing the starter kit.
   (ensure-packages-compiled)
   #+end_src
 
+- Compile some packages that are installed manually
+
+  #+begin_src emacs-lisp
+  (mapc
+   (lambda (pkg-command)
+     (let ((path (file-name-directory (locate-library (car pkg-command)))))
+       (when (file-exists-p path)
+         (unless (was-compiled-p path)
+           (let ((default-directory path))
+             (call-process-shell-command (cdr pkg-command) nil 0 nil))))))
+   '(("evil" . "make")
+     ("eim" . "make")))
+  #+end_src
+
+- Load auto load file
+
+  #+begin_src emacs-lisp
+  (load-file autoload-file)
+  #+end_src
+
 ** Starter kit core
    :PROPERTIES:
    :CUSTOM_ID: starter-kit-core
@@ -458,11 +478,10 @@ everyone using the starter kit.
   (starter-kit-fast-load "evil")
   (when *cygwin*
     (starter-kit-fast-load "win32"))
-  ;; Configure org 8.* bundled with Emacs 24.4
-  (when (> emacs-minor-version 3)
-    (starter-kit-fast-load "org"))
-  (starter-kit-fast-load "theme")
-  (starter-kit-fast-load "ibuffer")
+  (starter-kit-fast-load "org")
+  (starter-kit-fast-load "gui")
+  ;; I nuver use ibuffer
+  ;; (starter-kit-fast-load "ibuffer")
   (starter-kit-fast-load "dired")
   (starter-kit-fast-load "project")
   (starter-kit-fast-load "flycheck")
@@ -472,21 +491,19 @@ everyone using the starter kit.
   (starter-kit-fast-load "browser")
   (starter-kit-fast-load "dictionary")
   (starter-kit-fast-load "bindings")
-  (starter-kit-fast-load "quickrun")
-  (starter-kit-fast-load "occur")
   (starter-kit-fast-load "gud")
-  (starter-kit-fast-load "midnight")
   (starter-kit-fast-load "flyspell")
+  (starter-kit-fast-load "misc-text")
+  (starter-kit-fast-load "search")
   ;; prog mode should be loaded finally
-  (starter-kit-fast-load "shell")
   (starter-kit-fast-load "coding")
+  (starter-kit-fast-load "shell")
   (starter-kit-fast-load "python")
   (starter-kit-fast-load "nxml")
   (starter-kit-fast-load "lisp")
   (starter-kit-fast-load "fortran")
   (starter-kit-fast-load "latex")
   (starter-kit-fast-load "graphviz")
-  (starter-kit-fast-load "rnc")
   (starter-kit-fast-load "cc")
   (starter-kit-fast-load "js")
   #+END_SRC
@@ -545,13 +562,14 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 This should be placed at end of starter kit and configures the initial
 windows.
 #+BEGIN_SRC emacs-lisp
+(setq inhibit-splash-screen t)
 (defun my-start-up-display ()
-  (setq inhibit-splash-screen t)
   (switch-to-buffer "*scratch*")
   (setq default-directory temporary-file-directory)
   (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"
                       (format-time-string "%Y-%m-%d&%T"))))
 (add-hook 'emacs-startup-hook 'my-start-up-display t)
+(setq debug-on-error nil)
 #+END_SRC
 
 * Footnotes

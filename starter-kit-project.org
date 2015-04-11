@@ -9,43 +9,49 @@ Use gtags, etags, imenu ... to handle projects.
 
 First define projects.
 #+BEGIN_SRC emacs-lisp
+(setq prj/update-tags-verbose nil)
+(setq prj/touch-cmake-at-create t)
 (require 'project)
 (global-project-mode 1)
 (prj/setup)
-(setq prj/update-tags-verbose nil)
 
 (setq project-roots
       `(("CExamples"
          :root-contains-files (".CExample-root.el")
-         :filename-regex ,(regexify-ext-list '(c h org))
-         :gtags-label "default"
+         :tags-tool "gtags"
          :lighter "C-e")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
-         :filename-regex ,(regexify-ext-list '(f90 for py org))
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
-         :gtags-label "ctags"
+         :use-auto-complete (f90-mode)
          :lighter "SUGAR")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
-         :filename-regex ,(regexify-ext-list '(el pl py org))
          :exclude-paths ("backups" "auto-save-list")
-         :tags-tool "ctags"
          :lighter "Econf")
+        ("UFP"
+         :root-contains-files (".UFP-root.el")
+         :exclude-paths ("Debug" "input" "kintab" "output" "plib" "scratch"
+                         "ulib" "文档")
+         :lighter "UFP")
+        ("RMET21"
+         :root-contains-files ("RMET21" "GEXSCO" "SLAMBD" "WLUTIL")
+         :exclude-paths ("BROADR" "BUILD" "BUILD_CYGWIN" "CMAKE" "build_debug"
+                         "build_release" "TESTS")
+         :lighter "RMET21")
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
-         :filename-regex ,(regexify-ext-list '(py f90 org))
-         :exclude-paths (".git" "build")
-         :gtags-label "ctags"
+         :exclude-paths ("build")
          :lighter "pyPkgs")
         ("GTD"
          :root-contains-files ("inbox.org" "projects.org" "notes.org")
-         :filename-regex ,(regexify-ext-list '(org py f90 c))
-         :tags-tool "ctags"
          :lighter "GTD")))
 #+END_SRC
 
 ** Ctags
+
+You should use *Exuberant Ctags* instead of etags supplied with Emacs. The
+former is much more powerful especially in introducing new languages.
 *** Teach Ctags to Support Org mode
 
 Add to your =~/.ctags= file:
@@ -99,6 +105,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 ** Gtags
 
 #+begin_src emacs-lisp
+(setq helm-gtags-pulse-at-cursor nil)
 (setq helm-gtags-ignore-case t)
 (setq helm-gtags-cache-select-result t)
 (setq helm-gtags-use-input-at-cursor t)

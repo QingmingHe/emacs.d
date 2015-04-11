@@ -1,0 +1,16 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: subroutine
+# expand-env: ((yas-indent-line 'fixed))
+# key: su
+# --
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C
+C
+      subroutine $1()
+
+      implicit none
+
+      $0
+
+      end subroutine $1
