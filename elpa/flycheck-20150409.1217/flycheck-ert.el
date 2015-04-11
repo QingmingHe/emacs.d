@@ -1,6 +1,6 @@
 ;;; flycheck-ert.el --- Flycheck: ERT extensions  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2013, 2014  Sebastian Wiesner <swiesner@lunaryorn.com>
+;; Copyright (C) 2013-2015  Sebastian Wiesner <swiesner@lunaryorn.com>
 
 ;; Author: Sebastian Wiesner <swiesner@lunaryorn.com>
 ;; URL: https://github.com/flycheck/flycheck
@@ -123,7 +123,7 @@ After BODY, restore the old state of Global Flycheck Mode."
          (progn
            (global-flycheck-mode 1)
            ,@body)
-       (global-flycheck-mode old-state))))
+       (global-flycheck-mode (if old-state 1 -1)))))
 
 (defmacro flycheck-ert-with-env (env &rest body)
   "Add ENV to `process-environment' in BODY.
@@ -260,6 +260,8 @@ assertions and setup code."
          (languages (if (symbolp language) (list language) language))
          (language-tags (mapcar (lambda (l) (intern (format "language-%s" l)))
                                 languages))
+         (checker-tags (mapcar (lambda (c) (intern (format "checker-%s" c)))
+                               checkers))
          (local-name (or name 'default))
          (full-name (intern (format "flycheck-define-checker/%s/%s"
                                     checker local-name)))
@@ -272,7 +274,8 @@ assertions and setup code."
        (list 'or
              '(satisfies flycheck-ert-syntax-check-timed-out-p)
              ,(or (plist-get keys :expected-result) :passed))
-       :tags (append ',default-tags ',language-tags ,(plist-get keys :tags))
+       :tags (append ',(append default-tags language-tags checker-tags)
+                     ,(plist-get keys :tags))
        ,@(mapcar (lambda (c) `(skip-unless
                                ;; Ignore non-command checkers
                                (or (not (get ',c 'flycheck-command))

@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.9
+;; Version: 1.1.0
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -313,21 +313,34 @@ activated."
              company-filter-candidates))))
 
 ;; Eval last sexp
-(defadvice preceding-sexp (around evil activate)
-  "In normal-state or motion-state, last sexp ends at point."
-  (if (or (evil-normal-state-p) (evil-motion-state-p))
-      (save-excursion
-        (unless (or (eobp) (eolp)) (forward-char))
-        ad-do-it)
-    ad-do-it))
+(cond
+ ((version< emacs-version "25")
+  (defadvice preceding-sexp (around evil activate)
+    "In normal-state or motion-state, last sexp ends at point."
+    (if (or (evil-normal-state-p) (evil-motion-state-p))
+        (save-excursion
+          (unless (or (eobp) (eolp)) (forward-char))
+          ad-do-it)
+      ad-do-it))
 
-(defadvice pp-last-sexp (around evil activate)
-  "In normal-state or motion-state, last sexp ends at point."
-  (if (or (evil-normal-state-p) (evil-motion-state-p))
-      (save-excursion
-        (unless (or (eobp) (eolp)) (forward-char))
-        ad-do-it)
-    ad-do-it))
+  (defadvice pp-last-sexp (around evil activate)
+    "In normal-state or motion-state, last sexp ends at point."
+    (if (or (evil-normal-state-p) (evil-motion-state-p))
+        (save-excursion
+          (unless (or (eobp) (eolp)) (forward-char))
+          ad-do-it)
+      ad-do-it)))
+ (t
+  (defun evil--preceding-sexp (command &rest args)
+    "In normal-state or motion-state, last sexp ends at point."
+    (if (or (evil-normal-state-p) (evil-motion-state-p))
+        (save-excursion
+          (unless (or (eobp) (eolp)) (forward-char))
+          (apply command args))
+      (apply command args)))
+
+  (advice-add 'elisp--preceding-sexp :around 'evil--preceding-sexp '((name . evil)))
+  (advice-add 'pp-last-sexp          :around 'evil--preceding-sexp '((name . evil)))))
 
 ;; Show key
 (defadvice quail-show-key (around evil activate)
@@ -405,7 +418,10 @@ the mark and entering `recursive-edit'."
       ;; to `evil-find-char-backward'
       (when (and (equal buf (current-buffer))
                  (< (point) pnt))
-        (setq evil-this-type 'exclusive)))))
+        (setq evil-this-type
+              (cond
+               ((eq evil-this-type 'exclusive) 'inclusive)
+               ((eq evil-this-type 'inclusive) 'exclusive)))))))
 
 (evil-define-motion evil-ace-jump-char-to-mode (count)
   "Jump visually to the char in front of a char using ace-jump."
@@ -419,7 +435,10 @@ the mark and entering `recursive-edit'."
                (< (point) pnt))
           (progn
             (or (eobp) (forward-char))
-            (setq evil-this-type 'exclusive))
+            (setq evil-this-type
+                  (cond
+                   ((eq evil-this-type 'exclusive) 'inclusive)
+                   ((eq evil-this-type 'inclusive) 'exclusive))))
         (backward-char)))))
 
 (evil-define-motion evil-ace-jump-line-mode (count)

@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.9
+;; Version: 1.1.0
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -3140,6 +3140,14 @@ Below some empty line")))
     ("d0")
     "[T]his buffer is for notes."))
 
+(ert-deftest evil-test-forward-not-word ()
+  "Test `evil-forward-not-thing'"
+  :tags '(evil motion)
+  (evil-test-buffer
+    "[ ]    aa,,"
+    (evil-forward-not-thing 'evil-word)
+    "     [a]a,,"))
+
 ;; TODO: test Visual motions and window motions
 (ert-deftest evil-test-forward-word-begin ()
   "Test `evil-forward-word-begin'"
@@ -5351,7 +5359,12 @@ Below some empty line."))
       (evil-test-buffer
         ";; This<[ ]buffer> is for notes."
         ("aw")
-        ";;<[ ]This buffer> is for notes."))))
+        ";;<[ ]This buffer> is for notes.")))
+  (ert-info ("select first visual word")
+    (evil-test-buffer
+      "([a])"
+      ("viw")
+      "(<[a]>)")))
 
 (ert-deftest evil-test-word-objects-cjk ()
   "Test `evil-inner-word' and `evil-a-word' on CJK words"
@@ -6083,6 +6096,40 @@ Below some empty line."))
         (emacs-lisp-mode)
         ("vi(")
         "((<aa[a]>))")))
+  (ert-info ("Select double inner parentheses")
+    (evil-test-buffer
+      "([(]word))"
+      ("dib")
+      "(())")
+    (evil-test-buffer
+      "[(](word))"
+      ("dib")
+      "()")
+    (evil-test-buffer
+      "((word[)])"
+      ("dib")
+      "(())")
+    (evil-test-buffer
+      "((word)[)]"
+      ("dib")
+      "()"))
+  (ert-info ("Select double outer parentheses")
+    (evil-test-buffer
+      "a([(]word))b"
+      ("dab")
+      "a()b")
+    (evil-test-buffer
+      "a[(](word))b"
+      ("dab")
+      "ab")
+    (evil-test-buffer
+      "a((word[)])b"
+      ("dab")
+      "a()b")
+    (evil-test-buffer
+      "a((word)[)]b"
+      ("dab")
+      "ab"))
   (ert-info ("Select parentheses inside strings")
     (evil-test-buffer
       "(aaa \"b(b[b]b)\" aa)"

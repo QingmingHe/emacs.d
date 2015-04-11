@@ -47,11 +47,6 @@
                   (file-directory-p
                    (expand-file-name "lisp" (getenv "ORG_HOME"))))
        '(require 'org))
-    ;; load user settings org file which ofen contains user' private data
-    (when (and
-           gtd-root
-           (file-exists-p (concat gtd-root "/source/user-settings.org")))
-      (org-babel-load-file (concat gtd-root "/source/user-settings.org")))
     ;; load up the starter kit.
     ;; As the initial value of `org-babel-load-languages' is '(emacs-lisp . t),
     ;; only the emacs-lisp code block will be loaded.

@@ -7,6 +7,21 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 Things that don't fit anywhere else.
 
+** User name and email
+
+#+begin_src emacs-lisp
+(setq user-full-name "Qingming He")
+(setq user-mail-address "906459647@qq.com")
+#+end_src
+
+** Use GNUpg
+
+#+begin_src emacs-lisp
+(setq epa-file-cache-passphrase-for-symmetric-encryption nil)
+(setq epa-file-inhibit-auto-save t)
+(auto-encryption-mode 1)
+#+end_src
+
 ** Ensure server safe in windows
 
 On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So

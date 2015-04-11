@@ -435,7 +435,7 @@ interested in the actual code implementing the starter kit.
        (when (file-exists-p path)
          (unless (was-compiled-p path)
            (let ((default-directory path))
-             (call-process-shell-command (cdr pkg-command) nil 0 nil))))))
+             (call-process-shell-command (cdr pkg-command) nil nil nil))))))
    '(("evil" . "make")
      ("eim" . "make")))
   #+end_src

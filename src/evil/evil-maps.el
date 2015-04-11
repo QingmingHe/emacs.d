@@ -3,7 +3,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.9
+;; Version: 1.1.0
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -478,7 +478,7 @@
 (define-key evil-ex-completion-map "\C-g" 'abort-recursive-edit)
 (define-key evil-ex-completion-map "\C-k" 'evil-insert-digraph)
 (define-key evil-ex-completion-map "\C-l" 'evil-ex-completion)
-(define-key evil-ex-completion-map "\C-p" #'next-complete-history-element)
+(define-key evil-ex-completion-map "\C-p" #'previous-complete-history-element)
 (define-key evil-ex-completion-map "\C-r" 'evil-paste-from-register)
 (define-key evil-ex-completion-map "\C-n" #'next-complete-history-element)
 (define-key evil-ex-completion-map "\C-u" 'evil-delete-whole-line)

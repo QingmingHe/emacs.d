@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.0.9
+;; Version: 1.1.0
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -623,7 +623,7 @@ HIDE-CHARS characters. HIDE-CHARS defaults to 1."
       (delete-overlay overlay))
     (or (evil-digraph (list char1 char2))
         ;; use the last character if undefined
-        (cadr char2))))
+        char2)))
 
 (defun evil-read-motion (&optional motion count type modifier)
   "Read a MOTION, motion COUNT and motion TYPE from the keyboard.
@@ -1182,12 +1182,15 @@ See also `evil-goto-min'."
                     (< (point) (cdr bnd)))
           (goto-char (cdr bnd)))
         ;; no thing at (point)
-        (goto-char
-         (if (and (zerop (forward-thing thing))
-                  (setq bnd (bounds-of-thing-at-point thing))
-                  (< (point) (cdr bnd)))
-             (car bnd)
-           (point-max))))
+        (if (zerop (forward-thing thing))
+            ;; now at the end of the next thing
+            (let ((bnd (bounds-of-thing-at-point thing)))
+              (if (or (< (car bnd) (point))    ; end of a thing
+                      (= (car bnd) (cdr bnd))) ; zero width thing
+                  (goto-char (car bnd))
+                ;; beginning of yet another thing, go back
+                (forward-thing thing -1)))
+          (goto-char (point-max))))
        (t
         (while (and (not (bobp))
                     (or (backward-char) t)
@@ -1516,7 +1519,7 @@ backwards."
       ;; global parser state is out of state, use local one
       (let* ((pnt (point))
              (state (progn (beginning-of-defun)
-                           (parse-partial-sexp (point) pnt)))
+                           (parse-partial-sexp (point) pnt nil nil (syntax-ppss))))
              (bnd (bounds-of-evil-string-at-point state)))
         (when (and bnd (< (point) (cdr bnd)))
           ;; currently within a string
@@ -1532,34 +1535,37 @@ backwards."
           ;; no need to reset global parser state because we only use
           ;; the local one
           (setq reset-parser nil)
-          (while (and (> count 0) (not (eobp)))
-            (setq state (parse-partial-sexp (point) (point-max)
-                                            nil
-                                            nil
-                                            state
-                                            'syntax-table))
-            (cond
-             ((nth 3 state)
-              (setq bnd (bounds-of-thing-at-point 'evil-string))
-              (goto-char (cdr bnd))
-              (setq count (1- count)))
-             ((eobp) (setq count (1- count))))))
+          (catch 'done
+            (while (and (> count 0) (not (eobp)))
+              (setq state (parse-partial-sexp (point) (point-max)
+                                              nil
+                                              nil
+                                              state
+                                              'syntax-table))
+              (cond
+               ((nth 3 state)
+                (setq bnd (bounds-of-thing-at-point 'evil-string))
+                (goto-char (cdr bnd))
+                (setq count (1- count)))
+               ((eobp) (goto-char pnt) (throw 'done nil))))))
          ((< count 0)
           ;; need to update global cache because of backward motion
           (setq reset-parser (and reset-parser (point)))
           (save-excursion
             (beginning-of-defun)
             (syntax-ppss-flush-cache (point)))
-          (while (and (< count 0) (not (bobp)))
-            (while (and (not (bobp))
-                        (or (eobp) (/= (char-after) quote)))
-              (backward-char))
-            (cond
-             ((setq bnd (bounds-of-thing-at-point 'evil-string))
-              (goto-char (car bnd))
-              (setq count (1+ count)))
-             ((bobp) (1+ count))
-             (t (backward-char)))))
+          (catch 'done
+            (while (and (< count 0) (not (bobp)))
+              (setq pnt (point))
+              (while (and (not (bobp))
+                          (or (eobp) (/= (char-after) quote)))
+                (backward-char))
+              (cond
+               ((setq bnd (bounds-of-thing-at-point 'evil-string))
+                (goto-char (car bnd))
+                (setq count (1+ count)))
+               ((bobp) (goto-char pnt) (throw 'done nil))
+               (t (backward-char))))))
          (t (setq reset-parser nil)))))
     (when reset-parser
       ;; reset global cache
@@ -2898,7 +2904,9 @@ linewise, otherwise it is character wise."
     ;; check if current object is selected
     (when (or (not beg) (not end)
               (> beg (car bnd))
-              (< end (cdr bnd)))
+              (< end (cdr bnd))
+              (and (eq type 'inclusive)
+                   (= (1+ beg) end))) ; empty region does not count
       (when (or (not beg) (< (car bnd) beg)) (setq beg (car bnd)))
       (when (or (not end) (> (cdr bnd) end)) (setq end (cdr bnd)))
       (setq count (if (> count 0) (1- count) (1+ count))))
@@ -2928,7 +2936,11 @@ linewise, otherwise it is character wise."
          (bnd (or objbnd (evil-bounds-of-not-thing-at-point thing)))
          addcurrent other)
     ;; check if current object is not selected
-    (when (or (not beg) (not end) (> beg (car bnd)) (< end (cdr bnd)))
+    (when (or (not beg) (not end)
+              (> beg (car bnd))
+              (< end (cdr bnd))
+              (and (eq type 'inclusive)
+                   (= (1+ beg) end))) ; empty region does not count
       ;; if not, enlarge selection
       (when (or (not beg) (< (car bnd) beg)) (setq beg (car bnd)))
       (when (or (not end) (> (cdr bnd) end)) (setq end (cdr bnd)))
@@ -2986,14 +2998,19 @@ selection matches that object exactly."
             (count (abs (or count 1)))
             op cl op-end cl-end)
         ;; start scanning at beginning
-        (goto-char (if inclusive (1+ beg) end))
+        (goto-char beg)
         (when (and (zerop (funcall thing +1)) (match-beginning 0))
           (setq cl (cons (match-beginning 0) (match-end 0)))
           (goto-char (car cl))
           (when (and (zerop (funcall thing -1)) (match-beginning 0))
             (setq op (cons (match-beginning 0) (match-end 0)))))
         ;; start scanning from end
-        (goto-char (if inclusive (1- end) beg))
+        ;;
+        ;; We always assume at least one selected character, otherwise
+        ;; commands like 'dib' on '(word)' with `point' being at the
+        ;; opening parenthesis would fail, because Emacs considers
+        ;; this position as outside of the parentheses.
+        (goto-char (if (= beg end) (1+ end) end))
         (when (and (zerop (funcall thing -1)) (match-beginning 0))
           (setq op-end (cons (match-beginning 0) (match-end 0)))
           (goto-char (cdr op-end))
@@ -3083,8 +3100,8 @@ must be regular expressions and `evil-up-block' is used."
                 (setq beg (or beg (point))
                       end (or end (point)))
                 (goto-char (car bnd))
-                (let ((extbeg (min beg (- (car bnd) (if inclusive 1 0))))
-                      (extend (max end (+ (cdr bnd) (if inclusive 1 0)))))
+                (let ((extbeg (min beg (car bnd)))
+                      (extend (max end (cdr bnd))))
                   (evil-select-block thing
                                      extbeg extend
                                      type
@@ -3101,8 +3118,8 @@ must be regular expressions and `evil-up-block' is used."
 THING is typically either 'evil-quote or 'evil-chars. This
 function is called from `evil-select-quote'."
   (save-excursion
-    (let* ((dir (if (> count 0) 1 -1))
-           (count (or count 1))
+    (let* ((count (or count 1))
+           (dir (if (> count 0) 1 -1))
            (bnd (let ((b (bounds-of-thing-at-point thing)))
                   (and b (< (point) (cdr b)) b)))
            contains-string
@@ -3209,8 +3226,9 @@ from the range."
   (cond
    ((and (not inclusive) (= (abs (or count 1)) 1))
     (let ((rng (evil-select-block #'evil-up-xml-tag beg end type count nil t)))
-      (if (and beg (= beg (evil-range-beginning rng))
-               end (= end (evil-range-end rng)))
+      (if (or (and beg (= beg (evil-range-beginning rng))
+                   end (= end (evil-range-end rng)))
+              (= (evil-range-beginning rng) (evil-range-end rng)))
           (evil-select-block #'evil-up-xml-tag beg end type count t)
         rng)))
    (t

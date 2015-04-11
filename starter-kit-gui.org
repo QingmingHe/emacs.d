@@ -139,7 +139,7 @@ other data on the mode line.
 
 ** Font for English and Chinese
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (set-face-attribute 'default (selected-frame) :height 120)
 (when (window-system)
   (catch 'en-font-found
@@ -161,6 +161,11 @@ other data on the mode line.
          (throw 'zh-font-found ft)))
      '("WenQuanYi Micro Hei Mono" "Microsoft Yahei"))))
 #+END_SRC
+
+#+begin_src emacs-lisp
+(require 'chinese-fonts-setup)
+#+end_src
+
 
 *** Install font
 **** Windows

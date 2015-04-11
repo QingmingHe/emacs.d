@@ -85,9 +85,10 @@
 
 ;;** Example 4: toggle rarely used modes
 (when (bound-and-true-p hydra-examples-verbatim)
+  (defvar whitespace-mode nil)
   (global-set-key
    (kbd "C-c C-v")
-   (defhydra hydra-toggle (:color blue)
+   (defhydra hydra-toggle-simple (:color blue)
      "toggle"
      ("a" abbrev-mode "abbrev")
      ("d" toggle-debug-on-error "debug")
@@ -96,7 +97,7 @@
      ("w" whitespace-mode "whitespace")
      ("q" nil "cancel"))))
 
-;; Note that in this case, `defhydra' returns the `hydra-toggle/body'
+;; Note that in this case, `defhydra' returns the `hydra-toggle-simple/body'
 ;; symbol, which is then passed to `global-set-key'.
 ;;
 ;; Another new thing is that both the keymap and the body prefix are
@@ -160,26 +161,26 @@
 ;; This example will bind "C-x `" in `global-map', but it will not
 ;; bind "C-x j" and "C-x k".
 ;; You can still "C-x `jjk" though.
+
 ;;** Example 7: toggle with Ruby-style docstring
-(when (bound-and-true-p hydra-examples-verbatim)
-  (defhydra hydra-toggle (:color pink)
-    "
+(defvar whitespace-mode nil)
+(defhydra hydra-toggle (:color pink)
+  "
 _a_ abbrev-mode:       %`abbrev-mode
 _d_ debug-on-error:    %`debug-on-error
 _f_ auto-fill-mode:    %`auto-fill-function
-_g_ golden-ratio-mode: %`golden-ratio-mode
 _t_ truncate-lines:    %`truncate-lines
 _w_ whitespace-mode:   %`whitespace-mode
 
 "
-    ("a" abbrev-mode nil)
-    ("d" toggle-debug-on-error nil)
-    ("f" auto-fill-mode nil)
-    ("g" golden-ratio-mode nil)
-    ("t" toggle-truncate-lines nil)
-    ("w" whitespace-mode nil)
-    ("q" nil "quit"))
-  (global-set-key (kbd "C-c C-v") 'hydra-toggle/body))
+  ("a" abbrev-mode nil)
+  ("d" toggle-debug-on-error nil)
+  ("f" auto-fill-mode nil)
+  ("t" toggle-truncate-lines nil)
+  ("w" whitespace-mode nil)
+  ("q" nil "quit"))
+;; Recommended binding:
+;; (global-set-key (kbd "C-c C-v") 'hydra-toggle/body)
 
 ;; Here, using e.g. "_a_" translates to "a" with proper face.
 ;; More interestingly:
@@ -187,46 +188,49 @@ _w_ whitespace-mode:   %`whitespace-mode
 ;;     "foobar %`abbrev-mode" means roughly (format "foobar %S" abbrev-mode)
 ;;
 ;; This means that you actually see the state of the mode that you're changing.
+
 ;;** Example 8: the whole menu for `Buffer-menu-mode'
-(defhydra hydra-buffer-menu (:color pink)
+(defhydra hydra-buffer-menu (:color pink
+                             :hint nil)
   "
-  Mark               Unmark             Actions            Search
--------------------------------------------------------------------------                        (__)
+^Mark^             ^Unmark^           ^Actions^          ^Search
+^^^^^^^^-----------------------------------------------------------------                        (__)
 _m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch                         (oo)
 _s_: save          _U_: unmark up     _b_: bury          _I_: isearch                      /------\\/
-_d_: delete                           _g_: refresh       _O_: multi-occur                 / |    ||
-_D_: delete up                        _T_: files only: % -28`Buffer-menu-files-only      *  /\\---/\\
-_~_: modified                                                                               ~~   ~~
+_d_: delete        ^ ^                _g_: refresh       _O_: multi-occur                 / |    ||
+_D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only^^    *  /\\---/\\
+_~_: modified      ^ ^                ^ ^                ^^                                 ~~   ~~
 "
-  ("m" Buffer-menu-mark nil)
-  ("u" Buffer-menu-unmark nil)
-  ("U" Buffer-menu-backup-unmark nil)
-  ("d" Buffer-menu-delete nil)
-  ("D" Buffer-menu-delete-backwards nil)
-  ("s" Buffer-menu-save nil)
-  ("~" Buffer-menu-not-modified nil)
-  ("x" Buffer-menu-execute nil)
-  ("b" Buffer-menu-bury nil)
-  ("g" revert-buffer nil)
-  ("T" Buffer-menu-toggle-files-only nil)
-  ("O" Buffer-menu-multi-occur nil :color blue)
-  ("I" Buffer-menu-isearch-buffers nil :color blue)
-  ("R" Buffer-menu-isearch-buffers-regexp nil :color blue)
+  ("m" Buffer-menu-mark)
+  ("u" Buffer-menu-unmark)
+  ("U" Buffer-menu-backup-unmark)
+  ("d" Buffer-menu-delete)
+  ("D" Buffer-menu-delete-backwards)
+  ("s" Buffer-menu-save)
+  ("~" Buffer-menu-not-modified)
+  ("x" Buffer-menu-execute)
+  ("b" Buffer-menu-bury)
+  ("g" revert-buffer)
+  ("T" Buffer-menu-toggle-files-only)
+  ("O" Buffer-menu-multi-occur :color blue)
+  ("I" Buffer-menu-isearch-buffers :color blue)
+  ("R" Buffer-menu-isearch-buffers-regexp :color blue)
   ("c" nil "cancel")
   ("v" Buffer-menu-select "select" :color blue)
   ("o" Buffer-menu-other-window "other-window" :color blue)
   ("q" quit-window "quit" :color blue))
 ;; Recommended binding:
 ;; (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+
 ;;** Example 9: s-expressions in the docstring
 ;; You can inline s-expresssions into the docstring like this:
 (when (bound-and-true-p hydra-examples-verbatim)
-  (eval-after-load 'dired
-    (defhydra hydra-marked-items (dired-mode-map "")
-      "
+  (require 'dired)
+  (defhydra hydra-marked-items (dired-mode-map "")
+    "
 Number of marked items: %(length (dired-get-marked-files))
 "
-      ("m" dired-mark "mark"))))
+    ("m" dired-mark "mark")))
 
 ;; This results in the following dynamic docstring:
 ;;
@@ -235,7 +239,55 @@ Number of marked items: %(length (dired-get-marked-files))
 ;;
 ;; You can use `format'-style width specs, e.g. % 10(length nil).
 
-;;* Windmove helpers
+;;** Example 10: apropos family
+(defhydra hydra-apropos (:color blue
+                         :hint nil)
+  "
+_a_propos        _c_ommand
+_d_ocumentation  _l_ibrary
+_v_ariable       _u_ser-option
+^ ^          valu_e_"
+  ("a" apropos)
+  ("d" apropos-documentation)
+  ("v" apropos-variable)
+  ("c" apropos-command)
+  ("l" apropos-library)
+  ("u" apropos-user-option)
+  ("e" apropos-value))
+;; Recommended binding:
+;; (global-set-key (kbd "C-c h") 'hydra-apropos/body)
+
+;;** Example 11: rectangle-mark-mode
+(defhydra hydra-rectangle (:body-pre (rectangle-mark-mode 1)
+                           :color pink
+                           :post (deactivate-mark))
+  "
+  ^_k_^     _d_elete    _s_tring
+_h_   _l_   _o_k        _y_ank
+  ^_j_^     _n_ew-copy  _r_eset
+^^^^        _e_xchange  _u_ndo
+^^^^        ^ ^         _p_aste
+"
+  ("h" backward-char nil)
+  ("l" forward-char nil)
+  ("k" previous-line nil)
+  ("j" next-line nil)
+  ("e" hydra-ex-point-mark nil)
+  ("n" copy-rectangle-as-kill nil)
+  ("d" delete-rectangle nil)
+  ("r" (if (region-active-p)
+           (deactivate-mark)
+         (rectangle-mark-mode 1)) nil)
+  ("y" yank-rectangle nil)
+  ("u" undo nil)
+  ("s" string-rectangle nil)
+  ("p" kill-rectangle nil)
+  ("o" nil nil))
+
+;; Recommended binding:
+;; (global-set-key (kbd "C-x SPC") 'hydra-rectangle/body)
+
+;;* Helpers
 (require 'windmove)
 
 (defun hydra-move-splitter-left (arg)
@@ -269,6 +321,16 @@ Number of marked items: %(length (dired-get-marked-files))
         (windmove-find-other-window 'up))
       (shrink-window arg)
     (enlarge-window arg)))
+
+(defvar rectangle-mark-mode)
+(defun hydra-ex-point-mark ()
+  "Exchange point and mark."
+  (interactive)
+  (if rectangle-mark-mode
+      (exchange-point-and-mark)
+    (let ((mk (mark)))
+      (rectangle-mark-mode 1)
+      (goto-char mk))))
 
 (provide 'hydra-examples)
 ;;; hydra-examples.el ends here
