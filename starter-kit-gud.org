@@ -208,7 +208,6 @@ Add color to the current GUD line (obrigado google)
       (when linum
         (goto-line (string-to-int linum))
         (pulse-momentary-highlight-one-line (point)))
-      (other-window -1)
       t)))
 
 (add-hook 'gud-ctrl-c-ctrl-c-hook 'gud-pulse-break)
