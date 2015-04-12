@@ -48,7 +48,6 @@ symbols will be surrounded by dollar signs.  The following commands are
 defined:
 
 \\{LaTeX-math-mode-map}" t nil)
-(autoload 'matlab-mode "matlab" "Matlab Editing Mode" t)
 (autoload 'rst-mode "rst")
 (autoload 'eim-use-package "eim" "Another emacs input method" t)
 (autoload 'eim-insert-ascii "eim-extra" "Use a key to insert English." t)

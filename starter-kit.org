@@ -432,63 +432,42 @@ interested in the actual code implementing the starter kit.
    :PROPERTIES:
    :CUSTOM_ID: starter-kit-core
    :END:
-The following files contain the remainder of the core of the Emacs
-Starter Kit.  All of the code in this section should be loaded by
-everyone using the starter kit.
-
-- Starter kit function definitions in [[file:starter-kit-defuns.org][starter-kit-defuns]]
-  #+begin_src emacs-lisp
-  (starter-kit-fast-load "defuns")
-  #+end_src
-
-- Miscellaneous settings in [[file:starter-kit-misc.org][starter-kit-misc]]
-  #+begin_src emacs-lisp
-  (starter-kit-fast-load "misc")
-  #+end_src
-
-- Registers for jumping to commonly used files in [[file:starter-kit-registers.org][starter-kit-registers]]
-  #+begin_src emacs-lisp
-  (starter-kit-fast-load "registers")
-  #+end_src
-
-- Others
-
-  You should note that the sequence is very important.
-  #+BEGIN_SRC emacs-lisp
-  ;; desktop should be the first one to load
-  (starter-kit-fast-load "desktop")
-  (starter-kit-fast-load "evil")
-  (when *cygwin*
-    (starter-kit-fast-load "win32"))
-  (starter-kit-fast-load "org")
-  (starter-kit-fast-load "gui")
-  ;; I nuver use ibuffer
-  ;; (starter-kit-fast-load "ibuffer")
-  (starter-kit-fast-load "dired")
-  (starter-kit-fast-load "project")
-  (starter-kit-fast-load "flycheck")
-  (starter-kit-fast-load "helm")
-  (starter-kit-fast-load "yasnippet")
-  (starter-kit-fast-load "autocomplete")
-  (starter-kit-fast-load "browser")
-  (starter-kit-fast-load "dictionary")
-  (starter-kit-fast-load "bindings")
-  (starter-kit-fast-load "gud")
-  (starter-kit-fast-load "flyspell")
-  (starter-kit-fast-load "misc-text")
-  (starter-kit-fast-load "search")
-  ;; prog mode should be loaded finally
-  (starter-kit-fast-load "coding")
-  (starter-kit-fast-load "shell")
-  (starter-kit-fast-load "python")
-  (starter-kit-fast-load "nxml")
-  (starter-kit-fast-load "lisp")
-  (starter-kit-fast-load "fortran")
-  (starter-kit-fast-load "latex")
-  (starter-kit-fast-load "graphviz")
-  (starter-kit-fast-load "cc")
-  (starter-kit-fast-load "js")
-  #+END_SRC
+The following files contain the remainder of the core of the Emacs Starter
+Kit.  All of the code in this section should be loaded by everyone using the
+starter kit.  You should note that the sequence is very important.
+#+BEGIN_SRC emacs-lisp
+(starter-kit-fast-load "defuns")
+(starter-kit-fast-load "misc")
+(starter-kit-fast-load "desktop")
+(starter-kit-fast-load "evil")
+(when *cygwin*
+  (starter-kit-fast-load "win32"))
+(starter-kit-fast-load "org")
+(starter-kit-fast-load "gui")
+(starter-kit-fast-load "dired")
+(starter-kit-fast-load "project")
+(starter-kit-fast-load "flycheck")
+(starter-kit-fast-load "helm")
+(starter-kit-fast-load "yasnippet")
+(starter-kit-fast-load "autocomplete")
+(starter-kit-fast-load "browser")
+(starter-kit-fast-load "dictionary")
+(starter-kit-fast-load "bindings")
+(starter-kit-fast-load "gud")
+(starter-kit-fast-load "flyspell")
+(starter-kit-fast-load "misc-text")
+(starter-kit-fast-load "search")
+;; prog mode should be loaded finally
+(starter-kit-fast-load "coding")
+(starter-kit-fast-load "shell")
+(starter-kit-fast-load "python")
+(starter-kit-fast-load "lisp")
+(starter-kit-fast-load "fortran")
+(starter-kit-fast-load "latex")
+(starter-kit-fast-load "graphviz")
+(starter-kit-fast-load "cc")
+(starter-kit-fast-load "js")
+#+END_SRC
 
 ** Load User/System Specific Files
 *** System/User specific customizations

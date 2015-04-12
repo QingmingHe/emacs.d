@@ -2,18 +2,8 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Dictionary
-** Dictionary
-
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
-
 ** sdcv
 sdcv is a command-line version of stardict.
-*** Configuration
-
-#+begin_src emacs-lisp
-#+end_src
-
 *** Install sdcv
 + Google =sdcv= and download the source code.
 + Install glib2, readline.
