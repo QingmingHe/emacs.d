@@ -187,28 +187,6 @@ Meta key is too far away to press. I use six windows at most.
 (key-chord-define-global "iw" 'flyspell-correct-word-before-point)
 #+end_src
 
-** key combo
-   :PROPERTIES:
-   :TANGLE:   no
-   :END:
-
-*** Active global key combo
-
-#+begin_src emacs-lisp
-(global-key-combo-mode 1)
-#+end_src
-
-*** Use one key to cycle single, double letter and upper case letter
-
-#+begin_src emacs-lisp
-(dotimes (i 26)
-  (let ((j (+ i 97))
-        (k (+ i 65)))
-    (key-combo-define evil-insert-state-map (format "%c" j)
-                      `(,(format "%c" j) ,(format "%c%c" j j)
-                        ,(format "%c" k)))))
-#+end_src
-
 ** Super TAB for program modes
 
 #+begin_src emacs-lisp
