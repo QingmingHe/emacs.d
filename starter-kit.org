@@ -286,7 +286,7 @@ interested in the actual code implementing the starter kit.
   #+begin_src emacs-lisp
   (require 'package)
   (setq package-archives
-        '(("melpa"       . "http://melpa.org/packages/")))
+        '(("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
   (package-initialize)
 
   (defvar starter-kit-packages nil
