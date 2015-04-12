@@ -57,28 +57,36 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 ** Cycle case of word or region
 
 #+begin_src emacs-lisp
-(defun upcase-word-or-region ()
+(defun xah-toggle-letter-case ()
+  "Toggle the letter case of current word or text selection.
+Toggles between: all lower, Init Caps, ALL CAPS."
   (interactive)
-  (if (region-active-p)
-      (upcase-region (region-beginning) (region-end))
-    (let ((b (bounds-of-thing-at-point 'word)))
-      (upcase-region (car b) (cdr b)))))
-(defun downcase-word-or-region ()
-  (interactive)
-  (if (region-active-p)
-      (downcase-region (region-beginning) (region-end))
-    (let ((b (bounds-of-thing-at-point 'word)))
-      (downcase-region (car b) (cdr b)))))
-(defun capitalize-word-or-region ()
-  (interactive)
-  (if (region-active-p)
-      (capitalize-region (region-beginning) (region-end))
-    (let ((b (bounds-of-thing-at-point 'word)))
-      (capitalize-region (car b) (cdr b)))))
-(key-combo-define-global (kbd "M-u")
-                         '(capitalize-word-or-region
-                           upcase-word-or-region
-                           downcase-word-or-region))
+  (save-excursion
+    (let (p1 p2 (deactivate-mark nil) (case-fold-search nil))
+      (if (use-region-p)
+          (setq p1 (region-beginning) p2 (region-end))
+        (let ((bds (bounds-of-thing-at-point 'word)))
+          (setq p1 (car bds) p2 (cdr bds))))
+
+      (when (not (eq last-command this-command))
+        (save-excursion
+          (goto-char p1)
+          (cond
+           ((looking-at "[[:lower:]][[:lower:]]") (put this-command 'state "all lower"))
+           ((looking-at "[[:upper:]][[:upper:]]") (put this-command 'state "all caps"))
+           ((looking-at "[[:upper:]][[:lower:]]") (put this-command 'state "init caps"))
+           ((looking-at "[[:lower:]]") (put this-command 'state "all lower"))
+           ((looking-at "[[:upper:]]") (put this-command 'state "all caps"))
+           (t (put this-command 'state "all lower")))))
+
+      (cond
+       ((string= "all lower" (get this-command 'state))
+        (upcase-initials-region p1 p2) (put this-command 'state "init caps"))
+       ((string= "init caps" (get this-command 'state))
+        (upcase-region p1 p2) (put this-command 'state "all caps"))
+       ((string= "all caps" (get this-command 'state))
+        (downcase-region p1 p2) (put this-command 'state "all lower"))))))
+(global-set-key (kbd "M-u") 'xah-toggle-letter-case)
 #+end_src
 
 ** Expand region
@@ -180,6 +188,10 @@ Meta key is too far away to press. I use six windows at most.
 #+end_src
 
 ** key combo
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+
 *** Active global key combo
 
 #+begin_src emacs-lisp
@@ -188,7 +200,7 @@ Meta key is too far away to press. I use six windows at most.
 
 *** Use one key to cycle single, double letter and upper case letter
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (dotimes (i 26)
   (let ((j (+ i 97))
         (k (+ i 65)))
