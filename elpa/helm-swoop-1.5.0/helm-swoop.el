@@ -2,8 +2,7 @@
 
 ;; Copyright (C) 2013 by Shingo Fukuyama
 
-;; Version: 20150209.806
-;; X-Original-Version: 1.4
+;; Version: 1.5.0
 ;; Author: Shingo Fukuyama - http://fukuyama.co
 ;; URL: https://github.com/ShingoFukuyama/helm-swoop
 ;; Created: Oct 24 2013
@@ -173,6 +172,12 @@
     (define-key $map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
     (delq nil $map))
   "Keymap for helm-swoop")
+
+(defvar helm-multi-swoop-map
+  (let (($map (make-sparse-keymap)))
+    (set-keymap-parent $map helm-map)
+    (define-key $map (kbd "C-c C-e") 'helm-multi-swoop-edit)
+    (delq nil $map)))
 
 (defcustom helm-swoop-pre-input-function
   (lambda () (thing-at-point 'symbol))
@@ -421,6 +426,8 @@ This function needs to call after latest helm-swoop-line-overlay set."
   (with-helm-window
     (setq helm-swoop-pattern helm-pattern)
     (when (< 2 (length helm-pattern))
+      (helm-swoop--delete-overlay 'target-buffer)
+      (helm-swoop--target-word-overlay 'target-buffer)
       (with-selected-window helm-swoop-synchronizing-window
         (helm-swoop--delete-overlay 'target-buffer)
         (helm-swoop--target-word-overlay 'target-buffer)))))
@@ -519,6 +526,7 @@ If $linum is number, lines are separated by $linum"
             (or $multiline 1)) ;; $multiline is for resume
     (set (make-local-variable 'helm-swoop-last-prefix-number)
          (or $multiline 1))))
+(helm-swoop--set-prefix) ;; Silence error "Warning: reference to free variable"
 
 ;; Delete cache when modified file is saved
 (defun helm-swoop--clear-cache ()
@@ -602,9 +610,6 @@ If $linum is number, lines are separated by $linum"
         (ad-activate 'helm-move--previous-line-fn)
         (add-hook 'helm-update-hook 'helm-swoop--pattern-match)
         (add-hook 'helm-after-update-hook 'helm-swoop--keep-nearest-position t)
-        (unless (and (symbolp 'helm-match-plugin-mode)
-                     (symbol-value 'helm-match-plugin-mode))
-          (helm-match-plugin-mode 1))
         (cond ($query
                (if (string-match
                     "\\(\\^\\[0\\-9\\]\\+\\.\\)\\(.*\\)" $query)
@@ -706,7 +711,7 @@ If $linum is number, lines are separated by $linum"
       (- $end $beg $len) ;; Unused argument? To avoid byte compile error
     (delete-region (overlay-start $o) (1- (overlay-end $o)))))
 
-(defun helm-swoop-caret-match (&optional $resume)
+(defun helm-swoop-caret-match (&optional _$resume)
   (interactive)
   (let* (($prompt helm-swoop-prompt) ;; Accept change of the variable
          ($line-number-regexp "^[0-9]+.")
@@ -885,12 +890,6 @@ If $linum is number, lines are separated by $linum"
   "For the last position, when helm-multi-swoop-all-from-helm-swoop canceled")
 (defvar helm-multi-swoop-move-line-action-last-buffer nil)
 
-(defvar helm-multi-swoop-map
-  (let (($map (make-sparse-keymap)))
-    (set-keymap-parent $map helm-map)
-    (define-key $map (kbd "C-c C-e") 'helm-multi-swoop-edit)
-    (delq nil $map)))
-
 (defvar helm-multi-swoop-buffers-map
   (let (($map (make-sparse-keymap)))
     (set-keymap-parent $map helm-map)
@@ -1053,9 +1052,6 @@ If $linum is number, lines are separated by $linum"
           (ad-activate 'helm-move--previous-line-fn)
           (add-hook 'helm-update-hook 'helm-swoop--pattern-match)
           (add-hook 'helm-after-update-hook 'helm-swoop--keep-nearest-position t)
-          (unless (and (symbolp 'helm-match-plugin-mode)
-                       (symbol-value 'helm-match-plugin-mode))
-            (helm-match-plugin-mode 1))
           (setq helm-swoop-line-overlay
                 (make-overlay (point) (point)))
           (overlay-put helm-swoop-line-overlay
@@ -1145,7 +1141,6 @@ Usage:
 M-x helm-multi-swoop
 1. Select any buffers by [C-SPC] or [M-SPC]
 2. Press [RET] to start helm-multi-swoop
-
 C-u M-x helm-multi-swoop
 If you have done helm-multi-swoop before, you can skip select buffers step.
 Last selected buffers will be applied to helm-multi-swoop.
