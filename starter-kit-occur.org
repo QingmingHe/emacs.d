@@ -1,4 +1,0 @@
-#+TITLE: Starter Kit Occur
-#+OPTIONS: toc:nil num:nil ^:nil
-
-* Starter Kit Occur
