@@ -52,11 +52,9 @@ The built in fortran-gfortran doesn't support Chinese errors and warnings. An
     (setq flycheck-gfortran-language-standard "f2008")
     (flycheck-select-checker 'fortran-gfortran-zh)
     (flycheck-mode)))
-(eval-after-load "f90"
-  `(progn
-     (require 'flycheck)
-     (require 'flycheck-fortran-gfortran-zh)
-     (add-hook 'f90-mode-hook 'my-flycheck-f90-setup)))
+(with-eval-after-load 'f90
+  (require 'flycheck-fortran-gfortran-zh)
+  (add-hook 'f90-mode-hook 'my-flycheck-f90-setup))
 
 (defun my-flycheck-f77-setup ()
   (when (and
@@ -66,13 +64,18 @@ The built in fortran-gfortran doesn't support Chinese errors and warnings. An
     (setq flycheck-gfortran-language-standard "legacy")
     (setq flycheck-gfortran-layout 'fixed)
     (flycheck-select-checker 'fortran-gfortran-zh)
-    (flycheck-mode)
-    (flycheck-buffer)))
+    (flycheck-mode)))
 (with-eval-after-load 'fortran
-  (require 'flycheck)
   (require 'flycheck-fortran-gfortran-zh)
   (add-hook 'fortran-mode-hook 'my-flycheck-f77-setup))
 #+END_SRC
+
+Since some version of flycheck, [[help:flycheck-def-option-var][flycheck-def-option-var]] never make variables
+buffer local by default. I often handle multiple projects which have
+different flycheck options. So make buffer local variables myself.
+#+begin_src emacs-lisp
+(setq flycheck-make-gfortran-options-buffer-local t)
+#+end_src
 
 ** Python
 

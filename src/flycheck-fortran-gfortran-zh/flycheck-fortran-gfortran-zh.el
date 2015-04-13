@@ -40,6 +40,9 @@
 
 (require 'flycheck)
 
+(defvar flycheck-make-gfortran-options-buffer-local nil
+  "Whether make flycheck gfortran options buffer local.")
+
 (flycheck-def-option-var flycheck-gfortran-definitions nil fortran-gfortran
   "A list of definition for GCC Fortran.
 
@@ -89,6 +92,20 @@ Uses GCC's Fortran compiler gfortran."
   :modes (fortran-mode f90-mode))
 
 (add-to-list 'flycheck-checkers 'fortran-gfortran-zh)
+
+(defun flycheck-make-gfortran-options-buffer-local ()
+  "Make Gfortran options buffer-local."
+  (interactive)
+  (make-variable-buffer-local 'flycheck-gfortran-args)
+  (make-variable-buffer-local 'flycheck-gfortran-include-path)
+  (make-variable-buffer-local 'flycheck-gfortran-language-standard)
+  (make-variable-buffer-local 'flycheck-gfortran-layout)
+  (make-variable-buffer-local 'flycheck-gfortran-warnings)
+  (make-variable-buffer-local 'flycheck-gfortran-definitions)
+  (make-variable-buffer-local 'flycheck-gfortran-J-path))
+
+(when flycheck-make-gfortran-options-buffer-local
+  (flycheck-make-gfortran-options-buffer-local))
 
 (provide 'flycheck-fortran-gfortran-zh)
 
