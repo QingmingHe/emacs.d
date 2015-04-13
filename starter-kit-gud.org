@@ -216,9 +216,6 @@ Add color to the current GUD line (obrigado google)
 *** Run gdb with hydra
 
 #+begin_src emacs-lisp
-(gud-def gud-yes "y" nil "Answer yes.")
-(gud-def gud-delete "delete" nil "Delete breakpoints.")
-
 (defun gud-break-ov ()
   (interactive)
   (require 'ov)
@@ -230,20 +227,34 @@ Add color to the current GUD line (obrigado google)
   (interactive)
   (require 'ov)
   (ov-clear)
-  (call-interactively 'gud-delete))
+  (call-interactively 'gud-delete)
+  (let (buf)
+    (when gud-last-last-frame
+      (setq buf (get-file-buffer (car gud-last-last-frame)))
+      (when buf
+        (with-current-buffer buf
+          (save-excursion
+            (goto-line (cdr gud-last-last-frame))
+            (move-overlay gud-overlay
+                          (line-beginning-position)
+                          (line-end-position))))))))
 
-(defhydra hydra-gud-menu nil
-  "gdb"
-  ("b" gud-break-ov "break")
-  ("t" gud-tbreak "tbreak")
-  ("d" gud-delete-ov "delete")
-  ("r" gud-run "run")
-  ("p" gud-print "print")
-  ("u" gud-until "until")
-  ("n" gud-next "next")
-  ("s" gud-step "step")
-  ("y" gud-yes "yes")
-  ("q" nil "quit"))
+(with-eval-after-load 'gud
+  (gud-def gud-yes "y" nil "Answer yes.")
+  (gud-def gud-delete "delete" nil "Delete breakpoints.")
+
+  (defhydra hydra-gud-menu nil
+    "gdb"
+    ("b" gud-break-ov "break")
+    ("t" gud-tbreak "tbreak")
+    ("d" gud-delete-ov "delete")
+    ("r" gud-run "run")
+    ("p" gud-print "print")
+    ("u" gud-until "until")
+    ("n" gud-next "next")
+    ("s" gud-step "step")
+    ("y" gud-yes "yes")
+    ("q" nil "quit")))
 
 (with-eval-after-load 'f90
   (define-key f90-mode-map (kbd "C-c d") 'hydra-gud-menu/body))
