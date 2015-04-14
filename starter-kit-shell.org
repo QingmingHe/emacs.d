@@ -116,6 +116,15 @@ is pre-populated with some generally applicable aliases.
         (write-region (point-min) (point-max) eshell-history-file-name nil 'no-message)))))
 #+end_src
 
+*** Other configuration
+
+#+begin_src emacs-lisp
+(defun my-eshell-config ()
+  (visual-line-mode 1)
+  (adaptive-wrap-prefix-mode 1))
+(add-hook 'eshell-mode-hook #'my-eshell-config)
+#+end_src
+
 *** Tips
     :PROPERTIES:
     :TANGLE:   no

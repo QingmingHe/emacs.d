@@ -218,14 +218,12 @@ Add color to the current GUD line (obrigado google)
 #+begin_src emacs-lisp
 (defun gud-break-ov ()
   (interactive)
-  (require 'ov)
   (ov-set (ov-make (line-beginning-position) (1+ (line-beginning-position)))
           'face '(:background "DarkOrange"))
   (call-interactively 'gud-break))
 
 (defun gud-delete-ov ()
   (interactive)
-  (require 'ov)
   (ov-clear)
   (call-interactively 'gud-delete)
   (let (buf)
@@ -240,6 +238,7 @@ Add color to the current GUD line (obrigado google)
                           (line-end-position))))))))
 
 (with-eval-after-load 'gud
+  (require 'ov)
   (gud-def gud-yes "y" nil "Answer yes.")
   (gud-def gud-delete "delete" nil "Delete breakpoints.")
 
