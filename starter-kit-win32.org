@@ -161,6 +161,23 @@ TARGET: target program or file."
       (find-file cygwin-path))))
 #+end_src
 
+** Clipboard access in Cygwin terminal
+
+#+begin_src emacs-lisp
+(defvar cygwin-clipboard-save-file "/tmp/clipboard"
+  "File to save clipboard data.")
+(defvar cygwin-clipboard-dev "/dev/clipboard"
+  "Cygwin clipboard device.")
+(defun cygwin-clipboard-save-region (beg end)
+  (interactive "r")
+  (let ((str (buffer-substring-no-properties beg end)))
+    (with-temp-buffer
+      (insert str)
+      (write-region (point-min) (point-max) cygwin-clipboard-save-file nil 0))
+    (shell-command (format "cat %s > %s" cygwin-clipboard-save-file
+                           cygwin-clipboard-dev))))
+#+end_src
+
 ** Usage of these functions
     :PROPERTIES:
     :TANGLE:   no

@@ -241,6 +241,7 @@ Add color to the current GUD line (obrigado google)
   (require 'ov)
   (gud-def gud-yes "y" nil "Answer yes.")
   (gud-def gud-delete "delete" nil "Delete breakpoints.")
+  (gud-def gud-kill "kill" nil "Kill program.")
 
   (defhydra hydra-gud-menu nil
     "gdb"
@@ -248,6 +249,7 @@ Add color to the current GUD line (obrigado google)
     ("t" gud-tbreak "tbreak")
     ("d" gud-delete-ov "delete")
     ("r" gud-run "run")
+    ("k" gud-kill "kill")
     ("p" gud-print "print")
     ("u" gud-until "until")
     ("n" gud-next "next")

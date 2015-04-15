@@ -1,5 +1,5 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: .NOT.
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .not.
 # key: n
 # --
-(.NOT. $0)
+.NOT. $0
