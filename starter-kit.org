@@ -354,36 +354,6 @@ interested in the actual code implementing the starter kit.
                            body))))))))
              partial-file)
          file))))
-
-  (defun starter-kit-fast-load (file)
-    "Load starter kit configuration FILE. A FILE can be file name such as
-  \"starter-kit-defuns.org\" or base-base configuration name such as
-  \"defuns\". If the corresponding elisp file of org FILE exists and not older
-  than the org FILE, It will be loaded directly without loading the org FILE;
-  otherwise the org FILE will be loaded by `org-babel-load-file'."
-    (let* ((last-time (current-time))
-           (org-file
-            (expand-file-name
-             (if (string-match "starter-kit-.+\.org" file)
-                 file
-               (format "starter-kit-%s.org" file))
-             starter-kit-dir))
-           (elisp-file
-            (expand-file-name
-             (format "%s.el" (file-name-base org-file))
-             starter-kit-dir)))
-      (if (or
-           (not (file-exists-p elisp-file))
-           (time-less-p
-            (nth 5 (file-attributes elisp-file))
-            (nth 5 (file-attributes org-file))))
-          (progn
-            (message "Loading %s ..." org-file)
-            (org-babel-load-file org-file))
-        (load-file elisp-file))
-      (message
-       (format "%s consumes %.06f to load."
-               file (float-time (time-since last-time))))))
   #+end_src
 
 - Work around a bug on OS X where system-name is FQDN.
@@ -518,18 +488,12 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
   (load custom-file 'noerror)
 #+end_src
 
-** Starter kit initial display
+** Starter kit initial display and final settings
 
 This should be placed at end of starter kit and configures the initial
 windows.
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-splash-screen t)
-(defun my-start-up-display ()
-  (switch-to-buffer "*scratch*")
-  (setq default-directory temporary-file-directory)
-  (write-file (format "%s%s@%s" temporary-file-directory ".*scratch*"
-                      (format-time-string "%Y-%m-%d&%T"))))
-(add-hook 'emacs-startup-hook 'my-start-up-display t)
 (setq debug-on-error nil)
 #+END_SRC
 

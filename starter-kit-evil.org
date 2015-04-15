@@ -8,9 +8,11 @@ mode if starter-kit-evil is activated.
 
 ** Undo and goto-chg is needed by evil
 #+BEGIN_SRC emacs-lisp
+(setq undo-tree-visualizer-timestamps t)
+(setq undo-tree-visualizer-diff t)
 (require 'undo-tree)
-(require 'goto-chg)
 (global-undo-tree-mode)
+(require 'goto-chg)
 #+END_SRC
 
 ** Evil leader
@@ -60,13 +62,20 @@ Just press =SPC-w=, the first character of word where you want to go and select
 the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
 back.
 #+BEGIN_SRC emacs-lisp
-(require 'ace-jump-mode)
-(require 'ace-link)
 (setq ace-jump-mode-scope 'window)
-(ace-jump-mode-enable-mark-sync)
 (define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
-(ace-link-setup-default)
+(with-eval-after-load 'ace-jump-mode
+  (ace-jump-mode-enable-mark-sync))
+(progn
+  (eval-after-load "info"
+    '(define-key Info-mode-map "o" 'ace-link-info))
+  (eval-after-load "help-mode"
+    '(define-key help-mode-map "o" 'ace-link-help))
+  (eval-after-load "eww"
+    '(progn
+       (define-key eww-link-keymap "o" 'ace-link-eww)
+       (define-key eww-mode-map "o" 'ace-link-eww))))
 #+END_SRC
 
 ** Vim Bindings for Different States
