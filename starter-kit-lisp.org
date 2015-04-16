@@ -13,9 +13,11 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
    :END:
 #+name: starter-kit-define-lisp-keys
 #+begin_src emacs-lisp
-(define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
-(define-key emacs-lisp-mode-map (kbd "C-x C-j") 'eval-last-sexp)
-(define-key org-mode-map (kbd "C-x C-j") 'eval-last-sexp)
+(with-eval-after-load 'lisp-mode
+  (define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
+  (define-key emacs-lisp-mode-map (kbd "C-x C-j") 'eval-last-sexp))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-x C-j") 'eval-last-sexp))
 #+end_src
 
 ** Emacs Lisp

@@ -19,12 +19,14 @@ Things that don't fit anywhere else.
 #+begin_src emacs-lisp
 (setq epa-file-cache-passphrase-for-symmetric-encryption nil)
 (setq epa-file-inhibit-auto-save t)
+(setq my-epa-loaded nil)
 (defun lazy-load-auto-encryption-mode ()
-  (unless auto-encryption-mode
+  (unless my-epa-loaded
     (let* ((fname (buffer-file-name))
            (ext (when fname (file-name-extension fname))))
       (when (and ext (string= ext "gpg"))
         (auto-encryption-mode 1)
+        (setq my-epa-loaded t)
         (remove-hook 'find-file-hook 'lazy-load-auto-encryption-mode)))))
 (add-hook 'find-file-hook 'lazy-load-auto-encryption-mode)
 #+end_src
@@ -69,6 +71,7 @@ previously visited the same file.
 ** Transparently open compressed files
 
 #+begin_src emacs-lisp
+(setq my-autocompression-loaded nil)
 (defun my-compressed-file-p ()
   (let ((fname (buffer-file-name))
         (ext (when fname (file-name-extension fname))))
@@ -79,9 +82,10 @@ previously visited the same file.
       ext))))
 (defun lazy-load-auto-compression-mode ()
   (when (and
-         (not auto-compression-mode)
+         (not my-autocompression-loaded)
          (my-compressed-file-p))
-    (auto-compression-mode t)
+    (auto-compression-mode 1)
+    (setq my-autocompression-loaded t)
     (remove-hook 'find-file-hook 'lazy-load-auto-compression-mode)))
 (add-hook 'find-file-hook 'lazy-load-auto-compression-mode)
 #+end_src

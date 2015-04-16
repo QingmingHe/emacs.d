@@ -128,18 +128,6 @@ Use *jk* key chord to quite everything.
 (key-chord-mode 1)
 #+end_src
 
-*** Banish the Shift key in evil normal/insert state
-
-Do you really need them? Once accustomed to key chords below, I can not play
-with vim any longer.
-#+begin_src emacs-lisp
-(with-eval-after-load 'evil
-  (key-chord-define evil-normal-state-map "33" "#")
-  (key-chord-define evil-normal-state-map "44" "$")
-  (key-chord-define evil-normal-state-map "55" "%")
-  (key-chord-define evil-normal-state-map "88" "*"))
-#+end_src
-
 *** Use key chord to select window
 
 Meta key is too far away to press. I use six windows at most.
@@ -161,24 +149,6 @@ Meta key is too far away to press. I use six windows at most.
   (insert " ")
   (backward-char))
 (key-chord-define evil-insert-state-map "df" 'evil-insert-state-append-space)
-#+end_src
-
-*** Banish shift key
-
-#+begin_src emacs-lisp
-(defun banish-shift-by-key-chord ()
-  (interactive)
-  (dotimes (i 26)
-    (let ((j (+ i 97))
-          (k (+ i 65)))
-      (key-chord-define
-       evil-insert-state-local-map
-       (format "%c%c" j j)
-       (format "%c" k))))
-  (key-chord-define evil-insert-state-local-map "--" "_")
-  (key-chord-define evil-insert-state-local-map "99" "(")
-  (key-chord-define evil-insert-state-local-map "00" ")")
-  (key-chord-define evil-insert-state-local-map "88" "*"))
 #+end_src
 
 *** Misc

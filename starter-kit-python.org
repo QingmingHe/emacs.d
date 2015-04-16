@@ -79,9 +79,9 @@ To install jedi manually:
    :END:
 
 #+begin_src emacs-lisp
-    (add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
-    (add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
-    (add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode))
+(add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
+(add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
+(add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode))
 #+end_src
 
 ** Set up for SConstruct

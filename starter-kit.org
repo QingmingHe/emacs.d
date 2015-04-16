@@ -403,8 +403,8 @@ interested in the actual code implementing the starter kit.
    :CUSTOM_ID: starter-kit-core
    :END:
 The following files contain the remainder of the core of the Emacs Starter
-Kit.  All of the code in this section should be loaded by everyone using the
-starter kit.  You should note that the sequence is very important.
+Kit. All of the code in this section should be loaded by everyone using the
+starter kit. You should note that the sequence is very important.
 #+BEGIN_SRC emacs-lisp
 (starter-kit-fast-load "defuns")
 (starter-kit-fast-load "misc")

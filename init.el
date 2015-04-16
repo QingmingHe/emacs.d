@@ -29,13 +29,6 @@
 (when auctex-root
   (setq auctex-root (file-name-directory auctex-root)))
 
-;; load Org-mode from source when the ORG_HOME environment variable is set
-(when (getenv "ORG_HOME")
-  (let ((org-lisp-dir (expand-file-name "lisp" (getenv "ORG_HOME"))))
-    (when (file-directory-p org-lisp-dir)
-      (add-to-list 'load-path org-lisp-dir)
-      (require 'org))))
-
 (defun starter-kit-fast-load (&optional file)
   "Load starter kit configuration FILE. A FILE can be file name such as
 \"starter-kit-defuns.org\" or base-base configuration name such as \"defuns\"
@@ -74,11 +67,6 @@ without loading the org FILE; otherwise the org FILE will be loaded by
     ;; remember this directory
     (setq starter-kit-dir
           ,(file-name-directory (or load-file-name (buffer-file-name))))
-    ;; only load org-mode later if we didn't load it just now
-    ,(unless (and (getenv "ORG_HOME")
-                  (file-directory-p
-                   (expand-file-name "lisp" (getenv "ORG_HOME"))))
-       '(require 'org))
     ;; load up the starter kit.
     ;; As the initial value of `org-babel-load-languages' is '(emacs-lisp . t),
     ;; only the emacs-lisp code block will be loaded.
