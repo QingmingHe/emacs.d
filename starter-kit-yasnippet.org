@@ -17,14 +17,14 @@ inspired by TextMate's templating syntax.
 (setq yas-indent-line 'fixed)
 ;; Don't re-activate snippet fields after undo/redo
 (setq yas-snippet-revival nil)
-(require 'yasnippet)
-(yas-global-mode 1)
 ;; disable tab for `yas-minor-mode' and `yas-keymap' for each mode has its
 ;; own tab
-(define-key yas-minor-mode-map (kbd "<tab>") nil)
-(define-key yas-minor-mode-map (kbd "TAB") nil)
-(define-key yas-keymap [(tab)] nil)
-(define-key yas-keymap (kbd "TAB") nil)
+(with-eval-after-load 'yasnippet
+  (define-key yas-minor-mode-map (kbd "<tab>") nil)
+  (define-key yas-minor-mode-map (kbd "TAB") nil)
+  (define-key yas-keymap [(tab)] nil)
+  (define-key yas-keymap (kbd "TAB") nil))
+(yas-global-mode 1)
 #+END_SRC
 
 ** Snippet mode
@@ -46,7 +46,8 @@ $0")
 #+begin_src emacs-lisp
 (defun snippet-mode-setup ()
   (define-key yas-keymap (read-kbd-macro "TAB") 'yas-next-field))
-(add-hook 'snippet-mode-hook 'snippet-mode-setup)
+(with-eval-after-load 'yasnippet
+  (add-hook 'snippet-mode-hook 'snippet-mode-setup))
 #+end_src
 
 ** Configure Yasnippets for Org Mode

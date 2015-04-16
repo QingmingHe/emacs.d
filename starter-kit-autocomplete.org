@@ -6,8 +6,6 @@
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
-(when (executable-find "clang")
-  (require 'auto-complete-clang))
 
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
@@ -37,10 +35,6 @@
 (global-auto-complete-mode t)
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
 #+END_SRC
-
-** Fortran
-
-Use project-ac-etags which is set up itself.
 
 ** Emacs lisp
 
@@ -108,9 +102,11 @@ adequate for most of the cases. For C++, path of standard libraries should be
 added.
 
 #+begin_src emacs-lisp
-(when (featurep 'auto-complete-clang)
-  (add-hook 'c++-mode-hook 'add-c++-include-paths-general)
-  (add-hook 'c-mode-hook 'add-c-include-paths-general))
+(with-eval-after-load 'cc-mode
+  (when (executable-find "clang")
+    (require 'auto-complete-clang)
+    (add-hook 'c++-mode-hook 'add-c++-include-paths-general)
+    (add-hook 'c-mode-hook 'add-c-include-paths-general)))
 
 (defun add-c-include-paths-general ()
   (setq-local ac-clang-flags (prj/c-include-paths-general "c")))

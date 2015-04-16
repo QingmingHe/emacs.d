@@ -65,7 +65,8 @@ without loading the org FILE; otherwise the org FILE will be loaded by
       (load-file elisp-file))
     (message
      (format "%s consumes %.06f to load."
-             file (float-time (time-since last-time))))))
+             (or file "starter-kit.org")
+             (float-time (time-since last-time))))))
 
 ;; load the starter kit from the `after-init-hook' so all packages are loaded
 (add-hook 'after-init-hook
