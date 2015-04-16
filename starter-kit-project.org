@@ -11,9 +11,14 @@ First define projects.
 #+BEGIN_SRC emacs-lisp
 (setq prj/update-tags-verbose nil)
 (setq prj/touch-cmake-at-create t)
-(require 'project)
-(global-project-mode 1)
-(prj/setup)
+(setq project-mode-loaded nil)
+(defun lazy-load-project-mode ()
+  (unless project-mode-loaded
+    (require 'project)
+    (global-project-mode 1)
+    (prj/setup)
+    (setq project-mode-loaded t)))
+(add-hook 'find-file-hook 'lazy-load-project-mode)
 
 (setq project-roots
       `(("CExamples"
@@ -183,7 +188,6 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 #+END_SRC
 
 ** How to use imenu, ctags and taglist
-
 **** Key bindings
 See [[~/.emacs.d/starter-kit-evil.org]] for key bindings.
 

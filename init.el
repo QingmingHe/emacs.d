@@ -36,6 +36,37 @@
       (add-to-list 'load-path org-lisp-dir)
       (require 'org))))
 
+(defun starter-kit-fast-load (&optional file)
+  "Load starter kit configuration FILE. A FILE can be file name such as
+\"starter-kit-defuns.org\" or base-base configuration name such as \"defuns\"
+or nil which means file starter-kit.org. If the corresponding elisp file of
+org FILE exists and not older than the org FILE, It will be loaded directly
+without loading the org FILE; otherwise the org FILE will be loaded by
+`org-babel-load-file'."
+  (let* ((last-time (current-time))
+         (org-file
+          (expand-file-name
+           (cond ((not file) "starter-kit.org")
+		 ((string-match "starter-kit-.+\.org" file) file)
+                 (t (format "starter-kit-%s.org" file)))
+           starter-kit-dir))
+         (elisp-file
+          (expand-file-name
+           (format "%s.el" (file-name-base org-file))
+           starter-kit-dir)))
+    (if (or
+         (not (file-exists-p elisp-file))
+         (time-less-p
+          (nth 5 (file-attributes elisp-file))
+          (nth 5 (file-attributes org-file))))
+        (progn
+          (message "Loading %s ..." org-file)
+          (org-babel-load-file org-file))
+      (load-file elisp-file))
+    (message
+     (format "%s consumes %.06f to load."
+             file (float-time (time-since last-time))))))
+
 ;; load the starter kit from the `after-init-hook' so all packages are loaded
 (add-hook 'after-init-hook
  `(lambda ()
@@ -50,6 +81,6 @@
     ;; load up the starter kit.
     ;; As the initial value of `org-babel-load-languages' is '(emacs-lisp . t),
     ;; only the emacs-lisp code block will be loaded.
-    (org-babel-load-file (expand-file-name "starter-kit.org" starter-kit-dir))))
+    (starter-kit-fast-load)))
 
 ;;; init.el ends here

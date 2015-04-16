@@ -19,7 +19,10 @@ Things that don't fit anywhere else.
 #+begin_src emacs-lisp
 (setq epa-file-cache-passphrase-for-symmetric-encryption nil)
 (setq epa-file-inhibit-auto-save t)
-(auto-encryption-mode 1)
+(defun lazy-load-auto-encryption-mode ()
+  (unless auto-encryption-mode
+    (auto-encryption-mode 1)))
+(add-hook 'find-file-hook 'lazy-load-auto-encryption-mode)
 #+end_src
 
 ** Ensure server safe in windows
@@ -56,21 +59,33 @@ previously visited the same file.
 #+BEGIN_SRC emacs-lisp
 (setq-default save-place t)
 (setq save-place-file (concat starter-kit-dir ".saved-places"))
-(require 'saveplace)
+(setq saveplace-loaded nil)
+(defun lazy-load-saveplace ()
+  (unless saveplace-loaded
+    (require 'saveplace)
+    (setq saveplace-loaded t)))
+(add-hook 'find-file-hook 'lazy-load-saveplace)
 #+END_SRC
 
 ** Transparently open compressed files
 
 #+begin_src emacs-lisp
-(auto-compression-mode t)
+(defun lazy-load-auto-compression-mode ()
+  (unless auto-compression-mode
+    (auto-compression-mode t)))
+(add-hook 'find-file-hook 'lazy-load-auto-compression-mode)
 #+end_src
 
 ** Save a list of recent files visited
 
 #+begin_src emacs-lisp
+(defun lazy-load-recentf ()
+  (unless recentf-mode
+    (recentf-mode))
+  (recentf-track-opened-file))
 (setq recentf-max-saved-items 1000
-      recentf-exclude '("/tmp/" "/ssh:"))
-(recentf-mode 1)
+      recentf-exclude '("/tmp/" "/ssh:" "\\.git/"))
+(add-hook 'find-file-hook 'lazy-load-recentf)
 #+end_src
 
 ** Seed the random number
@@ -104,13 +119,10 @@ live in the =/tmp= directory.
 ** Always auto revert file
 
 #+BEGIN_SRC emacs-lisp
-(global-auto-revert-mode 1)
-#+END_SRC
-
-** Enable erase buffer
-
-#+BEGIN_SRC emacs-lisp
-(put 'erase-buffer 'disabled nil)
+(defun lazy-load-auto-revert-mode ()
+  (unless global-auto-revert-mode
+    (global-auto-revert-mode 1)))
+(add-hook 'find-file-hook 'lazy-load-auto-revert-mode)
 #+END_SRC
 
 ** 80 Column Rule; auto fill
@@ -157,14 +169,6 @@ Recover previous windows configuration when quitting ediff.
   `(add-hook 'ediff-after-quit-hook-internal 'winner-undo))
 #+END_SRC
 
-** Don't disable narrowing commands
-
-#+begin_src emacs-lisp
-(put 'narrow-to-page 'disable nil)
-(put 'narrow-to-defun 'disable nil)
-(put 'narrow-to-region 'disable nil)
-#+end_src
-
 ** Executable scripts
 
 #+begin_src emacs-lisp
@@ -175,16 +179,19 @@ Recover previous windows configuration when quitting ediff.
 ** Cleanup white spaces
 
 #+begin_src emacs-lisp
-(require 'whitespace-cleanup-mode)
-(defun turn-on-whitespace-cleanup-mode ()
-  "Rewrite `turn-on-whitespace-cleanup-mode' of `whitespace-cleanup-mode' so
+(with-eval-after-load 'whitespace-cleanup-mode
+  (defun turn-on-whitespace-cleanup-mode ()
+    "Rewrite `turn-on-whitespace-cleanup-mode' of `whitespace-cleanup-mode' so
 that `whitespace-cleanup-mode' will not turn on for large files whose size are
 larger than `large-file-warning-threshold'."
-  (unless (or (minibufferp)
-              (apply 'derived-mode-p whitespace-cleanup-mode-ignore-modes)
-              (>= (buffer-size) large-file-warning-threshold))
-    (whitespace-cleanup-mode 1)))
-(global-whitespace-cleanup-mode)
+    (unless (or (minibufferp)
+                (apply 'derived-mode-p whitespace-cleanup-mode-ignore-modes)
+                (>= (buffer-size) large-file-warning-threshold))
+      (whitespace-cleanup-mode 1))))
+(defun lazy-load-whitespace-cleanup-mode ()
+  (unless global-whitespace-cleanup-mode
+    (global-whitespace-cleanup-mode 1)))
+(add-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)
 #+end_src
 
 ** Tramp
@@ -266,6 +273,10 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 #+begin_src emacs-lisp
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
+(put 'narrow-to-page 'disable nil)
+(put 'narrow-to-defun 'disable nil)
+(put 'narrow-to-region 'disable nil)
+(put 'erase-buffer 'disabled nil)
 ;; may be dangerous
 ;; (setq disabled-command-function nil)
 #+end_src

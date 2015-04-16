@@ -64,14 +64,11 @@ a lambda doesn't already exist in the list.
 
 [[help:show-paren-mode][show-paren-mode]] and [[help:electric-pair-mode][electric-pair-mode]] are lighter than smartparens and
 minimally intrusive.
-#+srcname: starter-kit-match-parens
 #+begin_src emacs-lisp
+(setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)
 (show-paren-mode 1)
 (electric-pair-mode 1)
-(setq electric-pair-open-newline-between-pairs t)
-(setq electric-pair-pairs
-      '((?\" . ?\")
-        (?{ . ?})))
 #+end_src
 
 ** Show function name in the header line                                        :which:function:mode:
@@ -82,22 +79,23 @@ minimally intrusive.
                     org-mode perl-mode ruby-mode scheme-mode
                     rst-mode markdown-mode))
 (defun starter-kit-which-func-format ()
-  (setq-local which-func-unknown "n/a")
-  (setq-local header-line-format
-              '((which-func-mode ("" which-func-format " "))))
-  (setq-local mode-line-misc-info
-              (assq-delete-all 'which-func-mode mode-line-misc-info)))
-(defun starter-kit-turn-off-which-func ()
-  (setq-local header-line-format nil)
-  (setq-local mode-line-misc-info
-              (assq-delete-all 'which-func-mode mode-line-misc-info)))
+  (if (eq major-mode 'lisp-interaction-mode)
+      (progn
+        (setq-local header-line-format nil)
+        (setq-local mode-line-misc-info
+                    (assq-delete-all 'which-func-mode mode-line-misc-info)))
+    (unless which-function-mode
+      (which-function-mode 1))
+    (setq-local which-func-unknown "n/a")
+    (setq-local header-line-format
+                '((which-func-mode ("" which-func-format " "))))
+    (setq-local mode-line-misc-info
+                (assq-delete-all 'which-func-mode mode-line-misc-info))))
 (mapc
  (lambda (mode)
    (add-hook (intern (format "%s-hook" (symbol-name mode)))
              'starter-kit-which-func-format))
  which-func-modes)
-(add-hook 'lisp-interaction-mode-hook 'starter-kit-turn-off-which-func t)
-(which-function-mode 1)
 #+end_src
 
 ** CMake mode
