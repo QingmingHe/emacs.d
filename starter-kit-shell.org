@@ -175,8 +175,8 @@ shell file name to be bash. Don't add =--login= to explicit-bash-args, or
 shell will run at =~/= path with the =default-directory= to be that of
 previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
-(eval-after-load "shell"
-  `(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
 (setq explicit-shell-file-name (executable-find "bash"))
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src

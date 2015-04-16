@@ -61,10 +61,7 @@ To install jedi manually:
   (setq imenu-create-index-function 'python-imenu-create-index)
   (modify-syntax-entry ?_ "w")
   (setq prettify-symbols-alist
-        '(("!=" . ?≠)
-          (">=" . ?≥)
-          ("<=" . ?≤)
-          ("lambda" . ?λ)))
+        '(("lambda" . ?λ)))
   (prettify-symbols-mode 1))
 
 (with-eval-after-load 'python

@@ -134,13 +134,12 @@ added.
 ** CMake
 
 #+begin_src emacs-lisp
-(when (executable-find "cmake")
-  (eval-after-load "cmake-mode"
-    `(progn
-       (require 'auto-complete-cmake)
-       (add-hook 'cmake-mode-hook
-                 (lambda ()
-                   (add-to-list 'ac-sources 'ac-source-cmake))))))
+(with-eval-after-load 'cmake-mode
+  (when (executable-find "cmake")
+    (require 'auto-complete-cmake)
+    (add-hook 'cmake-mode-hook
+              (lambda ()
+                (add-to-list 'ac-sources 'ac-source-cmake)))))
 #+end_src
 
 ** Comment
