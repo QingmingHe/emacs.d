@@ -11,11 +11,13 @@ First define projects.
 #+BEGIN_SRC emacs-lisp
 (setq prj/update-tags-verbose nil)
 (setq prj/touch-cmake-at-create t)
+(setq prj/global-mode-loaded nil)
 (defun lazy-load-project-mode ()
-  (unless global-project-mode
+  (unless prj/global-mode-loaded
     (require 'project)
     (global-project-mode 1)
     (prj/setup)
+    (setq prj/global-mode-loaded t)
     (remove-hook 'find-file-hook 'lazy-load-project-mode)))
 (add-hook 'find-file-hook 'lazy-load-project-mode)
 
