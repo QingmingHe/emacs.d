@@ -65,10 +65,12 @@ a lambda doesn't already exist in the list.
 [[help:show-paren-mode][show-paren-mode]] and [[help:electric-pair-mode][electric-pair-mode]] are lighter than smartparens and
 minimally intrusive.
 #+begin_src emacs-lisp
-(setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)
 (show-paren-mode 1)
 (electric-pair-mode 1)
+(setq electric-pair-open-newline-between-pairs t)
+(setq electric-pair-pairs
+      '((?\" . ?\")
+        (?{ . ?})))
 #+end_src
 
 ** Show function name in the header line                                        :which:function:mode:

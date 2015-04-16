@@ -26,7 +26,7 @@ saved globally.
 (setq history-length 128)
 (setq kill-ring-max 128)
 (setq regexp-search-ring-max 128)
-(setq desktop-auto-save-timeout 120)
+(setq desktop-auto-save-timeout 600)
 (setq desktop-globals-to-save
       '((extended-command-history     . history-length)
         (file-name-history            . history-length)
@@ -46,8 +46,7 @@ saved globally.
         (dired-regexp-history         . history-length)
         (dired-shell-command-history  . history-length)
         (desktop-missing-file-warning . history-length)
-        (register-alist               . history-length)
-        (kill-ring                    . history-length)))
+        (register-alist               . history-length)))
 
 (defadvice desktop-save (around del-dup-desktop-save activate)
   (mapc

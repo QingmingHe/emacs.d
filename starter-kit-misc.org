@@ -21,7 +21,11 @@ Things that don't fit anywhere else.
 (setq epa-file-inhibit-auto-save t)
 (defun lazy-load-auto-encryption-mode ()
   (unless auto-encryption-mode
-    (auto-encryption-mode 1)))
+    (let* ((fname (buffer-file-name))
+           (ext (when fname (file-name-extension fname))))
+      (when (and ext (string= ext "gpg"))
+        (auto-encryption-mode 1)
+        (remove-hook 'find-file-hook 'lazy-load-auto-encryption-mode)))))
 (add-hook 'find-file-hook 'lazy-load-auto-encryption-mode)
 #+end_src
 
@@ -45,13 +49,6 @@ emacsclient -t FILE
   (server-start))
 #+END_SRC
 
-** Winner mode
-
-Winner mode enables you goto previous windows configuration easily.
-#+BEGIN_SRC emacs-lisp
-(winner-mode 1)
-#+END_SRC
-
 ** Save places in opened files
 
 When you visit a file, point goes to the last place where it was when you
@@ -63,29 +60,49 @@ previously visited the same file.
 (defun lazy-load-saveplace ()
   (unless saveplace-loaded
     (require 'saveplace)
-    (setq saveplace-loaded t)))
+    (save-place-find-file-hook)
+    (setq saveplace-loaded t)
+    (remove-hook 'find-file-hook 'lazy-load-saveplace)))
 (add-hook 'find-file-hook 'lazy-load-saveplace)
 #+END_SRC
 
 ** Transparently open compressed files
 
 #+begin_src emacs-lisp
+(defun my-compressed-file-p ()
+  (let ((fname (buffer-file-name))
+        (ext (when fname (file-name-extension fname))))
+    (and
+     ext
+     (string-match
+      "\\(Z\\|bz2\\|tbz2?\\|tgz\\|svgz\\|sifz\\|g?z\\|lz\\|lzma\\|xz\\|txz\\|dz\\|\\)\\'"
+      ext))))
 (defun lazy-load-auto-compression-mode ()
-  (unless auto-compression-mode
-    (auto-compression-mode t)))
+  (when (and
+         (not auto-compression-mode)
+         (my-compressed-file-p))
+    (auto-compression-mode t)
+    (remove-hook 'find-file-hook 'lazy-load-auto-compression-mode)))
 (add-hook 'find-file-hook 'lazy-load-auto-compression-mode)
 #+end_src
 
 ** Save a list of recent files visited
 
 #+begin_src emacs-lisp
+(defun my-clean-and-save-recentf ()
+  (interactive)
+  (recentf-cleanup)
+  (recentf-save-list))
 (defun lazy-load-recentf ()
   (unless recentf-mode
-    (recentf-mode))
-  (recentf-track-opened-file))
+    (recentf-mode)
+    (recentf-track-opened-file)
+    (remove-hook 'find-file-hook 'lazy-load-recentf)))
 (setq recentf-max-saved-items 1000
       recentf-exclude '("/tmp/" "/ssh:" "\\.git/"))
 (add-hook 'find-file-hook 'lazy-load-recentf)
+(setq recentf-clean-and-save-timer
+      (run-with-idle-timer 600 t 'my-clean-and-save-recentf))
 #+end_src
 
 ** Seed the random number
@@ -121,7 +138,8 @@ live in the =/tmp= directory.
 #+BEGIN_SRC emacs-lisp
 (defun lazy-load-auto-revert-mode ()
   (unless global-auto-revert-mode
-    (global-auto-revert-mode 1)))
+    (global-auto-revert-mode 1)
+    (remove-hook 'find-file-hook 'lazy-load-auto-revert-mode)))
 (add-hook 'find-file-hook 'lazy-load-auto-revert-mode)
 #+END_SRC
 
@@ -165,8 +183,6 @@ Recover previous windows configuration when quitting ediff.
 (setq vc-diff-switches '("-b" "-B" "-u"))
 (setq vc-git-diff-switches nil)
 (setq diff-switches "-u")
-(eval-after-load "ediff"
-  `(add-hook 'ediff-after-quit-hook-internal 'winner-undo))
 #+END_SRC
 
 ** Executable scripts
@@ -190,7 +206,8 @@ larger than `large-file-warning-threshold'."
       (whitespace-cleanup-mode 1))))
 (defun lazy-load-whitespace-cleanup-mode ()
   (unless global-whitespace-cleanup-mode
-    (global-whitespace-cleanup-mode 1)))
+    (global-whitespace-cleanup-mode 1)
+    (remove-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)))
 (add-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)
 #+end_src
 
