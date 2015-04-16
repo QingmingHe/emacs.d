@@ -94,7 +94,7 @@ You really don't need this; trust me.
 (when window-system
   (setq frame-title-format '(buffer-file-name "%f" (:eval default-directory)))
   (blink-cursor-mode -1)
-  (scroll-bar-mode 0)
+  (scroll-bar-mode -1)
   (tooltip-mode -1)
   (tool-bar-mode -1)
   (when (require 'mwheel nil 'no-error) (mouse-wheel-mode t)))

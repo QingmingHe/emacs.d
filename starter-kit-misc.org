@@ -73,8 +73,8 @@ previously visited the same file.
 #+begin_src emacs-lisp
 (setq my-autocompression-loaded nil)
 (defun my-compressed-file-p ()
-  (let ((fname (buffer-file-name))
-        (ext (when fname (file-name-extension fname))))
+  (let* ((fname (buffer-file-name))
+         (ext (when fname (file-name-extension fname))))
     (and
      ext
      (string-match
