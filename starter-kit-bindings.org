@@ -155,7 +155,7 @@ Use *jk* key chord to quite everything.
 (key-chord-mode 1)
 #+end_src
 
-I have do some hack with isearch to do reproduce the *jk* magic.
+I have do some hack with isearch to reproduce the *jk* magic.
 #+begin_src emacs-lisp
 (defun isearch-enable-key-chord ()
   (key-chord-mode 1)
@@ -344,4 +344,10 @@ Don't guess file name in Dired buffer:
   (when (bound-and-true-p ido-use-filename-at-point)
     (setq-local ido-use-filename-at-point nil)))
 (add-hook 'dired-mode-hook #'my/ido-ignore-file-at-point)
+#+end_src
+
+Just use *C-o* to invoke in other window, no need to remember the key of
+[[help:ido-find-file-other-window][ido-find-file-other-window]] or something like that.
+#+begin_src emacs-lisp
+(require 'ido-other-window)
 #+end_src
