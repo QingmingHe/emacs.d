@@ -186,12 +186,6 @@ Meta key is too far away to press. I use six windows at most.
 (key-chord-define evil-insert-state-map "df" 'evil-insert-state-append-space)
 #+end_src
 
-*** Misc
-
-#+begin_src emacs-lisp
-(key-chord-define-global "iw" 'flyspell-correct-word-before-point)
-#+end_src
-
 ** Super TAB for program modes
 
 #+begin_src emacs-lisp
