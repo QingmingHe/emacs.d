@@ -1,5 +1,5 @@
-# -*- mode: snippet; require-final-newline: nil -*-
-# name: .TRUE.
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .true.
 # key: t
 # --
 .TRUE.

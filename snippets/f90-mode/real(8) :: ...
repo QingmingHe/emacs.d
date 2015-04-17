@@ -2,4 +2,4 @@
 # name: real(8) :: ...
 # key: re
 # --
-real$1 :: $0 !
+real(8)$1 :: $0 !

@@ -74,7 +74,10 @@ type(SomeType) :: atype ! object of SomeType"
   (interactive "P")
   (if arg
       (call-interactively 'align-regexp)
-    (align-regexp (region-beginning) (region-end) "\\(\\s-*\\)!" 1 1 nil)))
+    (align-regexp (region-beginning)
+                  (region-end)
+                  "[a-zA-Z0-9_)\\.\"]\\(\\s-*\\)!"
+                  1 1 nil)))
 (with-eval-after-load 'f90
   (define-key f90-mode-map (kbd "M-\\") 'f90-align-comment-or-regexp))
 #+END_SRC

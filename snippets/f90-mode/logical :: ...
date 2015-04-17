@@ -2,4 +2,4 @@
 # name: logical :: ...
 # key: lo
 # --
-logical :: $0 !< 
+logical :: $0 !

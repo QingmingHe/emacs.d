@@ -54,6 +54,34 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (global-set-key "\C-cj" 'org-clock-goto)
 #+end_src
 
+#+begin_src emacs-lisp :tangle no
+(defmacro with-defhydra (name keymap key &rest hydradef)
+  (let ((name-defined (intern (format "defhydra-%s-defined-p" name)))
+        (hydra-body-name (intern (concat name "/body"))))
+    `(progn
+       (setq ,name-defined nil)
+       (define-key ,keymap ,key
+         (lambda ()
+           (interactive)
+           (unless ,name-defined
+             (defhydra (intern ,name) nil
+               ,name
+               ,@hydradef)
+             (setq ,name-defined t))
+           (call-interactively ',hydra-body-name))))))
+
+(with-defhydra
+ "hydra-org"
+ global-map
+ (kbd "C-c o")
+ ("c" org-capture "capture")
+ ("l" org-store-link "storeLink")
+ ("L" org-insert-link "insertLink")
+ ("j" org-clock-goto "clockGoTo")
+ ("a" org-agenda "agenda")
+ ("q" nil "quit"))
+#+end_src
+
 ** Cycle case of word or region
 
 #+begin_src emacs-lisp
@@ -102,30 +130,37 @@ to expand or contract region.
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
 
-** Run shell command asynchronously by default
-
-#+begin_src emacs-lisp :tangle no
-(global-set-key (kbd "M-!") 'async-shell-command)
-#+end_src
-
 ** Key Chord mode
 *** Use *jk* to quite every thing
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
-(require 'key-chord)
+(defun evil-exit-emacs-to-normal ()
+  (interactive)
+  (evil-exit-emacs-state)
+  (evil-normal-state))
 (setq key-chord-two-keys-delay 0.05)
 (eval-after-load 'evil
   `(progn
      (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
      (key-chord-define evil-normal-state-map "jk" 'keyboard-quit)
-     (key-chord-define evil-visual-state-map "jk" 'keyboard-quit)))
+     (key-chord-define evil-ex-completion-map "jk" 'abort-recursive-edit)
+     (key-chord-define evil-emacs-state-map "jk" 'evil-exit-emacs-to-normal)
+     (key-chord-define evil-visual-state-map "jk" 'evil-exit-visual-state)))
 (key-chord-define minibuffer-local-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-ns-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-completion-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-must-match-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-mode 1)
+#+end_src
+
+I have do some hack with isearch to do reproduce the *jk* magic.
+#+begin_src emacs-lisp
+(defun isearch-enable-key-chord ()
+  (key-chord-mode 1)
+  (key-chord-define isearch-mode-map "jk" 'isearch-cancel))
+(add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
 #+end_src
 
 *** Use key chord to select window
@@ -277,7 +312,6 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 (setq ido-enable-prefix nil
       ido-enable-flex-matching t
       ido-create-new-buffer 'always
-      ido-use-filename-at-point nil
       ido-use-virtual-buffers t
       ido-auto-merge-work-directories-length -1
       ido-save-directory-list-file (concat starter-kit-dir ".ido.last")

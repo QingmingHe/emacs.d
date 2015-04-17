@@ -77,12 +77,10 @@ you just key in *M-n* to jump to n-th window numbered by the plugin.
 
 ** Emacs Layout
 
-It's not easy to recognize the completion words in horizontally split window
-if two windows are already split horizontally. Therefore set Emacs to split
-vertically by default.
+Set Emacs split to horizontal by default.
 #+BEGIN_SRC emacs-lisp
 (setq split-height-threshold nil)
-(setq split-width-threshold 160)
+(setq split-width-threshold 0)
 #+END_SRC
 
 ** All kinds of bars

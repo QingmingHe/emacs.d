@@ -137,10 +137,11 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 (define-key isearch-mode-map (kbd "M-%") 'evil-replace-from-isearch)
 #+end_src
 
-*** Pinyin search
+*** Pinyin search and other
 
 #+begin_src emacs-lisp
 (define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
+(define-key isearch-mode-map "\C-g" #'isearch-cancel)
 #+end_src
 
 ** Occur
