@@ -80,7 +80,7 @@ you just key in *M-n* to jump to n-th window numbered by the plugin.
 Set Emacs split to horizontal by default.
 #+BEGIN_SRC emacs-lisp
 (setq split-height-threshold nil)
-(setq split-width-threshold 0)
+(setq split-width-threshold 160)
 #+END_SRC
 
 ** All kinds of bars

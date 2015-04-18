@@ -6,7 +6,8 @@
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'flycheck
-  (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+  (when (window-system)
+    (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages)))
 (setq flycheck-display-errors-delay 0.5)
 #+end_src
 
@@ -89,7 +90,7 @@ Select checker for that flake8 is not always available.
          (not
           (member (file-name-nondirectory (buffer-file-name))
                   '("SConstruct" "SConscript"))))
-    (flycheck-select-checker my-flycheck-python-setup)
+    (flycheck-select-checker my-flycheck-py-checker)
     (setq-local flycheck-check-syntax-automatically '(mode-enabled save))
     (flycheck-mode)))
 

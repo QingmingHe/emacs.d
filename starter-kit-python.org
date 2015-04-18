@@ -58,6 +58,7 @@ To install jedi manually:
   (when jedi-is-installed
     (jedi:setup))
   (highlight-indentation-current-column-mode)
+  (sphinx-doc-mode 1)
   (setq imenu-create-index-function 'python-imenu-create-index)
   (modify-syntax-entry ?_ "w")
   (setq prettify-symbols-alist
