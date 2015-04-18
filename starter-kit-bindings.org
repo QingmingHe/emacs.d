@@ -28,13 +28,11 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
            (= (line-beginning-position) cur-point))
       (back-to-indentation))))
 
-(global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
 (global-set-key [remap move-end-of-line] 'end-of-visual-line)
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "0") 'move-beginning-of-line-dwim)
   (define-key evil-normal-state-map (kbd "$") 'end-of-visual-line))
 (with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-a") 'move-beginning-of-line-dwim)
   (define-key org-mode-map (kbd "C-e") 'end-of-visual-line))
 #+end_src
 
@@ -109,11 +107,15 @@ Toggles between: all lower, Init Caps, ALL CAPS."
 
       (cond
        ((string= "all lower" (get this-command 'state))
-        (upcase-initials-region p1 p2) (put this-command 'state "init caps"))
-       ((string= "init caps" (get this-command 'state))
-        (upcase-region p1 p2) (put this-command 'state "all caps"))
+        (upcase-region p1 p2)
+        (put this-command 'state "all caps"))
        ((string= "all caps" (get this-command 'state))
-        (downcase-region p1 p2) (put this-command 'state "all lower"))))))
+        (downcase-region p1 p2)
+        (upcase-initials-region p1 p2)
+        (put this-command 'state "init caps"))
+       ((string= "init caps" (get this-command 'state))
+        (downcase-region p1 p2)
+        (put this-command 'state "all lower"))))))
 (global-set-key (kbd "M-u") 'xah-toggle-letter-case)
 #+end_src
 
