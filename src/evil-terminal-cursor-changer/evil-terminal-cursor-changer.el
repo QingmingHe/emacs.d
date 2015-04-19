@@ -63,19 +63,25 @@
 
 (defun etcc--on-iterm? ()
   "Running on iTerm."
-  (string= (getenv "TERM_PROGRAM") "iTerm.app"))
+  (and
+   (getenv "TERM_PROGRAM")
+   (string= (getenv "TERM_PROGRAM") "iTerm.app")))
 
 (defun etcc--on-xterm? ()
   "Runing on xterm."
-  (downcase (getenv "XTERM_VERSION")))
+  (and
+   (getenv "XTERM_VERSION")
+   (downcase (getenv "XTERM_VERSION"))))
 
 (defun etcc--on-gnome-terminal? ()
   "Running on gnome-terminal."
-  (string= (getenv "COLORTERM") "gnome-terminal"))
+  (and
+   (getenv "COLORTERM")
+   (string= (getenv "COLORTERM") "gnome-terminal")))
 
 (defun etcc--on-konsole? ()
   "Running on konsole."
-  (if (getenv "KONSOLE_PROFILE_NAME") t nil))
+  (getenv "KONSOLE_PROFILE_NAME"))
 
 (defun etcc--on-tmux? ()
   "Running on tmux."
