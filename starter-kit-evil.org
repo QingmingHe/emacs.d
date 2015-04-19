@@ -307,10 +307,48 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 
 ** Cursor in terminal
 
++ It's hard to distinguish between insert state and normal state if the cursor
+  is a block at both state in terminal. Better to switch to a bar in insert
+  state just as in Gui.
++ I've no idea how to determine whether Emacs is running in Mintty and
+  Tmux. So if all other conditions are not met, just fallback to
+  set-evil-cursor-mintty-tmux or set-evil-cursor-mintty-no-tmux.
++ To change cursor display in terminal:
+  #+begin_src sh :tangle no
+  echo -ne "\ePtmux;\e\e[3 q\e\\"
+  #+end_src
+  However, call this command by [[help:call-process][call-process]] or [[help:shell-command][shell-command]] don't work at
+  all. [[help:send-string-to-terminal][send-string-to-terminal]] works fine.
 #+begin_src emacs-lisp
+(defun set-evil-cursor-mintty-tmux ()
+  (when (evil-emacs-state-p)
+    (send-string-to-terminal "\ePtmux;\e\e[3 q\e\\"))
+  (when (evil-insert-state-p)
+    (send-string-to-terminal "\ePtmux;\e\e[5 q\e\\"))
+  (when (evil-normal-state-p)
+    (send-string-to-terminal "\ePtmux;\e\e[1 q\e\\")))
+
+(defun set-evil-cursor-mintty-no-tmux ()
+  (when (evil-emacs-state-p)
+    (send-string-to-terminal "\e\e[3 q\e\\"))
+  (when (evil-insert-state-p)
+    (send-string-to-terminal "\e\e[5 q\e\\"))
+  (when (evil-normal-state-p)
+    (send-string-to-terminal "\e\e[1 q\e\\")))
+
 (unless (display-graphic-p)
-  (setq evil-visual-state-cursor 'box)
-  (setq evil-insert-state-cursor 'bar)
-  (setq evil-emacs-state-cursor 'hbar)
-  (require 'evil-terminal-cursor-changer))
+  (require 'evil-terminal-cursor-changer)
+  (if (not (or
+            (etcc--on-xterm?)
+            (etcc--on-iterm?)
+            (etcc--on-gnome-terminal?)
+            (etcc--on-konsole?)))
+      (progn
+        (remove-hook 'post-command-hook 'etcc--set-evil-cursor)
+        (if (etcc--on-tmux?)
+            (add-hook 'post-command-hook 'set-evil-cursor-mintty-tmux)
+          (add-hook 'post-command-hook 'set-evil-cursor-mintty-no-tmux)))
+    (setq evil-visual-state-cursor 'box)
+    (setq evil-insert-state-cursor 'bar)
+    (setq evil-emacs-state-cursor 'hbar)))
 #+end_src
