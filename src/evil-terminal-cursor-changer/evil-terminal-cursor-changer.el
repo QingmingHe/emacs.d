@@ -85,7 +85,7 @@
 
 (defun etcc--on-tmux? ()
   "Running on tmux."
-  (if (getenv "TMUX") t nil))
+  (getenv "TMUX"))
 
 (defun etcc--get-cursor-type (evil-cursor)
   "Return Evil cursor type for state."
