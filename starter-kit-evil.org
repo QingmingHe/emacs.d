@@ -304,3 +304,13 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
    (eshell-mode               . insert)
    (shell-mode                . insert)))
 #+END_SRC
+
+** Cursor in terminal
+
+#+begin_src emacs-lisp
+(unless (display-graphic-p)
+  (setq evil-visual-state-cursor 'box)
+  (setq evil-insert-state-cursor 'bar)
+  (setq evil-emacs-state-cursor 'hbar)
+  (require 'evil-terminal-cursor-changer))
+#+end_src
