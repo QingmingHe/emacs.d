@@ -492,9 +492,31 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 
 This should be placed at end of starter kit and configures the initial
 windows.
+
+*** Don't show Emacs tutorial
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-splash-screen t)
 (setq debug-on-error nil)
+#+END_SRC
+
+*** Ensure server safe in windows
+
+On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
+redefine server-ensure-safe-dir function to suppress this kind of error.
+Besides, you should make =server-socket-dir= directory manually or server
+cannot start. After server started, summon Emacs in terminal by:
+#+begin_src sh :tangle no
+emacsclient -t FILE
+#+end_src
+
+#+BEGIN_SRC emacs-lisp
+(require 'server)
+(when *cygwin*
+  (defun server-ensure-safe-dir (dir) "Noop" t)
+  (unless (file-exists-p server-socket-dir)
+    (mkdir server-socket-dir)))
+(unless (server-running-p)
+  (server-start))
 #+END_SRC
 
 * Footnotes

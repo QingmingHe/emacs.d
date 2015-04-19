@@ -67,14 +67,6 @@ don't need it.
                       :strike-through t))
 #+end_src
 
-** Window numbering
-
-Changing from one window to another is so easy in Emacs with window number,
-you just key in *M-n* to jump to n-th window numbered by the plugin.
-#+BEGIN_SRC emacs-lisp
-(window-numbering-mode 1)
-#+END_SRC
-
 ** Emacs Layout
 
 Set Emacs split to horizontal by default.
@@ -195,3 +187,15 @@ WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
 #+begin_src emacs-lisp
 (load-theme 'zenburn t)
 #+end_src
+
+** Disable recentering
+
+For smooth scrolling and disabling the auto-recentering of emacs screen when
+moving cursor. Set scroll margin to be 4 so that an ape can see the following
+lines of codes.
+#+BEGIN_SRC emacs-lisp
+(setq scroll-step 1
+      scroll-conservatively 10000
+      auto-window-vscroll nil)
+(setq scroll-margin 4)
+#+END_SRC

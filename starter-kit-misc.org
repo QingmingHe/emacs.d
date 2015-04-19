@@ -31,26 +31,6 @@ Things that don't fit anywhere else.
 (add-hook 'find-file-hook 'lazy-load-auto-encryption-mode)
 #+end_src
 
-** Ensure server safe in windows
-
-On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
-redefine server-ensure-safe-dir function to suppress this kind of error.
-Besides, you should make =server-socket-dir= directory manually or server
-cannot start. After server started, summon Emacs in terminal by:
-#+begin_src sh :tangle no
-emacsclient -t FILE
-#+end_src
-
-#+BEGIN_SRC emacs-lisp
-(require 'server)
-(when *cygwin*
-  (defun server-ensure-safe-dir (dir) "Noop" t)
-  (unless (file-exists-p server-socket-dir)
-    (mkdir server-socket-dir)))
-(unless (server-running-p)
-  (server-start))
-#+END_SRC
-
 ** Save places in opened files
 
 When you visit a file, point goes to the last place where it was when you
@@ -161,18 +141,6 @@ continuation marker in code such as Fortran, two columns are spared.
       (indent-for-tab-command))))
 #+END_SRC
 
-** Disable recentering
-
-For smooth scrolling and disabling the auto-recentering of emacs screen when
-moving cursor. Set scroll margin to be 4 so that an ape can see the following
-lines of codes.
-#+BEGIN_SRC emacs-lisp
-(setq scroll-step 1
-      scroll-conservatively 10000
-      auto-window-vscroll nil)
-(setq scroll-margin 4)
-#+END_SRC
-
 ** Garbage collection
 
 Emacs GC is time consuming for that Emacs will initiate GC every 0.76 MB. We
@@ -183,11 +151,14 @@ set it to be 20 MB to save time.
 
 ** Ediff and diff
 
-Recover previous windows configuration when quitting ediff.
+Split window horizontally rather than vertically in Ediff.
 #+BEGIN_SRC emacs-lisp
 (setq vc-diff-switches '("-b" "-B" "-u"))
 (setq vc-git-diff-switches nil)
 (setq diff-switches "-u")
+(setq-default ediff-window-setup-function 'ediff-setup-windows-plain
+              ediff-split-window-function 'split-window-horizontally
+              ediff-merge-split-window-function 'split-window-horizontally)
 #+END_SRC
 
 ** Executable scripts
