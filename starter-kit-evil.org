@@ -93,6 +93,8 @@ back.
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "j") 'next-line)
 (define-key evil-normal-state-map (kbd "k") 'previous-line)
+(define-key evil-normal-state-map (kbd "/") 'isearch-forward-regexp)
+(define-key evil-normal-state-map (kbd "?") 'isearch-backward-regexp)
 #+end_src
 
 *** Ex completion map
@@ -184,7 +186,7 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
   "oc" 'occur-dwim
 
   ;; buffers, files
-  "bb" 'helm-mini
+  "bl" 'helm-mini
   "ff" 'ido-find-file
   "ss" (lambda (arg)
          "With prefix ARG, save all buffers and update tags for these files;

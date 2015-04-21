@@ -863,7 +863,7 @@ or `prj/ac-source-gtags'."
                      (= (point-min) (point-max)))
                 (mapc
                  (lambda (cmake-file)
-                   (call-process "touch" nil nil nil cmake-file))
+                   (call-process "touch" nil 0 nil cmake-file))
                  (prj/go-up-dir-find-file prj/cmake-list-file p
                                           (file-name-directory fname))))
               ;; add update tags hook, determine tags tool, generate tags,

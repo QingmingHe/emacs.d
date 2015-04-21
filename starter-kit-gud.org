@@ -86,6 +86,9 @@ is splitted vertically and limited to 10 lines height."
   `(progn
      (define-key c-mode-map (kbd "<f5>") 'compile-dwim)
      (define-key c++-mode-map (kbd "<f5>") 'compile-dwim)))
+(defun set-cmake-key-binding-compile ()
+  (local-set-key (kbd "<f5>") 'compile-dwim))
+(add-hook 'cmake-mode-hook 'set-cmake-key-binding-compile)
 #+end_src
 
 ** Gdb

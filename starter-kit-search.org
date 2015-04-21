@@ -60,6 +60,12 @@ Don't grep repositories and some files.
 #+end_src
 
 ** Incremental search
+*** Instantly highlight all matches
+
+#+begin_src emacs-lisp
+(setq lazy-highlight-initial-delay 0.1)
+#+end_src
+
 *** Use regexp search by default
 
 + *C-s* to repeat search
@@ -82,8 +88,6 @@ Don't grep repositories and some files.
                  isearch-string
                (regexp-quote isearch-string))))))
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-(with-eval-after-load 'evil
-  (define-key evil-motion-state-map (kbd "M-i") 'helm-swoop-from-evil-search))
 #+end_src
 
 *** Isearch yank do what I mean
@@ -142,6 +146,30 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 #+begin_src emacs-lisp
 (define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
 (define-key isearch-mode-map "\C-g" #'isearch-cancel)
+#+end_src
+
+*** Isearch and ace jump
+
+#+begin_src emacs-lisp
+(defun ace-word-from-input-or-search ()
+  (interactive)
+  (unless (featurep 'avy-jump)
+    (require 'avy-jump))
+  (if (or
+       (eq last-command 'evil-search-next)
+       (eq last-command 'evil-search-previous)
+       (eq last-command 'evil-search-word-forward)
+       (eq last-command 'evil-search-word-backward))
+      (let* ((candidates (avi--regex-candidates isearch-string))
+             (avi-background nil)
+             (candidate
+              (avi--process candidates #'avi--overlay-post)))
+        (avi--goto candidate))
+    (call-interactively #'avi-goto-word-1)))
+(with-eval-after-load 'evil
+  (define-key evil-normal-state-map (kbd "gl") 'avi-goto-line)
+  (define-key evil-normal-state-map (kbd "go") 'ace-word-from-input-or-search))
+(define-key isearch-mode-map (kbd ";") 'avi-isearch)
 #+end_src
 
 ** Occur
