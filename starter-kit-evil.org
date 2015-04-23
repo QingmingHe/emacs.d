@@ -120,6 +120,12 @@ back.
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
 
+  ;; buffer move
+  "bmh" 'buf-move-left
+  "bmj" 'buf-move-down
+  "bmk" 'buf-move-up
+  "bml" 'buf-move-right
+
   ;; fold and unfold
   "zz" (lambda ()
          "Toggle fold all lines larger than indentation on current line. Learn
