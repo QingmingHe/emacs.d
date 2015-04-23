@@ -31,6 +31,10 @@ First define projects.
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :use-auto-complete (f90-mode)
          :lighter "SUGAR")
+        ("mcnp"
+         :root-contains-files (".mcnp-root")
+         :exclude-paths ("run_tests" "Testing")
+         :lighter "mcnp")
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
          :exclude-paths ("backups" "auto-save-list")

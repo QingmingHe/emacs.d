@@ -150,6 +150,8 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 
 *** Isearch and ace jump
 
+If last command is a evil search command, *go* will go to one of the matching
+data. Otherwise ask for beginning character of a word and go there.
 #+begin_src emacs-lisp
 (defun ace-word-from-input-or-search ()
   (interactive)
@@ -170,6 +172,12 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
   (define-key evil-normal-state-map (kbd "gl") 'avi-goto-line)
   (define-key evil-normal-state-map (kbd "go") 'ace-word-from-input-or-search))
 (define-key isearch-mode-map (kbd ";") 'avi-isearch)
+#+end_src
+
+Push mark before jump.
+#+begin_src emacs-lisp
+(defadvice avi--goto (before push-mark-before-avi--goto activate)
+  (push-mark))
 #+end_src
 
 ** Occur
