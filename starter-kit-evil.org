@@ -93,8 +93,6 @@ back.
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "j") 'next-line)
 (define-key evil-normal-state-map (kbd "k") 'previous-line)
-(define-key evil-normal-state-map (kbd "/") 'isearch-forward-regexp)
-(define-key evil-normal-state-map (kbd "?") 'isearch-backward-regexp)
 #+end_src
 
 *** Ex completion map

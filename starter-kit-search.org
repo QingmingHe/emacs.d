@@ -185,14 +185,22 @@ Push mark before jump.
 #+begin_src emacs-lisp
 (defun isearch-del-fail-or-char ()
   (interactive)
-  (with-isearch-suspended
-   (setq isearch-new-string
-         (substring
-          isearch-string
-          0
-          (or (isearch-fail-pos) (1- (length isearch-string))))
-         isearch-new-message
-         (mapconcat 'isearch-text-char-description isearch-new-string ""))))
+  (if (= 0 (length isearch-string))
+      (progn
+        (ding)
+        (message "No more isearch string: "))
+    (setq isearch-string
+          (substring
+           isearch-string
+           0
+           (or (isearch-fail-pos) (1- (length isearch-string))))
+          isearch-message
+          (mapconcat 'isearch-text-char-description isearch-string ""))
+    (when isearch-other-end (goto-char isearch-other-end))
+    (isearch-search)
+    (isearch-push-state)
+    (isearch-update)))
+
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-fail-or-char)
 #+end_src
 
