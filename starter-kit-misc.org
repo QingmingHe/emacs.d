@@ -239,8 +239,11 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 
 ** Git and Magit
 
++ Use Ido with Magit.
++ Set the full path for Git make Magit a little bit faster.
 #+begin_src emacs-lisp
 (setq magit-completing-read-function 'magit-ido-completing-read)
+(setq magit-git-executable (executable-find "git"))
 #+end_src
 
 ** Auto indent after yank

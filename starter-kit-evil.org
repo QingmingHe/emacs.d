@@ -126,6 +126,10 @@ back.
   "bmk" 'buf-move-up
   "bml" 'buf-move-right
 
+  ;; make and debug
+  "ma" 'compile-dwim
+  "de" 'run-gdb-dwim
+
   ;; fold and unfold
   "zz" (lambda ()
          "Toggle fold all lines larger than indentation on current line. Learn
