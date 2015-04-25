@@ -112,9 +112,14 @@ to program from minibuffer."
    (when (cdr args) (mapconcat 'concat (cdr args) " "))
    nil))
 
-(when *cygwin*
-  (eval-after-load "dired"
-    `(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point)))
+(defun w32-browse-directory (dir)
+  (interactive
+   (list
+    (ido-read-directory-name "Directory: ")))
+  (w32-shell-execute "open" dir))
+
+(eval-after-load "dired"
+  `(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point))
 #+END_SRC
 
 ** Create Win32 shortcut
