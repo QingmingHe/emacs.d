@@ -166,15 +166,9 @@ syntax cheching."
       (when (file-exists-p fortran-temp)
         (delete-file fortran-temp)))))
 
-(with-eval-after-load 'f90
-  (when flycheck-fortran+-remove-temp-after-check
-    (add-hook 'find-file-hook 'flycheck-fortran+-temp-exists-before-check)
-    (add-hook 'flycheck-after-syntax-check-hook
-              'flycheck-fortran+-remove-temp-after-check)))
-(with-eval-after-load 'fortran
-  (when flycheck-fortran+-remove-temp-after-check
-    (add-hook 'find-file-hook 'flycheck-fortran+-temp-exists-before-check)
-    (add-hook 'flycheck-after-syntax-check-hook
-              'flycheck-fortran+-remove-temp-after-check)))
+(when flycheck-fortran+-remove-temp-after-check
+  (add-hook 'find-file-hook 'flycheck-fortran+-temp-exists-before-check)
+  (add-hook 'flycheck-after-syntax-check-hook
+            'flycheck-fortran+-remove-temp-after-check))
 
 (provide 'flycheck-fortran+)
