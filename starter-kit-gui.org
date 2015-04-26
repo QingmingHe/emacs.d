@@ -4,8 +4,7 @@
 * Starter Kit Gui
 ** All kinds of preferences
 #+begin_src emacs-lisp
-(setq visible-bell t
-      echo-keystrokes 0.1
+(setq echo-keystrokes 0.1
       font-lock-maximum-decoration t
       transient-mark-mode t
       color-theme-is-global t
@@ -20,6 +19,18 @@
       ediff-window-setup-function 'ediff-setup-windows-plain
       oddmuse-directory (concat starter-kit-dir "oddmuse")
       xterm-mouse-mode t)
+#+end_src
+
+** Visible bell
+
+I can't recognize frame flashing. So flash the mode-line instead.
+#+begin_src emacs-lisp
+(defun my-visible-bell ()
+  (invert-face 'mode-line)
+  (run-with-timer 0.1 nil 'invert-face 'mode-line))
+
+(setq visible-bell nil)
+(setq ring-bell-function #'my-visible-bell)
 #+end_src
 
 ** Line number in terminal
