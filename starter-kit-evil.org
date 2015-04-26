@@ -93,8 +93,6 @@ back.
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "j") 'next-line)
 (define-key evil-normal-state-map (kbd "k") 'previous-line)
-(define-key evil-normal-state-map (kbd "/") 'isearch-forward-regexp)
-(define-key evil-normal-state-map (kbd "?") 'isearch-backward-regexp)
 #+end_src
 
 *** Ex completion map
@@ -119,6 +117,16 @@ back.
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
+
+  ;; buffer move
+  "bmh" 'buf-move-left
+  "bmj" 'buf-move-down
+  "bmk" 'buf-move-up
+  "bml" 'buf-move-right
+
+  ;; make and debug
+  "ma" 'compile-dwim
+  "de" 'run-gdb-dwim
 
   ;; fold and unfold
   "zz" (lambda ()
