@@ -1,0 +1,156 @@
+;;; flycheck-fortran+ --- A plugin for flycheck.el to check Fortran syntax.
+;;
+;; Copyright (c) 2015 Qingming He <906459647@qq.com>
+;; Copyright (C) 2015 Free Software Foundation, Inc.
+;;
+;; Author:Qingming He <906459647@qq.com>
+;; Keywords: convenience languages tools
+;; Version: 0.1
+;; Package-Requires: ((flycheck "0.22"))
+;;
+;; This file is not part of GNU Emacs.
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;;
+;;; Code:
+
+(require 'cl)
+(require 'flycheck)
+
+(defvar flycheck-fortran+-remove-temps-after-check nil
+  "Whether remove temporary files after checking.")
+
+(defvar flycheck-fortran+-module-path "."
+  "Where to generate Fortran module file.")
+(make-variable-buffer-local 'flycheck-fortran+-module-path)
+
+(defvar flycheck-fortran+-include-paths nil
+  "A list of include directories for Fortran compiler.")
+(make-variable-buffer-local 'flycheck-fortran+-include-paths)
+
+(defvar flycheck-fortran+-definitions nil
+  "A list of definitions for Fortran compiler.")
+(make-variable-buffer-local 'flycheck-fortran+-definitions)
+
+(defvar flycheck-fortran+-language-standard 'default
+  "The language standard to use in Fortran compiler.")
+(make-variable-buffer-local 'flycheck-fortran+-language-standard)
+
+(defvar flycheck-fortran+-args nil
+  "Additional arguments passed to Fortran compiler.")
+(make-variable-buffer-local 'flycheck-fortran+-args)
+
+(defun flycheck-fortran+-option-standard (stand checker)
+  "Option STAND filter for CHECKER."
+  (cl-case checker
+    ('fortran-ifort
+     (cl-case stand
+       ('f77 "none")
+       ('f90 "f90")
+       ('f95 "f95")
+       ('f03 "f03")
+       ('f08 "none")
+       ('default "none")
+       (t (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
+    ('fortran-gfortran+
+     (cl-case stand
+       ('f77 "legacy")
+       ('f90 "gnu")
+       ('f95 "f95")
+       ('f03 "f2003")
+       ('f08 "f2008")
+       ('default "gnu")
+       (t (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
+    (t
+     (error "Invalid value for flycheck-fortran+-checker: %S"
+            checker))))
+
+(flycheck-define-checker fortran-ifort
+  "An Fortran syntax checker using Intel Fortran compiler."
+  :command ("ifort"
+            "-fpp"
+            "-syntax-only"
+            "-warn"
+            "-stand" (eval (flycheck-fortran+-option-standard
+                            flycheck-fortran+-language-standard 'fortran-ifort))
+            "-module" (eval flycheck-fortran+-module-path)
+            (option-list "-I" flycheck-fortran+-include-paths concat)
+            (option-list "-D" flycheck-fortran+-definitions concat)
+            (eval flycheck-fortran+-args)
+            source)
+  :error-patterns
+  ((error line-start (file-name) "(" line "): error " (message) line-end)
+   (warning line-start (file-name) "(" line (or "): warning " "): remark ")
+            (message) line-end))
+  :modes (fortran-mode f90-mode))
+
+(flycheck-define-checker fortran-gfortran+
+  "An Fortran syntax checker using GCC Gfortran."
+  :command ("gfortran"
+            "-cpp"
+            "-Wall"
+            "-Wextra"
+            "-fsyntax-only"
+            "-fshow-column"
+            "-fno-diagnostics-show-caret"
+            "-fno-diagnostics-show-option"
+            "-iquote" (eval (flycheck-c/c++-quoted-include-directory))
+            (eval (concat "-std=" (flycheck-fortran+-option-standard
+                                   flycheck-fortran+-language-standard
+                                   'fortran-gfortran+)))
+            (option "-J" flycheck-fortran+-module-path concat)
+            (option-list "-I" flycheck-fortran+-include-paths concat)
+            (option-list "-D" flycheck-fortran+-definitions concat)
+            (eval flycheck-gfortran-args)
+            source)
+  :error-patterns
+  ((error line-start (file-name) ":" line "." column ":\n"
+          (= 3 (zero-or-more not-newline) "\n")
+          (or "Error" "Fatal Error" "错误" "致命错误") (or ": " "： ")
+          (message) line-end)
+   (warning line-start (file-name) ":" line "." column ":\n"
+            (= 3 (zero-or-more not-newline) "\n")
+            (or "Warning: " "警告： ") (message) line-end))
+  :modes (fortran-mode f90-mode))
+
+(add-to-list 'flycheck-checkers 'fortran-ifort)
+(add-to-list 'flycheck-checkers 'fortran-gfortran+)
+
+(defun flycheck-fortran+-remove-temps ()
+  "Remove intermediate files generated by Intel Fortran compiler."
+  (when (and
+         (derived-mode-p 'fortran-mode 'f90-mode)
+         (eq flycheck-checker 'fortran-ifort))
+    (let* ((fname (buffer-file-name))
+           (fname-noextension (file-name-sans-extension
+                               (file-name-nondirectory fname)))
+           (fortran-intermediate-files
+            (list (expand-file-name (concat fname-noextension ".i"))))
+           (fortran-intermediate-files
+            (cons (expand-file-name (concat fname-noextension ".i90"))
+                  fortran-intermediate-files)))
+      (mapc
+       (lambda (f)
+         (when (file-exists-p f)
+           (delete-file f)))
+       fortran-intermediate-files))))
+
+(with-eval-after-load 'f90
+  (when flycheck-fortran+-remove-temps-after-check
+    (add-hook 'flycheck-after-syntax-check-hook 'flycheck-fortran+-remove-temps)))
+(with-eval-after-load 'fortran
+  (when flycheck-fortran+-remove-temps-after-check
+    (add-hook 'flycheck-after-syntax-check-hook 'flycheck-fortran+-remove-temps)))
+
+(provide 'flycheck-fortran+)

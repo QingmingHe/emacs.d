@@ -40,42 +40,30 @@ codes:
 ((f90-mode . ((flycheck-gfortran-include-path . ("path0" "other/path")))))
 #+END_SRC
 
-The built in fortran-gfortran doesn't support Chinese errors and warnings. An
-=flycheck-fortran-gfortran-zh= plugin is used.
 #+BEGIN_SRC emacs-lisp
+(setq flycheck-fortran+-remove-temps-after-check t)
 (defun my-flycheck-f90-setup ()
   (when (and
-         my-flycheck-gfortran-found
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (setq flycheck-gfortran-language-standard "f2008")
-    (flycheck-select-checker 'fortran-gfortran-zh)
+    (setq flycheck-fortran+-language-standard 'f08)
+    (flycheck-select-checker flycheck-Fortran-checker)
     (flycheck-mode)))
 (with-eval-after-load 'f90
-  (setq my-flycheck-gfortran-found (executable-find "gfortran"))
-  (require 'flycheck-fortran-gfortran-zh)
+  (require 'flycheck-fortran+)
   (add-hook 'f90-mode-hook 'my-flycheck-f90-setup))
 
 (defun my-flycheck-f77-setup ()
   (when (and
-         my-flycheck-gfortran-found
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (setq flycheck-gfortran-language-standard "legacy")
-    (setq flycheck-gfortran-layout 'fixed)
-    (flycheck-select-checker 'fortran-gfortran-zh)
+    (setq flycheck-gfortran-language-standard 'f77)
+    (flycheck-select-checker flycheck-Fortran-checker)
     (flycheck-mode)))
 (with-eval-after-load 'fortran
-  (require 'flycheck-fortran-gfortran-zh)
+  (require 'flycheck-fortran+)
   (add-hook 'fortran-mode-hook 'my-flycheck-f77-setup))
 #+END_SRC
-
-Since some version of flycheck, [[help:flycheck-def-option-var][flycheck-def-option-var]] never make variables
-buffer local by default. I often handle multiple projects which have
-different flycheck options. So make buffer local variables myself.
-#+begin_src emacs-lisp
-(setq flycheck-make-gfortran-options-buffer-local t)
-#+end_src
 
 ** Python
 

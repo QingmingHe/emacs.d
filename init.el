@@ -28,6 +28,11 @@
 (setq auctex-root (locate-library "auctex"))
 (when auctex-root
   (setq auctex-root (file-name-directory auctex-root)))
+(setq flycheck-Fortran-checker
+      (or
+       (when (getenv "FLYCHECK_Fortran_CHECKER")
+         (intern (getenv "FLYCHECK_Fortran_CHECKER")))
+       'fortran-gfortran+))
 
 (defun starter-kit-fast-load (&optional file)
   "Load starter kit configuration FILE. A FILE can be file name such as
