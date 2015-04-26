@@ -324,7 +324,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 #+begin_src emacs-lisp
 (defun set-evil-cursor-mintty-tmux ()
   (when (evil-emacs-state-p)
-    (send-string-to-terminal "\ePtmux;\e\e[3 q\e\\"))
+    (send-string-to-terminal "\ePtmux;\e\e[1 q\e\\"))
   (when (evil-insert-state-p)
     (send-string-to-terminal "\ePtmux;\e\e[5 q\e\\"))
   (when (evil-normal-state-p)
@@ -332,7 +332,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 
 (defun set-evil-cursor-mintty-no-tmux ()
   (when (evil-emacs-state-p)
-    (send-string-to-terminal "\e\e[3 q\e\\"))
+    (send-string-to-terminal "\e\e[1 q\e\\"))
   (when (evil-insert-state-p)
     (send-string-to-terminal "\e\e[5 q\e\\"))
   (when (evil-normal-state-p)
