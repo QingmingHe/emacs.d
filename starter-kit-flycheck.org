@@ -41,7 +41,7 @@ codes:
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(setq flycheck-fortran+-remove-temps-after-check t)
+(setq flycheck-fortran+-remove-temp-after-check t)
 (defun my-flycheck-f90-setup ()
   (when (and
          (buffer-file-name)
