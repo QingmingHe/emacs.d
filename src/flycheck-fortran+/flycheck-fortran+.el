@@ -73,8 +73,7 @@
        ('default "gnu")
        (t (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
     (t
-     (error "Invalid value for flycheck-fortran+-checker: %S"
-            checker))))
+     (error "Invalid value for flycheck-fortran+-checker: %S" checker))))
 
 (flycheck-define-checker fortran-ifort
   "An Fortran syntax checker using Intel Fortran compiler."
@@ -83,7 +82,8 @@
             "-syntax-only"
             "-warn"
             "-stand" (eval (flycheck-fortran+-option-standard
-                            flycheck-fortran+-language-standard 'fortran-ifort))
+                            flycheck-fortran+-language-standard
+                            'fortran-ifort))
             "-module" (eval flycheck-fortran+-module-path)
             (option-list "-I" flycheck-fortran+-include-paths concat)
             (option-list "-D" flycheck-fortran+-definitions concat)
@@ -144,6 +144,7 @@ to FNAME."
   (when (and
          flycheck-fortran+-remove-temp-after-check
          (derived-mode-p 'fortran-mode 'f90-mode)
+         (eq flycheck-checker 'fortran-ifort)
          (buffer-file-name))
     (let ((fortran-temp (flycheck-fortran+-temp-file (buffer-file-name))))
       (if (file-exists-p fortran-temp)
@@ -156,6 +157,7 @@ syntax cheching."
   (when (and
          flycheck-fortran+-remove-temp-after-check
          (derived-mode-p 'fortran-mode 'f90-mode)
+         (eq flycheck-checker 'fortran-ifort)
          (buffer-file-name)
          (symbolp fortran-temp-exists-before-check)
          (not fortran-temp-exists-before-check))
