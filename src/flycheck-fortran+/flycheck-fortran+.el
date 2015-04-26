@@ -25,7 +25,8 @@
 ;;
 ;;; Code:
 
-(require 'cl)
+(eval-when-compile
+  (require 'pcase))
 (require 'flycheck)
 
 (defvar flycheck-fortran+-remove-temp-after-check nil
@@ -54,27 +55,51 @@ after checking.")
 
 (defun flycheck-fortran+-option-standard (stand checker)
   "Option STAND filter for CHECKER."
-  (cl-case checker
-    ('fortran-ifort
-     (cl-case stand
-       ('f77 "none")
-       ('f90 "f90")
-       ('f95 "f95")
-       ('f03 "f03")
-       ('f08 "f08")
-       ('default "none")
-       (t (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
-    ('fortran-gfortran+
-     (cl-case stand
-       ('f77 "legacy")
-       ('f90 "gnu")
-       ('f95 "f95")
-       ('f03 "f2003")
-       ('f08 "f2008")
-       ('default "gnu")
-       (t (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
-    (t
-     (error "Invalid value for flycheck-fortran+-checker: %S" checker))))
+  (pcase checker
+    (`fortran-ifort
+     (pcase stand
+       (`f77 "none")
+       (`f90 "f90")
+       (`f95 "f95")
+       (`f03 "f03")
+       (`f08 "f08")
+       (`default "none")
+       (_ (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
+    (`fortran-gfortran+
+     (pcase stand
+       (`f77 "legacy")
+       (`f90 "gnu")
+       (`f95 "f95")
+       (`f03 "f2003")
+       (`f08 "f2008")
+       (`default "gnu")
+       (_ (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
+    (_ (error "Invalid value for flycheck-fortran+-checker: %S" checker))))
+
+(defun flycheck-fortran+-parse-ifort-errors (output checker buffer)
+  "Parse Intel Fortran errors from OUTPUT.
+
+CHECKER should be `fortran-ifort'. BUFFER is current buffer checked."
+  (let (errors)
+    (with-temp-buffer
+      (insert output)
+      (goto-char (point-min))
+      (while (re-search-forward
+              "^\\([^(]+\\)(\\([0-9]+\\)): \\(error\\|warning\\|remark\\)\
+ \\(.+\\)\n\\(.+\\)\n\\(-+\\)\\^" nil t)
+        (push (flycheck-error-new-at
+               (string-to-int (match-string 2))
+               (1+ (length (match-string 6)))
+               (pcase (match-string 3)
+                 (`"error" 'error)
+                 (`"warning" 'warning)
+                 (`"remark" 'warning))
+               (match-string 4)
+               :checker checker
+               :buffer buffer
+               :filename (match-string 1))
+              errors)))
+    (nreverse errors)))
 
 (flycheck-define-checker fortran-ifort
   "An Fortran syntax checker using Intel Fortran compiler."
@@ -90,10 +115,7 @@ after checking.")
             (option-list "-D" flycheck-fortran+-definitions concat)
             (eval flycheck-fortran+-args)
             source)
-  :error-patterns
-  ((error line-start (file-name) "(" line "): error " (message) line-end)
-   (warning line-start (file-name) "(" line (or "): warning " "): remark ")
-            (message) line-end))
+  :error-parser flycheck-fortran+-parse-ifort-errors
   :modes (fortran-mode f90-mode))
 
 (flycheck-define-checker fortran-gfortran+
