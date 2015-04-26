@@ -265,6 +265,7 @@ interested in the actual code implementing the starter kit.
   (when (window-system)
     (require 'pos-tip))
   (require 'popup)
+  (require 'cl)
   #+end_src
 
 - Function to check if a packages exist in the load path.  This may be

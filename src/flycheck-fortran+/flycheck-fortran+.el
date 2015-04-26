@@ -61,7 +61,7 @@ after checking.")
        ('f90 "f90")
        ('f95 "f95")
        ('f03 "f03")
-       ('f08 "none")
+       ('f08 "f08")
        ('default "none")
        (t (error "Invalid value for flycheck-fortran+-standard: %S" stand))))
     ('fortran-gfortran+

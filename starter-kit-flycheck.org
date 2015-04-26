@@ -46,7 +46,7 @@ codes:
   (when (and
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (setq flycheck-fortran+-language-standard 'f03)
+    (setq flycheck-fortran+-language-standard 'f08)
     (flycheck-select-checker flycheck-Fortran-checker)
     (flycheck-mode)))
 (with-eval-after-load 'f90
