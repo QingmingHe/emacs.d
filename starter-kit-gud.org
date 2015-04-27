@@ -70,7 +70,8 @@ is splitted vertically and limited to 10 lines height."
       (bury-buffer))))
 
 (defun show-compile-window-not-success (buffer string)
-  (ding)
+  (let ((visible-bell-time-last 0.4))
+    (ding))
   (unless (string-match "finished" string)
     (with-current-buffer buffer
       (goto-char (point-min))

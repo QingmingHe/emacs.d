@@ -25,9 +25,12 @@
 
 I can't recognize frame flashing. So flash the mode-line instead.
 #+begin_src emacs-lisp
+(defvar visible-bell-time-last 0.1
+  "Time last for visible bell.")
+
 (defun my-visible-bell ()
   (invert-face 'mode-line)
-  (run-with-timer 0.1 nil 'invert-face 'mode-line))
+  (run-with-timer visible-bell-time-last nil 'invert-face 'mode-line))
 
 (setq visible-bell nil)
 (setq ring-bell-function #'my-visible-bell)
