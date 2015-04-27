@@ -177,4 +177,11 @@ indentation rules."
   (modify-syntax-entry ?_ "w"))
 (add-hook 'nxml-mode-hook 'my-nxml-config)
 (setq nxml-slash-auto-complete-flag t)
+
+(evil-leader/set-key-for-mode 'nxml-mode
+  "ne" (lambda ()
+         "Go to next error or first error in current `nxml-mode' buffer."
+         (interactive)
+         (unless (rng-next-error nil)
+           (rng-first-error))))
 #+END_SRC
