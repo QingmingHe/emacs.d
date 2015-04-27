@@ -202,6 +202,7 @@ Push mark before jump.
     (isearch-update)))
 
 (define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-fail-or-char)
+(define-key isearch-mode-map "\177" 'isearch-del-fail-or-char)
 #+end_src
 
 ** Occur
