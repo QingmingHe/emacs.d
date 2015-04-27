@@ -199,6 +199,9 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 (setq tramp-default-method "ssh")
 #+end_src
 
+Tramp may hung when copying large files through *ssh*. You can use *scp*
+instead.
+
 ** Pinyin input
 
 #+begin_src emacs-lisp
