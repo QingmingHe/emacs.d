@@ -415,6 +415,7 @@ starter kit. You should note that the sequence is very important.
 (starter-kit-fast-load "org")
 (starter-kit-fast-load "gui")
 (starter-kit-fast-load "dired")
+(starter-kit-fast-load "vc")
 (starter-kit-fast-load "project")
 (starter-kit-fast-load "flycheck")
 (starter-kit-fast-load "helm")

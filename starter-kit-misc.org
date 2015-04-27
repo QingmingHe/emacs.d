@@ -97,22 +97,6 @@ previously visited the same file.
 (random t)
 #+end_src
 
-** Backup files
-
-Rather than saving backup files scattered all over the file system, let them
-live in the =/tmp= directory.
-#+begin_src emacs-lisp
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
-(setq version-control t
-      delete-old-versions t
-      backup-by-copying t
-      kept-old-versions 2
-      kept-new-versions 6)
-#+end_src
-
 ** Bookmark
 
 #+BEGIN_SRC emacs-lisp
@@ -239,15 +223,6 @@ instead.
 + Answer *y* rather than *yes*.
 #+begin_src emacs-lisp
 (defalias 'yes-or-no-p 'y-or-n-p)
-#+end_src
-
-** Git and Magit
-
-+ Use Ido with Magit.
-+ Setting the full path for Git makes Magit a little bit faster.
-#+begin_src emacs-lisp
-(setq magit-completing-read-function 'magit-ido-completing-read)
-(setq magit-git-executable (executable-find "git"))
 #+end_src
 
 ** Auto indent after yank
