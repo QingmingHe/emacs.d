@@ -96,7 +96,7 @@ Examples:
   "Open Windows program at point in dired. With prefix, read argument passed
 to program from minibuffer."
   (interactive "P")
-  (let ((prog-name (dired-get-filename))
+  (let ((prog-name (dired-get-file-for-visit))
         (prog-argv
          (when arg
            (read-shell-command "Argv passed to prog: "))))
