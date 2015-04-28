@@ -91,35 +91,34 @@ several years.
      (beginning-of-visual-line)
      (org-at-heading-p))))
 
-(defun my-move-to-next-line(&optional arg try-vscroll)
-  (interactive "^p\np")
-  (next-line arg try-vscroll)
-  (when (org-at-heading-line-not-in-heading-p)
-    (beginning-of-visual-line)
-    (end-of-line)))
+(evil-define-motion evil-next-visual-line-dwim (count)
+  "Move the cursor COUNT visual lines down."
+  :type exclusive
+  (let ((line-move-visual t))
+    (evil-line-move (or count 1))
+    (when (org-at-heading-line-not-in-heading-p)
+      (beginning-of-visual-line)
+      (end-of-line))))
 
-(defun my-move-to-prev-line(&optional arg try-vscroll)
-  (interactive "^p\np")
-  (previous-line arg try-vscroll)
-  (when (org-at-heading-line-not-in-heading-p)
-    (beginning-of-visual-line)
-    (end-of-line)))
+(evil-define-motion evil-previous-visual-line-dwim (count)
+  "Move the cursor COUNT visual lines up."
+  :type exclusive
+  (let ((line-move-visual t))
+    (evil-line-move (- (or count 1)))
+    (when (org-at-heading-line-not-in-heading-p)
+      (beginning-of-visual-line)
+      (end-of-line))))
 
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
-(define-key evil-normal-state-map (kbd "j") 'my-move-to-next-line)
-(define-key evil-normal-state-map (kbd "k") 'my-move-to-prev-line)
+(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line-dwim)
+(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line-dwim)
 #+end_src
 
-*** Ex completion map
+*** Evil ex command
 
 #+begin_src emacs-lisp
 (define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
-#+end_src
-
-*** Evil ex cmd
-
-#+begin_src emacs-lisp
 (evil-ex-define-cmd "ls" 'ibuffer)
 #+end_src
 
