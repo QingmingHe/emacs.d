@@ -71,7 +71,8 @@ available size. The heading line will not be hided if
 
 Highlight current line in Dired buffer.
 #+begin_src emacs-lisp
-(add-hook 'dired-after-readin-hook #'hl-line-mode)
+(when (display-graphic-p)
+  (add-hook 'dired-after-readin-hook #'hl-line-mode))
 #+end_src
 
 ** Basic settings
