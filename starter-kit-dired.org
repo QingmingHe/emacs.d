@@ -23,6 +23,33 @@
 - --group-directories-first: self-explanatory, I like to have the directories
   on the top, separate from the files.
 
+I want to know how many files under current directory and human readable
+available size. The heading line will not be hided if
+[[help:global-dired-hide-details-mode][global-dired-hide-details-mode]] is on.
+#+begin_src emacs-lisp
+(defun my-dired-present-heading ()
+  (let ((buffer-read-only nil)
+        file-num size available)
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward
+             "total used in directory \\([^KMG]+[KMG]?\\) available \\([0-9]+\\)"
+             nil t)
+        (setq size (match-string-no-properties 1)
+              available
+              (/
+               (/ (string-to-int (match-string-no-properties 2)) 1024.0)
+               1024.0))
+        (delete-region (line-beginning-position) (line-end-position))
+        (insert (format "  files: %i used: %s available: %.1fG \n"
+                        (- (length (directory-files ".")) 2)
+                        size
+                        available))))
+    (set-buffer-modified-p nil)))
+
+(add-hook 'dired-after-readin-hook #'my-dired-present-heading)
+#+end_src
+
 ** Basic settings
 
 #+BEGIN_SRC emacs-lisp
