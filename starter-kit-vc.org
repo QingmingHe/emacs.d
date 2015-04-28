@@ -16,6 +16,9 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 *** Resolve merge confliction
 Use [[help:magit-ediff][magit-ediff]] *e* on un-merged item.
 
+*** Git checkout single file
+Use [[help:magit-discard-item][magit-discard-item]] *k* on item.
+
 ** Disable version control in Emacs
 
 I almost never use version control system bundled with Emacs and it always
