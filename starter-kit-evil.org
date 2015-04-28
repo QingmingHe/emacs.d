@@ -228,12 +228,7 @@ otherwise save current buffer."
 
   ;; misc
   "gs" 'magit-status
-  "gr" (lambda ()
-         "Run `prj/grep' if a project root is found; otherwise run `rgrep'."
-         (interactive)
-         (if project-details
-             (call-interactively 'prj/grep)
-           (call-interactively 'rgrep)))
+  "gr" 'rgrep
   "fm" 'flycheck-buffer
   "ne" (lambda ()
          "Go to next error of flycheck. If flycheck is not enabled, enabled it
