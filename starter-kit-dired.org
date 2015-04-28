@@ -4,7 +4,7 @@
 * Starter Kit Dired
 ** How dired presents && Dired+
 #+BEGIN_SRC emacs-lisp
-(setq dired-listing-switches "-lAh1v --group-directories-first")
+(setq dired-listing-switches "-lah1v --group-directories-first")
 (eval-after-load "dired"
   `(progn
      (require 'dired-tar)
@@ -15,7 +15,7 @@
 #+END_SRC
 
 - l: Is the only mandatory one.
-- A: Means to list all files but . and ...
+- a: Means to list all files.
 - G: Don't show group information. These days, when there are more laptops
   than people, the group info is rarely useful.
 - h: Human readable sizes, such as M for mebibytes.
@@ -72,7 +72,7 @@ buffer."
           (expand-file-name
            (ido-completing-read
             "Goto file or dir: "
-            (delete "." (delete ".." (directory-files "."))))))))
+            (directory-files "."))))))
      (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)))
 #+end_src
 
