@@ -228,6 +228,9 @@ instead.
 ** Auto indent after yank
 
 #+begin_src emacs-lisp
+(defvar auto-indent-after-yank t
+  "Whether auto indent after yanking.")
+
 (dolist (command '(insert-for-yank))
    (eval `(defadvice ,command (after indent-region activate)
             (and (not current-prefix-arg)
@@ -240,7 +243,15 @@ instead.
                                                       plain-tex-mode f90-mode
                                                       fortran-mode))
                  (let ((mark-even-if-inactive transient-mark-mode))
-                   (indent-region (region-beginning) (region-end) nil))))))
+                   (when auto-indent-after-yank
+                     (indent-region (region-beginning) (region-end) nil)))))))
+
+(defun toggle-auto-indent-after-yank ()
+  (interactive)
+  (setq auto-indent-after-yank (not auto-indent-after-yank))
+  (if auto-indent-after-yank
+      (message "Auto indent after yank enabled!")
+    (message "Auto indent after yank disabled!")))
 #+end_src
 
 ** Enable disabled commands
