@@ -222,6 +222,34 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
     (find-lisp-find-dired dir regexp)))
 #+end_src
 
+** Dired sort
+
+#+begin_src emacs-lisp
+(defun dired-sort-modify-time ()
+  (interactive)
+  (dired-sort-other "-laht"))
+
+(defun dired-sort-creat-time ()
+  (interactive)
+  (dired-sort-other "-lahct"))
+
+(defun dired-sort-access-time ()
+  (interactive)
+  (dired-sort-other "-lahut"))
+
+(defun dired-sort-size ()
+  (interactive)
+  (dired-sort-other "-lahS"))
+
+(defun dired-sort-extension ()
+  (interactive)
+  (dired-sort-other "-lahX --group-directories-first"))
+
+(defun dired-sort-original ()
+  (interactive)
+  (dired-sort-other dired-listing-switches))
+#+end_src
+
 ** Tips
 *** key bindings
 - *w* copies file name to ring. *C-u 0 w* copies full path.
