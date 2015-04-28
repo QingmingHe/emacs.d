@@ -140,6 +140,7 @@ other data on the mode line.
 (eval-after-load "key-combo"               '(diminish 'key-combo-mode))
 (eval-after-load "simple"                  '(diminish 'visual-line-mode))
 (eval-after-load "simple"                  '(diminish 'auto-fill-function))
+(eval-after-load "sphinx-doc"              '(diminish 'sphinx-doc-mode))
 #+END_SRC
 
 ** Font for English and Chinese
