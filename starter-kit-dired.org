@@ -68,11 +68,20 @@ buffer. This command uses ido to complete read a file or directory name from
 all files and directories under current path and jump to it in current Dired
 buffer."
          (interactive)
-         (dired-goto-file
-          (expand-file-name
-           (ido-completing-read
-            "Goto file or dir: "
-            (directory-files "."))))))
+         (let ((fname (ido-completing-read
+                       "Goto file or dir: "
+                       (directory-files "."))))
+           (cond
+            ((string= "." fname)
+             (goto-char (point-min))
+             (re-search-forward " \\.$" nil t)
+             (dired-move-to-filename))
+            ((string= ".." fname)
+             (goto-char (point-min))
+             (re-search-forward " \\.\\.$" nil t)
+             (dired-move-to-filename))
+            (t
+             (dired-goto-file (expand-file-name fname)))))))
      (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)))
 #+end_src
 

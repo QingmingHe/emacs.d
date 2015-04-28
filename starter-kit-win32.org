@@ -112,12 +112,6 @@ to program from minibuffer."
    (when (cdr args) (mapconcat 'concat (cdr args) " "))
    nil))
 
-(defun w32-open-current-directory (dir)
-  (interactive
-   (list
-    (ido-read-directory-name "Directory: ")))
-  (w32-shell-execute "open" dir))
-
 (eval-after-load "dired"
   `(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point))
 #+END_SRC
