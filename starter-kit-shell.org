@@ -57,7 +57,7 @@ is pre-populated with some generally applicable aliases.
 *** Key bindings
 
 + Use *C-a* to move to beginning of line of beginning of command line.
-+ Use *C-p* or *M-p* to complete eshell history with helm.
++ Use *C-p* to complete eshell history with helm.
 
 #+begin_src emacs-lisp
 (defun my-eshell-goto-bottom ()
@@ -67,7 +67,6 @@ is pre-populated with some generally applicable aliases.
 
 (defun my-eshell-keybinding ()
   (define-key eshell-mode-map "\C-a" 'eshell-bol)
-  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
   (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
   (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
   (evil-define-key 'normal eshell-mode-map (kbd "G") 'my-eshell-goto-bottom)
