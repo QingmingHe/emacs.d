@@ -52,7 +52,7 @@ available size. The heading line will not be hided if
          size aline)
     (save-excursion
       (goto-char (point-min))
-      (next-logical-line)
+      (forward-line 1)
       (setq aline
             (buffer-substring-no-properties
              (line-beginning-position) (line-end-position)))
@@ -128,7 +128,21 @@ buffer."
              (dired-move-to-filename))
             (t
              (dired-goto-file (expand-file-name fname)))))))
-     (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)))
+     (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)
+     (define-key dired-mode-map (kbd "<")
+       (lambda ()
+         "Move to the first item in Dired buffer."
+         (interactive)
+         (beginning-of-buffer)
+         (re-search-forward " \\.$" nil t)
+         (dired-move-to-filename)))
+     (define-key dired-mode-map (kbd ">")
+       (lambda ()
+         "Move to the last item in Dired buffer."
+         (interactive)
+         (end-of-buffer)
+         (forward-line -1)
+         (dired-move-to-filename)))))
 #+end_src
 
 ** Find name Dired
