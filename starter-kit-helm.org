@@ -29,17 +29,12 @@
   `(progn
      (define-key helm-map (kbd "C-c C-c") 'helm-toggle-visible-mark)))
 
-;; helm eshell
-(eval-after-load "helm-eshell"
-  `(progn
-     (define-key helm-eshell-history-map (kbd "M-n") 'helm-next-line)
-     (define-key helm-eshell-history-map (kbd "M-p") 'helm-previous-line)))
-
 (setq
  helm-split-window-in-side-p t
  helm-move-to-line-cycle-in-source t
  helm-ff-search-library-in-sexp t
  helm-scroll-amount 8
+ helm-M-x-always-save-history t
  helm-ff-file-name-history-use-recentf t)
 
 ;; helm swoop

@@ -211,14 +211,7 @@ otherwise save current buffer."
              (prj/save-buffers-and-update-tags)
            (save-buffer)))
   "kk" 'kill-this-buffer
-  "pp" 'prj/helm-mini
-  "gs" 'magit-status
-  "gr" (lambda ()
-         "Run `prj/grep' if a project root is found; otherwise run `rgrep'."
-         (interactive)
-         (if project-details
-             (call-interactively 'prj/grep)
-           (call-interactively 'rgrep)))
+  "dd" 'ido-dired-dwim
 
   ;; replace
   "rd" (lambda ()
@@ -234,6 +227,8 @@ otherwise save current buffer."
            (anzu-query-replace-at-cursor-thing)))
 
   ;; misc
+  "gs" 'magit-status
+  "gr" 'rgrep
   "fm" 'flycheck-buffer
   "ne" (lambda ()
          "Go to next error of flycheck. If flycheck is not enabled, enabled it
