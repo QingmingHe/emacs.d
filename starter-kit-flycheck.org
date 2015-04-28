@@ -106,7 +106,6 @@ connection this way:
 #+begin_src emacs-lisp
 (defun my-flycheck-c-setup ()
   (when (and
-         my-flycheck-c-setup
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
     (progn

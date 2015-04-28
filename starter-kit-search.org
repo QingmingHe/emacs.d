@@ -167,7 +167,7 @@ data. Otherwise ask for beginning character of a word and go there.
              (candidate
               (avi--process candidates #'avi--overlay-post)))
         (avi--goto candidate))
-    (call-interactively #'avi-goto-word-1)))
+    (call-interactively #'ace-jump-word-mode)))
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "gl") 'avi-goto-line)
   (define-key evil-normal-state-map (kbd "go") 'ace-word-from-input-or-search))

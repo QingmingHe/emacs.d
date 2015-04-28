@@ -85,6 +85,21 @@ back.
 
 #+begin_src emacs-lisp
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+
+(defun my-shift-left-visual ()
+  (interactive)
+  (call-interactively #'evil-shift-left)
+  (evil-normal-state)
+  (evil-visual-restore))
+
+(defun my-shift-right-visual ()
+  (interactive)
+  (call-interactively #'evil-shift-right)
+  (evil-normal-state)
+  (evil-visual-restore))
+
+(define-key evil-visual-state-map (kbd "<") #'my-shift-left-visual)
+(define-key evil-visual-state-map (kbd ">") #'my-shift-right-visual)
 #+end_src
 
 *** Normal state map
@@ -204,10 +219,6 @@ otherwise save current buffer."
          (if project-details
              (call-interactively 'prj/grep)
            (call-interactively 'rgrep)))
-
-  ;; ace jump
-  "w" 'ace-jump-word-mode
-  "l" 'ace-jump-line-mode
 
   ;; replace
   "rd" (lambda ()
