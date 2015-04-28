@@ -4,7 +4,10 @@
 * Starter Kit Dired
 ** How dired presents && Dired+
 #+BEGIN_SRC emacs-lisp
-(setq dired-listing-switches "-lah1v --group-directories-first")
+;; (setq dired-listing-time-style "--time-style long-iso")
+(setq dired-listing-time-style "")
+(setq dired-listing-switches
+      (concat "-lah1v --group-directories-first " dired-listing-time-style))
 (setq dired-hide-details-hide-information-lines nil)
 (setq dired-hide-details-hide-symlink-targets nil)
 (eval-after-load "dired"
@@ -18,12 +21,11 @@
 
 - l: Is the only mandatory one.
 - a: Means to list all files.
-- G: Don't show group information. These days, when there are more laptops
-  than people, the group info is rarely useful.
 - h: Human readable sizes, such as M for mebibytes.
 - 1v: Affects the sorting of digits, hopefully in a positive way.
 - --group-directories-first: self-explanatory, I like to have the directories
   on the top, separate from the files.
+- --time-style long-iso: show time like *2015-04-12 10:43*.
 
 I want to know how many files under current directory and human readable
 available size. The heading line will not be hided if
@@ -97,7 +99,7 @@ Key bindings should be set after loading dired+.
   "Move to the first item in current Dired buffer."
   (interactive)
   (goto-char (point-min))
-  (while (not (looking-at dired-move-to-filename-regexp))
+  (while (not (looking-at (concat " *" dired-permission-flags-regexp)))
     (forward-line))
   (dired-move-to-filename))
 
@@ -105,7 +107,7 @@ Key bindings should be set after loading dired+.
   "Move to the last item in current Dired buffer."
   (interactive)
   (goto-char (point-max))
-  (while (not (looking-at dired-move-to-filename-regexp))
+  (while (not (looking-at (concat " *" dired-permission-flags-regexp)))
     (forward-line -1))
   (dired-move-to-filename))
 
@@ -158,7 +160,7 @@ buffer."
          "Move to next item in Dired."
          (interactive)
          (forward-line)
-         (unless (looking-at dired-move-to-filename-regexp)
+         (unless (looking-at (concat " *" dired-permission-flags-regexp))
            (dired-move-to-first-item))
          (dired-move-to-filename)))
      (define-key dired-mode-map (kbd "p")
@@ -166,7 +168,7 @@ buffer."
          "Move to previous item in Dired."
          (interactive)
          (forward-line -1)
-         (unless (looking-at dired-move-to-filename-regexp)
+         (unless (looking-at (concat " *" dired-permission-flags-regexp))
            (dired-move-to-last-item))
          (dired-move-to-filename)))))
 #+end_src
@@ -227,23 +229,24 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
 #+begin_src emacs-lisp
 (defun dired-sort-modify-time ()
   (interactive)
-  (dired-sort-other "-laht"))
+  (dired-sort-other (concat "-laht " dired-listing-time-style)))
 
 (defun dired-sort-creat-time ()
   (interactive)
-  (dired-sort-other "-lahct"))
+  (dired-sort-other (concat "-lahct " dired-listing-time-style)))
 
 (defun dired-sort-access-time ()
   (interactive)
-  (dired-sort-other "-lahut"))
+  (dired-sort-other (concat "-lahut " dired-listing-time-style)))
 
 (defun dired-sort-size ()
   (interactive)
-  (dired-sort-other "-lahS"))
+  (dired-sort-other (concat "-lahS " dired-listing-time-style)))
 
 (defun dired-sort-extension ()
   (interactive)
-  (dired-sort-other "-lahX --group-directories-first"))
+  (dired-sort-other
+   (concat "-lahX --group-directories-first " dired-listing-time-style)))
 
 (defun dired-sort-original ()
   (interactive)
@@ -252,7 +255,11 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
 
 ** Tips
 *** key bindings
+
 - *w* copies file name to ring. *C-u 0 w* copies full path.
 - *!* run shell command, *&* run shell command synchronously.
 - *#* to flag all auto save files for deletion.
 - *~* to flag all backup files for deletion.
+
+*** Get full file information
+*!* on file and type *stat* command.
