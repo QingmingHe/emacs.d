@@ -134,7 +134,6 @@ to expand or contract region.
 #+END_SRC
 
 ** Key Chord mode
-*** Use *jk* to quite every thing
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
@@ -326,7 +325,8 @@ Just use *C-o* to invoke in other window, no need to remember the key of
 (require 'ido-other-window)
 #+end_src
 
-** Ace window and window handling
+** Ace window and ace jump
+*** Ace window
 
 Ace window is superior to window numbering for that window numbering shows
 number in the mode line which is not friendly to my eyes.
@@ -359,3 +359,25 @@ I can't remember connet the number with the direction of window splitting.
 (global-set-key (kbd "C-x -") #'split-window-below)
 (global-set-key (kbd "C-x \\") #'split-window-right)
 #+end_src
+
+*** Ace jump
+
+Just press =SPC-w=, the first character of word where you want to go and select
+the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
+back.
+#+BEGIN_SRC emacs-lisp
+(setq ace-jump-mode-scope 'window)
+(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
+(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
+(with-eval-after-load 'ace-jump-mode
+  (ace-jump-mode-enable-mark-sync))
+(progn
+  (eval-after-load "info"
+    '(define-key Info-mode-map "o" 'ace-link-info))
+  (eval-after-load "help-mode"
+    '(define-key help-mode-map "o" 'ace-link-help))
+  (eval-after-load "eww"
+    '(progn
+       (define-key eww-link-keymap "o" 'ace-link-eww)
+       (define-key eww-mode-map "o" 'ace-link-eww))))
+#+END_SRC
