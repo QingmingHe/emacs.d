@@ -347,6 +347,9 @@ number in the mode line which is not friendly to my eyes.
   (define-key dired-mode-map (kbd "M-p") #'ace-window-dwim))
 (with-eval-after-load 'magit
   (define-key magit-status-mode-map (kbd "M-p") #'ace-window-dwim))
+(add-hook 'eshell-mode-hook
+          (lambda ()
+            (define-key eshell-mode-map (kbd "M-p") #'ace-window-dwim)))
 #+end_src
 
 I can't remember connet the number with the direction of window splitting.
