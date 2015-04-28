@@ -56,7 +56,7 @@ available size. The heading line will not be hided if
       (setq aline
             (buffer-substring-no-properties
              (line-beginning-position) (line-end-position)))
-      (when (string-match "total[a-zA-Z ]+\\([^KMG]+[KMG]?\\)" aline)
+      (when (string-match "total[a-zA-Z ]+\\([0-9\\.]+[KMG]?\\)" aline)
         (setq size (match-string-no-properties 1 aline))
         (delete-region (line-beginning-position) (line-end-position))
         (insert (format
@@ -67,6 +67,11 @@ available size. The heading line will not be hided if
     (set-buffer-modified-p nil)))
 
 (add-hook 'dired-after-readin-hook #'my-dired-present-heading)
+#+end_src
+
+Highlight current line in Dired buffer.
+#+begin_src emacs-lisp
+(add-hook 'dired-after-readin-hook #'hl-line-mode)
 #+end_src
 
 ** Basic settings
@@ -87,6 +92,22 @@ available size. The heading line will not be hided if
 
 Key bindings should be set after loading dired+.
 #+begin_src emacs-lisp
+(defun dired-move-to-first-item ()
+  "Move to the first item in current Dired buffer."
+  (interactive)
+  (goto-char (point-min))
+  (while (not (looking-at dired-move-to-filename-regexp))
+    (forward-line))
+  (dired-move-to-filename))
+
+(defun dired-move-to-last-item ()
+  "Move to the last item in current Dired buffer."
+  (interactive)
+  (goto-char (point-max))
+  (while (not (looking-at dired-move-to-filename-regexp))
+    (forward-line -1))
+  (dired-move-to-filename))
+
 (eval-after-load "dired+"
   `(progn
      (define-key dired-mode-map (kbd "RET")
@@ -129,19 +150,23 @@ buffer."
             (t
              (dired-goto-file (expand-file-name fname)))))))
      (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)
-     (define-key dired-mode-map (kbd "<")
+     (define-key dired-mode-map (kbd "<") #'dired-move-to-first-item)
+     (define-key dired-mode-map (kbd ">") #'dired-move-to-last-item)
+     (define-key dired-mode-map (kbd "n")
        (lambda ()
-         "Move to the first item in Dired buffer."
+         "Move to next item in Dired."
          (interactive)
-         (beginning-of-buffer)
-         (re-search-forward " \\.$" nil t)
+         (forward-line)
+         (unless (looking-at dired-move-to-filename-regexp)
+           (dired-move-to-first-item))
          (dired-move-to-filename)))
-     (define-key dired-mode-map (kbd ">")
+     (define-key dired-mode-map (kbd "p")
        (lambda ()
-         "Move to the last item in Dired buffer."
+         "Move to previous item in Dired."
          (interactive)
-         (end-of-buffer)
          (forward-line -1)
+         (unless (looking-at dired-move-to-filename-regexp)
+           (dired-move-to-last-item))
          (dired-move-to-filename)))))
 #+end_src
 
