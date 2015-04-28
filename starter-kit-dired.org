@@ -5,6 +5,8 @@
 ** How dired presents && Dired+
 #+BEGIN_SRC emacs-lisp
 (setq dired-listing-switches "-lah1v --group-directories-first")
+(setq dired-hide-details-hide-information-lines nil)
+(setq dired-hide-details-hide-symlink-targets nil)
 (eval-after-load "dired"
   `(progn
      (require 'dired-tar)
@@ -27,24 +29,41 @@ I want to know how many files under current directory and human readable
 available size. The heading line will not be hided if
 [[help:global-dired-hide-details-mode][global-dired-hide-details-mode]] is on.
 #+begin_src emacs-lisp
+(defun my-count-files-under-dir (dir)
+  (let ((file-num 0)
+        (dir-num 0)
+        (files (directory-files dir nil nil t)))
+    (mapc
+     (lambda (f)
+       (unless (or
+                (string= "." f)
+                (string= ".." f))
+         (if (file-directory-p (expand-file-name f dir))
+             (setq dir-num (1+ dir-num))
+           (setq file-num (1+ file-num)))))
+     files)
+    (cons file-num dir-num)))
+
 (defun my-dired-present-heading ()
-  (let ((buffer-read-only nil)
-        file-num size available)
+  (let* ((buffer-read-only nil)
+         (num (my-count-files-under-dir "."))
+         (file-num (car num))
+         (dir-num (cdr num))
+         size aline)
     (save-excursion
       (goto-char (point-min))
-      (when (re-search-forward
-             "total used in directory \\([^KMG]+[KMG]?\\) available \\([0-9]+\\)"
-             nil t)
-        (setq size (match-string-no-properties 1)
-              available
-              (/
-               (/ (string-to-int (match-string-no-properties 2)) 1024.0)
-               1024.0))
+      (next-logical-line)
+      (setq aline
+            (buffer-substring-no-properties
+             (line-beginning-position) (line-end-position)))
+      (when (string-match "total[a-zA-Z ]+\\([^KMG]+[KMG]?\\)" aline)
+        (setq size (match-string-no-properties 1 aline))
         (delete-region (line-beginning-position) (line-end-position))
-        (insert (format "  files: %i used: %s available: %.1fG \n"
-                        (- (length (directory-files ".")) 2)
-                        size
-                        available))))
+        (insert (format
+                 "  files: %i directories: %i used: %s available: %.1fG \n"
+                 file-num dir-num size
+                 (/ (/ (string-to-int (or (get-free-disk-space ".") "0"))
+                       1024.0) 1024.0)))))
     (set-buffer-modified-p nil)))
 
 (add-hook 'dired-after-readin-hook #'my-dired-present-heading)
