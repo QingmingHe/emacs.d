@@ -9,6 +9,7 @@ TAGS
 ido.last
 .saved-places
 viper
+.mc-lists.el
 
 # project root
 .project-roots
