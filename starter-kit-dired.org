@@ -120,6 +120,26 @@ Key bindings should be set after loading dired+.
     (forward-line -1))
   (dired-move-to-filename))
 
+(defun dired-move-to-next-or-first ()
+  "Move to the next or first item in current Dired buffer."
+  (interactive)
+  (forward-line)
+  (while (not (dired-looking-at-permission-flags))
+    (if (eobp)
+        (goto-char (point-min))
+      (forward-line)))
+  (dired-move-to-filename))
+
+(defun dired-move-to-previous-or-last ()
+  "Move to the previous or last item in current Dired buffer."
+  (interactive)
+  (forward-line -1)
+  (while (not (dired-looking-at-permission-flags))
+    (if (= (point) (point-min))
+        (goto-char (point-max))
+      (forward-line -1)))
+  (dired-move-to-filename))
+
 (eval-after-load "dired+"
   `(progn
      (define-key dired-mode-map (kbd "RET")
@@ -164,22 +184,8 @@ buffer."
      (define-key dired-mode-map (kbd "<f5>") 'dired-hide-details-mode)
      (define-key dired-mode-map (kbd "<") #'dired-move-to-first-item)
      (define-key dired-mode-map (kbd ">") #'dired-move-to-last-item)
-     (define-key dired-mode-map (kbd "n")
-       (lambda ()
-         "Move to next item in Dired."
-         (interactive)
-         (forward-line)
-         (unless (dired-looking-at-permission-flags)
-           (dired-move-to-first-item))
-         (dired-move-to-filename)))
-     (define-key dired-mode-map (kbd "p")
-       (lambda ()
-         "Move to previous item in Dired."
-         (interactive)
-         (forward-line -1)
-         (unless (dired-looking-at-permission-flags)
-           (dired-move-to-last-item))
-         (dired-move-to-filename)))))
+     (define-key dired-mode-map (kbd "n") #'dired-move-to-next-or-first)
+     (define-key dired-mode-map (kbd "p") #'dired-move-to-previous-or-last)))
 #+end_src
 
 ** Find name Dired
