@@ -47,28 +47,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 ** Org mode
 
 #+begin_src emacs-lisp
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-cj" 'org-clock-goto)
-#+end_src
-
-#+begin_src emacs-lisp :tangle no
-(defmacro with-defhydra (name keymap key &rest hydradef)
-  (let ((name-defined (intern (format "defhydra-%s-defined-p" name)))
-        (hydra-body-name (intern (concat name "/body"))))
-    `(progn
-       (setq ,name-defined nil)
-       (define-key ,keymap ,key
-         (lambda ()
-           (interactive)
-           (unless ,name-defined
-             (defhydra (intern ,name) nil
-               ,name
-               ,@hydradef)
-             (setq ,name-defined t))
-           (call-interactively ',hydra-body-name))))))
-
 (with-defhydra
  "hydra-org"
  global-map
@@ -346,7 +324,12 @@ number in the mode line which is not friendly to my eyes.
 (with-eval-after-load 'dired+
   (define-key dired-mode-map (kbd "M-p") #'ace-window-dwim))
 (with-eval-after-load 'magit
-  (define-key magit-status-mode-map (kbd "M-p") #'ace-window-dwim))
+  (define-key magit-status-mode-map (kbd "M-p") #'ace-window-dwim)
+  (define-key magit-diff-mode-map (kbd "M-p") #'ace-window-dwim))
+(with-eval-after-load 'grep
+  (define-key grep-mode-map (kbd "M-p") #'ace-window-dwim))
+(with-eval-after-load 'compile
+  (define-key compilation-mode-map (kbd "M-p") #'ace-window-dwim))
 (with-eval-after-load 'git-commit-mode
   (define-key git-commit-mode-map (kbd "M-p") #'ace-window-dwim))
 (add-hook 'eshell-mode-hook
@@ -381,3 +364,16 @@ back.
        (define-key eww-link-keymap "o" 'ace-link-eww)
        (define-key eww-mode-map "o" 'ace-link-eww))))
 #+END_SRC
+
+** Multiple cursors
+
+#+begin_src emacs-lisp
+(with-defhydra-evil-leader
+ "hydra-evil-leader-multiple-cursors"
+ "mc"
+ ("n" mc/mark-next-like-this "next")
+ ("p" mc/mark-previous-like-this "previous")
+ ("a" mc/mark-all-like-this "all")
+ ("l" mc/edit-lines "lines")
+ ("q" nil "quit"))
+#+end_src

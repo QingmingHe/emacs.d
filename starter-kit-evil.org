@@ -83,20 +83,12 @@ several years.
 *** Normal state map
 
 #+begin_src emacs-lisp
-(defun org-at-heading-line-not-in-heading-p ()
-  (and
-   (eq major-mode 'org-mode)
-   (not (org-at-heading-p))
-   (save-excursion
-     (beginning-of-visual-line)
-     (org-at-heading-p))))
-
 (evil-define-motion evil-next-visual-line-dwim (count)
   "Move the cursor COUNT visual lines down."
   :type exclusive
   (let ((line-move-visual t))
     (evil-line-move (or count 1))
-    (when (org-at-heading-line-not-in-heading-p)
+    (when (get-char-property (1- (point)) 'invisible)
       (beginning-of-visual-line)
       (end-of-line))))
 
@@ -105,7 +97,7 @@ several years.
   :type exclusive
   (let ((line-move-visual t))
     (evil-line-move (- (or count 1)))
-    (when (org-at-heading-line-not-in-heading-p)
+    (when (get-char-property (1- (point)) 'invisible)
       (beginning-of-visual-line)
       (end-of-line))))
 

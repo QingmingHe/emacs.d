@@ -6,6 +6,8 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 * Starter Kit Version Control
 ** Git and Magit
 
+*** Basics
+
 + Use Ido with Magit.
 + Setting the full path for Git makes Magit a little bit faster.
 #+begin_src emacs-lisp

@@ -392,10 +392,46 @@ interested in the actual code implementing the starter kit.
   (ensure-packages-compiled)
   #+end_src
 
-- Load auto load file
+- Load auto load file.
 
   #+begin_src emacs-lisp
   (load-file autoload-file)
+  #+end_src
+
+- Macros to lazily define hydra. As hydra.el is over one thousand lines, it
+  consumes some time to load at Emacs start up. So define macros that only
+  defines hydra until hydra body is called.
+
+  #+begin_src emacs-lisp
+  (defmacro with-defhydra (name keymap key &rest hydradef)
+    (let ((name-defined (intern (format "defhydra-%s-defined-p" name)))
+          (hydra-body-name (intern (concat name "/body"))))
+      `(progn
+         (setq ,name-defined nil)
+         (define-key ,keymap ,key
+           (lambda ()
+             (interactive)
+             (unless ,name-defined
+               (defhydra ,(intern name) nil
+                 ,name
+                 ,@hydradef)
+               (setq ,name-defined t))
+             (call-interactively ',hydra-body-name))))))
+
+  (defmacro with-defhydra-evil-leader (name key &rest hydradef)
+    (let ((name-defined (intern (format "defhydra-%s-defined-p" name)))
+          (hydra-body-name (intern (concat name "/body"))))
+      `(progn
+         (setq ,name-defined nil)
+         (evil-leader/set-key ,key
+           (lambda ()
+             (interactive)
+             (unless ,name-defined
+               (defhydra ,(intern name) nil
+                 ,name
+                 ,@hydradef)
+               (setq ,name-defined t))
+             (call-interactively ',hydra-body-name))))))
   #+end_src
 
 ** Starter kit core
