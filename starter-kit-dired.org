@@ -25,7 +25,8 @@
 - 1v: Affects the sorting of digits, hopefully in a positive way.
 - --group-directories-first: self-explanatory, I like to have the directories
   on the top, separate from the files.
-- --time-style long-iso: show time like *2015-04-12 10:43*.
+- --time-style long-iso: show time like *2015-04-12 10:43*. However
+  [[help:dired-move-to-filename-regexp][dired-move-to-filename-regexp]] doesn't recognize it.
 
 I want to know how many files under current directory and human readable
 available size. The heading line will not be hided if
@@ -226,12 +227,21 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
 
 ** Dired sort
 
++ Ctime is not the file creation time, it's the inode change time which is
+  updated whenever anything about the file changes (contents or metadata)
+  except that the file is merely read. Ctime is always more recent than the
+  mtime (modification time).
++ To get full information on file, use *stat* command.
++ To sort files by creation time:
+  #+begin_src sh :tangle no
+  stat -c '%W %n' * | sort -k1n
+  #+end_src
 #+begin_src emacs-lisp
-(defun dired-sort-modify-time ()
+(defun dired-sort-mtime ()
   (interactive)
   (dired-sort-other (concat "-laht " dired-listing-time-style)))
 
-(defun dired-sort-creat-time ()
+(defun dired-sort-ctime ()
   (interactive)
   (dired-sort-other (concat "-lahct " dired-listing-time-style)))
 
@@ -248,18 +258,14 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
   (dired-sort-other
    (concat "-lahX --group-directories-first " dired-listing-time-style)))
 
-(defun dired-sort-original ()
+(defun dired-sort-name ()
   (interactive)
   (dired-sort-other dired-listing-switches))
 #+end_src
 
 ** Tips
-*** key bindings
 
 - *w* copies file name to ring. *C-u 0 w* copies full path.
 - *!* run shell command, *&* run shell command synchronously.
 - *#* to flag all auto save files for deletion.
 - *~* to flag all backup files for deletion.
-
-*** Get full file information
-*!* on file and type *stat* command.
