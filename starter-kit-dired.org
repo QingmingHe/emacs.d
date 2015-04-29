@@ -96,11 +96,19 @@ Highlight current line in Dired buffer.
 
 Key bindings should be set after loading dired+.
 #+begin_src emacs-lisp
+(defun dired-looking-at-permission-flags ()
+  "Looking at permission flags at current line in Dired."
+  (interactive)
+  (save-excursion
+    (forward-line 0)
+    (re-search-forward (concat "^.\\{0,4\\}" dired-permission-flags-regexp)
+                       (line-end-position) t)))
+
 (defun dired-move-to-first-item ()
   "Move to the first item in current Dired buffer."
   (interactive)
   (goto-char (point-min))
-  (while (not (looking-at (concat " *" dired-permission-flags-regexp)))
+  (while (not (dired-looking-at-permission-flags))
     (forward-line))
   (dired-move-to-filename))
 
@@ -108,7 +116,7 @@ Key bindings should be set after loading dired+.
   "Move to the last item in current Dired buffer."
   (interactive)
   (goto-char (point-max))
-  (while (not (looking-at (concat " *" dired-permission-flags-regexp)))
+  (while (not (dired-looking-at-permission-flags))
     (forward-line -1))
   (dired-move-to-filename))
 
@@ -161,7 +169,7 @@ buffer."
          "Move to next item in Dired."
          (interactive)
          (forward-line)
-         (unless (looking-at (concat " *" dired-permission-flags-regexp))
+         (unless (dired-looking-at-permission-flags)
            (dired-move-to-first-item))
          (dired-move-to-filename)))
      (define-key dired-mode-map (kbd "p")
@@ -169,7 +177,7 @@ buffer."
          "Move to previous item in Dired."
          (interactive)
          (forward-line -1)
-         (unless (looking-at (concat " *" dired-permission-flags-regexp))
+         (unless (dired-looking-at-permission-flags)
            (dired-move-to-last-item))
          (dired-move-to-filename)))))
 #+end_src
