@@ -14,6 +14,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (setq eshell-cmpl-cycle-completions nil
       eshell-save-history-on-exit t
       eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'"
+      eshell-cmpl-ignore-case t
       ;; I'd like to keep all the history
       eshell-history-size 10000
       eshell-hist-ignoredups t
@@ -66,12 +67,44 @@ is pre-populated with some generally applicable aliases.
   (eshell-bol))
 
 (defun my-eshell-keybinding ()
-  (define-key eshell-mode-map "\C-a" 'eshell-bol)
-  (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
-  (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
-  (evil-define-key 'normal eshell-mode-map (kbd "G") 'my-eshell-goto-bottom)
-  (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history))
+  (define-key eshell-mode-map "\C-a" #'eshell-bol)
+  (define-key eshell-mode-map (kbd "C-p") #'helm-eshell-history)
+  (define-key eshell-mode-map [remap eshell-pcomplete] #'eshell-ido-or-helm)
+  (evil-define-key 'normal eshell-mode-map (kbd "G") #'my-eshell-goto-bottom)
+  (evil-define-key 'insert eshell-mode-map (kbd "C-p") #'helm-eshell-history))
 (add-hook 'eshell-mode-hook 'my-eshell-keybinding)
+#+end_src
+
+*** Better complete in eshell
+
+Use ido to complete file name and helm for the other.
+#+begin_src emacs-lisp
+(defun eshell-ido-complete-file (from b0 b1)
+  (let* ((file (ido-read-file-name ": " from))
+         (relative (file-relative-name file default-directory)))
+    (delete-region b0 b1)
+    (if (string-match "\\(\\.\\./\\)\\{3,\\}" relative)
+        (insert file)
+      (insert relative))))
+
+(defun eshell-ido-or-helm ()
+  (interactive)
+  (let (dir-at-point bounds b0 b1)
+    (cond
+     ((looking-back " \\(cp\\|cd\\|mv\\|rm\\|ls\\|ll\\|la\\) +")
+      (setq dir-at-point "."
+            b0 (point)
+            b1 b0)
+      (eshell-ido-complete-file dir-at-point b0 b1))
+     ((and
+       (setq bounds (bounds-of-thing-at-point 'filename))
+       (setq b0 (car bounds)
+             b1 (cdr bounds)
+             dir-at-point (buffer-substring-no-properties b0 b1))
+       (file-directory-p dir-at-point))
+      (eshell-ido-complete-file dir-at-point b0 b1))
+     (t
+      (call-interactively 'helm-esh-pcomplete)))))
 #+end_src
 
 *** Eldoc
