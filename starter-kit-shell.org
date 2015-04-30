@@ -80,14 +80,23 @@ is pre-populated with some generally applicable aliases.
 Use ido to complete file name and helm for the other.
 #+begin_src emacs-lisp
 (defun eshell-ido-complete-file (from b0 b1)
+  "Use ido to complete read file name in eshell.
+
+If file or directory navigated to is within 3 level upward current directory,
+relative directory is inserted; otherwise the full path is inserted. You can
+always fallback from file completion to directory by C-j."
   (let* ((file (ido-read-file-name ": " from))
          (relative (file-relative-name file default-directory)))
     (delete-region b0 b1)
-    (if (string-match "\\(\\.\\./\\)\\{3,\\}" relative)
+    (if (string-match "\\`\\(\\.\\./\\)\\{3,\\}" relative)
         (insert file)
       (insert relative))))
 
 (defun eshell-ido-or-helm ()
+  "Use ido to complete file and helm or other in eshell.
+
+Ido is activated when previous command is cp, cd, mv, rm, ... or thing at
+point is a existing directory. Otherwise helm is used to complete."
   (interactive)
   (let (dir-at-point bounds b0 b1)
     (cond

@@ -32,6 +32,9 @@
 
 ;;; project configure/initialize
 
+(defvar prj/auto-insert-after-find-file nil
+  "Whether call `auto-insert' after finding project file.")
+
 (defvar prj/touch-cmake-at-create nil
   "Whether touch CMakeLists.txt at creating new project file by
 `prj/add-new-source'.")
@@ -892,6 +895,9 @@ or `prj/ac-source-gtags'."
                   (if (project-root-data :-use-gtags p)
                       (prj/ac-gtags-setup)
                     (prj/ac-etags-setup))))
+              ;; auto insert file header
+              (when prj/auto-insert-after-find-file
+                (auto-insert))
               (run-hooks (project-root-data :prj-setup-hooks p))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
