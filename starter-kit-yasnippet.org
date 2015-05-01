@@ -19,6 +19,10 @@ inspired by TextMate's templating syntax.
 (setq yas-snippet-revival nil)
 ;; disable tab for `yas-minor-mode' and `yas-keymap' for each mode has its
 ;; own tab
+;; so `yas-expand' will return nil if not expanded
+(setq yas-fallback-behavior 'return-nil)
+;; so snippet can be triggered inside snippet
+(setq yas-triggers-in-field t)
 (with-eval-after-load 'yasnippet
   (define-key yas-minor-mode-map (kbd "<tab>") nil)
   (define-key yas-minor-mode-map (kbd "TAB") nil)

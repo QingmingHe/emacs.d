@@ -456,6 +456,7 @@ starter kit. You should note that the sequence is very important.
 (starter-kit-fast-load "flycheck")
 (starter-kit-fast-load "helm")
 (starter-kit-fast-load "yasnippet")
+(starter-kit-fast-load "complete")
 (starter-kit-fast-load "autocomplete")
 (starter-kit-fast-load "browser")
 (starter-kit-fast-load "dictionary")

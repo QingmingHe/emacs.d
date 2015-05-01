@@ -26,6 +26,9 @@
 
 (setq ac-use-menu-map t)
 (setq ac-use-quick-help t)
+(setq ac-dwim nil)
+;; don't let ac auto start
+(setq ac-auto-start nil)
 
 ;; use pos-tip instead of popup to show doc perfectly
 (when (window-system)
@@ -35,6 +38,76 @@
 (global-auto-complete-mode t)
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
 #+END_SRC
+
+** Super TAB for program modes
+
+#+begin_src emacs-lisp
+(defun tab-for-anything ()
+  "Try to `yas-expand', `auto-complete-1', `yas-next-field',
+`indent-for-tab-command'."
+  (interactive)
+  (let* ((bnds (bounds-of-thing-at-point 'symbol))
+         (b0 (car bnds))
+         (b1 (cdr bnds))
+         (p (point)))
+    (cond ((and yas-minor-mode
+                b0
+                b1
+                (<= (- p b0) 2)
+                (= p b1)
+                (yas-expand)))
+          ((and auto-complete-mode
+                b0
+                b1
+                (= p b1)
+                (auto-complete-1)))
+          ((and yas-minor-mode
+                (yas--snippets-at-point))
+           (when (and (looking-back " ")
+                      (looking-at "[\]})\n\[({, ]"))
+             (delete-region (1- p) p))
+           (yas-next-field))
+          (t
+           (indent-for-tab-command)))))
+
+(defun ac-expand-common-or-abort ()
+  "Refresh `ac-candidates' and expand common part."
+  (interactive)
+  (ac-update t)
+  (ac-expand-common)
+  (when (eq 1 (length ac-candidates))
+    (ac-abort)))
+
+(defun setup-tab-for-anything ()
+  (interactive)
+  (define-key yas-minor-mode-map (kbd "<tab>") nil)
+  (define-key yas-minor-mode-map (kbd "TAB") nil)
+  (define-key yas-keymap [(tab)] nil)
+  (define-key yas-keymap (kbd "TAB") nil)
+  (define-key ac-completing-map "\t" 'ac-expand-common-or-abort)
+  (define-key ac-completing-map [tab] 'ac-expand-common-or-abort)
+  (local-set-key (read-kbd-macro "TAB") 'tab-for-anything))
+
+(defun disable-tab-for-yas-prog ()
+  (interactive)
+  (when (derived-mode-p 'prog-mode)
+    (define-key yas-keymap [(tab)] nil)
+    (define-key yas-keymap (kbd "TAB") nil)))
+
+(add-hook 'prog-mode-hook 'setup-tab-for-anything)
+(add-hook 'cmake-mode-hook 'setup-tab-for-anything)
+(add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
+#+end_src
+
+** Auto refresh candidates
+
+#+begin_src emacs-lisp
+(defun ac-auto-refresh-candidates ()
+  (when (and auto-complete-mode ac-candidates)
+    (ac-update t)))
+
+(add-hook 'post-self-insert-hook 'ac-auto-refresh-candidates)
+#+end_src
 
 ** Emacs lisp
 
@@ -148,48 +221,3 @@ added.
 + Use *C-M-n* and *C-M-p* to scroll down and up in quick help.
 + *C-M-?* to persist ac-help which may be useful when help page is too long or
   you want to get help when filling arguments of the function.
-
-** Built in completion
-
-#+begin_src emacs-lisp
-(setq completion-ignore-case t)
-#+end_src
-
-** Hippie expand: at times perhaps too hip
-*** Expand by dict
-
-I use [[file:starter-kit-dictionary.org::*English%20words%20dict][English words dict]] instead.
-#+begin_src emacs-lisp
-(setq my-english-words-dict (concat starter-kit-dir "dict/english-words.txt"))
-
-(defun try-expand-by-dict (old)
-  (unless old
-    (he-init-string (he-lisp-symbol-beg) (point))
-    (unless (he-string-member he-search-string he-tried-table)
-      (setq he-tried-table (cons he-search-string he-tried-table)))
-    (setq he-expand-list
-          (and (not (equal he-search-string ""))
-               (split-string
-                (shell-command-to-string
-                 (format
-                  "grep \"^%s\" %s"
-                  (buffer-substring-no-properties (he-lisp-symbol-beg) (point))
-                  my-english-words-dict))))))
-  (if (not he-expand-list)
-      (progn (when old (he-reset-string) nil))
-    (he-substitute-string (car he-expand-list))
-    (setq he-expand-list (cdr he-expand-list))
-    t))
-#+end_src
-
-*** Set hippie expand functions
-#+begin_src emacs-lisp
-(global-set-key (kbd "M-/") 'hippie-expand)
-(setq hippie-expand-try-functions-list
-      '(try-complete-file-name-partially
-        try-complete-file-name
-        try-expand-dabbrev
-        try-expand-dabbrev-all-buffers
-        try-expand-dabbrev-from-kill
-        try-expand-all-abbrevs))
-#+end_src
