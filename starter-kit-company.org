@@ -29,10 +29,23 @@ Activate company for coding:
 
 Set the default backends for all modes.
 #+BEGIN_SRC emacs-lisp
-(setq company-backends
-      '(company-capf
-        company-dabbrev))
+(with-eval-after-load 'company
+  (setq company-backends
+        '(company-capf
+          (company-dabbrev-code company-keywords)
+          company-dabbrev))
+  (make-variable-buffer-local 'company-backends))
 #+END_SRC
+
+** Emacs lisp
+
+#+begin_src emacs-lisp
+(defun elisp-company-setup ()
+  (add-to-list 'company-backends
+               '(company-capf company-dabbrev-code)))
+
+(add-hook 'emacs-lisp-mode-hook 'elisp-company-setup)
+#+end_src
 
 ** Python mode
 
@@ -41,7 +54,9 @@ Use anaconda as backend.
 (defun python-company-setup ()
   (when jedi-is-installed
     (anaconda-mode)
-    (add-to-list 'company-backends 'company-anaconda)))
+    (add-to-list 'company-backends
+                 '(company-anaconda
+                   company-dabbrev-code))))
 
 (add-hook 'python-mode-hook 'python-company-setup)
 
@@ -58,7 +73,10 @@ Use anaconda as backend.
 #+begin_src emacs-lisp
 (defun c-company-setup ()
   (when clang-installed
-    (add-to-list 'company-backends 'company-clang)))
+    (add-to-list 'company-backends
+                 '(company-clang
+                   company-dabbrev-code
+                   company-keywords))))
 
 (add-hook 'c-mode-hook 'c-company-setup)
 (add-hook 'c++-mode-hook 'c-company-setup)
@@ -74,7 +92,9 @@ Use anaconda as backend.
 #+begin_src emacs-lisp
 (defun cmake-company-setup ()
   (when cmake-installed
-    (add-to-list 'company-backends 'company-cmake)))
+    (add-to-list 'company-backends
+                 '(company-cmake
+                   company-dabbrev))))
 
 (add-hook 'cmake-mode-hook 'cmake-company-setup)
 

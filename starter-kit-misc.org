@@ -119,6 +119,7 @@ It's a good habit to obey to 80 column rule. In the convenience of adding
 continuation marker in code such as Fortran, two columns are spared.
 #+BEGIN_SRC emacs-lisp
 (setq default-fill-column 78)
+(setq-default require-final-newline t)
 (defadvice do-auto-fill (around my-indent-after-fill activate)
   (let ((p (point)))
     ad-do-it

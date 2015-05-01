@@ -29,6 +29,7 @@
 ;;    - Some useful command to run find, grep, ... at project files or buffers.
 
 (require 'project-root)
+(require 'cl)
 
 ;;; project configure/initialize
 
@@ -89,9 +90,11 @@ library.")
   "Mode line linghter for current buffer if `project-minor-mode' is on.")
 (make-variable-buffer-local 'prj/buffer-mode-lighter)
 
-(defvar prj/use-auto-complete nil
-  "Whether add `ac-source-prj/gtags' or `ac-source-prj/etags' to `ac-sources'
-for project buffers.")
+(defvar prj/use-completion nil
+  "Whether use `company' or `auto-complete'.")
+
+(defvar prj/completion-backend nil
+  "Completion backend of project buffers.")
 
 (defvar prj/use-tags t
   "Whether use ctags or gtags for handling project.")
@@ -344,9 +347,9 @@ from project root to PATH-BEGIN."
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
         (call-process prj/global-exec nil nil nil
-         (format "--gtagslabel=%s" gtags-label)
-         (format "--gtagsconf=%s" gtags-conf)
-         (format "--single-update=%s" fname))))))
+                      (format "--gtagslabel=%s" gtags-label)
+                      (format "--gtagsconf=%s" gtags-conf)
+                      (format "--single-update=%s" fname))))))
 
 (defun prj/update-etags-files (tags-file files &optional proc-name)
   "Update TAGS-FILE for FILES. FILES should be a list of files whose tags are
@@ -711,7 +714,7 @@ List of include paths, include \"-I\" flag."
                                ("Run multi occur at project buffers" . prj/helm-occur-project)))))
         :buffer "*project helm mini*"))
 
-;;; auto complete ac-sources
+;;; auto complete ac-sources and company backends
 
 (defun prj/ac-gtags-candidate ()
   "Get auto complete candidates by GNU global. Returns a list of tag string."
@@ -729,7 +732,7 @@ List of include paths, include \"-I\" flag."
                       (eq (forward-line) 0)))
           (nreverse candidates))))))
 
-(defun prj/ac-etags-get-tags-candidates (tags-file &optional prefix)
+(defun prj/etags-get-tags-candidates (tags-file &optional prefix)
   "Get all tags candidates matching PREFIX from TAGS-FILE. Returns a list of
 tag string."
   (let (tags buf b0 b1 pm last-time elapsed-time)
@@ -766,14 +769,13 @@ tag string."
          (string= (substring ac-prefix 0 last-ac-prefix-len) last-ac-prefix)
          (not (time-less-p last-tags-file-mod-time tags-file-mod-time)))
         (all-completions ac-prefix last-ac-cache)
-      (setq last-ac-cache (prj/ac-etags-get-tags-candidates tags-file ac-prefix))
-      (project-root-set-data :-last-tags-file-mod-time tags-file-mod-time)
-      (project-root-set-data :-last-ac-prefix ac-prefix)
-      (project-root-set-data :-last-ac-cache last-ac-cache)
+      (setq last-ac-cache (prj/etags-get-tags-candidates tags-file ac-prefix))
+      (project-root-set-data :-last-tags-file-mod-time tags-file-mod-time p)
+      (project-root-set-data :-last-ac-prefix ac-prefix p)
+      (project-root-set-data :-last-ac-cache last-ac-cache p)
       last-ac-cache)))
 
 (defun prj/ac-define-etags-source ()
-  (require 'auto-complete)
   (ac-define-source prj/etags
     '((candidates . prj/ac-etags-candidates)
       (candidate-face . prj/ac-etags-candidate-face)
@@ -781,45 +783,41 @@ tag string."
       (requires . 3))))
 
 (defun prj/ac-define-gtags-source ()
-    (require 'auto-complete)
-    (ac-define-source prj/gtags
-      '((candidates . prj/ac-gtags-candidate)
-        (candidate-face . prj/ac-gtags-candidate-face)
-        (selection-face . prj/ac-gtags-selection-face)
-        (requires . 3))))
+  (ac-define-source prj/gtags
+    '((candidates . prj/ac-gtags-candidate)
+      (candidate-face . prj/ac-gtags-candidate-face)
+      (selection-face . prj/ac-gtags-selection-face)
+      (requires . 3))))
 
-(defun prj/ac-etags-setup ()
-  (interactive)
-  (unless prj/ac-etags-source-defined
-    (prj/ac-define-etags-source)
-    (setq prj/ac-etags-source-defined t))
-  (add-to-list 'ac-sources 'ac-source-prj/etags)
-  (when (and
-         (member major-mode ac-modes)
-         (not auto-complete-mode))
-    (auto-complete-mode)))
+(defun prj/ac-setup (p)
+  (when (prj/use-completion p (current-buffer))
+    (unless (featurep 'auto-complete)
+      (require 'auto-complete))
+    (if (project-root-data :-use-gtags p)
+        (progn
+          (unless prj/ac-gtags-source-defined
+            (prj/ac-define-gtags-source)
+            (setq prj/ac-gtags-source-defined t))
+          (add-to-list 'ac-sources 'ac-source-prj/gtags))
+      (unless prj/ac-etags-source-defined
+        (prj/ac-define-etags-source)
+        (setq prj/ac-etags-source-defined t))
+      (add-to-list 'ac-sources 'ac-source-prj/etags))
+    (when (and
+           (member major-mode ac-modes)
+           (not auto-complete-mode))
+      (auto-complete-mode 1))))
 
-(defun prj/ac-gtags-setup ()
-  (interactive)
-  (unless prj/ac-gtags-source-defined
-    (prj/ac-define-gtags-source)
-    (setq prj/ac-gtags-source-defined t))
-  (add-to-list 'ac-sources 'ac-source-prj/gtags)
-  (when (and
-         (member major-mode ac-modes)
-         (not auto-complete-mode))
-    (auto-complete-mode)))
-
-(defun prj/use-auto-complete (p buf)
-  "Determine whether the BUF (buffer) of P (project) use `prj/ac-source-etags'
-or `prj/ac-source-gtags'."
-  (let ((yes? prj/use-auto-complete)
-        (prj/local-use-ac (project-root-data :use-auto-complete p)))
-    (cond ((numberp prj/local-use-ac)
-           (if (> prj/local-use-ac 0)
+(defun prj/use-completion (p buf)
+  "Determine whether the BUF (buffer) of P (project) use `company' or
+`auto-complete'."
+  (let ((yes? prj/use-completion)
+        (prj/local-use-comp (project-root-data :use-completion p)))
+    (cond ((numberp prj/local-use-comp)
+           (if (> prj/local-use-comp 0)
                (setq yes? t)
              (setq yes? nil)))
-          ((listp prj/local-use-ac)
+          ((listp prj/local-use-comp)
            (setq yes? nil)
            (with-current-buffer buf
              (catch 'buf-match
@@ -834,8 +832,48 @@ or `prj/ac-source-gtags'."
                                     (regexp-quote (expand-file-name elem (cdr p)))
                                     default-directory))
                            (throw 'buf-match (setq yes? t))))))
-                prj/local-use-ac)))))
+                prj/local-use-comp)))))
     yes?))
+
+
+(defun prj/company-etags-candidates (prefix)
+  (let* ((p (or project-details (project-root-fetch)))
+         (tags-file (when p (project-root-data :-tags-file p))))
+    (when (and prefix tags-file)
+      (prj/etags-get-tags-candidates tags-file prefix))))
+
+(defun prj/company-etags-prefix-p ()
+  (and
+   (not (company-in-string-or-comment))
+   (or (company-grab-symbol) 'stop)
+   (symbolp -project-buffer-use-company-etags)
+   -project-buffer-use-company-etags))
+
+(defun prj/company-etags (command &optional arg &rest ignored)
+  "`company-mode' completion backend for etags."
+  (interactive (list 'interactive))
+  (cl-case command
+    (interactive (company-begin-backend 'prj/company-etags))
+    (prefix (prj/company-etags-prefix-p))
+    (candidates (prj/company-etags-candidates arg))))
+
+(defun prj/company-setup (p)
+  "Setup `company-mode' for current project buffer."
+  (unless (featurep 'company)
+    (require 'company))
+  (when (prj/use-completion p (current-buffer))
+    (unless company-mode
+      (company-mode 1))
+    (if (project-root-data :-use-gtags)
+        (add-to-list 'company-backends
+                     '(company-dabbrev-code
+                       company-gtags
+                       company-keywords))
+      (add-to-list 'company-backends
+                   '(company-dabbrev-code
+                     prj/company-etags
+                     company-keywords))
+      (setq-local -project-buffer-use-company-etags t))))
 
 ;;; project minor/global mode
 
@@ -870,7 +908,7 @@ or `prj/ac-source-gtags'."
                  (prj/go-up-dir-find-file prj/cmake-list-file p
                                           (file-name-directory fname))))
               ;; add update tags hook, determine tags tool, generate tags,
-              ;; setup ac sources
+              ;; setup completion
               (unless (or
                        (not prj/use-tags)
                        (string=
@@ -891,10 +929,9 @@ or `prj/ac-source-gtags'."
                   (project-root-set-data
                    :-tags-file
                    (expand-file-name prj/etags-tags-file)))
-                (when (prj/use-auto-complete p (current-buffer))
-                  (if (project-root-data :-use-gtags p)
-                      (prj/ac-gtags-setup)
-                    (prj/ac-etags-setup))))
+                (cl-case prj/completion-backend
+                  (company (prj/company-setup p))
+                  (auto-complete (prj/ac-setup p))))
               ;; auto insert file header
               (when prj/auto-insert-after-find-file
                 (auto-insert))
