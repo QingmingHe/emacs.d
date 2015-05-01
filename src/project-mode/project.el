@@ -835,7 +835,6 @@ tag string."
                 prj/local-use-comp)))))
     yes?))
 
-
 (defun prj/company-etags-candidates (prefix)
   (let* ((p (or project-details (project-root-fetch)))
          (tags-file (when p (project-root-data :-tags-file p))))
