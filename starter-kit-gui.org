@@ -141,6 +141,8 @@ other data on the mode line.
 (eval-after-load "simple"                  '(diminish 'visual-line-mode))
 (eval-after-load "simple"                  '(diminish 'auto-fill-function))
 (eval-after-load "sphinx-doc"              '(diminish 'sphinx-doc-mode))
+(eval-after-load "anaconda-mode"           '(diminish 'anaconda-mode))
+(eval-after-load "company"                 '(diminish 'company-mode))
 #+END_SRC
 
 ** Font for English and Chinese
