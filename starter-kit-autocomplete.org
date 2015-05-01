@@ -49,7 +49,8 @@
   (let* ((bnds (bounds-of-thing-at-point 'symbol))
          (b0 (car bnds))
          (b1 (cdr bnds))
-         (p (point)))
+         (p (point))
+         (yas-fallback-behavior 'return-nil))
     (cond ((and yas-minor-mode
                 b0
                 b1

@@ -17,12 +17,10 @@ inspired by TextMate's templating syntax.
 (setq yas-indent-line 'fixed)
 ;; Don't re-activate snippet fields after undo/redo
 (setq yas-snippet-revival nil)
-;; disable tab for `yas-minor-mode' and `yas-keymap' for each mode has its
-;; own tab
-;; so `yas-expand' will return nil if not expanded
-(setq yas-fallback-behavior 'return-nil)
 ;; so snippet can be triggered inside snippet
 (setq yas-triggers-in-field t)
+;; disable tab for `yas-minor-mode' and `yas-keymap' for that each mode has
+;; its own tab
 (with-eval-after-load 'yasnippet
   (define-key yas-minor-mode-map (kbd "<tab>") nil)
   (define-key yas-minor-mode-map (kbd "TAB") nil)
@@ -100,3 +98,22 @@ following function allows these two to play nicely together.
       '(yas-popup-isearch-prompt
         yas-no-prompt))
 #+end_src
+
+** How to write snippets
+*** Mirrors with transformation
+
+Sometimes you want to determine content of a field according to content of
+another. The simple example is c header inclusion statement where system
+headers are quoted by *<>* while user headers are quoted by *""*. In this case
+[[help:yas-text][yas-text]] can be used to obtain the content of a mirror field.
+#+begin_example
+#include ${1:`(yas-choose-value '("<" "\""))`}$0${1:$(yas-c-include-system-or-user yas-text)}
+#+end_example
+
+Note that:
++ The value of an *${n:$(* means that it is interperted as a mirror for field
+  *n* with a transformation.
++ For some reason [[help:yas-text][yas-text]] should be the first argument of first lisp
+  function.
++ yas-c-include-system-or-user is defined in =.yas-setup.el= in the snippets
+  directory.

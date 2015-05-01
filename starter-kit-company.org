@@ -14,6 +14,7 @@ Activate company for coding:
       company-show-numbers t
       company-dabbrev-downcase nil
       company-clang-insert-arguments nil
+      company-gtags-insert-arguments nil
       company-begin-commands '(self-insert-command))
 #+end_src
 
@@ -114,4 +115,39 @@ Use anaconda as backend.
   (if (executable-find "cmake")
       (setq cmake-installed t)
     (setq cmake-installed nil)))
+#+end_src
+
+** Super tab for yasnippet or indent
+
+See also [[file:starter-kit-autocomplete.org::*Super%20TAB%20for%20program%20modes][Super TAB for program modes]] which set up tab for [[help:auto-complete-mode][auto-complete-mode]],
+[[help:yas-minor-mode][yas-minor-mode]] and [[help:indent-for-tab-command][indent-for-tab-command]]. This is not placed in [[file:starter-kit-bindings.org][bindings]] for
+that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for%20program%20modes][Super TAB for program modes]].
+#+begin_src emacs-lisp
+(defun tab-expand-or-indent ()
+  (interactive)
+  (let* ((bounds (bounds-of-thing-at-point 'word))
+         (b0 (car bounds))
+         (b1 (cdr bounds))
+         (p (point))
+         (yas-fallback-behavior 'return-nil))
+    (cond
+     ((and yas-minor-mode
+           b0
+           b1
+           (<= (- p b0) 2)
+           (= p b1)
+           (yas-expand)))
+     ((and yas-minor-mode
+           (yas--snippets-at-point))
+      (yas-next-field))
+     (t
+      (indent-for-tab-command)))))
+
+(defun setup-super-tab ()
+  (interactive)
+  (local-set-key (kbd "TAB") #'tab-expand-or-indent)
+  (local-set-key [tab] #'tab-expand-or-indent))
+
+(add-hook 'prog-mode-hook #'setup-super-tab)
+(add-hook 'cmake-mode-hook #'setup-super-tab)
 #+end_src
