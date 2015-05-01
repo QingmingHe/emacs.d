@@ -33,12 +33,7 @@
   (c-turn-on-eldoc-mode)
   (modify-syntax-entry ?_ "w")
   (c-set-offset 'substatement-open 0)
-  (local-set-key (kbd "C-x C-o") 'ff-find-other-file)
-  (setq prettify-symbols-alist
-        '(("!=" . ?≠)
-          (">=" . ?≥)
-          ("<=" . ?≤)))
-  (prettify-symbols-mode 1))
+  (local-set-key (kbd "C-x C-o") 'ff-find-other-file))
 (eval-after-load "cc-mode"
   `(progn
      (add-hook 'c-mode-hook 'my-c-common-config)

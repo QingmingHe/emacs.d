@@ -69,16 +69,22 @@ Use anaconda as backend.
 (with-eval-after-load 'python
   (if (eq 0
           (call-process-shell-command
-           "python -c \"import jedi\""))
+           "python -c \"import jedi;import six;import service_factory\""))
       (setq jedi-is-installed t)
-    (setq jedi-is-installed nil)))
+    (setq jedi-is-installed nil)
+    (warn "six, service_factory and jedi should be installed!")))
 #+end_src
 
 ** C
 
 #+begin_src emacs-lisp
 (defun c-company-setup ()
+  (add-to-list 'company-backends 'company-c-headers)
   (when clang-installed
+    (unless (featurep 'company-clang)
+      (require 'company-clang))
+    (unless company-clang--version
+      (setq company-clang--version (company-clang-version)))
     (add-to-list 'company-backends
                  '(company-clang
                    company-dabbrev-code

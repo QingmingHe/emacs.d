@@ -82,6 +82,8 @@ following function allows these two to play nicely together.
 ** Use popup
 #+begin_src emacs-lisp
 (defun yas-popup-isearch-prompt (prompt choices &optional display-fn)
+  (unless (featurep 'popup)
+    (require 'popup))
   (popup-menu*
    (mapcar
     (lambda (choice)

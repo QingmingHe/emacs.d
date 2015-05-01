@@ -146,11 +146,12 @@ I have do some hack with isearch to reproduce the *jk* magic.
 ** Popup
 
 #+begin_src emacs-lisp
-(define-key popup-menu-keymap (kbd "M-n") 'popup-next)
-(define-key popup-menu-keymap (kbd "TAB") 'popup-next)
-(define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
-(define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
-(define-key popup-menu-keymap (kbd "M-p") 'popup-previous)
+(with-eval-after-load 'popup
+  (define-key popup-menu-keymap (kbd "M-n") 'popup-next)
+  (define-key popup-menu-keymap (kbd "TAB") 'popup-next)
+  (define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
+  (define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
+  (define-key popup-menu-keymap (kbd "M-p") 'popup-previous))
 #+end_src
 
 ** Hungry delete
@@ -303,4 +304,35 @@ back.
  ("a" mc/mark-all-like-this "all")
  ("l" mc/edit-lines "lines")
  ("q" nil "quit"))
+#+end_src
+
+** Super tab for yasnippet or indent
+
+#+begin_src emacs-lisp
+(defun tab-expand-or-indent ()
+  (interactive)
+  (let* ((bounds (bounds-of-thing-at-point 'word))
+         (b0 (car bounds))
+         (b1 (cdr bounds))
+         (p (point)))
+    (cond
+     ((and yas-minor-mode
+           b0
+           b1
+           (<= (- p b0) 2)
+           (= p b1)
+           (yas-expand)))
+     ((and yas-minor-mode
+           (yas--snippets-at-point))
+      (yas-next-field))
+     (t
+      (indent-for-tab-command)))))
+
+(defun setup-super-tab ()
+  (interactive)
+  (local-set-key (kbd "TAB") #'tab-expand-or-indent)
+  (local-set-key [tab] #'tab-expand-or-indent))
+
+(add-hook 'prog-mode-hook #'setup-super-tab)
+(add-hook 'cmake-mode-hook #'setup-super-tab)
 #+end_src

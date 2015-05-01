@@ -161,6 +161,7 @@ point is a existing directory. Otherwise helm is used to complete."
 
 #+begin_src emacs-lisp
 (defun my-eshell-config ()
+  (require 'subr-x)
   (visual-line-mode 1)
   (adaptive-wrap-prefix-mode 1))
 (add-hook 'eshell-mode-hook #'my-eshell-config)
