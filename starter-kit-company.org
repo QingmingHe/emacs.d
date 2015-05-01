@@ -56,7 +56,13 @@ Use anaconda as backend.
     (anaconda-mode)
     (add-to-list 'company-backends
                  '(company-anaconda
-                   company-dabbrev-code))))
+                   ;; Do you really need this "words in same mode buffers"
+                   ;; backend? Anaconda already has supports for "words in
+                   ;; buffer" and "keywords" or likewise and is smarter than
+                   ;; the `company-dabbrev-code' backend. To complete words in
+                   ;; other buffers, use `hippie-expand' instead.
+                   ;; company-dabbrev-code
+                   ))))
 
 (add-hook 'python-mode-hook 'python-company-setup)
 
