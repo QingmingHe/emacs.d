@@ -1,9 +1,9 @@
-;;; s-autoloads.el --- automatically extracted autoloads
+;;; json-rpc-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil nil ("s.el") (21751 12841 914030 300000))
+;;;### (autoloads nil nil ("json-rpc.el") (21827 1853 971726 600000))
 
 ;;;***
 
@@ -12,4 +12,4 @@
 ;; no-byte-compile: t
 ;; no-update-autoloads: t
 ;; End:
-;;; s-autoloads.el ends here
+;;; json-rpc-autoloads.el ends here
