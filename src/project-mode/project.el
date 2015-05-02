@@ -33,6 +33,18 @@
 
 ;;; project configure/initialize
 
+(defvar prj/helm-etags-splitter "\001"
+  "Splitter of file name and line in `prj/helm-etags'.")
+
+(defvar prj/recenter-after-goto-tag t
+  "Whether recenter window after go to tag.")
+
+(defvar prj/helm-etags-match-part t
+  "Whether not match file part of tag.")
+
+(defvar prj/helm-etags-input-at-point t
+  "Whether take symbol at point as default input.")
+
 (defvar prj/auto-insert-after-find-file nil
   "Whether call `auto-insert' after finding project file.")
 
@@ -730,6 +742,113 @@ List of include paths, include \"-I\" flag."
                                ("Run multi occur at project buffers" . prj/helm-occur-project)))))
         :buffer "*project helm mini*"))
 
+;;; project helm etags
+
+(defun prj/helm-etags-build-hash (tags-file &optional recursively)
+  (let ((etags-hash (make-hash-table :test 'equal))
+        key file file-end-in-tags tag line pm)
+    (with-temp-buffer
+      (when (file-exists-p tags-file)
+        (insert-file-contents tags-file))
+      (setq pm (point-max))
+      (goto-char (point-min))
+      (while (search-forward "\f\n" pm t)
+        (setq file (buffer-substring-no-properties
+                    (point)
+                    (1- (search-forward ","))))
+        (setq file-end-in-tags (or
+                                (save-excursion
+                                  (search-forward "\f" pm t))
+                                pm))
+        (while (search-forward "\177" file-end-in-tags t)
+          (setq tag (buffer-substring-no-properties
+                     (line-beginning-position)
+                     (1- (point))))
+          (setq line (buffer-substring-no-properties
+                      (search-forward "\001")
+                      (1- (search-forward ","))))
+          (setq key (format "%s %s %s" tag prj/helm-etags-splitter file))
+          (puthash key (cons file line) etags-hash))))
+    etags-hash))
+
+(defun prj/helm-etags-candidates ()
+  (let* ((p (or project-details (project-root-fetch)))
+         (tags-file (project-root-data :-tags-file p))
+         (last-tags-file-mod-time
+          (project-root-data :-last-tags-file-mod-time p))
+         (tags-file-mod-time (nth 5 (file-attributes tags-file)))
+         candidates)
+    (when (or (not last-tags-file-mod-time)
+              (not (project-root-data :-etags-hash-cache p))
+              (time-less-p last-tags-file-mod-time tags-file-mod-time))
+      (project-root-set-data
+       :-etags-hash-cache
+       (prj/helm-etags-build-hash tags-file)
+       p)
+      (project-root-set-data
+       :-last-tags-file-mod-time tags-file-mod-time p))
+    (maphash
+     (lambda (key val)
+       (setq candidates (cons key candidates)))
+     (or (project-root-data :-etags-hash-cache p)
+         (make-hash-table :test 'equal)))
+    candidates))
+
+(defun prj/helm-etags-goto (c)
+  (let* ((p (or project-details (project-root-fetch)))
+         val file line etags-hash)
+    (when (and
+           (setq etags-hash (project-root-data :-etags-hash-cache p))
+           (setq val (gethash c etags-hash)))
+      (ring-insert find-tag-marker-ring (point-marker))
+      (setq file (car val)
+            line (cdr val))
+      (find-file file)
+      (goto-line (string-to-int line))
+      (when prj/recenter-after-goto-tag
+        (recenter)))))
+
+(defun prj/helm-etags-goto-other-window (c)
+  (let* ((p (or project-details (project-root-fetch)))
+         val file line etags-hash)
+    (when (and
+           (setq etags-hash (project-root-data :-etags-hash-cache p))
+           (setq val (gethash c etags-hash)))
+      (ring-insert find-tag-marker-ring (point-marker))
+      (setq file (car val)
+            line (cdr val))
+      (find-file-other-window file)
+      (goto-line (string-to-int line))
+      (when prj/recenter-after-goto-tag
+        (recenter)))))
+
+(defun prj/helm-etags-match-part (c)
+  (if prj/helm-etags-match-part
+      (car (split-string c prj/helm-etags-splitter))
+    c))
+
+(defun prj/helm-etags-default ()
+  (let* ((bounds (bounds-of-thing-at-point 'symbol))
+         (b0 (car bounds))
+         (b1 (cdr bounds))
+         (str ""))
+    (when (and b0 b1 prj/helm-etags-input-at-point)
+      (setq str (buffer-substring-no-properties b0 b1)))
+    str))
+
+(defun prj/helm-etags ()
+  (interactive)
+  (unless (featurep 'helm)
+    (require 'helm))
+  (let ((default-input (prj/helm-etags-default)))
+    (helm :sources `(((name . "Project tags")
+                      (candidates . prj/helm-etags-candidates)
+                      (match-part . prj/helm-etags-match-part)
+                      (action . (("Go to tag" . prj/helm-etags-goto)
+                                 ("Go to tag other window"
+                                  . prj/helm-etags-goto-other-window)))))
+          :input default-input)))
+
 ;;; auto complete ac-sources and company backends
 
 (defun prj/ac-gtags-candidate ()
@@ -756,7 +875,8 @@ Returns a list of tag string."
         tags buf b0 b1 pm last-time elapsed-time)
     (setq last-time (current-time))
     (with-temp-buffer
-      (insert-file-contents tags-file)
+      (when (file-exists-p tags-file)
+        (insert-file-contents tags-file))
       (setq pm (point-max))
       (goto-char (point-min))
       (while (search-forward prefix-search pm t)

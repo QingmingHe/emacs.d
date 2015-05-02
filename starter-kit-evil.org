@@ -174,7 +174,7 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
              ;; for some reason `exit' symbol should be `catch' TODO
              (catch 'exit
                (helm-gtags-select))
-           (helm-etags-select arg)))
+           (prj/helm-etags)))
   "dta" 'helm-gtags-dwim
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()

@@ -12,6 +12,7 @@ Activate company for coding:
       company-require-match nil
       company-auto-complete nil
       company-show-numbers t
+      company-selection-wrap-around t
       company-dabbrev-downcase nil
       company-clang-insert-arguments nil
       company-gtags-insert-arguments nil
