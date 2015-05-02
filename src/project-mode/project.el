@@ -289,6 +289,22 @@ from project root to PATH-BEGIN."
 
 ;;; project tags
 
+(defun prj/gen-etags-dir (path pattern tags-file)
+  "Generate TAGS-FILE under PATH for given file PATTERN."
+  (interactive
+   (list
+    (ido-read-directory-name "where: ")
+    (read-string "pattern: ")
+    (read-string "tags file (default \"TAGS\"): " nil nil "TAGS")))
+  (let ((default-directory path)
+        (pattern (if (string-match "\\`[ \t]*\\'" pattern)
+                     ""
+                   (format "-name \"%s\"" pattern))))
+    (shell-command
+     (format "%s %s -type f -regex \"%s\" %s | xargs %s -e -f %s -a"
+             (project-root-find-executable) path project-root-file-regexp
+             pattern prj/ctags-exec tags-file))))
+
 (defun prj/generate-etags ()
   "Generate TAGS at project root."
   (interactive)
@@ -299,8 +315,8 @@ from project root to PATH-BEGIN."
       (delete-file tags-file))
     (message "Generating TAGS file for %s ..." (car p))
     (shell-command
-     (format "%s | xargs ctags -e -f %s -a"
-             (project-root-find-cmd) tags-file))
+     (format "%s | xargs %s -e -f %s -a"
+             (project-root-find-cmd) prj/ctags-exec tags-file))
     (message "Done")))
 
 (defun prj/get-gtags-label (&optional p)
@@ -614,8 +630,8 @@ List of include paths, include \"-I\" flag."
         (when (file-exists-p tags-file)
           (delete-file tags-file))
         (shell-command
-         (format "%s | xargs ctags -e -f %s -a"
-                 (project-root-find-cmd) tags-file))))))
+         (format "%s | xargs %s -e -f %s -a"
+                 (project-root-find-cmd) prj/ctags-exec tags-file))))))
 
 (defun prj/helm-create-new-file (file)
   (let* ((p (or project-details (project-root-fetch)))
@@ -732,20 +748,32 @@ List of include paths, include \"-I\" flag."
                       (eq (forward-line) 0)))
           (nreverse candidates))))))
 
-(defun prj/etags-get-tags-candidates (tags-file &optional prefix)
-  "Get all tags candidates matching PREFIX from TAGS-FILE. Returns a list of
-tag string."
-  (let (tags buf b0 b1 pm last-time elapsed-time)
+(defun prj/etags-get-tags-candidates (tags-file &optional prefix recursively)
+  "Get all tags candidates matching PREFIX from TAGS-FILE.
+
+Returns a list of tag string."
+  (let ((prefix-search (if prefix (concat "\177" prefix) "\177"))
+        tags buf b0 b1 pm last-time elapsed-time)
     (setq last-time (current-time))
     (with-temp-buffer
       (insert-file-contents tags-file)
       (setq pm (point-max))
       (goto-char (point-min))
-      (while (search-forward (format "\177%s" (or prefix "")) pm t)
+      (while (search-forward prefix-search pm t)
         (setq b0 (1+ (search-backward "\177")))
         (setq b1 (search-forward "\001" (line-end-position) t))
         (when (and b1 (> (setq b1 (1- b1)) b0))
-          (setq tags (cons (buffer-substring-no-properties b0 b1) tags)))))
+          (setq tags (cons (buffer-substring-no-properties b0 b1) tags))))
+      (when recursively
+        (goto-char (point-min))
+        (while (search-forward ",include\n" pm t)
+          (forward-line -1)
+          (setq tags (append tags
+                             (prj/etags-get-tags-candidates
+                              (buffer-substring-no-properties
+                               (line-beginning-position)
+                               (1- (search-forward ",")))
+                              prefix t))))))
     (setq elapsed-time (float-time (time-since last-time)))
     tags))
 
@@ -769,7 +797,7 @@ tag string."
          (string= (substring ac-prefix 0 last-ac-prefix-len) last-ac-prefix)
          (not (time-less-p last-tags-file-mod-time tags-file-mod-time)))
         (all-completions ac-prefix last-ac-cache)
-      (setq last-ac-cache (prj/etags-get-tags-candidates tags-file ac-prefix))
+      (setq last-ac-cache (prj/etags-get-tags-candidates tags-file ac-prefix t))
       (project-root-set-data :-last-tags-file-mod-time tags-file-mod-time p)
       (project-root-set-data :-last-ac-prefix ac-prefix p)
       (project-root-set-data :-last-ac-cache last-ac-cache p)
@@ -839,14 +867,14 @@ tag string."
   (let* ((p (or project-details (project-root-fetch)))
          (tags-file (when p (project-root-data :-tags-file p))))
     (when (and prefix tags-file)
-      (prj/etags-get-tags-candidates tags-file prefix))))
+      (prj/etags-get-tags-candidates tags-file prefix t))))
 
 (defun prj/company-etags-prefix-p ()
   (and
    (not (company-in-string-or-comment))
-   (or (company-grab-symbol) 'stop)
    (symbolp -project-buffer-use-company-etags)
-   -project-buffer-use-company-etags))
+   -project-buffer-use-company-etags
+   (or (company-grab-symbol) 'stop)))
 
 (defun prj/company-etags (command &optional arg &rest ignored)
   "`company-mode' completion backend for etags."
@@ -865,12 +893,12 @@ tag string."
       (company-mode 1))
     (if (project-root-data :-use-gtags)
         (add-to-list 'company-backends
-                     '(company-dabbrev-code
-                       company-gtags
+                     '(company-gtags
+                       company-dabbrev-code
                        company-keywords))
       (add-to-list 'company-backends
-                   '(company-dabbrev-code
-                     prj/company-etags
+                   '(prj/company-etags
+                     company-dabbrev-code
                      company-keywords))
       (setq-local -project-buffer-use-company-etags t))))
 

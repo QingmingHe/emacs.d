@@ -334,3 +334,13 @@ visit if current buffer is not visiting a file."
   (define-key keymap-from key nil)
   (define-key keymap-to key (lookup-key keymap-from key)))
 #+end_src
+
+** Reopen file
+
+#+begin_src emacs-lisp
+(defun reopen-current-file ()
+  (interactive)
+  (let ((file (buffer-file-name)))
+    (kill-buffer)
+    (find-file file)))
+#+end_src
