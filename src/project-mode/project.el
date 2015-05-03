@@ -832,20 +832,35 @@ List of include paths, include \"-I\" flag."
     files))
 
 (defun prj/should-reload-files-p (files p cache-symbol)
-  (let (yes? mod-time last-mod-time last-mod-time-symbol)
+  (let ((files (or files '(nil)))
+        (p (or p project-details (project-root-fetch)))
+        yes? mod-time last-mod-time last-mod-time-symbol)
     (catch 'should-reload-p
       (mapc
        (lambda (file)
-         (unless (and (file-exists-p file)
-                      (setq mod-time (nth 5 (file-attributes file)))
-                      (setq last-mod-time-symbol
-                            (intern (format ":-%s-last-mod-time" file)))
-                      (prog1
-                          (setq last-mod-time
-                                (project-root-data last-mod-time-symbol p))
-                        (project-root-set-data last-mod-time-symbol mod-time p))
-                      (not (time-less-p last-mod-time mod-time))
-                      (project-root-data cache-symbol p))
+         (unless (and (if file
+                          (file-exists-p file)
+                        t)
+                      (if file
+                          (setq mod-time (nth 5 (file-attributes file)))
+                        t)
+                      (if file
+                          (setq last-mod-time-symbol
+                                (intern (format ":-%s-last-mod-time" file)))
+                        t)
+                      (if file
+                          (prog1
+                              (setq last-mod-time
+                                    (project-root-data last-mod-time-symbol p))
+                            (project-root-set-data last-mod-time-symbol
+                                                   mod-time p))
+                        t)
+                      (if file
+                          (not (time-less-p last-mod-time mod-time))
+                        t)
+                      (if cache-symbol
+                          (project-root-data cache-symbol p)
+                        t))
            (throw 'should-reload-p (setq yes? t))))
        files))
     yes?))
@@ -854,24 +869,22 @@ List of include paths, include \"-I\" flag."
   (let* ((p (or project-details (project-root-fetch)))
          (tags-file (project-root-data :-tags-file p))
          (tags-files (prj/get-tags-file-recursively tags-file))
-         candidates etags-hash-cache)
+         candidates)
     (unless (project-root-data :-etags-hash-cache p)
            (project-root-set-data
             :-etags-hash-cache
             (make-hash-table :test 'equal) p))
-    (setq etags-hash-cache (project-root-data :-etags-hash-cache p))
     (mapc
      (lambda (tags-file)
        (when (prj/should-reload-files-p (list tags-file) p :-etags-hash-cache)
          (puthash tags-file
                   (prj/helm-etags-build-list tags-file)
-                  etags-hash-cache)))
+                  (project-root-data :-etags-hash-cache p))))
      tags-files)
-    (project-root-set-data :-etags-hash-cache etags-hash-cache p)
     (maphash
      (lambda (key val)
        (setq candidates (append val candidates)))
-     etags-hash-cache)
+     (project-root-data :-etags-hash-cache p))
     candidates))
 
 (defun prj/helm-etags-goto (switcher c)
