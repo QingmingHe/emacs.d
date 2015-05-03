@@ -777,7 +777,7 @@ List of include paths, include \"-I\" flag."
                  tags-list))))
       (when recursively
         (goto-char (point-min))
-        (while (search-forward ",include\n" nil t)
+        (while (search-forward ",include\n" pm t)
           (forward-line -1)
           (setq file (buffer-substring-no-properties
                       (point) (1- (search-forward ","))))
