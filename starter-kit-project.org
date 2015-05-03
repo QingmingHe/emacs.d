@@ -112,7 +112,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
   (interactive)
   (setq helm-etags-match-part-only (not helm-etags-match-part-only)))
 (eval-after-load "helm-tags"
-  `(define-key helm-etags-map (kbd "C-c C-c") 'helm-etags-toggle-match-part-only))
+  `(define-key helm-etags-map (kbd "C-c C-t") 'helm-etags-toggle-match-part-only))
 #+end_src
 
 ** Gtags
