@@ -137,6 +137,10 @@ library.")
 (defvar prj/extra-company-backeds '(company-dabbrev-code company-keywords)
   "Extra `company-backeds' grouped with `company-gtags' or `prj/company-etags'.")
 
+(defvar prj/buffer-is-using-etags-backend nil
+  "Whether current buffer is using `prj/company-etags'.")
+(make-variable-buffer-local 'prj/buffer-is-using-etags-backend)
+
 (with-eval-after-load 'helm
   (defvar prj/helm-etags-map
     (let ((map helm-map))
@@ -310,7 +314,7 @@ from project root to PATH-BEGIN."
                   (kill-buffer buffer)))))
      (buffer-list))))
 
-;;; project tags
+;;; project tags handling
 
 (defun prj/gen-etags-dir (path pattern tags-file)
   "Generate TAGS-FILE under PATH for given file PATTERN."
@@ -1102,17 +1106,32 @@ Returns a list of tag string."
 Don't worry about the time. I've tested with a TAGS file over 4 MB with the
 time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
   (let* ((p project-details)
-         (tags-file (project-root-data :-tags-file p)))
-    (when (and prefix tags-file)
-      (prj/etags-get-tags-candidates tags-file prefix t))))
+         (tags-file (project-root-data :-tags-file p))
+         (last-company-prefix
+          (or (project-root-data :-last-company-prefix p) ""))
+         (last-company-prefix-len (length last-company-prefix))
+         (company-prefix-len (length prefix))
+         last-company-cache)
+    (if (and
+         (>= company-prefix-len last-company-prefix-len)
+         (eq 0 (string-match last-company-prefix prefix))
+         (not
+          (prj/should-reload-files-p
+           (list tags-file) p :-last-company-prefix)))
+        (all-completions prefix (project-root-data :-last-company-cache p))
+      (setq last-company-cache
+            (prj/etags-get-tags-candidates tags-file prefix t))
+      (project-root-set-data
+       :-last-company-cache last-company-cache p)
+      (project-root-set-data :-last-company-prefix prefix)
+      last-company-cache)))
 
 (defun prj/company-etags-prefix-p ()
   "Get `company' prefix."
   (and
    project-details
    (not (company-in-string-or-comment))
-   (symbolp -project-buffer-use-company-etags)
-   -project-buffer-use-company-etags
+   prj/buffer-is-using-etags-backend
    (or (company-grab-symbol) 'stop)))
 
 (defun prj/company-etags (command &optional arg &rest ignored)
@@ -1137,7 +1156,7 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
       (add-to-list 'company-backends
                    `(prj/company-etags
                      ,@prj/extra-company-backeds))
-      (setq-local -project-buffer-use-company-etags t))))
+      (setq prj/buffer-is-using-etags-backend t))))
 
 ;;; project minor/global mode
 

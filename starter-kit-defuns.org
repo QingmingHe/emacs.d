@@ -269,10 +269,10 @@ or =defcustom= with =setq= or use =eval-defun=.
 #+begin_src emacs-lisp
 (defun copy-buffer-name-as-kill ()
   (interactive)
-  (let* ((c (read-char "[b]=name [f]=fullName [d]=directoryName"))
+  (let* ((c (read-char "[n]=name [f]=fullName [d]=directoryName"))
          (thing
           (cond
-           ((= c ?b) (buffer-name))
+           ((= c ?n) (buffer-name))
            ((= c ?f) (buffer-file-name))
            ((= c ?d) (expand-file-name default-directory)))))
     (when thing
