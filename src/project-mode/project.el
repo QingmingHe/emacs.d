@@ -772,6 +772,12 @@ List of include paths, include \"-I\" flag."
 ;;; project helm etags
 
 (defun prj/helm-etags-build-list (tags-file &optional recursively)
+  "Get all the tags in TAGS-FILE.
+
+If RECURSIVELY is t, get tags in included tags files recursively; otherwise
+only TAGS-FILE will be loaded. Returns a list of tags string with each string
+contains tag, file and line number which are split by
+`prj/helm-etags-splitter'."
   (let (tags-list file file-end-in-tags tag pm line-num)
     (with-temp-buffer
       (when (file-exists-p tags-file)
@@ -813,6 +819,7 @@ List of include paths, include \"-I\" flag."
     tags-list))
 
 (defun prj/get-tags-file-recursively (tags-file)
+  "Get tags file name recursively for given TAGS-FILE."
   (let ((files (list tags-file))
         file)
     (with-temp-buffer
@@ -832,6 +839,11 @@ List of include paths, include \"-I\" flag."
     files))
 
 (defun prj/should-reload-files-p (files p cache-symbol)
+  "Determine whether FILES should be reloaded.
+
+Modification file of FILES and CACHE-SYMBOL existence of project P is checked
+to determine whether FILES should be reloaded. FILES should be a list of
+files. If FILES is nil, the modification time will not be checked."
   (let ((files (or files '(nil)))
         (p (or p project-details (project-root-fetch)))
         yes? mod-time last-mod-time last-mod-time-symbol)
@@ -866,6 +878,10 @@ List of include paths, include \"-I\" flag."
     yes?))
 
 (defun prj/helm-etags-candidates ()
+  "Get tags candidates from project tags file.
+
+The tags file is loaded recursively. Tags cache and modification time of the
+tags files are checked to determine whether tags should be reloaded."
   (let* ((p (or project-details (project-root-fetch)))
          (tags-file (project-root-data :-tags-file p))
          (tags-files (prj/get-tags-file-recursively tags-file))
@@ -888,6 +904,7 @@ List of include paths, include \"-I\" flag."
     candidates))
 
 (defun prj/helm-etags-goto (switcher c)
+  "Go to a tag."
   (let* ((words (split-string c prj/helm-etags-splitter))
          (file (nth 1 words))
          (line-num (string-to-int (nth 2 words))))
@@ -898,16 +915,21 @@ List of include paths, include \"-I\" flag."
     (recenter)))
 
 (defun prj/helm-etags-match-part (c)
+  "Returns part or all of candidate C."
   (if prj/helm-etags-match-part
       (car (split-string c prj/helm-etags-splitter))
     c))
 
 (defun prj/helm-etags-toggle-match-part ()
+  "Toggle value of `prj/helm-etags-match-part'."
   (interactive)
   (setq prj/helm-etags-match-part
         (not prj/helm-etags-match-part)))
 
 (defun prj/helm-etags-default ()
+  "Default input for `prj/helm-etags'.
+
+Symbol at point will be the default input."
   (let* ((bounds (bounds-of-thing-at-point 'symbol))
          (b0 (car bounds))
          (b1 (cdr bounds))
@@ -917,6 +939,7 @@ List of include paths, include \"-I\" flag."
     str))
 
 (defun prj/helm-etags ()
+  "Preconfigured `helm' for etags."
   (interactive)
   (unless (featurep 'helm)
     (require 'helm))
@@ -1008,6 +1031,7 @@ Returns a list of tag string."
       last-ac-cache)))
 
 (defun prj/ac-define-etags-source ()
+  "Define `auto-complete' source for etags."
   (ac-define-source prj/etags
     '((candidates . prj/ac-etags-candidates)
       (candidate-face . prj/ac-etags-candidate-face)
@@ -1015,6 +1039,7 @@ Returns a list of tag string."
       (requires . 3))))
 
 (defun prj/ac-define-gtags-source ()
+  "Define `auto-complete' source for gtags."
   (ac-define-source prj/gtags
     '((candidates . prj/ac-gtags-candidate)
       (candidate-face . prj/ac-gtags-candidate-face)
@@ -1022,6 +1047,7 @@ Returns a list of tag string."
       (requires . 3))))
 
 (defun prj/ac-setup (p)
+  "Setup `auto-complete' for project P."
   (when (prj/use-completion p (current-buffer))
     (unless (featurep 'auto-complete)
       (require 'auto-complete))
@@ -1068,12 +1094,17 @@ Returns a list of tag string."
     yes?))
 
 (defun prj/company-etags-candidates (prefix)
+  "Get candidates from all tags file recursively matching PREFIX.
+
+Don't worry about the time. I've tested with a TAGS file over 4 MB with the
+time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
   (let* ((p project-details)
          (tags-file (project-root-data :-tags-file p)))
     (when (and prefix tags-file)
       (prj/etags-get-tags-candidates tags-file prefix t))))
 
 (defun prj/company-etags-prefix-p ()
+  "Get `company' prefix."
   (and
    project-details
    (not (company-in-string-or-comment))

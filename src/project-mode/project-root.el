@@ -273,7 +273,8 @@ will be used as defined in `project-roots'."
     (project-root-save-roots))
   ;; don't set project-details duplicately.
   (unless project-details
-    (setq project-details p)))
+    (setq project-details p))
+  p)
 
 (defun project-root-every (pred seq)
   "Return non-nil if pred of each element, of seq is non-nil."
