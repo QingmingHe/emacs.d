@@ -34,6 +34,12 @@
 
 ;;; project configure/initialize
 
+(defvar prj/project-locals-file ".project-locals.el"
+  "Files containing project local variables.")
+
+(defvar prj/load-project-locals-if-exists t
+  "Whether load project local variables.")
+
 (defvar prj/helm-etags-splitter " \001 "
   "Splitter of file name and line in `prj/helm-etags'.")
 
@@ -1160,6 +1166,41 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
 
 ;;; project minor/global mode
 
+(defun prj/load-project-locals (local-file buffer)
+  "Load project local variables from `prj/project-locals-file'."
+  (let (locals mode sym val)
+    (with-current-buffer buffer
+      (when (file-exists-p local-file)
+        (with-temp-buffer
+          (insert-file-contents local-file)
+          (setq locals (read (buffer-string))))
+        (mapc
+         (lambda (local)
+           (setq mode (car local))
+           (when (cond
+                  ((and
+                    (stringp mode)
+                    (eq 0
+                        (string-match
+                         (regexp-quote default-directory)
+                         (expand-file-name mode (cdr project-details))))))
+                  ((and
+                    (symbolp mode)
+                    (eq major-mode mode)))
+                  ((and
+                    (symbolp mode)
+                    (null mode))))
+             (mapc
+              (lambda (pair)
+                (setq sym (car pair)
+                      val (cdr pair))
+                (when (symbolp sym)
+                  (if (eq sym 'eval)
+                      (eval val)
+                    (eval `(setq-local ,sym val)))))
+              (cdr local))))
+         locals)))))
+
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
   :lighter prj/buffer-mode-lighter
@@ -1201,9 +1242,12 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
                 (when (project-root-file-is-project-file fname p)
                   (add-hook 'after-save-hook
                             'prj/update-tags-single-file nil t))
-                (cond ((string= "gtags" tags-tool) (project-root-set-data :-use-gtags t p))
-                      ((string= "ctags" tags-tool) (project-root-set-data :-use-gtags nil p))
-                      (t (project-root-set-data :-use-gtags nil p)))
+                (cond ((string= "gtags" tags-tool)
+                       (project-root-set-data :-use-gtags t p))
+                      ((string= "ctags" tags-tool)
+                       (project-root-set-data :-use-gtags nil p))
+                      (t
+                       (project-root-set-data :-use-gtags nil p)))
                 (if (project-root-data :-use-gtags p)
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
@@ -1218,6 +1262,13 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
               ;; auto insert file header
               (when prj/auto-insert-after-find-file
                 (auto-insert))
+              ;; load project local variables
+              (when (and
+                     (file-exists-p prj/project-locals-file)
+                     prj/load-project-locals-if-exists)
+                (prj/load-project-locals
+                 prj/project-locals-file (current-buffer)))
+              ;; run project hooks
               (run-hooks (project-root-data :prj-setup-hooks p))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
