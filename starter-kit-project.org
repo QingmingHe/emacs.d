@@ -32,6 +32,7 @@ First define projects.
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
+         :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
          :use-completion (f90-mode)
          :lighter "SUGAR")
         ("mcnp"

@@ -330,13 +330,23 @@ from project root to PATH-BEGIN."
   (interactive)
   (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p))
-         (tags-file prj/etags-tags-file))
+         (tags-file prj/etags-tags-file)
+         included-files)
     (when (file-exists-p tags-file)
       (delete-file tags-file))
     (message "Generating TAGS file for %s ..." (car p))
     (shell-command
      (format "%s | xargs %s -e -f %s -a"
              (project-root-find-cmd) prj/ctags-exec tags-file))
+    (when (setq included-files
+                (project-root-data :include-tags p))
+      (mapc
+       (lambda (file)
+         (when (file-exists-p file)
+           (shell-command
+            (format "%s -e -f %s -a --etags-include=%s"
+                    prj/ctags-exec tags-file (expand-file-name file)))))
+       included-files))
     (message "Done")))
 
 (defun prj/get-gtags-label (&optional p)
@@ -639,7 +649,8 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/helm-gen-tags (proot)
   (let* ((default-directory proot)
-         (p (project-root-fetch)))
+         (p (project-root-fetch))
+         (included-files (project-root-data :include-tags p)))
     (if (y-or-n-p "Use GNU global? ")
         (shell-command
          (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
@@ -651,7 +662,15 @@ List of include paths, include \"-I\" flag."
           (delete-file tags-file))
         (shell-command
          (format "%s | xargs %s -e -f %s -a"
-                 (project-root-find-cmd) prj/ctags-exec tags-file))))))
+                 (project-root-find-cmd) prj/ctags-exec tags-file))
+        (when included-files
+          (mapc
+           (lambda (file)
+             (when (file-exists-p file)
+               (shell-command
+                (format "%s -e -f %s -a --etags-include=%s"
+                        prj/ctags-exec tags-file (expand-file-name file)))))
+           included-files))))))
 
 (defun prj/helm-create-new-file (file)
   (let* ((p (or project-details (project-root-fetch)))
