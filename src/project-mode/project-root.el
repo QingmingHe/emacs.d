@@ -242,8 +242,9 @@ anything."
         (setq project-root-seen-projects (read (buffer-string))))))
 
 (defun project-root-fetch (&optional dont-run-on-hit)
-  "Attempt to fetch the root project for the current file. Tests
-will be used as defined in `project-roots'."
+  "Attempt to fetch the root project for the current file.
+
+Tests will be used as defined in `project-roots'. Returns fetched project."
   (interactive)
   (let ((project
          (catch 'root-found

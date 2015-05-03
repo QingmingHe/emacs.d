@@ -134,6 +134,9 @@ library.")
   '((t (:background "navy" :foreground "white")))
   "Face for the gtags selected candidate.")
 
+(defvar prj/extra-company-backeds '(company-dabbrev-code company-keywords)
+  "Extra `company-backeds' grouped with `company-gtags' or `prj/company-etags'.")
+
 (with-eval-after-load 'helm
   (defvar prj/helm-etags-map
     (let ((map helm-map))
@@ -1023,7 +1026,7 @@ Returns a list of tag string."
          ac-prefix
          (>= ac-prefix-len last-ac-prefix-len)
          (string= (substring ac-prefix 0 last-ac-prefix-len) last-ac-prefix)
-         (prj/should-reload-files-p (list tags-file) p :-last-ac-cache))
+         (not (prj/should-reload-files-p (list tags-file) p :-last-ac-cache)))
         (all-completions ac-prefix last-ac-cache)
       (setq last-ac-cache (prj/etags-get-tags-candidates tags-file ac-prefix t))
       (project-root-set-data :-last-ac-prefix ac-prefix p)
@@ -1129,13 +1132,11 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
       (company-mode 1))
     (if (project-root-data :-use-gtags)
         (add-to-list 'company-backends
-                     '(company-gtags
-                       company-dabbrev-code
-                       company-keywords))
+                     `(company-gtags
+                       ,@prj/extra-company-backeds))
       (add-to-list 'company-backends
-                   '(prj/company-etags
-                     company-dabbrev-code
-                     company-keywords))
+                   `(prj/company-etags
+                     ,@prj/extra-company-backeds))
       (setq-local -project-buffer-use-company-etags t))))
 
 ;;; project minor/global mode
