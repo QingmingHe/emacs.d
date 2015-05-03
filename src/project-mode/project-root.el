@@ -242,8 +242,9 @@ anything."
         (setq project-root-seen-projects (read (buffer-string))))))
 
 (defun project-root-fetch (&optional dont-run-on-hit)
-  "Attempt to fetch the root project for the current file. Tests
-will be used as defined in `project-roots'."
+  "Attempt to fetch the root project for the current file.
+
+Tests will be used as defined in `project-roots'. Returns fetched project."
   (interactive)
   (let ((project
          (catch 'root-found
@@ -271,7 +272,10 @@ will be used as defined in `project-roots'."
   (unless (member p project-root-seen-projects)
     (add-to-list 'project-root-seen-projects p)
     (project-root-save-roots))
-  (setq project-details p))
+  ;; don't set project-details duplicately.
+  (unless project-details
+    (setq project-details p))
+  p)
 
 (defun project-root-every (pred seq)
   "Return non-nil if pred of each element, of seq is non-nil."

@@ -134,6 +134,13 @@ library.")
   '((t (:background "navy" :foreground "white")))
   "Face for the gtags selected candidate.")
 
+(defvar prj/extra-company-backeds '(company-dabbrev-code company-keywords)
+  "Extra `company-backeds' grouped with `company-gtags' or `prj/company-etags'.")
+
+(defvar prj/buffer-is-using-etags-backend nil
+  "Whether current buffer is using `prj/company-etags'.")
+(make-variable-buffer-local 'prj/buffer-is-using-etags-backend)
+
 (with-eval-after-load 'helm
   (defvar prj/helm-etags-map
     (let ((map helm-map))
@@ -307,7 +314,7 @@ from project root to PATH-BEGIN."
                   (kill-buffer buffer)))))
      (buffer-list))))
 
-;;; project tags
+;;; project tags handling
 
 (defun prj/gen-etags-dir (path pattern tags-file)
   "Generate TAGS-FILE under PATH for given file PATTERN."
@@ -330,13 +337,23 @@ from project root to PATH-BEGIN."
   (interactive)
   (let* ((p (or project-details (project-root-fetch)))
          (default-directory (cdr p))
-         (tags-file prj/etags-tags-file))
+         (tags-file prj/etags-tags-file)
+         included-files)
     (when (file-exists-p tags-file)
       (delete-file tags-file))
     (message "Generating TAGS file for %s ..." (car p))
     (shell-command
      (format "%s | xargs %s -e -f %s -a"
              (project-root-find-cmd) prj/ctags-exec tags-file))
+    (when (setq included-files
+                (project-root-data :include-tags p))
+      (mapc
+       (lambda (file)
+         (when (file-exists-p file)
+           (shell-command
+            (format "%s -e -f %s -a --etags-include=%s"
+                    prj/ctags-exec tags-file (expand-file-name file)))))
+       included-files))
     (message "Done")))
 
 (defun prj/get-gtags-label (&optional p)
@@ -639,7 +656,8 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/helm-gen-tags (proot)
   (let* ((default-directory proot)
-         (p (project-root-fetch)))
+         (p (project-root-fetch))
+         (included-files (project-root-data :include-tags p)))
     (if (y-or-n-p "Use GNU global? ")
         (shell-command
          (format "%s | gtags --gtagslabel=%s --gtagsconf=%s --file=-"
@@ -651,7 +669,15 @@ List of include paths, include \"-I\" flag."
           (delete-file tags-file))
         (shell-command
          (format "%s | xargs %s -e -f %s -a"
-                 (project-root-find-cmd) prj/ctags-exec tags-file))))))
+                 (project-root-find-cmd) prj/ctags-exec tags-file))
+        (when included-files
+          (mapc
+           (lambda (file)
+             (when (file-exists-p file)
+               (shell-command
+                (format "%s -e -f %s -a --etags-include=%s"
+                        prj/ctags-exec tags-file (expand-file-name file)))))
+           included-files))))))
 
 (defun prj/helm-create-new-file (file)
   (let* ((p (or project-details (project-root-fetch)))
@@ -753,6 +779,12 @@ List of include paths, include \"-I\" flag."
 ;;; project helm etags
 
 (defun prj/helm-etags-build-list (tags-file &optional recursively)
+  "Get all the tags in TAGS-FILE.
+
+If RECURSIVELY is t, get tags in included tags files recursively; otherwise
+only TAGS-FILE will be loaded. Returns a list of tags string with each string
+contains tag, file and line number which are split by
+`prj/helm-etags-splitter'."
   (let (tags-list file file-end-in-tags tag pm line-num)
     (with-temp-buffer
       (when (file-exists-p tags-file)
@@ -794,6 +826,7 @@ List of include paths, include \"-I\" flag."
     tags-list))
 
 (defun prj/get-tags-file-recursively (tags-file)
+  "Get tags file name recursively for given TAGS-FILE."
   (let ((files (list tags-file))
         file)
     (with-temp-buffer
@@ -813,49 +846,72 @@ List of include paths, include \"-I\" flag."
     files))
 
 (defun prj/should-reload-files-p (files p cache-symbol)
-  (let (yes? mod-time last-mod-time last-mod-time-symbol)
+  "Determine whether FILES should be reloaded.
+
+Modification file of FILES and CACHE-SYMBOL existence of project P is checked
+to determine whether FILES should be reloaded. FILES should be a list of
+files. If FILES is nil, the modification time will not be checked."
+  (let ((files (or files '(nil)))
+        (p (or p project-details (project-root-fetch)))
+        yes? mod-time last-mod-time last-mod-time-symbol)
     (catch 'should-reload-p
       (mapc
        (lambda (file)
-         (unless (and (file-exists-p file)
-                      (setq mod-time (nth 5 (file-attributes file)))
-                      (setq last-mod-time-symbol
-                            (intern (format ":-%s-last-mod-time" file)))
-                      (prog1
-                          (setq last-mod-time
-                                (project-root-data last-mod-time-symbol p))
-                        (project-root-set-data last-mod-time-symbol mod-time p))
-                      (not (time-less-p last-mod-time mod-time))
-                      (project-root-data cache-symbol p))
+         (unless (and (if file
+                          (file-exists-p file)
+                        t)
+                      (if file
+                          (setq mod-time (nth 5 (file-attributes file)))
+                        t)
+                      (if file
+                          (setq last-mod-time-symbol
+                                (intern (format ":-%s-last-mod-time" file)))
+                        t)
+                      (if file
+                          (prog1
+                              (setq last-mod-time
+                                    (project-root-data last-mod-time-symbol p))
+                            (project-root-set-data last-mod-time-symbol
+                                                   mod-time p))
+                        t)
+                      (if file
+                          (not (time-less-p last-mod-time mod-time))
+                        t)
+                      (if cache-symbol
+                          (project-root-data cache-symbol p)
+                        t))
            (throw 'should-reload-p (setq yes? t))))
        files))
     yes?))
 
 (defun prj/helm-etags-candidates ()
+  "Get tags candidates from project tags file.
+
+The tags file is loaded recursively. Tags cache and modification time of the
+tags files are checked to determine whether tags should be reloaded."
   (let* ((p (or project-details (project-root-fetch)))
          (tags-file (project-root-data :-tags-file p))
          (tags-files (prj/get-tags-file-recursively tags-file))
-         candidates etags-hash-cache)
+         candidates)
     (unless (project-root-data :-etags-hash-cache p)
            (project-root-set-data
             :-etags-hash-cache
             (make-hash-table :test 'equal) p))
-    (setq etags-hash-cache (project-root-data :-etags-hash-cache p))
     (mapc
      (lambda (tags-file)
        (when (prj/should-reload-files-p (list tags-file) p :-etags-hash-cache)
          (puthash tags-file
                   (prj/helm-etags-build-list tags-file)
-                  etags-hash-cache)))
+                  (project-root-data :-etags-hash-cache p))))
      tags-files)
-    (project-root-set-data :-etags-hash-cache etags-hash-cache p)
     (maphash
      (lambda (key val)
        (setq candidates (append val candidates)))
-     etags-hash-cache)
+     (project-root-data :-etags-hash-cache p))
     candidates))
 
 (defun prj/helm-etags-goto (switcher c)
+  "Go to a tag."
   (let* ((words (split-string c prj/helm-etags-splitter))
          (file (nth 1 words))
          (line-num (string-to-int (nth 2 words))))
@@ -866,16 +922,21 @@ List of include paths, include \"-I\" flag."
     (recenter)))
 
 (defun prj/helm-etags-match-part (c)
+  "Returns part or all of candidate C."
   (if prj/helm-etags-match-part
       (car (split-string c prj/helm-etags-splitter))
     c))
 
 (defun prj/helm-etags-toggle-match-part ()
+  "Toggle value of `prj/helm-etags-match-part'."
   (interactive)
   (setq prj/helm-etags-match-part
         (not prj/helm-etags-match-part)))
 
 (defun prj/helm-etags-default ()
+  "Default input for `prj/helm-etags'.
+
+Symbol at point will be the default input."
   (let* ((bounds (bounds-of-thing-at-point 'symbol))
          (b0 (car bounds))
          (b1 (cdr bounds))
@@ -885,6 +946,7 @@ List of include paths, include \"-I\" flag."
     str))
 
 (defun prj/helm-etags ()
+  "Preconfigured `helm' for etags."
   (interactive)
   (unless (featurep 'helm)
     (require 'helm))
@@ -968,7 +1030,7 @@ Returns a list of tag string."
          ac-prefix
          (>= ac-prefix-len last-ac-prefix-len)
          (string= (substring ac-prefix 0 last-ac-prefix-len) last-ac-prefix)
-         (prj/should-reload-files-p (list tags-file) p :-last-ac-cache))
+         (not (prj/should-reload-files-p (list tags-file) p :-last-ac-cache)))
         (all-completions ac-prefix last-ac-cache)
       (setq last-ac-cache (prj/etags-get-tags-candidates tags-file ac-prefix t))
       (project-root-set-data :-last-ac-prefix ac-prefix p)
@@ -976,6 +1038,7 @@ Returns a list of tag string."
       last-ac-cache)))
 
 (defun prj/ac-define-etags-source ()
+  "Define `auto-complete' source for etags."
   (ac-define-source prj/etags
     '((candidates . prj/ac-etags-candidates)
       (candidate-face . prj/ac-etags-candidate-face)
@@ -983,6 +1046,7 @@ Returns a list of tag string."
       (requires . 3))))
 
 (defun prj/ac-define-gtags-source ()
+  "Define `auto-complete' source for gtags."
   (ac-define-source prj/gtags
     '((candidates . prj/ac-gtags-candidate)
       (candidate-face . prj/ac-gtags-candidate-face)
@@ -990,6 +1054,7 @@ Returns a list of tag string."
       (requires . 3))))
 
 (defun prj/ac-setup (p)
+  "Setup `auto-complete' for project P."
   (when (prj/use-completion p (current-buffer))
     (unless (featurep 'auto-complete)
       (require 'auto-complete))
@@ -1036,17 +1101,37 @@ Returns a list of tag string."
     yes?))
 
 (defun prj/company-etags-candidates (prefix)
+  "Get candidates from all tags file recursively matching PREFIX.
+
+Don't worry about the time. I've tested with a TAGS file over 4 MB with the
+time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
   (let* ((p project-details)
-         (tags-file (project-root-data :-tags-file p)))
-    (when (and prefix tags-file)
-      (prj/etags-get-tags-candidates tags-file prefix t))))
+         (tags-file (project-root-data :-tags-file p))
+         (last-company-prefix
+          (or (project-root-data :-last-company-prefix p) ""))
+         (last-company-prefix-len (length last-company-prefix))
+         (company-prefix-len (length prefix))
+         last-company-cache)
+    (if (and
+         (>= company-prefix-len last-company-prefix-len)
+         (eq 0 (string-match last-company-prefix prefix))
+         (not
+          (prj/should-reload-files-p
+           (list tags-file) p :-last-company-prefix)))
+        (all-completions prefix (project-root-data :-last-company-cache p))
+      (setq last-company-cache
+            (prj/etags-get-tags-candidates tags-file prefix t))
+      (project-root-set-data
+       :-last-company-cache last-company-cache p)
+      (project-root-set-data :-last-company-prefix prefix)
+      last-company-cache)))
 
 (defun prj/company-etags-prefix-p ()
+  "Get `company' prefix."
   (and
    project-details
    (not (company-in-string-or-comment))
-   (symbolp -project-buffer-use-company-etags)
-   -project-buffer-use-company-etags
+   prj/buffer-is-using-etags-backend
    (or (company-grab-symbol) 'stop)))
 
 (defun prj/company-etags (command &optional arg &rest ignored)
@@ -1066,14 +1151,12 @@ Returns a list of tag string."
       (company-mode 1))
     (if (project-root-data :-use-gtags)
         (add-to-list 'company-backends
-                     '(company-gtags
-                       company-dabbrev-code
-                       company-keywords))
+                     `(company-gtags
+                       ,@prj/extra-company-backeds))
       (add-to-list 'company-backends
-                   '(prj/company-etags
-                     company-dabbrev-code
-                     company-keywords))
-      (setq-local -project-buffer-use-company-etags t))))
+                   `(prj/company-etags
+                     ,@prj/extra-company-backeds))
+      (setq prj/buffer-is-using-etags-backend t))))
 
 ;;; project minor/global mode
 

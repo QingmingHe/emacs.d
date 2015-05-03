@@ -81,7 +81,6 @@ Use anaconda as backend.
 
 #+begin_src emacs-lisp
 (defun c-company-setup ()
-  (add-to-list 'company-backends 'company-c-headers)
   (when clang-installed
     (unless (featurep 'company-clang)
       (require 'company-clang))
@@ -90,7 +89,8 @@ Use anaconda as backend.
     (add-to-list 'company-backends
                  '(company-clang
                    company-dabbrev-code
-                   company-keywords))))
+                   company-keywords)))
+  (add-to-list 'company-backends 'company-c-headers))
 
 (add-hook 'c-mode-hook 'c-company-setup)
 (add-hook 'c++-mode-hook 'c-company-setup)
