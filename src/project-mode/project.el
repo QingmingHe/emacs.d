@@ -753,7 +753,7 @@ List of include paths, include \"-I\" flag."
 ;;; project helm etags
 
 (defun prj/helm-etags-build-list (tags-file &optional recursively)
-  (let (tags-list file file-end-in-tags tag pm)
+  (let (tags-list file file-end-in-tags tag pm line-num)
     (with-temp-buffer
       (when (file-exists-p tags-file)
         (insert-file-contents tags-file))
@@ -770,10 +770,17 @@ List of include paths, include \"-I\" flag."
         (while (search-forward "\177" file-end-in-tags t)
           (setq tag (buffer-substring-no-properties
                      (line-beginning-position)
-                     (1- (point))))
+                     (1- (point)))
+                line-num (buffer-substring-no-properties
+                          (search-forward "\001")
+                          (1- (search-forward ","))))
+          (put-text-property
+           0 (length tag) 'face font-lock-variable-name-face tag)
           (setq tags-list
                 (cons
-                 (format "%s%s%s" tag prj/helm-etags-splitter file)
+                 (format "%s%s%s%s%s"
+                         tag prj/helm-etags-splitter file
+                         prj/helm-etags-splitter line-num)
                  tags-list))))
       (when recursively
         (goto-char (point-min))
@@ -850,12 +857,12 @@ List of include paths, include \"-I\" flag."
 
 (defun prj/helm-etags-goto (switcher c)
   (let* ((words (split-string c prj/helm-etags-splitter))
-         (tag (nth 0 words))
-         (file (nth 1 words)))
+         (file (nth 1 words))
+         (line-num (string-to-int (nth 2 words))))
     (ring-insert find-tag-marker-ring (point-marker))
     (funcall switcher file)
     (goto-char (point-min))
-    (re-search-forward (concat "^" (regexp-quote tag)) nil t)
+    (goto-line line-num)
     (recenter)))
 
 (defun prj/helm-etags-match-part (c)
