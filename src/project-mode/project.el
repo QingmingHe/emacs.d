@@ -34,6 +34,36 @@
 
 ;;; project configure/initialize
 
+(defvar prj/auto-set-flags-if-needed t
+  "Whether auto set flags.")
+
+(defvar prj/temp-dir
+  (expand-file-name "project-temp-dir/" temporary-file-directory)
+  "Temporary directory.")
+
+(defvar prj/cmake-find-packages-headers
+  "cmake_minimum_required(VERSION 2.8)
+enable_language(Fortran)
+"
+  "Header content of CMake script.")
+
+(defvar prj/cmake-find-mpi-content
+  "find_package(MPI)
+message(STATUS \"[prj] mpi-fortran-include-path: ${MPI_Fortran_INCLUDE_PATH}\")
+message(STATUS \"[prj] mpi-c-include-path: ${MPI_C_INCLUDE_PATH}\")
+message(STATUS \"[prj] mpi-CXX-include-path: ${MPI_CXX_INCLUDE_PATH}\")
+"
+  "CMake script content to find MPI.")
+
+(defvar prj/cmake-find-hdf5-content
+  "find_package(HDF5)
+message(STATUS \"[prj] hdf5-include-dirs: ${HDF5_INCLUDE_DIR}\")
+"
+  "CMake script content to find HDF5.")
+
+(defvar prj/cmake-exec (executable-find "cmake")
+  "Executable for CMake.")
+
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
 
@@ -52,12 +82,15 @@
 (defvar prj/helm-etags-execute-action-at-once-if-one t
   "Whether jump if only one match.")
 
-(defvar prj/auto-insert-after-find-file nil
+(defvar prj/auto-insert-after-find-file t
   "Whether call `auto-insert' after finding project file.")
 
-(defvar prj/touch-cmake-at-create nil
+(defvar prj/touch-cmake-lists-at-create-new-file t
   "Whether touch CMakeLists.txt at creating new project file by
 `prj/add-new-source'.")
+
+(defvar prj/cmake-modes '('fortran-mode 'f90-mode 'c-mode 'c++-mode)
+  "Modes that CMake supported natively.")
 
 (defvar prj/cmake-list-file "CMakeLists.txt"
   "CMake file.")
@@ -276,7 +309,7 @@ from project root to PATH-BEGIN."
 
 (defun prj/add-new-source (file &optional p)
   "Add new source file to project and touch `prj/cmake-list-file' if
-`prj/touch-cmake-at-create' is t."
+`prj/touch-cmake-lists-at-create-new-file' is t."
   (interactive (list
                 (expand-file-name
                  (read-string "File name: ")
@@ -285,7 +318,7 @@ from project root to PATH-BEGIN."
     (if p
         (progn
           (find-file file)
-          (when prj/touch-cmake-at-create
+          (when prj/touch-cmake-lists-at-create-new-file
             (mapc
              (lambda (cmake-file)
                (call-process "touch" nil 0 nil cmake-file))
@@ -533,6 +566,74 @@ all modified buffers."
      not-prj-buffers)))
 
 ;;; project compiler flags
+
+(defun prj/set-compile-flags (p buffer)
+  "Set compile flags for current BUFFER of project P."
+  (let ((packages (project-root-data :use-packages p))
+        flags)
+    (when packages
+      (unless (project-root-data :-compile-flags p)
+        (project-root-set-data
+         :-compile-flags
+         (prj/cmake-find-packages packages)
+         p))
+      (setq flags (project-root-data :-compile-flags p))
+      (with-current-buffer buffer
+        (when (derived-mode-p 'f90-mode 'fortran-mode)
+          (mapc
+           (lambda (path)
+             (add-to-list 'flycheck-fortran+-include-paths path))
+           (append (plist-get flags :mpi-fortran-include-path)
+                   (plist-get flags :hdf5-include-dirs))))))))
+
+(defun prj/cmake-find-packages (packages)
+  "Find packages by CMake.
+
+Returns include paths of Fortran, C and CXX."
+  (unless (file-directory-p prj/temp-dir)
+    (mkdir prj/temp-dir))
+  (let ((default-directory prj/temp-dir)
+        mpi-fortran-include-path
+        mpi-c-include-path
+        mpi-cxx-include-path
+        hdf5-include-dirs)
+    (with-temp-buffer
+      (insert prj/cmake-find-packages-headers)
+      (when (member 'mpi packages)
+        (insert prj/cmake-find-mpi-content))
+      (when (member 'hdf5 packages)
+        (insert prj/cmake-find-hdf5-content))
+      (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
+    (with-temp-buffer
+      (call-process prj/cmake-exec nil t nil ".")
+      (goto-char (point-min))
+      (when (re-search-forward
+             "\\[prj\\] mpi-fortran-include-path: \\(.+\\)$" nil t)
+        (setq mpi-fortran-include-path
+              (split-string (match-string-no-properties 1) ";")))
+      (goto-char (point-min))
+      (when (re-search-forward
+             "\\[prj\\] mpi-c-include-path: \\(.+\\)$" nil t)
+        (setq mpi-c-include-path
+              (split-string (match-string-no-properties 1) ";")))
+      (goto-char (point-min))
+      (when (re-search-forward
+             "\\[prj\\] mpi-cxx-include-path: \\(.+\\)$" nil t)
+        (setq mpi-cxx-include-path
+              (split-string (match-string-no-properties 1) ";")))
+      (goto-char (point-min))
+      (when (re-search-forward
+             "\\[prj\\] hdf5-include-dirs: \\(.+\\)$" nil t)
+        (setq hdf5-include-dirs
+              (split-string (match-string-no-properties 1) ";"))))
+    `(:mpi-fortran-include-path
+      ,mpi-fortran-include-path
+      :mpi-c-include-path
+      ,mpi-c-include-path
+      :mpi-cxx-include-path
+      ,mpi-cxx-include-path
+      :hdf5-include-dirs
+      ,hdf5-include-dirs)))
 
 (defun prj/c-include-paths-pkgs (pkgs)
   "Get c include pahts for \"pkgs\". \"pkgs\" should be string or list of
@@ -1227,8 +1328,8 @@ The format of `prj/project-locals-file' is identical to that of
                  " Prj"))
               ;; touch `prj/cmake-list-file' if needed
               (when (and
-                     prj/touch-cmake-at-create
-                     (string-match project-root-file-regexp fname)
+                     prj/touch-cmake-lists-at-create-new-file
+                     (eval `(derived-mode-p ,@prj/cmake-modes))
                      (= (point-min) (point-max)))
                 (mapc
                  (lambda (cmake-file)
@@ -1279,7 +1380,10 @@ The format of `prj/project-locals-file' is identical to that of
                (expand-file-name
                 prj/project-locals-file
                 (cdr project-details))
-               (current-buffer))))))
+               (current-buffer)))
+            ;; set compile flags
+            (when prj/auto-set-flags-if-needed
+              (prj/set-compile-flags p (current-buffer))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
 (defun project-mode-on-safe ()

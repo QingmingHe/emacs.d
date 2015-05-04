@@ -10,7 +10,6 @@ Use gtags, etags, imenu ... to handle projects.
 First define projects.
 #+BEGIN_SRC emacs-lisp
 (setq prj/update-tags-verbose nil)
-(setq prj/touch-cmake-at-create t)
 (setq prj/completion-backend 'company)
 
 ;; lazy load project mode
@@ -34,6 +33,7 @@ First define projects.
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
          :use-completion (f90-mode)
+         :use-packages (hdf5 mpi)
          :lighter "SUGAR")
         ("mcnp"
          :root-contains-files (".mcnp-root")
