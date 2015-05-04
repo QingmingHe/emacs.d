@@ -1167,7 +1167,10 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
 ;;; project minor/global mode
 
 (defun prj/load-project-locals (local-file buffer)
-  "Load project local variables from `prj/project-locals-file'."
+  "Load project local variables from `prj/project-locals-file'.
+
+The format of `prj/project-locals-file' is identical to that of
+.dir-locals.el."
   (let (locals mode sym val)
     (with-current-buffer buffer
       (when (file-exists-p local-file)
@@ -1177,19 +1180,20 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
         (mapc
          (lambda (local)
            (setq mode (car local))
-           (when (cond
-                  ((and
-                    (stringp mode)
-                    (eq 0
-                        (string-match
-                         (regexp-quote default-directory)
-                         (expand-file-name mode (cdr project-details))))))
-                  ((and
-                    (symbolp mode)
-                    (eq major-mode mode)))
-                  ((and
-                    (symbolp mode)
-                    (null mode))))
+           (when (or
+                  (and
+                   (stringp mode)
+                   (eq 0
+                       (string-match
+                        (regexp-quote
+                         (expand-file-name mode (cdr project-details)))
+                        default-directory)))
+                  (and
+                   (symbolp mode)
+                   (eq major-mode mode))
+                  (and
+                   (symbolp mode)
+                   (null mode)))
              (mapc
               (lambda (pair)
                 (setq sym (car pair)
@@ -1262,14 +1266,20 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
               ;; auto insert file header
               (when prj/auto-insert-after-find-file
                 (auto-insert))
-              ;; load project local variables
-              (when (and
-                     (file-exists-p prj/project-locals-file)
-                     prj/load-project-locals-if-exists)
-                (prj/load-project-locals
-                 prj/project-locals-file (current-buffer)))
               ;; run project hooks
-              (run-hooks (project-root-data :prj-setup-hooks p))))))
+              (run-hooks (project-root-data :prj-setup-hooks p)))
+            ;; load project local variables
+            (when (and
+                   (file-exists-p
+                    (expand-file-name
+                     prj/project-locals-file
+                     (cdr project-details)))
+                   prj/load-project-locals-if-exists)
+              (prj/load-project-locals
+               (expand-file-name
+                prj/project-locals-file
+                (cdr project-details))
+               (current-buffer))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
 (defun project-mode-on-safe ()
