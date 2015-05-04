@@ -1370,6 +1370,9 @@ The format of `prj/project-locals-file' is identical to that of
                 (auto-insert))
               ;; run project hooks
               (run-hooks (project-root-data :prj-setup-hooks p)))
+            ;; set compile flags
+            (when prj/auto-set-flags-if-needed
+              (prj/set-compile-flags p (current-buffer)))
             ;; load project local variables
             (when (and
                    (file-exists-p
@@ -1381,10 +1384,7 @@ The format of `prj/project-locals-file' is identical to that of
                (expand-file-name
                 prj/project-locals-file
                 (cdr project-details))
-               (current-buffer)))
-            ;; set compile flags
-            (when prj/auto-set-flags-if-needed
-              (prj/set-compile-flags p (current-buffer))))))
+               (current-buffer))))))
     (remove-hook 'after-save-hook 'prj/update-tags-single-file t)))
 
 (defun project-mode-on-safe ()
