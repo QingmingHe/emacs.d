@@ -151,4 +151,12 @@ that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for
 
 (add-hook 'prog-mode-hook #'setup-super-tab)
 (add-hook 'cmake-mode-hook #'setup-super-tab)
+
+(defun disable-tab-for-yas-prog ()
+  (interactive)
+  (when (derived-mode-p 'prog-mode)
+    (define-key yas-keymap [(tab)] nil)
+    (define-key yas-keymap (kbd "TAB") nil)))
+
+(add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
 #+end_src
