@@ -586,6 +586,17 @@ all modified buffers."
            (append (plist-get flags :mpi-fortran-include-path)
                    (plist-get flags :hdf5-include-dirs))))))))
 
+(defun prj/cmake-obtain-flags (buffer keywords)
+  "Obtain flags from CMake output."
+  (with-current-buffer buffer
+    (goto-char (point-min))
+    (let (flags)
+      (when (re-search-forward
+             (format "\\[prj\\] %s: \\(.+\\)$" keywords) nil t)
+        (setq flags (match-string-no-properties 1))
+        (unless (string-match "-NOTFOUND" flags)
+          (split-string flags ";"))))))
+
 (defun prj/cmake-find-packages (packages)
   "Find packages by CMake.
 
@@ -606,26 +617,16 @@ Returns include paths of Fortran, C and CXX."
       (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
     (with-temp-buffer
       (call-process prj/cmake-exec nil t nil ".")
-      (goto-char (point-min))
-      (when (re-search-forward
-             "\\[prj\\] mpi-fortran-include-path: \\(.+\\)$" nil t)
-        (setq mpi-fortran-include-path
-              (split-string (match-string-no-properties 1) ";")))
-      (goto-char (point-min))
-      (when (re-search-forward
-             "\\[prj\\] mpi-c-include-path: \\(.+\\)$" nil t)
-        (setq mpi-c-include-path
-              (split-string (match-string-no-properties 1) ";")))
-      (goto-char (point-min))
-      (when (re-search-forward
-             "\\[prj\\] mpi-cxx-include-path: \\(.+\\)$" nil t)
-        (setq mpi-cxx-include-path
-              (split-string (match-string-no-properties 1) ";")))
-      (goto-char (point-min))
-      (when (re-search-forward
-             "\\[prj\\] hdf5-include-dirs: \\(.+\\)$" nil t)
-        (setq hdf5-include-dirs
-              (split-string (match-string-no-properties 1) ";"))))
+      (mapc
+       (lambda (sym)
+         (eval
+          `(setq ,sym
+                 (prj/cmake-obtain-flags
+                  (current-buffer) (symbol-name sym)))))
+       '(mpi-fortran-include-path
+         mpi-c-include-path
+         mpi-cxx-include-path
+         hdf5-include-dirs)))
     `(:mpi-fortran-include-path
       ,mpi-fortran-include-path
       :mpi-c-include-path
