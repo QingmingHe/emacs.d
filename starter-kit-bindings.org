@@ -143,6 +143,11 @@ I have do some hack with isearch to reproduce the *jk* magic.
 (add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
 #+end_src
 
+Use *dd* to kill word.
+#+begin_src emacs-lisp
+(key-chord-define evil-insert-state-map "dd" 'backward-kill-word-or-hungry-delete)
+#+end_src
+
 ** Popup
 
 #+begin_src emacs-lisp

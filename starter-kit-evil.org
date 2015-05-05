@@ -54,10 +54,13 @@ several years.
 ** Vim Bindings for Different States
 *** Insert state map
 
+M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
+*jk* to normal state and enjoy the power of *d*.
 #+begin_src emacs-lisp
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-y") 'yank)
 (define-key evil-insert-state-map (kbd "C-o") 'yas-expand)
+(define-key evil-insert-state-map (kbd "C-w") 'backward-kill-word-or-hungry-delete)
 #+end_src
 
 *** Visual state map
@@ -168,7 +171,6 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
   "me" 'multi-eshell
 
   ;; tags
-  ;; to force update etags cache of helm-tags, type C-u-<SPC>-t-a
   "ta" (lambda (arg)
          (interactive "P")
          (if project-details
