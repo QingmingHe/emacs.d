@@ -54,6 +54,8 @@ Don't grep repositories and some files.
 (defun wgrep-disable-emacs-state ()
   (evil-emacs-state -1))
 (add-hook 'wgrep-setup-hook 'wgrep-disable-emacs-state)
+(defadvice wgrep-to-original-mode (before wgrep-enable-emacs-state activate)
+  (evil-emacs-state 1))
 #+end_src
 
 ** anzu and evil anzu
@@ -157,8 +159,10 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 
 *** Isearch and ace jump
 
-If last command is a evil search command, *go* will go to one of the matching
-data. Otherwise ask for beginning character of a word and go there.
++ If last command is a evil search command, *go* will go to one of the matching
+  data. Otherwise ask for beginning character of a word and go there.
++ *gl* go to line
++ *gj* go to window. Why not *gw*, because *gj* is much easier to press.
 #+begin_src emacs-lisp
 (defun ace-word-from-input-or-search ()
   (interactive)
@@ -176,7 +180,8 @@ data. Otherwise ask for beginning character of a word and go there.
         (avi--goto candidate))
     (call-interactively #'ace-jump-word-mode)))
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "gl") 'avi-goto-line)
+  (define-key evil-normal-state-map (kbd "gl") 'ace-jump-line-mode)
+  (define-key evil-normal-state-map (kbd "gj") 'ace-window)
   (define-key evil-normal-state-map (kbd "go") 'ace-word-from-input-or-search))
 (define-key isearch-mode-map (kbd ";") 'avi-isearch)
 #+end_src

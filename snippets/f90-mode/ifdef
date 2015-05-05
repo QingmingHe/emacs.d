@@ -1,5 +1,8 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
-# name: .not.
-# key: n
+# name: ifdef
+# key: ifd
 # --
-.NOT. $0
+#if defined($0)
+#elif defined()
+#else
+#endif

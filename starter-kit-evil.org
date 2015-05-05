@@ -57,6 +57,7 @@ several years.
 #+begin_src emacs-lisp
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-y") 'yank)
+(define-key evil-insert-state-map (kbd "C-o") 'yas-expand)
 #+end_src
 
 *** Visual state map
@@ -124,7 +125,7 @@ several years.
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
 
-  ;; buffer move
+  ;; buffer move and window switching
   "bmh" 'buf-move-left
   "bmj" 'buf-move-down
   "bmk" 'buf-move-up
@@ -170,11 +171,13 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
   ;; to force update etags cache of helm-tags, type C-u-<SPC>-t-a
   "ta" (lambda (arg)
          (interactive "P")
-         (if (project-root-data :use-gtags project-details)
-             ;; for some reason `exit' symbol should be `catch' TODO
-             (catch 'exit
-               (helm-gtags-select))
-           (prj/helm-etags)))
+         (if project-details
+             (if (project-root-data :use-gtags project-details)
+                 ;; for some reason `exit' symbol should be `catch' TODO
+                 (catch 'exit
+                   (helm-gtags-select))
+               (prj/helm-etags))
+           (helm-etags-select nil)))
   "dta" 'helm-gtags-dwim
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()

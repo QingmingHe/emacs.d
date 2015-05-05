@@ -34,7 +34,7 @@ Set the default backends for all modes.
 (with-eval-after-load 'company
   (setq company-backends
         '(company-capf
-          (company-dabbrev-code company-keywords)
+          (company-etags company-dabbrev-code company-keywords)
           company-dabbrev))
   (make-variable-buffer-local 'company-backends))
 #+END_SRC
