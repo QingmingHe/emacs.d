@@ -181,7 +181,6 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
     (call-interactively #'ace-jump-word-mode)))
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "gl") 'ace-jump-line-mode)
-  (define-key evil-normal-state-map (kbd "gj") 'ace-window)
   (define-key evil-normal-state-map (kbd "go") 'ace-word-from-input-or-search))
 (define-key isearch-mode-map (kbd ";") 'avi-isearch)
 #+end_src

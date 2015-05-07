@@ -133,6 +133,7 @@ M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
   "bmj" 'buf-move-down
   "bmk" 'buf-move-up
   "bml" 'buf-move-right
+  "j" 'ace-window
 
   ;; make and debug
   "ma" 'compile-dwim

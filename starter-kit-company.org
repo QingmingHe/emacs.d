@@ -140,6 +140,9 @@ that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for
            (yas-expand)))
      ((and yas-minor-mode
            (yas--snippets-at-point))
+      (when (and (looking-back " ")
+                 (looking-at "[\]})\n\[({, ]"))
+        (delete-region (1- p) p))
       (yas-next-field))
      (t
       (indent-for-tab-command)))))

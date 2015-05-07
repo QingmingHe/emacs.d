@@ -277,6 +277,17 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
   (dired-sort-other dired-listing-switches))
 #+end_src
 
+** Dired man
+
+#+begin_src emacs-lisp
+(defun dired-man-file (file)
+  (require 'man)
+  (interactive
+   (list
+    (ido-read-file-name ": " nil (dired-get-filename))))
+  (Man-getpage-in-background file))
+#+end_src
+
 ** Tips
 
 - *w* copies file name to ring. *C-u 0 w* copies full path.
