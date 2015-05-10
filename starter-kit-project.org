@@ -143,6 +143,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 (setq imenu-auto-rescan nil)
 (defun starter-kit-imenu-rescan ()
   (interactive)
+  (require 'imenu)
   (when (derived-mode-p 'org-mode 'prog-mode 'markdown-mode 'rst-mode)
     (imenu--menubar-select imenu--rescan-item)))
 (add-hook 'after-save-hook 'starter-kit-imenu-rescan)
