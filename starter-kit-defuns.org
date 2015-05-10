@@ -344,3 +344,27 @@ visit if current buffer is not visiting a file."
     (kill-buffer)
     (find-file file)))
 #+end_src
+
+** Clipboard
+   
+#+begin_src emacs-lisp
+(defun tmux-save-region (beg end)
+  (interactive "r")
+  (call-process-shell-command
+   (format "tmux set-buffer \"%s\""
+           (buffer-substring-no-properties beg end))))
+
+(defun tmux-yank ()
+  (interactive)
+  (call-process "tmux" nil t nil "show-buffer"))
+
+(defun xclip-save-region (beg end)
+  (interactive "r")
+  (call-process-shell-command
+   (format "xclip \"%s\""
+           (buffer-substring-no-properties beg end))))
+
+(defun xclip-yank ()
+  (interactive)
+  (call-process "xclip" nil t nil "-o"))
+#+end_src
