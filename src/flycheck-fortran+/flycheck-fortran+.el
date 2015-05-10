@@ -196,4 +196,11 @@ syntax cheching."
   (add-hook 'flycheck-after-syntax-check-hook
             'flycheck-fortran+-remove-temp-after-check))
 
+(defun flycheck-fortran+-add-include-path (path)
+  "Add PATH to `flycheck-fortran+-include-paths'."
+  (interactive
+   (list
+    (ido-read-directory-name "-I")))
+  (add-to-list 'flycheck-fortran+-include-paths path))
+
 (provide 'flycheck-fortran+)
