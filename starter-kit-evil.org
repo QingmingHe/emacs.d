@@ -358,3 +358,165 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
     (setq evil-insert-state-cursor 'bar)
     (setq evil-emacs-state-cursor 'hbar)))
 #+end_src
+
+** tmux and xclip Clipboard
+
+#+begin_src emacs-lisp
+(evil-define-operator tmux-save-region (beg end type register yank-handler)
+  "Save region into tmux kill ring."
+  :move-point nil
+  :repeat nil
+  (interactive "<R><x><y>")
+  (let ((evil-was-yanked-without-register
+         (and evil-was-yanked-without-register (not register))))
+    (cond
+     ((eq type 'block)
+      (tmux-save-rectangle beg end register yank-handler))
+     ((eq type 'line)
+      (tmux-save-lines beg end register yank-handler))
+     (t
+      (tmux-save-characters beg end register yank-handler)))))
+
+(defun tmux-save-rectangle (beg end &optional register yank-handler)
+  "Saves the rectangle defined by region BEG and END into the kill-ring."
+  (let ((lines (list nil)))
+    (evil-apply-on-rectangle #'extract-rectangle-line beg end lines)
+    ;; We remove spaces from the beginning and the end of the next.
+    ;; Spaces are inserted explicitly in the yank-handler in order to
+    ;; NOT insert lines full of spaces.
+    (setq lines (nreverse (cdr lines)))
+    ;; `text' is used as default insert text when pasting this rectangle
+    ;; in another program, e.g., using the X clipboard.
+    (let* ((yank-handler (list (or yank-handler
+                                   #'evil-yank-block-handler)
+                               lines
+                               nil
+                               'evil-delete-yanked-rectangle))
+           (text (propertize (mapconcat #'identity lines "\n")
+                             'yank-handler yank-handler)))
+      (when register
+        (evil-set-register register text))
+      (when evil-was-yanked-without-register
+        (evil-set-register ?0 text)) ; "0 register contains last yanked text
+      (unless (eq register ?_)
+        (kill-new text))
+      (call-process-shell-command
+       (format "tmux set-buffer \"%s\"" (substring-no-properties text))))))
+
+(defun tmux-save-lines (beg end &optional register yank-handler)
+  "Saves the lines in the region BEG and END into the kill-ring."
+  (let* ((text (filter-buffer-substring beg end))
+         (yank-handler (list (or yank-handler
+                                 #'evil-yank-line-handler))))
+    ;; Ensure the text ends with a newline. This is required
+    ;; if the deleted lines were the last lines in the buffer.
+    (when (or (zerop (length text))
+              (/= (aref text (1- (length text))) ?\n))
+      (setq text (concat text "\n")))
+    (setq text (propertize text 'yank-handler yank-handler))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "tmux set-buffer \"%s\"" (substring-no-properties text)))))
+
+(defun tmux-save-characters (beg end &optional register yank-handler)
+  "Saves the characters defined by the region BEG and END in the kill-ring."
+  (let ((text (filter-buffer-substring beg end)))
+    (when yank-handler
+      (setq text (propertize text 'yank-handler (list yank-handler))))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "tmux set-buffer \"%s\"" (substring-no-properties text)))))
+
+(defun tmux-yank ()
+  (interactive)
+  (call-process "tmux" nil t nil "show-buffer"))
+
+(evil-define-operator xclip-save-region (beg end type register yank-handler)
+  "Save region into xclip."
+  :move-point nil
+  :repeat nil
+  (interactive "<R><x><y>")
+  (let ((evil-was-yanked-without-register
+         (and evil-was-yanked-without-register (not register))))
+    (cond
+     ((eq type 'block)
+      (xclip-save-rectangle beg end register yank-handler))
+     ((eq type 'line)
+      (xclip-save-lines beg end register yank-handler))
+     (t
+      (xclip-save-characters beg end register yank-handler)))))
+
+(defun xclip-save-rectangle (beg end &optional register yank-handler)
+  "Saves the rectangle defined by region BEG and END into the kill-ring."
+  (let ((lines (list nil)))
+    (evil-apply-on-rectangle #'extract-rectangle-line beg end lines)
+    ;; We remove spaces from the beginning and the end of the next.
+    ;; Spaces are inserted explicitly in the yank-handler in order to
+    ;; NOT insert lines full of spaces.
+    (setq lines (nreverse (cdr lines)))
+    ;; `text' is used as default insert text when pasting this rectangle
+    ;; in another program, e.g., using the X clipboard.
+    (let* ((yank-handler (list (or yank-handler
+                                   #'evil-yank-block-handler)
+                               lines
+                               nil
+                               'evil-delete-yanked-rectangle))
+           (text (propertize (mapconcat #'identity lines "\n")
+                             'yank-handler yank-handler)))
+      (when register
+        (evil-set-register register text))
+      (when evil-was-yanked-without-register
+        (evil-set-register ?0 text)) ; "0 register contains last yanked text
+      (unless (eq register ?_)
+        (kill-new text))
+      (call-process-shell-command
+       (format "xclip \"%s\"" (substring-no-properties text))))))
+
+(defun xclip-save-lines (beg end &optional register yank-handler)
+  "Saves the lines in the region BEG and END into the kill-ring."
+  (let* ((text (filter-buffer-substring beg end))
+         (yank-handler (list (or yank-handler
+                                 #'evil-yank-line-handler))))
+    ;; Ensure the text ends with a newline. This is required
+    ;; if the deleted lines were the last lines in the buffer.
+    (when (or (zerop (length text))
+              (/= (aref text (1- (length text))) ?\n))
+      (setq text (concat text "\n")))
+    (setq text (propertize text 'yank-handler yank-handler))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "xclip \"%s\"" (substring-no-properties text)))))
+
+(defun xclip-save-characters (beg end &optional register yank-handler)
+  "Saves the characters defined by the region BEG and END in the kill-ring."
+  (let ((text (filter-buffer-substring beg end)))
+    (when yank-handler
+      (setq text (propertize text 'yank-handler (list yank-handler))))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "xclip \"%s\"" (substring-no-properties text)))))
+
+(defun xclip-yank ()
+  (interactive)
+  (call-process "xclip" nil t nil "-o"))
+#+end_src
