@@ -47,6 +47,8 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 ** Org mode
 
 #+begin_src emacs-lisp
+(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c l") 'org-store-link)
 (with-defhydra
  "hydra-org"
  global-map
@@ -141,11 +143,6 @@ I have do some hack with isearch to reproduce the *jk* magic.
   (key-chord-mode 1)
   (key-chord-define isearch-mode-map "jk" 'isearch-cancel))
 (add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
-#+end_src
-
-Use *dd* to kill word.
-#+begin_src emacs-lisp
-(key-chord-define evil-insert-state-map "dd" 'backward-kill-word-or-hungry-delete)
 #+end_src
 
 ** Popup
