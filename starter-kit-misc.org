@@ -115,10 +115,9 @@ previously visited the same file.
 
 ** 80 Column Rule; auto fill
 
-It's a good habit to obey to 80 column rule. In the convenience of adding
-continuation marker in code such as Fortran, two columns are spared.
+It's a good habit to obey to 80 column rule.
 #+BEGIN_SRC emacs-lisp
-(setq default-fill-column 78)
+(setq default-fill-column 80)
 (setq-default require-final-newline t)
 (defadvice do-auto-fill (around my-indent-after-fill activate)
   (let ((p (point)))
