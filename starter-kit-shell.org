@@ -66,10 +66,23 @@ is pre-populated with some generally applicable aliases.
   (evil-goto-line)
   (eshell-bol))
 
+(defun my-eshell-prev-prompt ()
+  (interactive)
+  (forward-line 0)
+  (re-search-backward eshell-prompt-regexp)
+  (eshell-bol))
+
+(defun my-eshell-next-prompt ()
+  (interactive)
+  (re-search-forward eshell-prompt-regexp)
+  (eshell-bol))
+
 (defun my-eshell-keybinding ()
   (define-key eshell-mode-map "\C-a" #'eshell-bol)
   (define-key eshell-mode-map (kbd "C-p") #'helm-eshell-history)
   (define-key eshell-mode-map [remap eshell-pcomplete] #'eshell-ido-or-helm)
+  (define-key eshell-mode-map [remap eshell-previous-prompt] #'my-eshell-prev-prompt)
+  (define-key eshell-mode-map [remap eshell-next-prompt] #'my-eshell-next-prompt)
   (evil-define-key 'normal eshell-mode-map (kbd "G") #'my-eshell-goto-bottom)
   (evil-define-key 'insert eshell-mode-map (kbd "C-p") #'helm-eshell-history))
 (add-hook 'eshell-mode-hook 'my-eshell-keybinding)
@@ -90,6 +103,8 @@ always fallback from file completion to directory by C-j."
     (delete-region b0 b1)
     (if (string-match "\\`\\(\\.\\./\\)\\{3,\\}" relative)
         (insert file)
+      (unless (string-match "\\`\\." relative)
+        (insert "./"))
       (insert relative))))
 
 (defun eshell-ido-or-helm ()
