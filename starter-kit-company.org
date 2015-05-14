@@ -135,7 +135,7 @@ that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for
      ((and yas-minor-mode
            b0
            b1
-           (<= (- p b0) 2)
+           (<= (- p b0) 3)
            (= p b1)
            (yas-expand)))
      ((and yas-minor-mode
@@ -162,4 +162,16 @@ that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for
     (define-key yas-keymap (kbd "TAB") nil)))
 
 (add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
+
+(defun company-expand-or-comp ()
+  (interactive)
+  (let ((yas-fallback-behavior 'return-nil))
+    (or
+     (and yas-minor-mode
+          (yas-expand))
+     (company-complete-common))))
+
+(with-eval-after-load 'company
+  (define-key company-mode-map [remap company-complete-common]
+    #'company-expand-or-comp))
 #+end_src
