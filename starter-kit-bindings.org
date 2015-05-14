@@ -182,57 +182,6 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 (electric-indent-mode 1)
 #+end_src
 
-** Ido mode
-
-+ ido-mode is like magic pixie dust!
-+ Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
-  *C-l* in minibuffer to refresh ido candidates.
-+ Use *C-d* to enter dired from file switching.
-#+srcname: starter-kit-loves-ido-mode
-#+begin_src emacs-lisp
-(setq ido-enable-prefix nil
-      ido-enable-flex-matching t
-      ido-create-new-buffer 'always
-      ido-use-virtual-buffers t
-      ido-auto-merge-work-directories-length -1
-      ido-save-directory-list-file (concat starter-kit-dir ".ido.last")
-      ido-max-prospects 10
-      ido-use-faces nil
-      flx-ido-threshold 10000
-      ido-use-filename-at-point 'guess)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
-(ido-ubiquitous-mode 1)
-(global-set-key (kbd "C-x C-f") 'ido-find-file)
-;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
-(defun ido-setup-key-bindings ()
-  (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
-  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match)
-  (define-key ido-completion-map (kbd "C-c C-c") 'ido-restrict-to-matches))
-(add-hook 'ido-setup-hook 'ido-setup-key-bindings)
-#+end_src
-
-Tell [[help:dired-do-copy][dired-do-copy]] and [[help:dired-do-rename][dired-do-rename]] to use Ido:
-#+begin_src emacs-lisp
-(put 'dired-do-copy 'ido 'dir)
-(put 'dired-do-rename 'ido 'dir)
-#+end_src
-
-Don't guess file name in Dired buffer:
-#+begin_src emacs-lisp
-(defun my/ido-ignore-file-at-point ()
-  (when (bound-and-true-p ido-use-filename-at-point)
-    (setq-local ido-use-filename-at-point nil)))
-(add-hook 'dired-mode-hook #'my/ido-ignore-file-at-point)
-#+end_src
-
-Just use *C-o* to invoke in other window, no need to remember the key of
-[[help:ido-find-file-other-window][ido-find-file-other-window]] or something like that.
-#+begin_src emacs-lisp
-(require 'ido-other-window)
-#+end_src
-
 ** Ace window and ace jump
 *** Ace window
 

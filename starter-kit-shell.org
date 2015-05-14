@@ -92,43 +92,13 @@ is pre-populated with some generally applicable aliases.
 
 Use ido to complete file name and helm for the other.
 #+begin_src emacs-lisp
-(defun eshell-ido-complete-file (from b0 b1)
-  "Use ido to complete read file name in eshell.
-
-If file or directory navigated to is within 3 level upward current directory,
-relative directory is inserted; otherwise the full path is inserted. You can
-always fallback from file completion to directory by C-j."
-  (let* ((file (ido-read-file-name ": " from))
-         (relative (file-relative-name file default-directory)))
-    (delete-region b0 b1)
-    (if (string-match "\\`\\(\\.\\./\\)\\{3,\\}" relative)
-        (insert file)
-      (unless (string-match "\\`\\." relative)
-        (insert "./"))
-      (insert relative))))
-
 (defun eshell-ido-or-helm ()
-  "Use ido to complete file and helm or other in eshell.
-
-Ido is activated when previous command is cp, cd, mv, rm, ... or thing at
-point is a existing directory. Otherwise helm is used to complete."
+  "Use ido to complete file and helm for other in eshell."
   (interactive)
-  (let (dir-at-point bounds b0 b1)
-    (cond
-     ((looking-back " \\(cp\\|cd\\|mv\\|rm\\|ls\\|ll\\|la\\) +")
-      (setq dir-at-point "."
-            b0 (point)
-            b1 b0)
-      (eshell-ido-complete-file dir-at-point b0 b1))
-     ((and
-       (setq bounds (bounds-of-thing-at-point 'filename))
-       (setq b0 (car bounds)
-             b1 (cdr bounds)
-             dir-at-point (buffer-substring-no-properties b0 b1))
-       (file-directory-p dir-at-point))
-      (eshell-ido-complete-file dir-at-point b0 b1))
-     (t
-      (call-interactively 'helm-esh-pcomplete)))))
+  (or
+   (and (fboundp 'my-ido-expand-fname)
+        (my-ido-expand-fname))
+   (helm-esh-pcomplete)))
 #+end_src
 
 *** Eldoc
