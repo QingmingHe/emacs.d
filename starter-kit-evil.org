@@ -167,9 +167,32 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
          (cond (outline-minor-mode (hide-body))
                (hs-minor-mode (hs-hide-all))))
 
-  ;; multiple shell
+  ;; shell
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
+  "er" (lambda ()
+         "Eshell Repeat.
+
+Find eshell window in current frame and execute last eshell command in that
+window. Come back to current window immediately after send eshell input."
+         (interactive)
+         (let (esh-win)
+           (catch 'found-eshell-window
+             (mapc
+              (lambda (window)
+                (when (string-match
+                       "\\`\\*eshell\\*"
+                       (buffer-name (window-buffer window)))
+                  (throw 'found-eshell-window (setq esh-win window))))
+              (window-list)))
+           (if esh-win
+               (save-selected-window
+                 (select-window esh-win)
+                 (goto-char (point-max))
+                 (when (re-search-backward eshell-prompt-regexp nil t 2)
+                   (eshell-bol)
+                   (call-interactively 'eshell-send-input)))
+             (user-error "No eshell window found!"))))
 
   ;; tags
   "ta" (lambda (arg)

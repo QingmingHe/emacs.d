@@ -76,9 +76,9 @@ always fallback from file completion to directory by C-j."
     (delete-region b0 b1)
     (if (string-match "\\`\\(\\.\\./\\)\\{3,\\}" relative)
         (insert file)
-      (unless (string-match "\\`\\.\\{1,2\\}/" relative)
-        (when (file-executable-p file)
-          (insert "./")))
+      (when (and (file-executable-p file)
+                 (string= relative (file-name-nondirectory file)))
+        (insert "./"))
       (insert relative))))
 
 (defun my-ido-expand-fname ()
