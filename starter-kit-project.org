@@ -136,7 +136,32 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 
 ** imenu
 
-#+BEGIN_SRC emacs-lisp
+*** Helm imenu
+
+Remove options added by =imenu+.el=.
+#+begin_src emacs-lisp
+(with-eval-after-load 'helm-imenu
+  (defun helm-imenu-candidates ()
+    (with-helm-current-buffer
+      (let ((tick (buffer-modified-tick)))
+        (if (eq helm-cached-imenu-tick tick)
+            helm-cached-imenu-candidates
+          (setq imenu--index-alist nil)
+          (prog1 (setq helm-cached-imenu-candidates
+                       (helm-imenu--candidates-1
+                        (let ((index (imenu--make-index-alist)))
+                          (mapc
+                           (lambda (key)
+                             (remove-alist 'index key))
+                           '("*Rescan*" "Toggle Case-Sensitive Name-Sort"
+                             "Toggle Sorting" "Toggle Ignoring Commented Defs"))
+                          index)))
+            (setq helm-cached-imenu-tick tick)))))))
+#+end_src
+
+*** Rescan imenu after save file
+
+#+begin_src emacs-lisp
 (eval-after-load "imenu"
   `(require 'imenu+))
 
@@ -147,7 +172,10 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
   (when (derived-mode-p 'org-mode 'prog-mode 'markdown-mode 'rst-mode)
     (imenu--menubar-select imenu--rescan-item)))
 (add-hook 'after-save-hook 'starter-kit-imenu-rescan)
+#+end_src
 
+*** Imenu with Ido
+#+BEGIN_SRC emacs-lisp
 (defun my-imenu (&optional symbol-list)
   "Refresh imenu and jump to a place in the buffer using Ido."
   (interactive)
