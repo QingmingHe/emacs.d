@@ -135,7 +135,6 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 #+END_SRC
 
 ** imenu
-
 *** Helm imenu
 
 Remove options added by =imenu+.el=.
@@ -164,6 +163,9 @@ Remove options added by =imenu+.el=.
 #+begin_src emacs-lisp
 (eval-after-load "imenu"
   `(require 'imenu+))
+(with-eval-after-load 'imenu
+  (require 'imenu+)
+  (setq imenu-sort-function #'imenu--sort-by-position))
 
 (setq imenu-auto-rescan nil)
 (defun starter-kit-imenu-rescan ()
