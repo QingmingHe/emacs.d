@@ -86,6 +86,8 @@ Or you can use *M-x C-u run-python* command to run Python interpreter. Here
  "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 #+end_src
 
+To yank in [[help:inferior-python-mode][inferior-python-mode]], use [[help:helm-show-kill-ring][helm-show-kill-ring]].
+
 ** Run Windows Python interpreter in Cygwin platform
    :PROPERTIES:
    :TANGLE:   no

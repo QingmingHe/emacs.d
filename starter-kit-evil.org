@@ -105,9 +105,37 @@ M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
       (beginning-of-visual-line)
       (end-of-line))))
 
+(evil-define-motion evil-repeat-search-or-avy-jump (count)
+  "Repeat the last find `count' times or use avy to jump to a search candidates
+if last command is evil-search."
+  :type exclusive
+  (unless (featurep 'avy-jump)
+    (require 'avy-jump))
+  (if (or
+       (eq last-command 'evil-search-next)
+       (eq last-command 'evil-search-previous)
+       (eq last-command 'evil-search-word-forward)
+       (eq last-command 'evil-search-word-backward))
+      (let* ((candidates (avi--regex-candidates isearch-string))
+             (avi-background nil)
+             (candidate
+              (avi--process candidates #'avi--overlay-post)))
+        (avi--goto candidate))
+    (evil-repeat-find-char count)))
+
+;; distinguish between evil earch and isearch
+(setq isearch-evil-search-p nil)
+(defadvice evil-search-incrementally (around distinguish-evil-search activate)
+  (setq isearch-evil-search-p t)
+  ad-do-it
+  (setq isearch-evil-search-p nil))
+
+(define-key evil-normal-state-map (kbd "gl") 'ace-jump-line-mode)
+(define-key evil-normal-state-map (kbd "go") 'ace-jump-word-mode)
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line-dwim)
 (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line-dwim)
+(define-key evil-normal-state-map (kbd ";") 'evil-repeat-search-or-avy-jump)
 #+end_src
 
 *** Evil ex command
@@ -171,7 +199,7 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
   "er" (lambda ()
-         "Eshell Repeat.
+         "Eshell Repeat last input.
 
 Find eshell window in current frame and execute last eshell command in that
 window. Come back to current window immediately after send eshell input."
@@ -181,7 +209,7 @@ window. Come back to current window immediately after send eshell input."
              (mapc
               (lambda (window)
                 (when (string-match
-                       "\\`\\*eshell\\*"
+                       "\\`\\*eshell\\*\\(<[0-9]+>\\)?\\'"
                        (buffer-name (window-buffer window)))
                   (throw 'found-eshell-window (setq esh-win window))))
               (window-list)))

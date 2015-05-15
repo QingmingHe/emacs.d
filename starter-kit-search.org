@@ -158,30 +158,23 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 
 *** Isearch and ace jump
 
-+ If last command is a evil search command, *go* will go to one of the matching
-  data. Otherwise ask for beginning character of a word and go there.
-+ *gl* go to line
-+ *gj* go to window. Why not *gw*, because *gj* is much easier to press.
 #+begin_src emacs-lisp
-(defun ace-word-from-input-or-search ()
-  (interactive)
+(defun my-avi-isearch ()
   (unless (featurep 'avy-jump)
     (require 'avy-jump))
-  (if (or
-       (eq last-command 'evil-search-next)
-       (eq last-command 'evil-search-previous)
-       (eq last-command 'evil-search-word-forward)
-       (eq last-command 'evil-search-word-backward))
-      (let* ((candidates (avi--regex-candidates isearch-string))
+  (interactive)
+  (if (and (symbolp isearch-evil-search-p)
+           isearch-evil-search-p)
+      (let* ((candidates
+              (avi--regex-candidates isearch-string))
              (avi-background nil)
              (candidate
               (avi--process candidates #'avi--overlay-post)))
-        (avi--goto candidate))
-    (call-interactively #'ace-jump-word-mode)))
-(with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "gl") 'ace-jump-line-mode)
-  (define-key evil-normal-state-map (kbd "go") 'ace-word-from-input-or-search))
-(define-key isearch-mode-map (kbd ";") 'avi-isearch)
+        (avi--goto candidate)
+        (isearch-exit))
+    (avi-isearch)))
+
+(define-key isearch-mode-map (kbd ";") 'my-avi-isearch)
 #+end_src
 
 Push mark before jump.

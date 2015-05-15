@@ -79,6 +79,7 @@ nil."
   "Preview latex fragments at point. "
   (interactive)
   (when (and
+         (not (org-at-TBLFM-p))
          (org-inside-LaTeX-fragment-p)
          (not
           (and

@@ -241,7 +241,7 @@ instead.
                                                       c-mode c++-mode
                                                       objc-mode latex-mode
                                                       plain-tex-mode f90-mode
-                                                      fortran-mode))
+                                                      fortran-mode cmake-mode))
                  (let ((mark-even-if-inactive transient-mark-mode))
                    (when auto-indent-after-yank
                      (indent-region (region-beginning) (region-end) nil)))))))
