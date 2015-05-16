@@ -10,6 +10,8 @@ ido.last
 .saved-places
 viper
 .mc-lists.el
+.savehist
+company-statistics-cache.el
 
 # project root
 .project-roots

@@ -18,6 +18,9 @@ Activate company for coding:
       company-clang-insert-arguments nil
       company-gtags-insert-arguments nil
       company-begin-commands '(self-insert-command))
+(with-eval-after-load 'company
+  (require 'company-statistics)
+  (company-statistics-mode))
 #+end_src
 
 ** Key bindings
