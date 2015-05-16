@@ -914,6 +914,14 @@ contains tag, file and line number which are split by
                 line-num (buffer-substring-no-properties
                           (search-forward "\001")
                           (1- (search-forward ","))))
+          ;; special case that Fortran declaration spans several lines, like:
+          ;; integer, parameter :: &
+          ;;   AN_PARAM = 0
+          (when (string-empty-p tag)
+            (forward-line)
+            (setq tag (buffer-substring-no-properties
+                       (line-beginning-position)
+                       (line-end-position))))
           (put-text-property
            0 (length tag) 'face font-lock-variable-name-face tag)
           (setq tags-list
