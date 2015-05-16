@@ -34,7 +34,7 @@ otherwise evil-leader won't be enabled in initial buffers (*scratch*,
 
 ** Evil mode
 
-Set evil mode globally for that the author is a severe Vim user for the past
+Set evil mode globally for that the author is a heavy Vim user for the past
 several years.
 #+BEGIN_SRC emacs-lisp
 (setq-default evil-symbol-word-search t)
@@ -142,10 +142,6 @@ if last command is evil-search."
 #+end_src
 
 ** Key bindings with evil leader
-
-+ Universal argument ::
-     - '(4): C-u-<SPC>-*
-     - other number: <NUMBER>-<SPC>-*
 
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")

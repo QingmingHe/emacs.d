@@ -79,12 +79,16 @@ is pre-populated with some generally applicable aliases.
 
 (defun my-eshell-keybinding ()
   (define-key eshell-mode-map "\C-a" #'eshell-bol)
-  (define-key eshell-mode-map (kbd "C-p") #'helm-eshell-history)
   (define-key eshell-mode-map [remap eshell-pcomplete] #'eshell-ido-or-helm)
   (define-key eshell-mode-map [remap eshell-previous-prompt] #'my-eshell-prev-prompt)
   (define-key eshell-mode-map [remap eshell-next-prompt] #'my-eshell-next-prompt)
   (evil-define-key 'normal eshell-mode-map (kbd "G") #'my-eshell-goto-bottom)
-  (evil-define-key 'insert eshell-mode-map (kbd "C-p") #'helm-eshell-history))
+  (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history)
+  (evil-define-key 'normal eshell-mode-map (kbd "C-p")
+    (lambda ()
+      (interactive)
+      (call-interactively 'evil-append)
+      (helm-eshell-history))))
 (add-hook 'eshell-mode-hook 'my-eshell-keybinding)
 #+end_src
 
