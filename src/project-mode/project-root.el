@@ -95,6 +95,9 @@
                  (concat " -path \"" default-directory path "\" -prune ")))
              paths "-o"))
 
+(defvar project-root-name-split "@"
+  "Split of name and root of `project-root-seen-projects'.")
+
 (defvar project-root-rep-paths
   '(".git" ".hg" ".svn")
   "Repository paths at project root.")
@@ -168,8 +171,7 @@ match."
 (defun project-root-get-root (project)
   "Fetch the root path of the project according to the tests
 described in PROJECT."
-  (let ((root (plist-get project :root))
-        (new-root))
+  (let (root new-root)
     (catch 'not-a-project
       (mapc
        (lambda (test)
@@ -178,26 +180,30 @@ described in PROJECT."
            (setq new-root
                  (funcall (cdr test) (plist-get project (car test))))
            (cond
-             ((null new-root)
-              (throw 'not-a-project nil))
-             ;; check root is so far consistent
-             ((and (not (null root))
-                   (not (string= root new-root)))
-              (throw 'not-a-project nil))
-             (t
-              (setq root new-root)))))
-       project-root-test-dispatch)
-      (when root
-        (file-name-as-directory root)))))
+            ((null new-root)
+             (throw 'not-a-project nil))
+            ;; check root is so far consistent
+            ((and (not (null root))
+                  (not (string= root new-root)))
+             (throw 'not-a-project nil))
+            (t
+             (setq root new-root)))))
+       project-root-test-dispatch))
+    (when root
+      (file-name-as-directory root))))
 
 (defun project-root-data (key &optional project)
-  "Grab the value (if any) for key in PROJECT. If PROJECT is omitted then
-attempt to get the value for the current project."
+  "Grab the value (if any) for key in PROJECT.
+
+If PROJECT is omitted then attempt to get the value for the current project."
   (let ((p (or project project-details))
+        (sp project-root-name-split)
         val)
     (setq val
           (or
-           (plist-get (cdr (assoc (car p) project-roots)) key)
+           (plist-get
+            (cdr (assoc (car (split-string (car p) sp)) project-roots))
+            key)
            (plist-get (cdr (assoc (car p) project-roots-cache)) key)))
     (when (and (eq :filename-regex key)
                (null val))
@@ -246,19 +252,17 @@ anything."
 
 Tests will be used as defined in `project-roots'. Returns fetched project."
   (interactive)
-  (let ((project
-         (catch 'root-found
-           (unless (mapc
-                    (lambda (project)
-                      (let ((name (car project))
-                            (run (project-root-data :on-hit project))
-                            (root (project-root-get-root (cdr project))))
-                        (when root
-                          (when (and root (not dont-run-on-hit) run)
-                            (funcall run (cons name root)))
-                          (throw 'root-found (cons name root)))))
-                    project-roots)
-             nil))))
+  (let* ((sp project-root-name-split)
+         (project
+          (catch 'root-found
+            (unless (mapc
+                     (lambda (project)
+                       (let ((name (car project))
+                             (root (project-root-get-root (cdr project))))
+                         (when root
+                           (throw 'root-found (cons (concat name sp root) root)))))
+                     project-roots)
+              nil))))
     ;; set the actual var used by apps and add to the global project
     ;; list
     (when project
