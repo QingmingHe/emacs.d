@@ -159,22 +159,7 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 *** Isearch and ace jump
 
 #+begin_src emacs-lisp
-(defun my-avi-isearch ()
-  (unless (featurep 'avy-jump)
-    (require 'avy-jump))
-  (interactive)
-  (if (and (symbolp isearch-evil-search-p)
-           isearch-evil-search-p)
-      (let* ((candidates
-              (avi--regex-candidates isearch-string))
-             (avi-background nil)
-             (candidate
-              (avi--process candidates #'avi--overlay-post)))
-        (avi--goto candidate)
-        (isearch-exit))
-    (avi-isearch)))
-
-(define-key isearch-mode-map (kbd ";") 'my-avi-isearch)
+(define-key isearch-mode-map (kbd ";") 'avi-isearch)
 #+end_src
 
 Push mark before jump.

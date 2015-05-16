@@ -123,19 +123,14 @@ if last command is evil-search."
         (avi--goto candidate))
     (evil-repeat-find-char count)))
 
-;; distinguish between evil earch and isearch
-(setq isearch-evil-search-p nil)
-(defadvice evil-search-incrementally (around distinguish-evil-search activate)
-  (setq isearch-evil-search-p t)
-  ad-do-it
-  (setq isearch-evil-search-p nil))
-
 (define-key evil-normal-state-map (kbd "gl") 'ace-jump-line-mode)
 (define-key evil-normal-state-map (kbd "go") 'ace-jump-word-mode)
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line-dwim)
 (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line-dwim)
 (define-key evil-normal-state-map (kbd ";") 'evil-repeat-search-or-avy-jump)
+(define-key evil-normal-state-map (kbd "/") 'isearch-forward-regexp)
+(define-key evil-normal-state-map (kbd "?") 'isearch-backward-regexp)
 #+end_src
 
 *** Evil ex command
@@ -258,7 +253,7 @@ window. Come back to current window immediately after send eshell input."
                       :history 'helm-grep-history
                       :preselect (and (memq 'helm-source-occur helm-sources-using-default-as-input)
                                       (format "%s:%d:" (buffer-name) (line-number-at-pos (point))))
-                      :input "^\\*+\\ "
+                      :input "^\\*+\\  "
                       :truncate-lines t))
                (t (call-interactively 'helm-imenu))))
   "sw" 'helm-swoop
