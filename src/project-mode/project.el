@@ -64,6 +64,9 @@ message(STATUS \"[prj] hdf5-include-dirs: ${HDF5_INCLUDE_DIR}\")
 (defvar prj/cmake-exec (executable-find "cmake")
   "Executable for CMake.")
 
+(defvar prj/c-modes '(c-mode c++-mode)
+  "C modes.")
+
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
 
@@ -438,7 +441,7 @@ from project root to PATH-BEGIN."
     (when (and p fname)
       (let ((gtags-label (prj/get-gtags-label))
             (gtags-conf (prj/get-gtags-conf)))
-        (call-process prj/global-exec nil nil nil
+        (call-process prj/global-exec nil 0 nil
                       (format "--gtagslabel=%s" gtags-label)
                       (format "--gtagsconf=%s" gtags-conf)
                       (format "--single-update=%s" fname))))))
@@ -566,6 +569,41 @@ all modified buffers."
      not-prj-buffers)))
 
 ;;; project compiler flags
+
+(defun add-to-list-when-boundp (symbol elem)
+  (when (boundp symbol)
+    (add-to-list symbol elem)))
+
+(defun prj/set-c-flags (include-paths definitions)
+  (when (and
+         (member major-mode prj/c-modes)
+         project-details)
+    (mapc
+     (lambda (path)
+       (setq full-path (expand-file-name path (cdr project-details)))
+       (setq include-path (concat "-I" full-path))
+       (add-to-list-when-boundp 'flycheck-gcc-include-path full-path)
+       (add-to-list-when-boundp 'flycheck-clang-include-path full-path)
+       (add-to-list-when-boundp 'company-clang-arguments include-path)
+       (add-to-list-when-boundp 'company-c-headers-path-user include-path)
+       (add-to-list-when-boundp 'ac-clang-flags include-path)
+       (setq c-eldoc-includes
+             (concat
+              (when (boundp c-eldoc-includes) c-eldoc-includes)
+              " " include-path)))
+     include-paths)
+    (mapc
+     (lambda (def)
+       (setq Def (concat "-D" def))
+       (add-to-list-when-boundp 'flycheck-gcc-definitions def)
+       (add-to-list-when-boundp 'flycheck-clang-definitions def)
+       (add-to-list-when-boundp 'company-clang-arguments Def)
+       (add-to-list-when-boundp 'ac-clang-flags Def)
+       (setq c-eldoc-includes
+             (concat
+              (when (boundp c-eldoc-includes) c-eldoc-includes)
+              " " Def)))
+     definitions)))
 
 (defun prj/set-compile-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
@@ -1381,6 +1419,8 @@ The format of `prj/project-locals-file' is identical to that of
             ;; set compile flags
             (when prj/auto-set-flags-if-needed
               (prj/set-compile-flags p (current-buffer)))
+            (prj/set-c-flags (project-root-data :c-include-paths p)
+                             (project-root-data :c-definitions p))
             ;; load project local variables
             (when (and
                    (file-exists-p
