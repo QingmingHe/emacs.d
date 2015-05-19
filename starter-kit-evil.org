@@ -195,7 +195,7 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
 Find eshell window in current frame and execute last eshell command in that
 window. Come back to current window immediately after send eshell input."
          (interactive)
-         (let (esh-win)
+         (let (esh-win esh-buf)
            (catch 'found-eshell-window
              (mapc
               (lambda (window)
@@ -204,14 +204,16 @@ window. Come back to current window immediately after send eshell input."
                        (buffer-name (window-buffer window)))
                   (throw 'found-eshell-window (setq esh-win window))))
               (window-list)))
-           (if esh-win
-               (save-selected-window
+           (save-selected-window
+             (if esh-win
                  (select-window esh-win)
-                 (goto-char (point-max))
-                 (when (re-search-backward eshell-prompt-regexp nil t 2)
-                   (eshell-bol)
-                   (call-interactively 'eshell-send-input)))
-             (user-error "No eshell window found!"))))
+               (if (setq esh-buf (get-buffer "*eshell*<>"))
+                   (pop-to-buffer esh-buf)
+                 (user-error "Are you kidding me!")))
+             (goto-char (point-max))
+             (when (re-search-backward eshell-prompt-regexp nil t 2)
+               (eshell-bol)
+               (call-interactively 'eshell-send-input)))))
 
   ;; tags
   "ta" (lambda (arg)
