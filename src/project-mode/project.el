@@ -983,9 +983,11 @@ contains tag, file and line number which are split by
           ;;   AN_PARAM = 0
           (when (string-empty-p tag)
             (forward-line)
-            (setq tag (buffer-substring-no-properties
-                       (line-beginning-position)
-                       (line-end-position))))
+            (if (search-forward "\177" (line-end-position) t)
+                (forward-line 0)
+              (setq tag (buffer-substring-no-properties
+                         (line-beginning-position)
+                         (line-end-position)))))
           (put-text-property
            0 (length tag) 'face font-lock-variable-name-face tag)
           (setq tags-list
