@@ -75,4 +75,5 @@ saved globally.
         dired-regexp-history))
 (setq savehist-file (expand-file-name ".savehist" starter-kit-dir))
 (savehist-mode 1)
+(run-with-idle-timer 600 t 'savehist-autosave)
 #+end_src
