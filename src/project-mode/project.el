@@ -47,31 +47,49 @@ enable_language(Fortran)
 "
   "Header content of CMake script.")
 
-(defvar prj/cmake-find-mpi-content
-  "find_package(MPI)
-message(STATUS \"[prj] mpi-fortran-include-path: ${MPI_Fortran_INCLUDE_PATH}\")
-message(STATUS \"[prj] mpi-c-include-path: ${MPI_C_INCLUDE_PATH}\")
-message(STATUS \"[prj] mpi-CXX-include-path: ${MPI_CXX_INCLUDE_PATH}\")
-"
-  "CMake script content to find MPI.")
-
-(defvar prj/cmake-find-hdf5-content
-  "find_package(HDF5)
-message(STATUS \"[prj] hdf5-include-dirs: ${HDF5_INCLUDE_DIR}\")
-"
-  "CMake script content to find HDF5.")
-
 (defvar prj/c++-system-include-paths nil
   "System path for c++ include files.")
 
 (defvar prj/cmake-exec (executable-find "cmake")
   "Executable for CMake.")
 
-(defvar prj/c-modes '('c-mode 'c++-mode)
-  "C modes.")
+(defvar prj/language-flags-vars
+  '((f90-mode
+     :include (flycheck-gfortran-include-path flycheck-fortran+-include-paths)
+     :definition (flycheck-fortran+-definitions))
+    (fortran-mode
+     :include (flycheck-gfortran-include-path flycheck-fortran+-include-paths)
+     :definition (flycheck-fortran+-definitions))
+    (c-mode
+     :include (flycheck-gcc-include-path flycheck-clang-include-path
+                                         cc-search-directories
+                                         company-c-headers-path-user)
+     :-I-include (company-clang-arguments ac-clang-flags)
+     :-I-include-str (c-eldoc-includes)
+     :definition (flycheck-gcc-definitions flycheck-clang-definitions)
+     :-D-definition (company-clang-arguments ac-clang-flags)
+     :-D-definition-str (c-eldoc-includes))
+    (c++-mode
+     :include (flycheck-gcc-include-path flycheck-clang-include-path
+                                         cc-search-directories
+                                         company-c-headers-path-user)
+     :-I-include (company-clang-arguments ac-clang-flags)
+     :-I-include-str (c-eldoc-includes)
+     :definition (flycheck-gcc-definitions flycheck-clang-definitions)
+     :-D-definition (company-clang-arguments ac-clang-flags)
+     :-D-definition-str (c-eldoc-includes))))
 
-(defvar prj/fortran-modes '('f90-mode 'fortran-mode)
-  "Fortran modes.")
+(defvar prj/cmake-find-packages-alist
+  '((hdf5
+     :cmake-file-content "find_package(HDF5)"
+     :fortran-include-paths "HDF5_INCLUDE_DIR"
+     :c-include-paths "HDF5_INCLUDE_DIR"
+     :cxx-include-paths "HDF5_INCLUDE_DIR")
+    (mpi
+     :cmake-file-content "find_package(MPI)"
+     :fortran-include-paths "MPI_Fortran_INCLUDE_PATH"
+     :c-include-paths "MPI_C_INCLUDE_PATH"
+     :cxx-include-paths "MPI_CXX_INCLUDE_PATH")))
 
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
@@ -576,65 +594,80 @@ all modified buffers."
 
 ;;; project compiler flags
 
-(defun add-to-list-when-boundp (symbol elem)
+(defun prj/add-to-list (symbol elem)
   "Add ELEM to SYMBOL locally if SYMBOL has been defined."
   (when (boundp symbol)
     (add-to-list (make-local-variable symbol) elem)))
 
-(defun prj/set-c-flags (include-paths definitions)
-  "Set c flags for given INCLUDE-PATHS and DEFINITIONS."
-  (when (and
-         (eval `(derived-mode-p ,@prj/c-modes))
-         project-details)
-    (let (full-path include-path Def)
-      (mapc
-       (lambda (path)
-         (setq full-path (expand-file-name path (cdr project-details)))
-         (setq include-path (concat "-I" full-path))
-         (add-to-list-when-boundp 'flycheck-gcc-include-path full-path)
-         (add-to-list-when-boundp 'flycheck-clang-include-path full-path)
-         (add-to-list-when-boundp 'company-clang-arguments include-path)
-         (add-to-list-when-boundp 'company-c-headers-path-user include-path)
-         (add-to-list-when-boundp 'ac-clang-flags include-path)
-         (setq c-eldoc-includes
-               (concat
-                (when (boundp c-eldoc-includes) c-eldoc-includes)
-                " " include-path)))
-       include-paths)
-      (mapc
-       (lambda (def)
-         (setq Def (concat "-D" def))
-         (add-to-list-when-boundp 'flycheck-gcc-definitions def)
-         (add-to-list-when-boundp 'flycheck-clang-definitions def)
-         (add-to-list-when-boundp 'company-clang-arguments Def)
-         (add-to-list-when-boundp 'ac-clang-flags Def)
-         (setq c-eldoc-includes
-               (concat
-                (when (boundp c-eldoc-includes) c-eldoc-includes)
-                " " Def)))
-       definitions))))
+(defun prj/set-language-flags-0 (include-paths definitions)
+  (let* ((p (or project-details (project-root-fetch)))
+         (proot (cdr p))
+         (vars (cdr (assoc major-mode prj/language-flags-vars)))
+         (includes
+          (mapcar
+           (lambda (path)
+             (expand-file-name path proot))
+           include-paths))
+         (-I-includes
+          (mapcar
+           (lambda (include)
+             (concat "-I" include))
+           includes))
+         (-D-definitions
+          (mapcar
+           (lambda (definition)
+             (concat "-D" definition))
+           definitions)))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (include)
+          (prj/add-to-list var include))
+        includes))
+     (plist-get vars :include))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (-I-include)
+          (prj/add-to-list var -I-include))
+        -I-includes))
+     (plist-get vars :-I-include))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (-I-include)
+          (eval
+           `(setq-local
+             ,var
+             (concat -I-include " " (when (boundp var) ,var)))))
+        -I-includes))
+     (plist-get vars :-I-include-str))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (definition)
+          (prj/add-to-list var definition))
+        definitions))
+     (plist-get vars :definition))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (-D-definition)
+          (prj/add-to-list var definition))
+        -D-definitions))
+     (plist-get vars :-D-definition))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (-D-definition)
+          (eval
+           `(setq-local
+             ,var
+             (concat -D-definition " " (when (boundp var) ,var)))))
+        -D-definitions))
+     (plist-get vars :-D-definition-str))))
 
-(defun prj/set-fortran-flags (include-paths definitions module-path)
-  "Set Fortran flags for given INCLUDE-PATHS and DEFINITIONS."
-  (when (and
-         (eval `(derived-mode-p ,@prj/fortran-modes))
-         project-details)
-    (let (full-path include-path Def)
-      (mapc
-       (lambda (path)
-         (setq full-path (expand-file-name path (cdr project-details)))
-         (setq include-path (concat "-I" full-path))
-         (add-to-list-when-boundp 'flycheck-gfortran-include-path full-path)
-         (add-to-list-when-boundp 'flycheck-fortran+-include-paths full-path))
-       include-path)
-      (mapc
-       (lambda (def)
-         (setq Def (concat "-D" def))
-         (add-to-list-when-boundp 'flycheck-fortran+-definitions def)))
-      (setq flycheck-fortran+-module-path
-            (expand-file-name module-path (cdr project-details))))))
-
-(defun prj/set-compile-flags (p buffer)
+(defun prj/set-language-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
   (let ((packages (project-root-data :use-packages p))
         flags)
@@ -645,106 +678,88 @@ all modified buffers."
          (prj/cmake-find-packages packages)
          p))
       (setq flags (project-root-data :-compile-flags p)))
+    (when (derived-mode-p 'c++-mode)
+      (unless prj/c++-system-include-paths
+        (setq prj/c++-system-include-paths
+              (prj/c++-system-include-paths))))
     (with-current-buffer buffer
-      (when (eval `(derived-mode-p ,@prj/fortran-modes))
-        (prj/set-fortran-flags
-         (append (plist-get flags :mpi-fortran-include-path)
-                 (plist-get flags :hdf5-include-dirs)
-                 (project-root-data :fortran-include-paths p))
-         (project-root-data :fortran-definitions p)
-         (project-root-data :fortran-module-path p)))
-      (when (derived-mode-p 'c-mode)
-        (prj/set-c-flags
-         (append (plist-get flags :mpi-c-include-path)
-                 (plist-get flags :hdf5-include-dirs)
+      (cond
+       ((derived-mode-p 'c++-mode)
+        (prj/set-language-flags-0
+         (append prj/c++-system-include-paths
+                 (plist-get flags :cxx-include-paths)
+                 (project-root-data :cxx-include-paths p))
+         (append (plist-get flags :cxx-definitions)
+                 (project-root-data :cxx-definitions p))))
+       ((derived-mode-p 'c-mode)
+        (prj/set-language-flags-0
+         (append (plist-get flags :c-include-paths)
                  (project-root-data :c-include-paths p))
-         (project-root-data :c-definitions p)))
-      (when (derived-mode-p 'c++-mode)
-        (unless prj/c++-system-include-paths
-          (setq prj/c++-system-include-paths
-                (prj/c++-system-include-paths)))
-        (prj/set-c-flags
-         (append (plist-get flags :mpi-cxx-include-path)
-                 (plist-get flags :hdf5-include-dirs)
-                 (project-root-data :c-include-paths p)
-                 prj/c++-system-include-paths)
-         (project-root-data :c-definitions p))))))
+         (append (plist-get flags :c-definitions)
+                 (project-root-data :c-definitions p))))
+       ((derived-mode-p 'f90-mode 'fortran-mode)
+        (prj/set-language-flags-0
+         (append (plist-get flags :fortran-include-paths)
+                 (project-root-data :fortran-include-paths p))
+         (append (plist-get flags :fortran-definitions)
+                 (project-root-data :fortran-definitions p))))))))
+
+(defun prj/map-plist (fn plist)
+  (let ((pl plist)
+        vals)
+    (while pl
+      (push (funcall fn (car pl) (cadr pl)) vals)
+      (setq pl (cddr pl)))
+    (nreverse vals)))
 
 (defun prj/cmake-obtain-flags (buffer keywords)
   "Obtain flags from CMake output."
   (with-current-buffer buffer
     (goto-char (point-min))
-    (let (flags)
-      (when (re-search-forward
+    (let (flags flag)
+      (while (re-search-forward
              (format "\\[prj\\] %s: \\(.+\\)$" keywords) nil t)
-        (setq flags (match-string-no-properties 1))
-        (unless (string-match "-NOTFOUND" flags)
-          (split-string flags ";"))))))
+        (setq flag (match-string-no-properties 1))
+        (unless (or (null flag) (string-match "-NOTFOUND" flag))
+          (mapc
+           (lambda (f)
+             (add-to-list 'flags f))
+           (split-string flag ";"))))
+      flags)))
 
 (defun prj/cmake-find-packages (packages)
-  "Find packages by CMake.
-
-Returns include paths of Fortran, C and CXX."
   (unless (file-directory-p prj/temp-dir)
     (mkdir prj/temp-dir))
   (let ((default-directory prj/temp-dir)
-        mpi-fortran-include-path
-        mpi-c-include-path
-        mpi-cxx-include-path
-        hdf5-include-dirs)
+        plist cmake-file-content flags)
     (with-temp-buffer
       (insert prj/cmake-find-packages-headers)
-      (when (member 'mpi packages)
-        (insert prj/cmake-find-mpi-content))
-      (when (member 'hdf5 packages)
-        (insert prj/cmake-find-hdf5-content))
+      (mapc
+       (lambda (pkg)
+         (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
+           (if (setq cmake-file-content (plist-get :cmake-file-content plist))
+               (insert (format "%s\n" cmake-file-content))
+             (insert (format "find_package(%s)\n" (upcase (symbol-name pkg)))))
+           (prj/map-plist
+            (lambda (prop val)
+              (unless (eq prop :cmake-file-content)
+                (insert (format "message(STATUS \"[prj] %s: ${%s}\")\n"
+                                (symbol-name prop) val))))
+            plist)))
+       packages)
       (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
     (with-temp-buffer
       (call-process prj/cmake-exec nil t nil ".")
-      (mapc
-       (lambda (sym)
-         (eval
-          `(setq ,sym
-                 (prj/cmake-obtain-flags
-                  (current-buffer) (symbol-name sym)))))
-       '(mpi-fortran-include-path
-         mpi-c-include-path
-         mpi-cxx-include-path
-         hdf5-include-dirs)))
-    `(:mpi-fortran-include-path
-      ,mpi-fortran-include-path
-      :mpi-c-include-path
-      ,mpi-c-include-path
-      :mpi-cxx-include-path
-      ,mpi-cxx-include-path
-      :hdf5-include-dirs
-      ,hdf5-include-dirs)))
-
-(defun prj/c-include-paths-pkgs (pkgs)
-  "Get c include pahts for \"pkgs\". \"pkgs\" should be string or list of
-  string.
-
-Valid form of \"pkgs\":
-\"glib\", \"glib python-2.7\", '(\"glib\" \"python-2.7\")
-
-Returns:
-List of include paths of \"pkgs\", including \"-I\" flag."
-  (when (and pkgs (executable-find "pkg-config"))
-    (let ((c-include-paths nil)
-          (pkgs (cond ((listp pkgs) pkgs)
-                      ((stringp pkgs) (split-string pkgs)))))
-      (mapc
-       (lambda (pkg)
-         (mapc
-          (lambda (inc)
-            (when (and
-                   (> (length inc) 2)
-                   (string= "-I" (substring inc 0 2)))
-              (add-to-list 'c-include-paths (substring inc 2))))
-          (split-string (shell-command-to-string
-                         (format "pkg-config --cflags-only-I %s" pkg)))))
-       pkgs)
-      c-include-paths)))
+      (prj/map-plist
+       (lambda (prop val)
+         (unless (eq prop :cmake-file-content)
+           (setq flags
+                 (plist-put
+                  flags
+                  prop
+                  (prj/cmake-obtain-flags (current-buffer) (symbol-name prop))))))
+       plist))
+    flags))
 
 (defun prj/c++-system-include-paths ()
   "Get path of system c++ include files."
@@ -1444,7 +1459,7 @@ The format of `prj/project-locals-file' is identical to that of
               (run-hooks (project-root-data :prj-setup-hooks p)))
             ;; set compile flags
             (when prj/auto-set-flags-if-needed
-              (prj/set-compile-flags p (current-buffer)))
+              (prj/set-language-flags p (current-buffer)))
             ;; load project local variables
             (when (and
                    (file-exists-p

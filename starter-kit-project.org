@@ -26,53 +26,43 @@ First define projects.
 (setq project-roots
       `(("CExamples"
          :root-contains-files (".CExample-root.el")
-         :tags-tool "gtags"
-         :lighter "C-e")
+         :tags-tool "gtags")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
          :use-completion (f90-mode)
-         :use-packages (hdf5 mpi)
-         :lighter "SUGAR")
+         :use-packages (hdf5 mpi))
         ("openmc"
          :root-contains-files (".openmc-root")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
          :use-completion (f90-mode)
-         :use-packages (hdf5 mpi)
-         :lighter "openmc")
+         :use-packages (hdf5 mpi))
         ("ctags"
          :root-contains-files (".ctags-root")
          :tags-tool "gtags"
          :c-include-paths ("." "main" "parsers")
          :c-definitions ("HAVE_CONFIG_H")
-         :prj-setup-hooks ctags-project-setup-hook
-         :lighter "ctags")
+         :prj-setup-hooks ctags-project-setup-hook)
         ("mcnp"
          :root-contains-files (".mcnp-root")
-         :exclude-paths ("run_tests" "Testing")
-         :lighter "mcnp")
+         :exclude-paths ("run_tests" "Testing"))
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
-         :exclude-paths ("backups" "auto-save-list")
-         :lighter "Econf")
+         :exclude-paths ("backups" "auto-save-list"))
         ("UFP"
          :root-contains-files (".UFP-root.el")
          :exclude-paths ("Debug" "input" "kintab" "output" "plib" "scratch"
-                         "ulib" "文档")
-         :lighter "UFP")
+                         "ulib" "文档"))
         ("RMET21"
          :root-contains-files ("RMET21" "GEXSCO" "SLAMBD" "WLUTIL")
          :exclude-paths ("BROADR" "BUILD" "BUILD_CYGWIN" "CMAKE" "build_debug"
-                         "build_release" "TESTS")
-         :lighter "RMET21")
+                         "build_release" "TESTS"))
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
-         :exclude-paths ("build")
-         :lighter "pyPkgs")
+         :exclude-paths ("build"))
         ("GTD"
-         :root-contains-files ("inbox.org" "projects.org" "notes.org")
-         :lighter "GTD")))
+         :root-contains-files ("inbox.org" "projects.org" "notes.org"))))
 #+END_SRC
 
 ** Ctags
