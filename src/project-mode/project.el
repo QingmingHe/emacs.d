@@ -1005,7 +1005,7 @@ contains tag, file and line number which are split by
           ;; special case that Fortran declaration spans several lines, like:
           ;; integer, parameter :: &
           ;;   AN_PARAM = 0
-          (when (string-empty-p tag)
+          (when (string= "" tag)
             (forward-line 0)
             (setq tag (buffer-substring-no-properties
                        (search-forward "\177")
