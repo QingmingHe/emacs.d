@@ -30,8 +30,10 @@
   (setq auctex-root (file-name-directory auctex-root)))
 (setq flycheck-Fortran-checker
       (or
-       (when (getenv "FLYCHECK_Fortran_CHECKER")
-         (intern (getenv "FLYCHECK_Fortran_CHECKER")))
+       (when (and
+              (getenv "FLYCHECK_Fortran_CHECKER")
+              (string-match "ifort" (getenv "FLYCHECK_Fortran_CHECKER")))
+         'fortran-ifort)
        'fortran-gfortran+))
 
 (defun starter-kit-fast-load (&optional file)

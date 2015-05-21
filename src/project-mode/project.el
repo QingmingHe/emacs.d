@@ -98,6 +98,15 @@ enable_language(Fortran)
      :cxx-definitions "OpenMP_CXX_FLAGS"))
   "An alist contains package names and method to find flags through cmake.")
 
+(defvar prj/cmake-fortran-compiler nil
+  "Fortran compiler.")
+
+(defvar prj/cmake-c-compiler nil
+  "C compiler.")
+
+(defvar prj/cmake-cxx-compiler nil
+  "CXX compiler.")
+
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
 
@@ -750,8 +759,9 @@ all modified buffers."
       flags)))
 
 (defun prj/cmake-find-packages (packages)
-  (unless (file-directory-p prj/temp-dir)
-    (mkdir prj/temp-dir))
+  (when (file-exists-p prj/temp-dir)
+    (delete-directory prj/temp-dir t))
+  (mkdir prj/temp-dir)
   (let ((default-directory prj/temp-dir)
         plist cmake-file-content flags)
     (with-temp-buffer
@@ -771,6 +781,21 @@ all modified buffers."
        packages)
       (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
     (with-temp-buffer
+      (call-process-shell-command
+       (format "cmake %s %s %s ."
+               (if prj/cmake-fortran-compiler
+                   (format "-DCMAKE_Fortran_COMPILER=%s"
+                           prj/cmake-fortran-compiler)
+                 "")
+               (if prj/cmake-c-compiler
+                   (format "-DCMAKE_C_COMPILER=%s"
+                           prj/cmake-c-compiler)
+                 "")
+               (if prj/cmake-cxx-compiler
+                   (format "-DCMAKE_CXX_COMPILER=%s"
+                           prj/cmake-cxx-compiler)
+                 ""))
+       nil t)
       (call-process prj/cmake-exec nil t nil ".")
       (prj/map-plist
        (lambda (prop val)
