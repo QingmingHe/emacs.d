@@ -567,6 +567,59 @@ all modified buffers."
 
 ;;; project compiler flags
 
+(defun prj/add-to-list (symbol elem)
+  (when (boundp symbol)
+    (add-to-list (make-local-variable symbol) elem)))
+
+(defun prj/set-c-flags (include-paths definitions)
+  (when (and
+         (derived-mode-p 'c-mode 'c++-mode)
+         project-details)
+    (let ((root (cdr project-details))
+          full-path include-path Def)
+      (mapc
+       (lambda (path)
+         (setq full-path (expand-file-name path root)
+               include-path (concat "-I" full-path))
+         (prj/add-to-list 'flycheck-gcc-include-path full-path)
+         (prj/add-to-list 'flycheck-clang-include-path full-path)
+         (prj/add-to-list 'company-clang-arguments include-path)
+         (prj/add-to-list 'ac-clang-flags include-path)
+         (when (boundp 'c-eldoc-includes)
+           (setq-local c-eldoc-includes
+                       (concat c-eldoc-includes " " include-path))))
+       include-paths)
+      (mapc
+       (lambda (def)
+         (setq Def (concat "-D" def))
+         (prj/add-to-list 'flycheck-gcc-definitions def)
+         (prj/add-to-list 'flycheck-clang-definitions def)
+         (prj/add-to-list 'company-clang-arguments Def)
+         (prj/add-to-list 'ac-clang-flags Def)
+         (when (boundp 'c-eldoc-includes)
+           (setq-local c-eldoc-includes
+                       (concat c-eldoc-includes " " Def))))
+       definitions))))
+
+(defun prj/set-fortran-flags (include-paths definitions)
+  (when (and
+         (derived-mode-p 'fortran-mode 'f90-mode)
+         project-details)
+    (let ((root (cdr project-details))
+          full-path include-path Def)
+      (mapc
+       (lambda (path)
+         (setq full-path (expand-file-name path root)
+               include-path (concat "-I" full-path))
+         (prj/add-to-list 'flycheck-gfortran-include-path full-path)
+         (prj/add-to-list 'flycheck-fortran+-include-paths full-path))
+       include-paths)
+      (mapc
+       (lambda (def)
+         (setq Def (concat "-D" def))
+         (prj/add-to-list 'flycheck-fortran+-definitions def))
+       definitions))))
+
 (defun prj/set-compile-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
   (let ((packages (project-root-data :use-packages p))
@@ -576,15 +629,28 @@ all modified buffers."
         (project-root-set-data
          :-compile-flags
          (prj/cmake-find-packages packages)
-         p))
-      (setq flags (project-root-data :-compile-flags p))
-      (with-current-buffer buffer
-        (when (derived-mode-p 'f90-mode 'fortran-mode)
-          (mapc
-           (lambda (path)
-             (add-to-list 'flycheck-fortran+-include-paths path))
-           (append (plist-get flags :mpi-fortran-include-path)
-                   (plist-get flags :hdf5-include-dirs))))))))
+         p)))
+    (setq flags (project-root-data :-compile-flags p))
+    (with-current-buffer buffer
+      (when (derived-mode-p 'f90-mode 'fortran-mode)
+        (prj/set-fortran-flags
+         (append (plist-get flags :mpi-fortran-include-path)
+                 (plist-get flags :hdf5-include-dirs)
+                 (project-root-data :fortran-include-paths p))
+         (append (project-root-data :fortran-definitions p))))
+      (when (derived-mode-p 'c-mode)
+        (prj/set-c-flags
+         (append (plist-get flags :mpi-c-include-path)
+                 (plist-get flags :hdf5-include-dirs)
+                 (project-root-data :c-include-paths p))
+         (append (project-root-data :c-definitions p))))
+      (when (derived-mode-p 'c++-mode)
+        (prj/set-c-flags
+         (append (plist-get flags :mpi-c-include-path)
+                 (plist-get flags :hdf5-include-dirs)
+                 (project-root-data :c-include-paths p)
+                 (prj/system-c++-include-paths))
+         (append (project-root-data :c-definitions p)))))))
 
 (defun prj/cmake-obtain-flags (buffer keywords)
   "Obtain flags from CMake output."
@@ -636,64 +702,17 @@ Returns include paths of Fortran, C and CXX."
       :hdf5-include-dirs
       ,hdf5-include-dirs)))
 
-(defun prj/c-include-paths-pkgs (pkgs)
-  "Get c include pahts for \"pkgs\". \"pkgs\" should be string or list of
-  string.
-
-Valid form of \"pkgs\":
-\"glib\", \"glib python-2.7\", '(\"glib\" \"python-2.7\")
-
-Returns:
-List of include paths of \"pkgs\", including \"-I\" flag."
-  (when (and pkgs (executable-find "pkg-config"))
-    (let ((c-include-paths nil)
-          (pkgs (cond ((listp pkgs) pkgs)
-                      ((stringp pkgs) (split-string pkgs)))))
-      (mapc
-       (lambda (pkg)
-         (mapc
-          (lambda (inc)
-            (when (and
-                   (> (length inc) 2)
-                   (string= "-I" (substring inc 0 2)))
-              (add-to-list 'c-include-paths (substring inc 2))))
-          (split-string (shell-command-to-string
-                         (format "pkg-config --cflags-only-I %s" pkg)))))
-       pkgs)
-      c-include-paths)))
-
-(defun prj/c-include-paths-general (language)
-  "Get general C or C++ include paths.
-
-LANGUAGE: \"c\" or \"c++\".
-
-Returns:
-List of include paths, include \"-I\" flag."
-  (let (p1
-        p2
-        c-include-paths
-        (compiler
-         (cond ((string= "c" language) "gcc")
-               ((string= "c++" language) "g++")
-               (t (error (format "%s not supported!" language))))))
-    (when (executable-find compiler)
+(defun prj/system-c++-include-paths ()
+  (when (executable-find "g++")
+    (let (b0 b1)
       (with-temp-buffer
-        (insert (shell-command-to-string
-                 (format "echo \"\" | %s -v -x %s -E -" compiler language)))
+        (call-process-shell-command "echo \"\" | g++ -v -x c++ -E -" nil t)
         (goto-char (point-min))
-        (search-forward "#include <...>")
-        (forward-line 1)
-        (setq p1 (line-beginning-position))
-        (search-forward "# 1")
-        (forward-line -2)
-        (setq p2 (line-end-position))
-        (setq c-include-paths
-              (split-string (buffer-substring-no-properties p1 p2)))
-        (add-to-list 'c-include-paths ".")))
-    (mapcar
-     (lambda (path)
-       (concat "-I" path))
-     c-include-paths)))
+        (setq b0 (search-forward "#include <...> search starts here:\n" nil t))
+        (when (search-forward "End of search list." nil t)
+          (setq b1 (line-end-position 0)))
+        (when (and b0 b1)
+          (split-string (buffer-substring-no-properties b0 b1)))))))
 
 ;;; project helm mini
 
