@@ -77,7 +77,8 @@ enable_language(Fortran)
      :-I-include-str (c-eldoc-includes)
      :definition (flycheck-gcc-definitions flycheck-clang-definitions)
      :-D-definition (company-clang-arguments ac-clang-flags)
-     :-D-definition-str (c-eldoc-includes))))
+     :-D-definition-str (c-eldoc-includes)))
+  "An alist that contains modes and its corresponding compiler flags variables.")
 
 (defvar prj/cmake-find-packages-alist
   '((hdf5
@@ -94,7 +95,8 @@ enable_language(Fortran)
      :cmake-file-content "find_package(OpenMP)"
      :fortran-definitions "OpenMP_C_FLAGS"
      :c-definitions "OpenMP_C_FLAGS"
-     :cxx-definitions "OpenMP_CXX_FLAGS")))
+     :cxx-definitions "OpenMP_CXX_FLAGS"))
+  "An alist contains package names and method to find flags through cmake.")
 
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
@@ -261,6 +263,7 @@ expanded.  Otherwise will be recognized as path relative to project root."
 
 ;;; project files/buffers
 
+;;;###autoload
 (defun prj/find-file ()
   "Find a file from a list of those that exist in the current project."
   (interactive)
@@ -271,6 +274,7 @@ expanded.  Otherwise will be recognized as path relative to project root."
                                           (mapcar 'car files))))
           (find-file (cdr (assoc file project-files)))))))
 
+;;;###autoload
 (defun prj/occur (pattern &optional p)
   "Run multiple occur on project buffers. Whether a file is a project file is
 determined by `project-root-file-is-project-file'."
@@ -290,6 +294,7 @@ determined by `project-root-file-is-project-file'."
                     buffers)))
     (multi-occur buffers pattern)))
 
+;;;###autoload
 (defun prj/grep (grep-regexp wildcard dir &optional p)
   "Run grep with find at project files."
   (interactive
@@ -307,6 +312,7 @@ determined by `project-root-file-is-project-file'."
              (project-root-find-cmd wildcard dir p)
              grep-regexp))))
 
+;;;###autoload
 (defun prj/goto-project (&optional p)
   "Go to root of a selected project in Dired."
   (interactive)
@@ -339,6 +345,7 @@ from project root to PATH-BEGIN."
         (setq dir (file-name-directory (directory-file-name dir)))))
     file-full-path))
 
+;;;###autoload
 (defun prj/add-new-source (file &optional p)
   "Add new source file to project and touch `prj/cmake-list-file' if
 `prj/touch-cmake-lists-at-create-new-file' is t."
@@ -358,6 +365,7 @@ from project root to PATH-BEGIN."
               prj/cmake-list-file p (file-name-directory file)))))
       (message "Project is not found!"))))
 
+;;;###autoload
 (defun prj/kill-project-buffers (&optional p)
   "Kill all opened buffers of project. The buffers are saved before killed."
   (interactive)
@@ -387,6 +395,7 @@ from project root to PATH-BEGIN."
 
 ;;; project tags handling
 
+;;;###autoload
 (defun prj/gen-etags-dir (path pattern tags-file)
   "Generate TAGS-FILE under PATH for given file PATTERN."
   (interactive
@@ -403,6 +412,7 @@ from project root to PATH-BEGIN."
              (project-root-find-executable) path project-root-file-regexp
              pattern prj/ctags-exec tags-file))))
 
+;;;###autoload
 (defun prj/generate-etags ()
   "Generate TAGS at project root."
   (interactive)
@@ -456,6 +466,7 @@ from project root to PATH-BEGIN."
              (project-root-find-cmd) gtags-label gtags-conf))
     (message "Done")))
 
+;;;###autoload
 (defun prj/generate-tags ()
   "Generate tags file at project root by ctags or gtags."
   (interactive)
@@ -529,6 +540,7 @@ of ctags."
         (message "Updating tags for %s Done." proc)
       (message "Updating tags for %s failed." proc))))
 
+;;;###autoload
 (defun prj/save-buffers-and-update-tags ()
   "Update tags file for modified buffers of projects asynchronously and save
 all modified buffers."
@@ -709,6 +721,7 @@ all modified buffers."
          (append (plist-get flags :fortran-definitions)
                  (project-root-data :fortran-definitions p))))))))
 
+;;;###autoload
 (defun prj/clear-flags-cache ()
   (interactive)
   (project-root-set-data :-compile-flags nil))
@@ -936,6 +949,7 @@ all modified buffers."
   (let ((default-directory proot))
     (call-interactively 'prj/occur)))
 
+;;;###autoload
 (defun prj/helm-mini ()
   "Pre-configured `helm' to list project buffers, project files and seen projects."
   (interactive)
@@ -1149,6 +1163,7 @@ Symbol at point will be the default input."
       (setq str (format "\\_<%s\\_>" (buffer-substring-no-properties b0 b1))))
     str))
 
+;;;###autoload
 (defun prj/helm-etags ()
   "Preconfigured `helm' for etags."
   (interactive)
@@ -1338,6 +1353,7 @@ time elapsed to be 0.03 s. The TAGS file is generated at /usr/include/."
    prj/buffer-is-using-etags-backend
    (or (company-grab-symbol) 'stop)))
 
+;;;###autoload
 (defun prj/company-etags (command &optional arg &rest ignored)
   "`company-mode' completion backend for etags."
   (interactive (list 'interactive))
@@ -1403,6 +1419,7 @@ The format of `prj/project-locals-file' is identical to that of
               (cdr local))))
          locals)))))
 
+;;;###autoload
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
   :lighter prj/buffer-mode-lighter
@@ -1498,11 +1515,13 @@ Enable `global-project-mode' only when all following conditions are meet:
            (project-root-fetch))
       (project-minor-mode))))
 
+;;;###autoload
 (define-globalized-minor-mode global-project-mode project-minor-mode
   project-mode-on-safe
   :init-value nil
   :require 'project)
 
+;;;###autoload
 (defun prj/re-turn-on-project-minor-mode (arg)
   "Try re-turn-on `project-minor-mode'. With prefix ARG toggle off and then on
 `project-minor-mode' for all buffers, otherwise for current buffer. This is
