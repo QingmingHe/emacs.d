@@ -933,6 +933,11 @@ contains tag, file and line number which are split by
                 line-num (buffer-substring-no-properties
                           (search-forward "\001")
                           (1- (search-forward ","))))
+          (when (string-empty-p tag)
+            (forward-line 0)
+            (setq tag (buffer-substring-no-properties
+                       (search-forward "\177")
+                       (1- (search-forward "\001")))))
           (put-text-property
            0 (length tag) 'face font-lock-variable-name-face tag)
           (setq tags-list
