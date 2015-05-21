@@ -151,6 +151,7 @@ Use ido to complete file name and helm for the other.
 #+begin_src emacs-lisp
 (defun my-eshell-config ()
   (require 'subr-x)
+  (compilation-shell-minor-mode 1)
   (visual-line-mode 1)
   (adaptive-wrap-prefix-mode 1))
 (add-hook 'eshell-mode-hook #'my-eshell-config)

@@ -35,6 +35,19 @@ First define projects.
          :use-completion (f90-mode)
          :use-packages (hdf5 mpi)
          :lighter "SUGAR")
+        ("openmc"
+         :root-contains-files (".openmc-root")
+         :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
+         :use-completion (f90-mode)
+         :use-packages (hdf5 mpi)
+         :lighter "openmc")
+        ("ctags"
+         :root-contains-files (".ctags-root")
+         :tags-tool "gtags"
+         :c-include-paths ("." "main" "parsers")
+         :c-definitions ("HAVE_CONFIG_H")
+         :prj-setup-hooks ctags-project-setup-hook
+         :lighter "ctags")
         ("mcnp"
          :root-contains-files (".mcnp-root")
          :exclude-paths ("run_tests" "Testing")
