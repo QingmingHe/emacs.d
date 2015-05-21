@@ -89,7 +89,12 @@ enable_language(Fortran)
      :cmake-file-content "find_package(MPI)"
      :fortran-include-paths "MPI_Fortran_INCLUDE_PATH"
      :c-include-paths "MPI_C_INCLUDE_PATH"
-     :cxx-include-paths "MPI_CXX_INCLUDE_PATH")))
+     :cxx-include-paths "MPI_CXX_INCLUDE_PATH")
+    (openmp
+     :cmake-file-content "find_package(OpenMP)"
+     :fortran-definitions "OpenMP_C_FLAGS"
+     :c-definitions "OpenMP_C_FLAGS"
+     :cxx-definitions "OpenMP_CXX_FLAGS")))
 
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
@@ -704,6 +709,10 @@ all modified buffers."
          (append (plist-get flags :fortran-definitions)
                  (project-root-data :fortran-definitions p))))))))
 
+(defun prj/clear-flags-cache ()
+  (interactive)
+  (project-root-set-data :-compile-flags nil))
+
 (defun prj/map-plist (fn plist)
   (let ((pl plist)
         vals)
@@ -737,7 +746,7 @@ all modified buffers."
       (mapc
        (lambda (pkg)
          (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
-           (if (setq cmake-file-content (plist-get :cmake-file-content plist))
+           (if (setq cmake-file-content (plist-get plist :cmake-file-content))
                (insert (format "%s\n" cmake-file-content))
              (insert (format "find_package(%s)\n" (upcase (symbol-name pkg)))))
            (prj/map-plist
@@ -1413,7 +1422,7 @@ The format of `prj/project-locals-file' is identical to that of
                prj/buffer-mode-lighter
                (format " Prj:%s"
                        (or (project-root-data :lighter p)
-                           (car (split-string (car p) prj/helm-etags-splitter)))))
+                           (car (split-string (car p) project-root-name-split)))))
               ;; touch `prj/cmake-list-file' if needed
               (when (and
                      prj/touch-cmake-lists-at-create-new-file
