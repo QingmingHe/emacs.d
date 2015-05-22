@@ -34,15 +34,13 @@ First define projects.
          :use-completion (f90-mode)
          :use-packages (hdf5 mpi)
          :after-found-hdf5 (lambda ()
-                             (project-root-set-data
+                             (project-root-append-data
                               :fortran-definitions
-                              (append (project-root-data :fortran-definitions)
-                                      '("USE_HDF5"))))
+                              '("USE_HDF5")))
          :after-found-mpi (lambda ()
-                            (project-root-set-data
+                            (project-root-append-data
                              :fortran-definitions
-                             (append (project-root-data :fortran-definitions)
-                                     '("USE_MPI")))))
+                             '("USE_MPI"))))
         ("openmc"
          :root-contains-files (".openmc-root")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")

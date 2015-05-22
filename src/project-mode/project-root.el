@@ -238,6 +238,11 @@ set to VAL."
        (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)
        project-roots-cache))))
 
+(defun project-root-append-data (prop val &optional p)
+  (let* ((p (or p project-details))
+         (val (append (project-root-data prop p) val)))
+    (project-root-set-data prop val p)))
+
 (defun project-root-project-name-from-dir (project)
   "Generate cute name for project from its directory name."
   (upcase-initials (car (last (split-string (cdr project) "/" t)))))

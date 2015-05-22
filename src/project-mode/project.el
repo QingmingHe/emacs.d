@@ -774,7 +774,7 @@ all modified buffers."
     (goto-char (point-min))
     (let (flags flag)
       (while (re-search-forward
-              (format "\\[prj\\] %s: \\(.+\\)$" keywords) nil t)
+              (format "^-- \\[prj\\] %s \\(.+\\)$" keywords) nil t)
         (setq flag (match-string-no-properties 1))
         (unless (or (null flag) (string-match "-NOTFOUND" flag))
           (mapc
@@ -788,7 +788,8 @@ all modified buffers."
     (delete-directory prj/temp-dir t))
   (mkdir prj/temp-dir)
   (let ((default-directory prj/temp-dir)
-        plist cmake-file-content flags flags-pkg after-found-fn)
+        plist cmake-file-content flags flags-pkg after-found-fn flags-pkg-found
+        keywords)
     ;; write data into CMakeLists.txt
     (with-temp-buffer
       (insert prj/cmake-find-packages-headers)
@@ -801,8 +802,8 @@ all modified buffers."
            (prj/map-plist
             (lambda (prop val)
               (unless (eq prop :cmake-file-content)
-                (insert (format "message(STATUS \"[prj] %s: ${%s}\")\n"
-                                (symbol-name prop) val))))
+                (insert (format "message(STATUS \"[prj] :%s%s: ${%s}\")\n"
+                                (symbol-name pkg) (symbol-name prop) val))))
             plist)))
        packages)
       (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
@@ -829,34 +830,32 @@ all modified buffers."
        (lambda (pkg)
          (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
            ;; obtain flags for each package
-           (setq flags-pkg nil)
+           (setq flags-pkg-found nil)
            (prj/map-plist
             (lambda (prop val)
               (unless (eq prop :cmake-file-content)
                 (setq flags-pkg
-                      (plist-put
-                       flags-pkg
-                       prop
-                       (prj/cmake-obtain-flags
-                        (current-buffer)
-                        (symbol-name prop))))))
+                      (prj/cmake-obtain-flags
+                       (current-buffer)
+                       (format ":%s%s:" (symbol-name pkg) (symbol-name prop))))
+                (when flags-pkg
+                  (setq flags-pkg-found t))
+                (setq flags
+                      (plist-put flags prop
+                                 (append (plist-get flags prop) flags-pkg)))))
             plist)
-           (when flags-pkg
-             ;; execute after found package function
-             (when (and
-                    p
-                    (setq after-found-fn
-                          (project-root-data
-                           (intern (format ":after-found-%s" pkg))
-                           p)))
-               (with-current-buffer (or buffer (current-buffer))
-                 (let ((project-details p))
-                   (funcall after-found-fn))))
-             ;; put the flags for the package
-             (prj/map-plist
-              (lambda (prop val)
-                (setq flags (plist-put flags prop val)))
-              flags-pkg))))
+           ;; execute after found package function
+           (when (and
+                  flags-pkg-found
+                  p
+                  buffer
+                  (setq after-found-fn
+                        (project-root-data
+                         (intern (format ":after-found-%s" pkg))
+                         p)))
+             (with-current-buffer buffer
+               (let ((project-details p))
+                 (funcall after-found-fn))))))
        packages))
     flags))
 
@@ -1558,7 +1557,9 @@ The format of `prj/project-locals-file' is identical to that of
               ;; run project hooks
               (run-hooks (project-root-data :prj-setup-hooks p)))
             ;; set compile flags
-            (when prj/auto-set-flags-if-needed
+            (when (and
+                   prj/auto-set-flags-if-needed
+                   (eval `(derived-mode-p ,@prj/cmake-modes)))
               (prj/set-language-flags p (current-buffer)))
             ;; load project local variables
             (when (and
