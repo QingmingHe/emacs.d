@@ -70,7 +70,8 @@ enable_language(Fortran)
      :-I-include-str (c-eldoc-includes)
      :definition (flycheck-gcc-definitions flycheck-clang-definitions)
      :-D-definition (company-clang-arguments ac-clang-flags)
-     :-D-definition-str (c-eldoc-includes))
+     :-D-definition-str (c-eldoc-includes)
+     :args (flycheck-gcc-args flycheck-clang-args))
     (c++-mode
      :include (flycheck-gcc-include-path flycheck-clang-include-path
                                          cc-search-directories
@@ -79,7 +80,8 @@ enable_language(Fortran)
      :-I-include-str (c-eldoc-includes)
      :definition (flycheck-gcc-definitions flycheck-clang-definitions)
      :-D-definition (company-clang-arguments ac-clang-flags)
-     :-D-definition-str (c-eldoc-includes)))
+     :-D-definition-str (c-eldoc-includes)
+     :args (flycheck-gcc-args flycheck-clang-args)))
   "An alist that contains modes and its corresponding compiler flags variables.")
 
 (defvar prj/cmake-find-packages-alist
@@ -721,7 +723,7 @@ all modified buffers."
       (unless (project-root-data :-compile-flags p)
         (project-root-set-data
          :-compile-flags
-         (prj/cmake-find-packages packages)
+         (prj/cmake-find-packages packages p buffer)
          p))
       (setq flags (project-root-data :-compile-flags p)))
     (when (derived-mode-p 'c++-mode)
@@ -772,7 +774,7 @@ all modified buffers."
     (goto-char (point-min))
     (let (flags flag)
       (while (re-search-forward
-             (format "\\[prj\\] %s: \\(.+\\)$" keywords) nil t)
+              (format "\\[prj\\] %s: \\(.+\\)$" keywords) nil t)
         (setq flag (match-string-no-properties 1))
         (unless (or (null flag) (string-match "-NOTFOUND" flag))
           (mapc
@@ -781,12 +783,13 @@ all modified buffers."
            (split-string flag ";"))))
       flags)))
 
-(defun prj/cmake-find-packages (packages)
+(defun prj/cmake-find-packages (packages &optional p buffer)
   (when (file-exists-p prj/temp-dir)
     (delete-directory prj/temp-dir t))
   (mkdir prj/temp-dir)
   (let ((default-directory prj/temp-dir)
-        plist cmake-file-content flags)
+        plist cmake-file-content flags flags-pkg after-found-fn)
+    ;; write data into CMakeLists.txt
     (with-temp-buffer
       (insert prj/cmake-find-packages-headers)
       (mapc
@@ -804,8 +807,10 @@ all modified buffers."
        packages)
       (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
     (with-temp-buffer
+      ;; execute CMake
       (call-process-shell-command
-       (format "cmake %s %s %s ."
+       (format "%s %s %s %s ."
+               prj/cmake-exec
                (if prj/cmake-fortran-compiler
                    (format "-DCMAKE_Fortran_COMPILER=%s"
                            prj/cmake-fortran-compiler)
@@ -819,16 +824,40 @@ all modified buffers."
                            prj/cmake-cxx-compiler)
                  ""))
        nil t)
-      (call-process prj/cmake-exec nil t nil ".")
-      (prj/map-plist
-       (lambda (prop val)
-         (unless (eq prop :cmake-file-content)
-           (setq flags
-                 (plist-put
-                  flags
-                  prop
-                  (prj/cmake-obtain-flags (current-buffer) (symbol-name prop))))))
-       plist))
+      ;; obtain flags for all packages
+      (mapc
+       (lambda (pkg)
+         (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
+           ;; obtain flags for each package
+           (setq flags-pkg nil)
+           (prj/map-plist
+            (lambda (prop val)
+              (unless (eq prop :cmake-file-content)
+                (setq flags-pkg
+                      (plist-put
+                       flags-pkg
+                       prop
+                       (prj/cmake-obtain-flags
+                        (current-buffer)
+                        (symbol-name prop))))))
+            plist)
+           (when flags-pkg
+             ;; execute after found package function
+             (when (and
+                    p
+                    (setq after-found-fn
+                          (project-root-data
+                           (intern (format ":after-found-%s" pkg))
+                           p)))
+               (with-current-buffer (or buffer (current-buffer))
+                 (let ((project-details p))
+                   (funcall after-found-fn))))
+             ;; put the flags for the package
+             (prj/map-plist
+              (lambda (prop val)
+                (setq flags (plist-put flags prop val)))
+              flags-pkg))))
+       packages))
     flags))
 
 (defun prj/c++-system-include-paths ()
@@ -1043,7 +1072,7 @@ If RECURSIVELY is t, get tags in included tags files recursively; otherwise
 only TAGS-FILE will be loaded. Returns a list of tags string with each string
 contains tag, file and line number which are split by
 `prj/helm-etags-splitter'."
-  (let (tags-list file file-end-in-tags tag pm line-num)
+  (let (tags-list file file-end-in-tags tag pm line-num token)
     (with-temp-buffer
       (when (file-exists-p tags-file)
         (insert-file-contents tags-file))
@@ -1061,24 +1090,21 @@ contains tag, file and line number which are split by
           (setq tag (buffer-substring-no-properties
                      (line-beginning-position)
                      (1- (point)))
+                token (buffer-substring-no-properties
+                       (point)
+                       (1- (search-forward "\001")))
                 line-num (buffer-substring-no-properties
-                          (search-forward "\001")
+                          (point)
                           (1- (search-forward ","))))
-          ;; special case that Fortran declaration spans several lines, like:
-          ;; integer, parameter :: &
-          ;;   AN_PARAM = 0
-          (when (string= "" tag)
-            (forward-line 0)
-            (setq tag (buffer-substring-no-properties
-                       (search-forward "\177")
-                       (1- (search-forward "\001")))))
           (put-text-property
-           0 (length tag) 'face font-lock-variable-name-face tag)
+           0 (length token) 'face font-lock-variable-name-face token)
           (setq tags-list
                 (cons
-                 (format "%s%s%s%s%s"
-                         tag prj/helm-etags-splitter file
-                         prj/helm-etags-splitter line-num)
+                 (format "%s%s%s%s%s%s%s"
+                         token prj/helm-etags-splitter
+                         tag prj/helm-etags-splitter
+                         file prj/helm-etags-splitter
+                         line-num)
                  tags-list))))
       (when recursively
         (goto-char (point-min))
@@ -1179,8 +1205,8 @@ tags files are checked to determine whether tags should be reloaded."
 (defun prj/helm-etags-goto (switcher c)
   "Go to a tag."
   (let* ((words (split-string c prj/helm-etags-splitter))
-         (file (nth 1 words))
-         (line-num (string-to-int (nth 2 words))))
+         (file (nth 2 words))
+         (line-num (string-to-int (nth 3 words))))
     (ring-insert find-tag-marker-ring (point-marker))
     (funcall switcher file)
     (goto-char (point-min))

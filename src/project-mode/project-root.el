@@ -195,7 +195,9 @@ described in PROJECT."
 (defun project-root-data (key &optional project)
   "Grab the value (if any) for key in PROJECT.
 
-If PROJECT is omitted then attempt to get the value for the current project."
+If PROJECT is omitted then attempt to get the value for the current project. Try
+to obtain from `project-roots' firstly; if not found, find from
+`project-root-cache'."
   (let ((p (or project project-details))
         (sp project-root-name-split)
         val)
@@ -216,12 +218,21 @@ If PROJECT is omitted then attempt to get the value for the current project."
     val))
 
 (defun project-root-set-data (prop val &optional p)
-  "Set PROP of P to VAL. P is a project, VAL is a property symbol, val is
-anything."
-  (let ((p (or p project-details)))
+  "Set PROP of project P to VAL.
+
+The PROP of `project-roots' is set to nil, the PROP of `project-root-cache' is
+set to VAL."
+  (let ((p (or p project-details))
+        (sp project-root-name-split))
     (when p
       (unless (assoc (car p) project-roots-cache)
         (add-to-list 'project-roots-cache `(,(car p))))
+      (put-alist
+       (car (split-string (car p) sp))
+       (plist-put
+        (cdr (assoc (car (split-string (car p) sp)) project-roots))
+        prop nil)
+       project-roots)
       (put-alist
        (car p)
        (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)

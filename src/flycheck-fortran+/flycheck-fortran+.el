@@ -56,10 +56,6 @@ This variable should be cautious to use as flags for each compiler is
 different. This should be a list of string.")
 (make-variable-buffer-local 'flycheck-fortran+-args)
 
-(defun flycheck-fortran+-args ()
-  "Return `flycheck-fortran+-args'."
-  flycheck-fortran+-args)
-
 (defun flycheck-fortran+-option-standard (stand checker)
   "Option STAND filter for CHECKER."
   (pcase checker
@@ -120,7 +116,7 @@ CHECKER should be `fortran-ifort'. BUFFER is current buffer checked."
             "-module" (eval flycheck-fortran+-module-path)
             (option-list "-I" flycheck-fortran+-include-paths concat)
             (option-list "-D" flycheck-fortran+-definitions concat)
-            (eval (flycheck-fortran+-args))
+            (eval flycheck-fortran+-args)
             source)
   :error-parser flycheck-fortran+-parse-ifort-errors
   :modes (fortran-mode f90-mode))
@@ -142,7 +138,7 @@ CHECKER should be `fortran-ifort'. BUFFER is current buffer checked."
             (option "-J" flycheck-fortran+-module-path concat)
             (option-list "-I" flycheck-fortran+-include-paths concat)
             (option-list "-D" flycheck-fortran+-definitions concat)
-            (eval (flycheck-gfortran-args))
+            (eval flycheck-gfortran-args)
             source)
   :error-patterns
   ((error line-start (file-name) ":" line "." column ":\n"
