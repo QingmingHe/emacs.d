@@ -56,10 +56,12 @@ enable_language(Fortran)
 (defvar prj/language-flags-vars
   '((f90-mode
      :include (flycheck-gfortran-include-path flycheck-fortran+-include-paths)
-     :definition (flycheck-fortran+-definitions))
+     :definition (flycheck-fortran+-definitions)
+     :args (flycheck-fortran+-args))
     (fortran-mode
      :include (flycheck-gfortran-include-path flycheck-fortran+-include-paths)
-     :definition (flycheck-fortran+-definitions))
+     :definition (flycheck-fortran+-definitions)
+     :args (flycheck-fortran+-args))
     (c-mode
      :include (flycheck-gcc-include-path flycheck-clang-include-path
                                          cc-search-directories
@@ -92,10 +94,21 @@ enable_language(Fortran)
      :c-include-paths "MPI_C_INCLUDE_PATH"
      :cxx-include-paths "MPI_CXX_INCLUDE_PATH")
     (openmp
-     :cmake-file-content "find_package(OpenMP)"
-     :fortran-definitions "OpenMP_C_FLAGS"
-     :c-definitions "OpenMP_C_FLAGS"
-     :cxx-definitions "OpenMP_CXX_FLAGS"))
+     :cmake-file-content "find_package(OpenMP)
+if(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"GNU\")
+  set(OpenMP_Fortran_FLAGS \"-fopenmp\")
+elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"Intel\")
+  set(OpenMP_Fortran_FLAGS \"-openmp\")
+elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"PGI\")
+  set(OpenMP_Fortran_FLAGS \"-mp\")
+elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"XL\")
+  set(OpenMP_Fortran_FLAGS \"-qsmp\")
+else()
+  set(OpenMP_Fortran_FLAGS \" \")
+endif()"
+     :fortran-args "OpenMP_Fortran_FLAGS"
+     :c-args "OpenMP_C_FLAGS"
+     :cxx-args "OpenMP_CXX_FLAGS"))
   "An alist contains package names and method to find flags through cmake.")
 
 (defvar prj/cmake-fortran-compiler nil
@@ -625,7 +638,7 @@ all modified buffers."
   (when (boundp symbol)
     (add-to-list (make-local-variable symbol) elem)))
 
-(defun prj/set-language-flags-0 (include-paths definitions)
+(defun prj/set-language-flags-0 (include-paths definitions &optional args)
   (let* ((p (or project-details (project-root-fetch)))
          (proot (cdr p))
          (vars (cdr (assoc major-mode prj/language-flags-vars)))
@@ -691,7 +704,14 @@ all modified buffers."
              ,var
              (concat -D-definition " " (when (boundp var) ,var)))))
         -D-definitions))
-     (plist-get vars :-D-definition-str))))
+     (plist-get vars :-D-definition-str))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (arg)
+          (prj/add-to-list var arg))
+        args))
+     (plist-get vars :args))))
 
 (defun prj/set-language-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
@@ -716,19 +736,22 @@ all modified buffers."
                  (plist-get flags :cxx-include-paths)
                  (project-root-data :cxx-include-paths p))
          (append (plist-get flags :cxx-definitions)
-                 (project-root-data :cxx-definitions p))))
+                 (project-root-data :cxx-definitions p))
+         (append (plist-get flags :c-args))))
        ((derived-mode-p 'c-mode)
         (prj/set-language-flags-0
          (append (plist-get flags :c-include-paths)
                  (project-root-data :c-include-paths p))
          (append (plist-get flags :c-definitions)
-                 (project-root-data :c-definitions p))))
+                 (project-root-data :c-definitions p))
+         (append (plist-get flags :cxx-args))))
        ((derived-mode-p 'f90-mode 'fortran-mode)
         (prj/set-language-flags-0
          (append (plist-get flags :fortran-include-paths)
                  (project-root-data :fortran-include-paths p))
          (append (plist-get flags :fortran-definitions)
-                 (project-root-data :fortran-definitions p))))))))
+                 (project-root-data :fortran-definitions p))
+         (append (plist-get flags :fortran-args))))))))
 
 ;;;###autoload
 (defun prj/clear-flags-cache ()

@@ -218,7 +218,7 @@ If PROJECT is omitted then attempt to get the value for the current project."
 (defun project-root-set-data (prop val &optional p)
   "Set PROP of P to VAL. P is a project, VAL is a property symbol, val is
 anything."
-  (let ((p (or p (project-root-fetch))))
+  (let ((p (or p project-details)))
     (when p
       (unless (assoc (car p) project-roots-cache)
         (add-to-list 'project-roots-cache `(,(car p))))

@@ -35,6 +35,11 @@
               (string-match "ifort" (getenv "FLYCHECK_Fortran_CHECKER")))
          'fortran-ifort)
        'fortran-gfortran+))
+(cond
+ ((eq flycheck-Fortran-checker 'fortran-ifort)
+  (setq prj/cmake-fortran-compiler "ifort"))
+ (t
+  (setq prj/cmake-fortran-compiler "gfortran")))
 
 (defun starter-kit-fast-load (&optional file)
   "Load starter kit configuration FILE. A FILE can be file name such as
