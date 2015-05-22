@@ -758,7 +758,16 @@ all modified buffers."
 ;;;###autoload
 (defun prj/clear-flags-cache ()
   (interactive)
-  (project-root-set-data :-compile-flags nil))
+  (project-root-set-data :-compile-flags nil)
+  (project-root-set-data :fortran-args nil)
+  (project-root-set-data :fortran-include-paths nil)
+  (project-root-set-data :fortran-definitions nil)
+  (project-root-set-data :c-args nil)
+  (project-root-set-data :c-include-paths nil)
+  (project-root-set-data :c-definitions nil)
+  (project-root-set-data :cxx-args nil)
+  (project-root-set-data :cxx-include-paths nil)
+  (project-root-set-data :cxx-definitions nil))
 
 (defun prj/map-plist (fn plist)
   (let ((pl plist)

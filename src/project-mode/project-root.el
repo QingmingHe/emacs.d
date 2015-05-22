@@ -217,31 +217,36 @@ to obtain from `project-roots' firstly; if not found, find from
        project-root-rep-paths))
     val))
 
-(defun project-root-set-data (prop val &optional p)
+(defun project-root-set-data (prop val &optional p unset-project-roots)
   "Set PROP of project P to VAL.
 
-The PROP of `project-roots' is set to nil, the PROP of `project-root-cache' is
-set to VAL."
+The PROP of `project-roots' is set to nil if UNSET-PROJECT-ROOTS, the PROP of
+`project-root-cache' is set to VAL."
   (let ((p (or p project-details))
         (sp project-root-name-split))
     (when p
       (unless (assoc (car p) project-roots-cache)
         (add-to-list 'project-roots-cache `(,(car p))))
-      (put-alist
-       (car (split-string (car p) sp))
-       (plist-put
-        (cdr (assoc (car (split-string (car p) sp)) project-roots))
-        prop nil)
-       project-roots)
+      (when unset-project-roots
+        (put-alist
+         (car (split-string (car p) sp))
+         (plist-put
+          (cdr (assoc (car (split-string (car p) sp)) project-roots))
+          prop nil)
+         project-roots))
       (put-alist
        (car p)
        (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)
        project-roots-cache))))
 
-(defun project-root-append-data (prop val &optional p)
-  (let* ((p (or p project-details))
-         (val (append (project-root-data prop p) val)))
-    (project-root-set-data prop val p)))
+(defun project-root-append-data (prop val &optional p unset-project-roots)
+  (let ((p (or p project-details))
+        (vals val))
+    (mapc
+     (lambda (elem)
+       (add-to-list 'vals elem))
+     (project-root-data prop p))
+    (project-root-set-data prop vals p unset-project-roots)))
 
 (defun project-root-project-name-from-dir (project)
   "Generate cute name for project from its directory name."
