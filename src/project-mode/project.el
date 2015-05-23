@@ -835,11 +835,12 @@ all modified buffers."
          (project-root-set-data prop nil p))
        prj/compile-flags-prop)
       (when (and prj/use-locals-dir
-                 (setq
-                  compile-flags-file
-                  (expand-file-name
-                   prj/project-compile-locals-file
-                   (project-root-data :-project-locals-dir p))))
+                 (file-exists-p
+                  (setq
+                   compile-flags-file
+                   (expand-file-name
+                    prj/project-compile-locals-file
+                    (project-root-data :-project-locals-dir p)))))
         (delete-file compile-flags-file)))))
 
 (defun prj/map-plist (fn plist)
