@@ -123,6 +123,19 @@ endif()"
      :cxx-include-paths "GTK2_INCLUDE_DIRS"))
   "An alist contains package names and method to find flags through cmake.")
 
+(defvar prj/compile-flags-prop
+  '(:-compile-flags
+    :fortran-definitions
+    :fortran-args
+    :fortran-include-paths
+    :c-definitions
+    :c-args
+    :c-include-paths
+    :cxx-definitions
+    :cxx-include-paths
+    :cxx-args)
+  "Compile flags properties.")
+
 (defvar prj/cmake-fortran-compiler nil
   "Fortran compiler.")
 
@@ -134,6 +147,15 @@ endif()"
 
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
+
+(defvar prj/use-locals-dir t
+  "Whether use `prj/project-locals-dir' to store cache.")
+
+(defvar prj/project-locals-dir ".project-locals.d"
+  "Internal project locals directory.")
+
+(defvar prj/project-compile-locals-file "compile-flags"
+  "File containing compiling flags.")
 
 (defvar prj/load-project-locals-if-exists t
   "Whether load project local variables.")
@@ -734,18 +756,49 @@ all modified buffers."
 (defun prj/set-language-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
   (let ((packages (project-root-data :use-packages p))
-        flags)
+        flags compile-flags-file prop val)
     (when packages
       (unless (project-root-data :-compile-flags p)
-        (project-root-set-data
-         :-compile-flags
-         (prj/cmake-find-packages packages p buffer)
-         p))
+        ;; read in flags cache
+        (when (and prj/use-locals-dir
+                   (file-exists-p
+                    (setq
+                     compile-flags-file
+                     (expand-file-name
+                      prj/project-compile-locals-file
+                      (project-root-data :-project-locals-dir p)))))
+          (with-temp-buffer
+            (message
+             (format "loading compile flags from %s ..." compile-flags-file))
+            (insert-file-contents compile-flags-file)
+            (goto-char (point-min))
+            (while (and (setq prop (ignore-errors (read (current-buffer))))
+                        (setq val (ignore-errors (read (current-buffer)))))
+              (project-root-set-data prop val p))
+            (message "done")))
+        ;; find flags by cmake
+        (unless (project-root-data :-compile-flags p)
+          (project-root-set-data
+           :-compile-flags
+           (prj/cmake-find-packages packages p buffer)
+           p)
+          ;; write flags to cache file
+          (when (and prj/use-locals-dir
+                     compile-flags-file)
+            (with-temp-buffer
+              (mapc
+               (lambda (prop)
+                 (print prop (current-buffer))
+                 (print (project-root-data prop p) (current-buffer)))
+               prj/compile-flags-prop)
+              (message (format "write compile flags to %s" compile-flags-file))
+              (write-region (point-min) (point-max) compile-flags-file nil 0)))))
       (setq flags (project-root-data :-compile-flags p)))
     (when (derived-mode-p 'c++-mode)
       (unless prj/c++-system-include-paths
         (setq prj/c++-system-include-paths
               (prj/c++-system-include-paths))))
+    ;; set flags for current buffer
     (with-current-buffer buffer
       (cond
        ((derived-mode-p 'c++-mode)
@@ -774,16 +827,20 @@ all modified buffers."
 ;;;###autoload
 (defun prj/clear-flags-cache ()
   (interactive)
-  (project-root-set-data :-compile-flags nil)
-  (project-root-set-data :fortran-args nil)
-  (project-root-set-data :fortran-include-paths nil)
-  (project-root-set-data :fortran-definitions nil)
-  (project-root-set-data :c-args nil)
-  (project-root-set-data :c-include-paths nil)
-  (project-root-set-data :c-definitions nil)
-  (project-root-set-data :cxx-args nil)
-  (project-root-set-data :cxx-include-paths nil)
-  (project-root-set-data :cxx-definitions nil))
+  (let ((p (or project-details (project-root-fetch)))
+        compile-flags-file)
+    (when p
+      (mapc
+       (lambda (prop)
+         (project-root-set-data prop nil p))
+       prj/compile-flags-prop)
+      (when (and prj/use-locals-dir
+                 (setq
+                  compile-flags-file
+                  (expand-file-name
+                   prj/project-compile-locals-file
+                   (project-root-data :-project-locals-dir p))))
+        (delete-file compile-flags-file)))))
 
 (defun prj/map-plist (fn plist)
   (let ((pl plist)
@@ -1547,6 +1604,14 @@ The format of `prj/project-locals-file' is identical to that of
                  fname
                  (not (file-remote-p fname)))
             (let ((default-directory (cdr p)))
+              ;; create locals directory if needed
+              (project-root-set-data
+               :-project-locals-dir
+               (expand-file-name prj/project-locals-dir default-directory)
+               p)
+              (when (and prj/use-locals-dir
+                         (not (file-exists-p prj/project-locals-dir)))
+                (mkdir prj/project-locals-dir))
               ;; mode line lighter
               (setq
                prj/buffer-mode-lighter
