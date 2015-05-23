@@ -88,17 +88,21 @@ enable_language(Fortran)
 
 (defvar prj/cmake-find-packages-alist
   '((hdf5
-     :cmake-file-content "find_package(HDF5)"
+     :-cmake-file-content "find_package(HDF5)"
+     :-package-found "HDF5_FOUND"
      :fortran-include-paths "HDF5_INCLUDE_DIR"
      :c-include-paths "HDF5_INCLUDE_DIR"
      :cxx-include-paths "HDF5_INCLUDE_DIR")
     (mpi
-     :cmake-file-content "find_package(MPI)"
+     :-cmake-file-content "find_package(MPI)"
+     :-fortran-found "MPI_Fortran_FOUND"
+     :-c-found "MPI_C_FOUND"
+     :-cxx-found "MPI_CXX_FOUND"
      :fortran-include-paths "MPI_Fortran_INCLUDE_PATH"
      :c-include-paths "MPI_C_INCLUDE_PATH"
      :cxx-include-paths "MPI_CXX_INCLUDE_PATH")
     (openmp
-     :cmake-file-content "find_package(OpenMP)
+     :-cmake-file-content "find_package(OpenMP)
 if(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"GNU\")
   set(OpenMP_Fortran_FLAGS \"-fopenmp\")
 elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"Intel\")
@@ -114,7 +118,7 @@ endif()"
      :c-args "OpenMP_C_FLAGS"
      :cxx-args "OpenMP_CXX_FLAGS")
     (gtk2
-     :cmake-file-content "find_package(GTK2 2.6 REQUIRED gtk)"
+     :-cmake-file-content "find_package(GTK2 2.6 REQUIRED gtk)"
      :c-include-paths "GTK2_INCLUDE_DIRS"
      :cxx-include-paths "GTK2_INCLUDE_DIRS"))
   "An alist contains package names and method to find flags through cmake.")
@@ -810,22 +814,37 @@ all modified buffers."
   (mkdir prj/temp-dir)
   (let ((default-directory prj/temp-dir)
         plist cmake-file-content flags flags-pkg after-found-fn flags-pkg-found
-        keywords)
+        keywords package-found language-found)
     ;; write data into CMakeLists.txt
     (with-temp-buffer
       (insert prj/cmake-find-packages-headers)
       (mapc
        (lambda (pkg)
          (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
-           (if (setq cmake-file-content (plist-get plist :cmake-file-content))
+           (if (setq cmake-file-content (plist-get plist :-cmake-file-content))
                (insert (format "%s\n" cmake-file-content))
              (insert (format "find_package(%s)\n" (upcase (symbol-name pkg)))))
+           (when (setq package-found (plist-get plist :-package-found))
+             (insert (format "if(%s)\n" package-found)))
            (prj/map-plist
             (lambda (prop val)
-              (unless (eq prop :cmake-file-content)
+              (when (string-match "^:\\(fortran\\|c\\|cxx\\)-" (symbol-name prop))
+                (when (setq
+                       language-found
+                       (plist-get
+                        plist
+                        (intern
+                         (format
+                          ":-%s-found"
+                          (match-string-no-properties 1 (symbol-name prop))))))
+                  (insert (format "if(%s)\n" language-found)))
                 (insert (format "message(STATUS \"[prj] :%s%s: ${%s}\")\n"
-                                (symbol-name pkg) (symbol-name prop) val))))
-            plist)))
+                                (symbol-name pkg) (symbol-name prop) val))
+                (when language-found
+                  (insert "endif()\n"))))
+            plist)
+           (when package-found
+             (insert (format "endif()\n" package-found)))))
        packages)
       (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
     (with-temp-buffer
@@ -854,7 +873,7 @@ all modified buffers."
            (setq flags-pkg-found nil)
            (prj/map-plist
             (lambda (prop val)
-              (unless (eq prop :cmake-file-content)
+              (when (string-match "^:\\(fortran\\|c\\|cxx\\)-" (symbol-name prop))
                 (setq flags-pkg
                       (prj/cmake-obtain-flags
                        (current-buffer)
