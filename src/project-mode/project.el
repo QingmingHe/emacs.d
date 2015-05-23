@@ -71,7 +71,8 @@ enable_language(Fortran)
      :definition (flycheck-gcc-definitions flycheck-clang-definitions)
      :-D-definition (company-clang-arguments ac-clang-flags)
      :-D-definition-str (c-eldoc-includes)
-     :args (flycheck-gcc-args flycheck-clang-args))
+     :args (flycheck-gcc-args flycheck-clang-args)
+     :args-str (c-eldoc-includes))
     (c++-mode
      :include (flycheck-gcc-include-path flycheck-clang-include-path
                                          cc-search-directories
@@ -81,7 +82,8 @@ enable_language(Fortran)
      :definition (flycheck-gcc-definitions flycheck-clang-definitions)
      :-D-definition (company-clang-arguments ac-clang-flags)
      :-D-definition-str (c-eldoc-includes)
-     :args (flycheck-gcc-args flycheck-clang-args)))
+     :args (flycheck-gcc-args flycheck-clang-args)
+     :args-str (c-eldoc-includes)))
   "An alist that contains modes and its corresponding compiler flags variables.")
 
 (defvar prj/cmake-find-packages-alist
@@ -110,7 +112,11 @@ else()
 endif()"
      :fortran-args "OpenMP_Fortran_FLAGS"
      :c-args "OpenMP_C_FLAGS"
-     :cxx-args "OpenMP_CXX_FLAGS"))
+     :cxx-args "OpenMP_CXX_FLAGS")
+    (gtk2
+     :cmake-file-content "find_package(GTK2 2.6 REQUIRED gtk)"
+     :c-include-paths "GTK2_INCLUDE_DIRS"
+     :cxx-include-paths "GTK2_INCLUDE_DIRS"))
   "An alist contains package names and method to find flags through cmake.")
 
 (defvar prj/cmake-fortran-compiler nil
@@ -157,15 +163,15 @@ endif()"
   "Limit of helm candidates. This variable should be set before load this
 library.")
 
-(defvar prj/tags-tool-found
-  (or (executable-find "gtags") (executable-find "ctags"))
-  "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
-
 (defvar prj/global-exec (executable-find "global")
   "Executable of GNU global.")
 
 (defvar prj/ctags-exec (executable-find "ctags")
   "Executable of Exuberant Ctags.")
+
+(defvar prj/tags-tool-found
+  (or prj/global-exec prj/ctags-exec)
+  "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
 
 (defvar prj/gtags-conf-file-guess
   `(,(expand-file-name "~/.globalrc")
@@ -702,9 +708,8 @@ all modified buffers."
        (mapc
         (lambda (-D-definition)
           (eval
-           `(setq-local
-             ,var
-             (concat -D-definition " " (when (boundp var) ,var)))))
+           `(setq-local ,var
+                        (concat -D-definition " " (when (boundp var) ,var)))))
         -D-definitions))
      (plist-get vars :-D-definition-str))
     (mapc
@@ -713,7 +718,14 @@ all modified buffers."
         (lambda (arg)
           (prj/add-to-list var arg))
         args))
-     (plist-get vars :args))))
+     (plist-get vars :args))
+    (mapc
+     (lambda (var)
+       (mapc
+        (lambda (arg)
+          (eval `(setq-local ,var (concat arg " " (when (boundp var) ,var)))))
+        args))
+     (plist-get vars :args-str))))
 
 (defun prj/set-language-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
