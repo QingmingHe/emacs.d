@@ -192,7 +192,7 @@ described in PROJECT."
     (when root
       (file-name-as-directory root))))
 
-(defun project-root-data (key &optional project)
+(defun project-root-data (key &optional project remove-dups)
   "Grab the value (if any) for key in PROJECT.
 
 If PROJECT is omitted then attempt to get the value for the current project. Try
@@ -200,13 +200,19 @@ to obtain from `project-roots' firstly; if not found, find from
 `project-root-cache'."
   (let ((p (or project project-details))
         (sp project-root-name-split)
-        val)
-    (setq val
-          (or
-           (plist-get
-            (cdr (assoc (car (split-string (car p) sp)) project-roots))
-            key)
-           (plist-get (cdr (assoc (car p) project-roots-cache)) key)))
+        val-0 val-1 val)
+    (setq val-0
+          (plist-get
+           (cdr (assoc (car (split-string (car p) sp)) project-roots))
+           key)
+          val-1
+          (plist-get (cdr (assoc (car p) project-roots-cache)) key))
+    (if (and val-0 val-1 (listp val-0) (listp val-1))
+        (progn
+          (setq val (append val-0 val-1))
+          (when remove-dups
+            (setq val (cl-remove-duplicates val))))
+      (setq val (or val-0 val-1)))
     (when (and (eq :filename-regex key)
                (null val))
       (setq val project-root-file-regexp))
@@ -217,7 +223,7 @@ to obtain from `project-roots' firstly; if not found, find from
        project-root-rep-paths))
     val))
 
-(defun project-root-set-data (prop val &optional p unset-project-roots)
+(defun project-root-set-data (prop val &optional p remove-dups)
   "Set PROP of project P to VAL.
 
 The PROP of `project-roots' is set to nil if UNSET-PROJECT-ROOTS, the PROP of
@@ -227,26 +233,19 @@ The PROP of `project-roots' is set to nil if UNSET-PROJECT-ROOTS, the PROP of
     (when p
       (unless (assoc (car p) project-roots-cache)
         (add-to-list 'project-roots-cache `(,(car p))))
-      (when unset-project-roots
-        (put-alist
-         (car (split-string (car p) sp))
-         (plist-put
-          (cdr (assoc (car (split-string (car p) sp)) project-roots))
-          prop nil)
-         project-roots))
+      (when remove-dups
+        (setq val (cl-remove-duplicates val)))
       (put-alist
        (car p)
        (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)
        project-roots-cache))))
 
-(defun project-root-append-data (prop val &optional p unset-project-roots)
+(defun project-root-append-data (prop val &optional p remove-dups)
   (let ((p (or p project-details))
-        (vals val))
-    (mapc
-     (lambda (elem)
-       (add-to-list 'vals elem))
-     (project-root-data prop p))
-    (project-root-set-data prop vals p unset-project-roots)))
+        (vals (append val (project-root-data prop p))))
+    (when remove-dups
+      (setq vals (cl-remove-duplicates vals)))
+    (project-root-set-data prop vals p)))
 
 (defun project-root-project-name-from-dir (project)
   "Generate cute name for project from its directory name."

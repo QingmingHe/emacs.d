@@ -36,11 +36,13 @@ First define projects.
          :after-found-hdf5 (lambda ()
                              (project-root-append-data
                               :fortran-definitions
-                              '("USE_HDF5")))
+                              '("USE_HDF5")
+                              nil t))
          :after-found-mpi (lambda ()
                             (project-root-append-data
                              :fortran-definitions
-                             '("USE_MPI"))))
+                             '("USE_MPI")
+                             nil t)))
         ("openmc"
          :root-contains-files (".openmc-root")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")

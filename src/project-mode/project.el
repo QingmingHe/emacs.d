@@ -756,25 +756,25 @@ all modified buffers."
 (defun prj/set-language-flags (p buffer)
   "Set compile flags for current BUFFER of project P."
   (let ((packages (project-root-data :use-packages p))
-        flags compile-flags-file prop val)
+        flags compile-locals-file prop val)
     (when packages
       (unless (project-root-data :-compile-flags p)
         ;; read in flags cache
         (when (and prj/use-locals-dir
-                   (file-exists-p
-                    (setq
-                     compile-flags-file
-                     (expand-file-name
-                      prj/project-compile-locals-file
-                      (project-root-data :-project-locals-dir p)))))
+                   (setq
+                    compile-locals-file
+                    (project-root-data
+                     :-project-compile-locals-file
+                     p))
+                   (file-exists-p compile-locals-file))
           (with-temp-buffer
             (message
-             (format "loading compile flags from %s ..." compile-flags-file))
-            (insert-file-contents compile-flags-file)
+             (format "loading compile flags from %s ..." compile-locals-file))
+            (insert-file-contents compile-locals-file)
             (goto-char (point-min))
-            (while (and (setq prop (ignore-errors (read (current-buffer))))
-                        (setq val (ignore-errors (read (current-buffer)))))
-              (project-root-set-data prop val p))
+            (while (setq prop (ignore-errors (read (current-buffer))))
+              (setq val (ignore-errors (read (current-buffer))))
+              (project-root-set-data prop val p t))
             (message "done")))
         ;; find flags by cmake
         (unless (project-root-data :-compile-flags p)
@@ -784,15 +784,16 @@ all modified buffers."
            p)
           ;; write flags to cache file
           (when (and prj/use-locals-dir
-                     compile-flags-file)
+                     compile-locals-file)
             (with-temp-buffer
               (mapc
                (lambda (prop)
                  (print prop (current-buffer))
-                 (print (project-root-data prop p) (current-buffer)))
+                 (print (project-root-data prop p t) (current-buffer)))
                prj/compile-flags-prop)
-              (message (format "write compile flags to %s" compile-flags-file))
-              (write-region (point-min) (point-max) compile-flags-file nil 0)))))
+              (message (format "write compile flags to %s" compile-locals-file))
+              (write-region
+               (point-min) (point-max) compile-locals-file nil 0)))))
       (setq flags (project-root-data :-compile-flags p)))
     (when (derived-mode-p 'c++-mode)
       (unless prj/c++-system-include-paths
@@ -825,23 +826,23 @@ all modified buffers."
          (append (plist-get flags :fortran-args))))))))
 
 ;;;###autoload
-(defun prj/clear-flags-cache ()
+(defun prj/clear-compile-locals ()
   (interactive)
   (let ((p (or project-details (project-root-fetch)))
-        compile-flags-file)
+        compile-locals-file)
     (when p
       (mapc
        (lambda (prop)
          (project-root-set-data prop nil p))
        prj/compile-flags-prop)
       (when (and prj/use-locals-dir
-                 (file-exists-p
-                  (setq
-                   compile-flags-file
-                   (expand-file-name
-                    prj/project-compile-locals-file
-                    (project-root-data :-project-locals-dir p)))))
-        (delete-file compile-flags-file)))))
+                 (setq
+                  compile-locals-file
+                  (project-root-data
+                   :-project-compile-locals-file
+                   p))
+                 (file-exists-p compile-locals-file))
+        (delete-file compile-locals-file)))))
 
 (defun prj/map-plist (fn plist)
   (let ((pl plist)
@@ -1590,6 +1591,20 @@ The format of `prj/project-locals-file' is identical to that of
               (cdr local))))
          locals)))))
 
+(defun prj/setup-locals-dir (p)
+  (project-root-set-data
+   :-project-locals-dir
+   (expand-file-name prj/project-locals-dir default-directory)
+   p)
+  (project-root-set-data
+   :-project-compile-locals-file
+   (expand-file-name
+    prj/project-compile-locals-file
+    (project-root-data :-project-locals-dir p)))
+  (when (and prj/use-locals-dir
+             (not (file-exists-p prj/project-locals-dir)))
+    (mkdir prj/project-locals-dir)))
+
 ;;;###autoload
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
@@ -1605,14 +1620,8 @@ The format of `prj/project-locals-file' is identical to that of
                  fname
                  (not (file-remote-p fname)))
             (let ((default-directory (cdr p)))
-              ;; create locals directory if needed
-              (project-root-set-data
-               :-project-locals-dir
-               (expand-file-name prj/project-locals-dir default-directory)
-               p)
-              (when (and prj/use-locals-dir
-                         (not (file-exists-p prj/project-locals-dir)))
-                (mkdir prj/project-locals-dir))
+              ;; setup project locals directory
+              (prj/setup-locals-dir p)
               ;; mode line lighter
               (setq
                prj/buffer-mode-lighter
