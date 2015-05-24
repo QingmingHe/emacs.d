@@ -5,7 +5,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 * Starter Kit Version Control
 ** Git and Magit
-
 *** Basics
 
 + Use Ido with Magit.
@@ -54,3 +53,7 @@ file."
 
 To compare current buffer with its associated file, use
 [[help:diff-buffer-with-file][diff-buffer-with-file]].
+
+** Git gutter
+
+TODO
