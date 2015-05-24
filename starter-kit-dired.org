@@ -185,6 +185,7 @@ buffer."
      (define-key dired-mode-map (kbd "<") #'dired-move-to-first-item)
      (define-key dired-mode-map (kbd ">") #'dired-move-to-last-item)
      (define-key dired-mode-map (kbd "n") #'dired-move-to-next-or-first)
+     (define-key dired-mode-map (kbd "N") #'dired-man-file)
      (define-key dired-mode-map (kbd "p") #'dired-move-to-previous-or-last)))
 #+end_src
 
@@ -284,7 +285,7 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
   (require 'man)
   (interactive
    (list
-    (ido-read-file-name ": " nil (dired-get-filename))))
+    (ido-read-file-name ": " nil (dired-get-file-for-visit))))
   (Man-getpage-in-background file))
 #+end_src
 

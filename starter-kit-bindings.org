@@ -201,7 +201,7 @@ number in the mode line which is not friendly to my eyes.
 (global-set-key (kbd "C-x o") #'ace-window-dwim)
 #+end_src
 
-I can't remember connet the number with the direction of window splitting.
+I can't connect the number with the direction of window splitting.
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-x -") #'split-window-below)
 (global-set-key (kbd "C-x \\") #'split-window-right)

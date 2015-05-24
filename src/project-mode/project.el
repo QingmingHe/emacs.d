@@ -826,7 +826,7 @@ all modified buffers."
          (append (plist-get flags :fortran-args))))))))
 
 ;;;###autoload
-(defun prj/clear-flags-cache ()
+(defun prj/clear-compile-locals ()
   (interactive)
   (let ((p (or project-details (project-root-fetch)))
         compile-locals-file)
