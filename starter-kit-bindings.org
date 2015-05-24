@@ -183,6 +183,12 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 #+end_src
 
 ** Ace window and ace jump
+*** Some basic setup
+
+#+begin_src emacs-lisp
+(setq avy-all-windows nil)
+#+end_src
+
 *** Ace window
 
 Ace window is superior to window numbering for that window numbering shows
@@ -232,6 +238,13 @@ back.
 *** Ace jump
 
 Ace jump is set in [[file:starter-kit-evil.org::*Normal%20state%20map][Normal state map]] and [[file:starter-kit-search.org::*Isearch%20and%20ace%20jump][Isearch and ace jump]].
+
+*** Face of avy
+
+#+begin_src emacs-lisp
+(custom-set-faces
+ '(avy-lead-face-0 ((t (:background "color-20" :foreground "white")))))
+#+end_src
 
 ** Multiple cursors
 
