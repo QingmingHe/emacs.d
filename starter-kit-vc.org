@@ -56,4 +56,18 @@ To compare current buffer with its associated file, use
 
 ** Git gutter
 
-TODO
+#+begin_src emacs-lisp
+(defun toggle-git-gutter-and-linum ()
+  (interactive)
+  (cond
+   ((and linum-mode git-gutter-mode)
+    (git-gutter-mode -1))
+   ((and linum-mode (not git-gutter-mode))
+    (linum-mode -1)
+    (git-gutter-mode 1))
+   ((and (not linum-mode) git-gutter-mode)
+    (git-gutter-mode -1)
+    (linum-mode 1))
+   (t
+    (linum-mode 1))))
+#+end_src
