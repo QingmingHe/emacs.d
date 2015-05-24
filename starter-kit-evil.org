@@ -123,8 +123,8 @@ if last command is evil-search."
         (avi--goto candidate))
     (evil-repeat-find-char count)))
 
-(define-key evil-normal-state-map (kbd "gl") 'ace-jump-line-mode)
-(define-key evil-normal-state-map (kbd "go") 'ace-jump-word-mode)
+(define-key evil-normal-state-map (kbd "gl") 'avy-goto-line)
+(define-key evil-normal-state-map (kbd "go") 'avy-goto-word-1)
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line-dwim)
 (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line-dwim)
