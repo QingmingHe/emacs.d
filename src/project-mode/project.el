@@ -757,44 +757,44 @@ all modified buffers."
   "Set compile flags for current BUFFER of project P."
   (let ((packages (project-root-data :use-packages p))
         flags compile-locals-file prop val)
+    ;; read in flags cache
+    (unless (project-root-data :-compile-flags p)
+      (when (and prj/use-locals-dir
+                 (setq
+                  compile-locals-file
+                  (project-root-data
+                   :-project-compile-locals-file
+                   p))
+                 (file-exists-p compile-locals-file))
+        (with-temp-buffer
+          (message
+           (format "loading compile flags from %s ..." compile-locals-file))
+          (insert-file-contents compile-locals-file)
+          (goto-char (point-min))
+          (while (setq prop (ignore-errors (read (current-buffer))))
+            (setq val (ignore-errors (read (current-buffer))))
+            (project-root-set-data prop val p t))
+          (message "done"))))
     (when packages
+      ;; find package by cmake
       (unless (project-root-data :-compile-flags p)
-        ;; read in flags cache
+        (project-root-set-data
+         :-compile-flags
+         (prj/cmake-find-packages packages p buffer)
+         p)
+        ;; write flags to cache file
         (when (and prj/use-locals-dir
-                   (setq
-                    compile-locals-file
-                    (project-root-data
-                     :-project-compile-locals-file
-                     p))
-                   (file-exists-p compile-locals-file))
+                   compile-locals-file)
           (with-temp-buffer
-            (message
-             (format "loading compile flags from %s ..." compile-locals-file))
-            (insert-file-contents compile-locals-file)
-            (goto-char (point-min))
-            (while (setq prop (ignore-errors (read (current-buffer))))
-              (setq val (ignore-errors (read (current-buffer))))
-              (project-root-set-data prop val p t))
-            (message "done")))
-        ;; find flags by cmake
-        (unless (project-root-data :-compile-flags p)
-          (project-root-set-data
-           :-compile-flags
-           (prj/cmake-find-packages packages p buffer)
-           p)
-          ;; write flags to cache file
-          (when (and prj/use-locals-dir
-                     compile-locals-file)
-            (with-temp-buffer
-              (mapc
-               (lambda (prop)
-                 (print prop (current-buffer))
-                 (print (project-root-data prop p t) (current-buffer)))
-               prj/compile-flags-prop)
-              (message (format "write compile flags to %s" compile-locals-file))
-              (write-region
-               (point-min) (point-max) compile-locals-file nil 0)))))
-      (setq flags (project-root-data :-compile-flags p)))
+            (mapc
+             (lambda (prop)
+               (print prop (current-buffer))
+               (print (project-root-data prop p t) (current-buffer)))
+             prj/compile-flags-prop)
+            (message (format "write compile flags to %s" compile-locals-file))
+            (write-region
+             (point-min) (point-max) compile-locals-file nil 0)))))
+    (setq flags (project-root-data :-compile-flags p))
     (when (derived-mode-p 'c++-mode)
       (unless prj/c++-system-include-paths
         (setq prj/c++-system-include-paths
