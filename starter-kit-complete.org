@@ -74,12 +74,12 @@ always fallback from file completion to directory by C-j."
   (let* ((file (ido-read-file-name ": " from))
          (relative (file-relative-name file default-directory)))
     (delete-region b0 b1)
-    (if (string-match "\\`\\(\\.\\./\\)\\{3,\\}" relative)
-        (insert file)
-      (when (and (file-executable-p file)
-                 (string= relative (file-name-nondirectory file)))
-        (insert "./"))
-      (insert relative))))
+    (if (string= relative (file-name-nondirectory file))
+        (progn
+          (when (file-executable-p file)
+            (insert "./"))
+          (insert relative))
+      (insert file))))
 
 (defun my-ido-expand-fname ()
   (interactive)
