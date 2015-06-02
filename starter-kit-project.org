@@ -43,6 +43,9 @@ First define projects.
                              :fortran-definitions
                              '("USE_MPI")
                              nil t)))
+        ("cacti"
+         :root-contains-files (".cacti-root")
+         :use-completion (f90-mode))
         ("openmc"
          :root-contains-files (".openmc-root")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
