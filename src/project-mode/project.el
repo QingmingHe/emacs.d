@@ -148,7 +148,7 @@ endif()"
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
 
-(defvar prj/use-locals-dir t
+(defvar prj/use-locals-dir nil
   "Whether use `prj/project-locals-dir' to store cache.")
 
 (defvar prj/project-locals-dir ".project-locals.d"

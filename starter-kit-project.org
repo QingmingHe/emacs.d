@@ -31,26 +31,14 @@ First define projects.
          :root-contains-files (".SUGAR-root.el")
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
-         :use-completion (f90-mode)
-         :use-packages (hdf5 mpi)
-         :after-found-hdf5 (lambda ()
-                             (project-root-append-data
-                              :fortran-definitions
-                              '("USE_HDF5")
-                              nil t))
-         :after-found-mpi (lambda ()
-                            (project-root-append-data
-                             :fortran-definitions
-                             '("USE_MPI")
-                             nil t)))
+         :use-completion (f90-mode))
         ("cacti"
          :root-contains-files (".cacti-root")
          :use-completion (f90-mode))
         ("openmc"
          :root-contains-files (".openmc-root")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
-         :use-completion (f90-mode)
-         :use-packages (hdf5 mpi openmp))
+         :use-completion (f90-mode))
         ("ctags"
          :root-contains-files (".ctags-root")
          :tags-tool "gtags"
