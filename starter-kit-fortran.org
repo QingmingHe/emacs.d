@@ -323,3 +323,15 @@ comment and string untouched."
                  (point))))
           ad-do-it)))
 #+end_src
+
+** Fortran insert percent token
+
+#+begin_src emacs-lisp
+(defun fortran-insert-percent ()
+  (interactive)
+  (unless (looking-back " ")
+    (insert " "))
+  (insert "% "))
+
+(key-chord-define f90-mode-map (kbd "..") #'fortran-insert-percent)
+#+end_src
