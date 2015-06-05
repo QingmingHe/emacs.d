@@ -109,8 +109,8 @@ M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
   "Repeat the last find `count' times or use avy to jump to a search candidates
 if last command is evil-search."
   :type exclusive
-  (unless (featurep 'avy-jump)
-    (require 'avy-jump))
+  (unless (featurep 'avy)
+    (require 'avy))
   (if (or
        (eq last-command 'evil-search-next)
        (eq last-command 'evil-search-previous)
