@@ -172,20 +172,6 @@ larger than `large-file-warning-threshold'."
 (add-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)
 #+end_src
 
-** Tramp
-
-Unfortunately currently Cygwin doesn't support file descriptor passing via
-unix-domain sockets and it's not possible to enable ControlMaster (Google
-=Cygwin ssh ControlMaster=).
-#+begin_src emacs-lisp
-(when *cygwin*
-  (setq tramp-use-ssh-controlmaster-options nil))
-(setq tramp-default-method "ssh")
-#+end_src
-
-Tramp may hung when copying large files through *ssh*. You can use *scp*
-instead.
-
 ** Pinyin input
 
 #+begin_src emacs-lisp
