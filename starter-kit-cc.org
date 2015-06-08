@@ -24,5 +24,6 @@
   (interactive)
   (insert "->"))
 
-(key-chord-define c-mode-map (kbd "..") #'cc-insert-->)
+(with-eval-after-load 'cc-mode
+  (key-chord-define c-mode-map (kbd "..") #'cc-insert-->))
 #+end_src

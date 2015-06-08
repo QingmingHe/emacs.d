@@ -333,5 +333,6 @@ comment and string untouched."
     (insert " "))
   (insert "% "))
 
-(key-chord-define f90-mode-map (kbd "..") #'fortran-insert-percent)
+(with-eval-after-load 'f90
+  (key-chord-define f90-mode-map (kbd "..") #'fortran-insert-percent))
 #+end_src
