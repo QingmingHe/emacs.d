@@ -67,6 +67,7 @@ M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
 
 #+begin_src emacs-lisp
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+(define-key evil-visual-state-map (kbd "C-e") 'move-end-of-line)
 
 (defun my-shift-left-visual ()
   (interactive)

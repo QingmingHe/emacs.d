@@ -114,7 +114,16 @@ to expand or contract region.
 #+END_SRC
 
 ** Key Chord mode
+*** Key chord mode
+
+#+begin_src emacs-lisp
+(key-chord-mode 1)
+#+end_src
+
 *** Quit everything
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
@@ -135,7 +144,6 @@ Use *jk* key chord to quite everything.
 (key-chord-define minibuffer-local-completion-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-must-match-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
-(key-chord-mode 1)
 #+end_src
 
 I have do some hack with isearch to reproduce the *jk* magic.
@@ -144,6 +152,13 @@ I have do some hack with isearch to reproduce the *jk* magic.
   (key-chord-mode 1)
   (key-chord-define isearch-mode-map "jk" 'isearch-cancel))
 (add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
+#+end_src
+
+*** From insert to normal
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil
+  (key-chord-define evil-insert-state-map "jj" #'evil-normal-state))
 #+end_src
 
 *** execute command
