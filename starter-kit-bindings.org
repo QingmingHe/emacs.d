@@ -114,6 +114,7 @@ to expand or contract region.
 #+END_SRC
 
 ** Key Chord mode
+*** Quit everything
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
@@ -143,6 +144,12 @@ I have do some hack with isearch to reproduce the *jk* magic.
   (key-chord-mode 1)
   (key-chord-define isearch-mode-map "jk" 'isearch-cancel))
 (add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
+#+end_src
+
+*** execute command
+
+#+begin_src emacs-lisp
+(key-chord-define-global "xx" #'helm-M-x)
 #+end_src
 
 ** Popup

@@ -25,5 +25,5 @@
   (insert "->"))
 
 (with-eval-after-load 'cc-mode
-  (key-chord-define c-mode-map (kbd "..") #'cc-insert-->))
+  (key-chord-define c-mode-map ".." #'cc-insert-->))
 #+end_src
