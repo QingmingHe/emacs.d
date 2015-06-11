@@ -164,7 +164,7 @@ I have do some hack with isearch to reproduce the *jk* magic.
 *** execute command
 
 #+begin_src emacs-lisp
-(key-chord-define-global "xx" #'helm-M-x)
+(key-chord-define-global "mx" #'helm-M-x)
 #+end_src
 
 ** Popup
