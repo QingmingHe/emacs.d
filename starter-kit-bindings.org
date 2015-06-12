@@ -167,6 +167,12 @@ I have do some hack with isearch to reproduce the *jk* magic.
 (key-chord-define-global "mx" #'helm-M-x)
 #+end_src
 
+*** Ace window
+
+#+begin_src emacs-lisp
+(key-chord-define-global "ll" 'ace-window)
+#+end_src
+
 ** Popup
 
 #+begin_src emacs-lisp
