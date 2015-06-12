@@ -69,3 +69,32 @@ or:
 #+begin_src sh
 git clone 78:/path/to/repo .
 #+end_src
+
+** X
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+
+The minimal easiest way to use X.
+
+*** Cygwin X
+
+Install *xinit*. Set *DISPLAY* environment variable:
+#+begin_src sh
+export DISPLAY=:0
+#+end_src
+Go to server:
+#+begin_src sh
+ssh -Y <server>
+#+end_src
+
+*** Xming
+
+Install and launch Xming. Set *DISPLAY* environment variable:
+#+begin_src sh
+export DISPLAY=localhost:0
+#+end_src
+Go to server:
+#+begin_src sh
+ssh -Y <server>
+#+end_src
