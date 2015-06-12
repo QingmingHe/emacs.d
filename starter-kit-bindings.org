@@ -170,7 +170,7 @@ I have do some hack with isearch to reproduce the *jk* magic.
 *** Ace window
 
 #+begin_src emacs-lisp
-(key-chord-define-global "ll" 'ace-window)
+(key-chord-define-global "mm" 'ace-window)
 #+end_src
 
 ** Popup
