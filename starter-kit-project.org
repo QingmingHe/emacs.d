@@ -41,9 +41,7 @@ First define projects.
          :use-completion (f90-mode))
         ("ctags"
          :root-contains-files (".ctags-root")
-         :tags-tool "gtags"
-         :c-include-paths ("." "main" "parsers")
-         :c-definitions ("HAVE_CONFIG_H"))
+         :tags-tool "gtags")
         ("mcnp"
          :root-contains-files (".mcnp-root")
          :exclude-paths ("run_tests" "Testing"))
