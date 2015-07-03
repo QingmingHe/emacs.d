@@ -2,7 +2,6 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Win32
-
 ** Some notes
 
 + This configuration file should only be loaded under Cygwin.
@@ -96,7 +95,7 @@ Examples:
   "Open Windows program at point in dired. With prefix, read argument passed
 to program from minibuffer."
   (interactive "P")
-  (let ((prog-name (dired-get-filename))
+  (let ((prog-name (dired-get-file-for-visit))
         (prog-argv
          (when arg
            (read-shell-command "Argv passed to prog: "))))
@@ -112,9 +111,8 @@ to program from minibuffer."
    (when (cdr args) (mapconcat 'concat (cdr args) " "))
    nil))
 
-(when *cygwin*
-  (eval-after-load "dired"
-    `(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point)))
+(eval-after-load "dired"
+  `(define-key dired-mode-map "/" 'dired-open-w32-prog-at-point))
 #+END_SRC
 
 ** Create Win32 shortcut

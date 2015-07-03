@@ -70,6 +70,8 @@ is splitted vertically and limited to 10 lines height."
       (bury-buffer))))
 
 (defun show-compile-window-not-success (buffer string)
+  (let ((visible-bell-time-last 0.4))
+    (ding))
   (unless (string-match "finished" string)
     (with-current-buffer buffer
       (goto-char (point-min))
@@ -86,6 +88,9 @@ is splitted vertically and limited to 10 lines height."
   `(progn
      (define-key c-mode-map (kbd "<f5>") 'compile-dwim)
      (define-key c++-mode-map (kbd "<f5>") 'compile-dwim)))
+(defun set-cmake-key-binding-compile ()
+  (local-set-key (kbd "<f5>") 'compile-dwim))
+(add-hook 'cmake-mode-hook 'set-cmake-key-binding-compile)
 #+end_src
 
 ** Gdb
@@ -211,6 +216,58 @@ Add color to the current GUD line (obrigado google)
       t)))
 
 (add-hook 'gud-ctrl-c-ctrl-c-hook 'gud-pulse-break)
+#+end_src
+
+*** Run gdb with hydra
+
+#+begin_src emacs-lisp
+(defun gud-break-ov ()
+  (interactive)
+  (ov-set (ov-make (line-beginning-position) (1+ (line-beginning-position)))
+          'face '(:background "DarkOrange"))
+  (call-interactively 'gud-break))
+
+(defun gud-delete-ov ()
+  (interactive)
+  (ov-clear)
+  (call-interactively 'gud-delete)
+  (let (buf)
+    (when gud-last-last-frame
+      (setq buf (get-file-buffer (car gud-last-last-frame)))
+      (when buf
+        (with-current-buffer buf
+          (save-excursion
+            (goto-line (cdr gud-last-last-frame))
+            (move-overlay gud-overlay
+                          (line-beginning-position)
+                          (line-end-position))))))))
+
+(with-eval-after-load 'gud
+  (require 'ov)
+  (gud-def gud-yes "y" nil "Answer yes.")
+  (gud-def gud-delete "delete" nil "Delete breakpoints.")
+  (gud-def gud-kill "kill" nil "Kill program.")
+
+  (defhydra hydra-gud-menu nil
+    "gdb"
+    ("b" gud-break-ov "break")
+    ("t" gud-tbreak "tbreak")
+    ("d" gud-delete-ov "delete")
+    ("r" gud-run "run")
+    ("K" gud-kill "kill")
+    ("p" gud-print "print")
+    ("u" gud-until "until")
+    ("n" gud-next "next")
+    ("s" gud-step "step")
+    ("y" gud-yes "yes")
+    ("j" evil-next-visual-line-dwim "j")
+    ("k" evil-previous-visual-line-dwim "k")
+    ("q" nil "quit")))
+
+(with-eval-after-load 'f90
+  (define-key f90-mode-map (kbd "C-c d") 'hydra-gud-menu/body))
+(with-eval-after-load 'fortran
+  (define-key fortran-mode-map (kbd "C-c d") 'hydra-gud-menu/body))
 #+end_src
 
 ** Pdb

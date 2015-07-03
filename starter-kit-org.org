@@ -79,6 +79,7 @@ nil."
   "Preview latex fragments at point. "
   (interactive)
   (when (and
+         (not (org-at-TBLFM-p))
          (org-inside-LaTeX-fragment-p)
          (not
           (and
@@ -102,11 +103,11 @@ nil."
   problem in gui Emacs.
 #+begin_src emacs-lisp
 (setq org-return-follows-link t)
-(eval-after-load 'evil
-  `(progn
-     (define-key org-mode-map [remap evil-ret] 'org-return)
-     (unless (window-system)
-       (define-key org-mode-map [remap evil-jump-forward] 'org-cycle))))
+(with-eval-after-load 'evil
+  (with-eval-after-load 'org
+    (define-key org-mode-map [remap evil-ret] 'org-return)
+    (unless (window-system)
+      (define-key org-mode-map [remap evil-jump-forward] 'org-cycle))))
 #+end_src
 
 ** Time and clock
@@ -167,7 +168,7 @@ sequence =C-c C-v h= (bound to `=org-babel-describe-bindings=') will
 display a list of the code blocks commands and their related keys.
 
 #+begin_src emacs-lisp
-  (setq org-use-speed-commands t)
+(setq org-use-speed-commands t)
 #+end_src
 
 ** Code blocks
@@ -180,19 +181,20 @@ to activate more languages using the customize interface for the
 one below.  The customize interface of `=org-babel-load-languages='
 contains an up to date list of the currently supported languages.
 #+begin_src emacs-lisp
-(require 'ob)
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (sh . t)
-   (python . t)
-   (scheme . t)))
+(with-eval-after-load 'org
+  (require 'ob)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (sh . t)
+     (python . t)
+     (scheme . t))))
 #+end_src
 
 You are encouraged to add the following to your personal configuration
 although it is not added by default as a security precaution.
 #+begin_src emacs-lisp
-  (setq org-confirm-babel-evaluate nil)
+(setq org-confirm-babel-evaluate nil)
 #+end_src
 
 Show two window for code editing. See also [[elisp:(describe-variable 'org-src-window-setup)][org-src-window-setup]].
@@ -210,9 +212,9 @@ using the major-mode of the code.  It also changes the behavior of
 that reading and editing code form inside of your Org-mode files is
 much more like reading and editing of code using its major mode.
 #+begin_src emacs-lisp
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
-  (setq org-highlight-latex-and-related '(latex entities))
+(setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
+(setq org-highlight-latex-and-related '(latex entities))
 #+end_src
 
 ** The Library of Babel

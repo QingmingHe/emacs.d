@@ -1,5 +1,5 @@
 # -*- mode: snippet; require-final-newline: nil -*-
 # name: logical :: ...
-# key: lo
+# key: l
 # --
-logical :: $0 !< 
+logical$1 :: $0 !

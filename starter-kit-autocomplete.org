@@ -6,8 +6,6 @@
 #+BEGIN_SRC emacs-lisp
 (require 'auto-complete)
 (require 'auto-complete-config)
-(when (executable-find "clang")
-  (require 'auto-complete-clang))
 
 ;; add dictionary-dirs
 (add-to-list 'ac-dictionary-directories (concat starter-kit-dir "ac-dict"))
@@ -28,6 +26,9 @@
 
 (setq ac-use-menu-map t)
 (setq ac-use-quick-help t)
+(setq ac-dwim nil)
+;; don't let ac auto start
+(setq ac-auto-start nil)
 
 ;; use pos-tip instead of popup to show doc perfectly
 (when (window-system)
@@ -38,9 +39,76 @@
 (define-key ac-mode-map (kbd "M-n") 'auto-complete)
 #+END_SRC
 
-** Fortran
+** Super TAB for program modes
 
-Use project-ac-etags which is set up itself.
+#+begin_src emacs-lisp
+(defun tab-for-anything ()
+  "Try to `yas-expand', `auto-complete-1', `yas-next-field',
+`indent-for-tab-command'."
+  (interactive)
+  (let* ((bnds (bounds-of-thing-at-point 'symbol))
+         (b0 (car bnds))
+         (b1 (cdr bnds))
+         (p (point))
+         (yas-fallback-behavior 'return-nil))
+    (cond ((and yas-minor-mode
+                b0
+                b1
+                (<= (- p b0) 2)
+                (= p b1)
+                (yas-expand)))
+          ((and auto-complete-mode
+                b0
+                b1
+                (= p b1)
+                (auto-complete-1)))
+          ((and yas-minor-mode
+                (yas--snippets-at-point))
+           (when (and (looking-back " ")
+                      (looking-at "[\]})\n\[({, ]"))
+             (delete-region (1- p) p))
+           (yas-next-field))
+          (t
+           (indent-for-tab-command)))))
+
+(defun ac-expand-common-or-abort ()
+  "Refresh `ac-candidates' and expand common part."
+  (interactive)
+  (ac-update t)
+  (ac-expand-common)
+  (when (eq 1 (length ac-candidates))
+    (ac-abort)))
+
+(defun setup-tab-for-anything ()
+  (interactive)
+  (define-key yas-minor-mode-map (kbd "<tab>") nil)
+  (define-key yas-minor-mode-map (kbd "TAB") nil)
+  (define-key yas-keymap [(tab)] nil)
+  (define-key yas-keymap (kbd "TAB") nil)
+  (define-key ac-completing-map "\t" 'ac-expand-common-or-abort)
+  (define-key ac-completing-map [tab] 'ac-expand-common-or-abort)
+  (local-set-key (read-kbd-macro "TAB") 'tab-for-anything))
+
+(defun disable-tab-for-yas-prog ()
+  (interactive)
+  (when (derived-mode-p 'prog-mode)
+    (define-key yas-keymap [(tab)] nil)
+    (define-key yas-keymap (kbd "TAB") nil)))
+
+(add-hook 'prog-mode-hook 'setup-tab-for-anything)
+(add-hook 'cmake-mode-hook 'setup-tab-for-anything)
+(add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
+#+end_src
+
+** Auto refresh candidates
+
+#+begin_src emacs-lisp
+(defun ac-auto-refresh-candidates ()
+  (when (and auto-complete-mode ac-candidates)
+    (ac-update t)))
+
+(add-hook 'post-self-insert-hook 'ac-auto-refresh-candidates)
+#+end_src
 
 ** Emacs lisp
 
@@ -108,9 +176,11 @@ adequate for most of the cases. For C++, path of standard libraries should be
 added.
 
 #+begin_src emacs-lisp
-(when (featurep 'auto-complete-clang)
-  (add-hook 'c++-mode-hook 'add-c++-include-paths-general)
-  (add-hook 'c-mode-hook 'add-c-include-paths-general))
+(with-eval-after-load 'cc-mode
+  (when (executable-find "clang")
+    (require 'auto-complete-clang)
+    (add-hook 'c++-mode-hook 'add-c++-include-paths-general)
+    (add-hook 'c-mode-hook 'add-c-include-paths-general)))
 
 (defun add-c-include-paths-general ()
   (setq-local ac-clang-flags (prj/c-include-paths-general "c")))
@@ -138,14 +208,55 @@ added.
 ** CMake
 
 #+begin_src emacs-lisp
-(when (executable-find "cmake")
-  (eval-after-load "cmake-mode"
-    `(progn
-       (require 'auto-complete-cmake)
-       (add-hook 'cmake-mode-hook
-                 (lambda ()
-                   (add-to-list 'ac-sources 'ac-source-cmake))))))
+(with-eval-after-load 'cmake-mode
+  (when (executable-find "cmake")
+    (require 'auto-complete-cmake)
+    (add-hook 'cmake-mode-hook
+              (lambda ()
+                (add-to-list 'ac-sources 'ac-source-cmake)))))
 #+end_src
+
+** Jedi Completion
+
+Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
+emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
+manually. Or you can just enable company mode or auto-complete instead of
+setup jedi.
+
+To install jedi manually:
+#+BEGIN_SRC sh :tangle no
+  pip install jedi
+  pip install epc
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(with-eval-after-load 'python
+  (if (eq 0 (call-process-shell-command
+             "python -c \"import jedi;import epc\""
+             nil nil nil))
+      (setq jedi-is-installed t)
+    (setq jedi-is-installed nil))
+  (when jedi-is-installed
+    ;; show doc by popup is too annoying, just show in minibuffer
+    (setq jedi:tooltip-method nil)
+    (setq jedi:complete-on-dot t)
+    (cond ((file-directory-p (expand-file-name ".python-environments" starter-kit-dir))
+           nil)
+          ((executable-find "jediepcserver.py")
+           (setq jedi:server-command
+                 `(,(executable-find "python") ,(executable-find "jediepcserver.py"))))
+          (t
+           (setq jedi:server-command
+                 `(,(executable-find "python")
+                   ,(expand-file-name
+                     "jediepcserver.py"
+                     (file-name-directory (locate-library "jedi")))))))))
+
+(defun my-jedi-python-setup ()
+  (when jedi-is-installed
+    (jedi:setup)))
+(add-hook 'python-mode-hook 'my-jedi-python-setup)
+#+END_SRC
 
 ** Comment
 *** Key bindings
@@ -153,46 +264,3 @@ added.
 + Use *C-M-n* and *C-M-p* to scroll down and up in quick help.
 + *C-M-?* to persist ac-help which may be useful when help page is too long or
   you want to get help when filling arguments of the function.
-
-** Built in completion
-
-#+begin_src emacs-lisp
-(setq completion-ignore-case t)
-#+end_src
-
-** Hippie expand: at times perhaps too hip
-*** Expand by dict
-
-I use [[file:starter-kit-dictionary.org::*English%20words%20dict][English words dict]] instead.
-#+begin_src emacs-lisp
-(setq my-english-words-dict (concat starter-kit-dir "dict/english-words.txt"))
-
-(defun try-expand-by-dict (old)
-  (unless old
-    (he-init-string (he-lisp-symbol-beg) (point))
-    (unless (he-string-member he-search-string he-tried-table)
-      (setq he-tried-table (cons he-search-string he-tried-table)))
-    (setq he-expand-list
-          (and (not (equal he-search-string ""))
-               (split-string
-                (shell-command-to-string
-                 (format
-                  "grep \"^%s\" %s"
-                  (buffer-substring-no-properties (he-lisp-symbol-beg) (point))
-                  my-english-words-dict))))))
-  (if (not he-expand-list)
-      (progn (when old (he-reset-string) nil))
-    (he-substitute-string (car he-expand-list))
-    (setq he-expand-list (cdr he-expand-list))
-    t))
-#+end_src
-
-*** Set hippie expand functions
-#+begin_src emacs-lisp
-(global-set-key (kbd "M-/") 'hippie-expand)
-(setq hippie-expand-try-functions-list
-      '(try-complete-file-name-partially
-        try-complete-file-name
-        try-expand-dabbrev
-        try-expand-dabbrev-all-buffers))
-#+end_src

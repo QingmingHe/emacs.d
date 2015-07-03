@@ -7,43 +7,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 Support for the Python programming language.
 
-** Jedi Completion
-
-Never used rope, ropemacs, pymacs ... They are ugly too slow. The newly
-emerging [[https://github.com/davidhalter/jedi][jedi]] is a better choice, though it is almost impossible to install
-manually. Or you can just enable company mode or auto-complete instead of
-setup jedi.
-
-To install jedi manually:
-#+BEGIN_SRC sh :tangle no
-  pip install jedi
-  pip install epc
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'python
-  (if (eq 0 (call-process-shell-command
-             "python -c \"import jedi;import epc\""
-             nil nil nil))
-      (setq jedi-is-installed t)
-    (setq jedi-is-installed nil))
-  (when jedi-is-installed
-    ;; show doc by popup is too annoying, just show in minibuffer
-    (setq jedi:tooltip-method nil)
-    (setq jedi:complete-on-dot t)
-    (cond ((file-directory-p (expand-file-name ".python-environments" starter-kit-dir))
-           nil)
-          ((executable-find "jediepcserver.py")
-           (setq jedi:server-command
-                 `(,(executable-find "python") ,(executable-find "jediepcserver.py"))))
-          (t
-           (setq jedi:server-command
-                 `(,(executable-find "python")
-                   ,(expand-file-name
-                     "jediepcserver.py"
-                     (file-name-directory (locate-library "jedi")))))))))
-#+END_SRC
-
 ** Configuration for python mode
 
 + Python uses indentation instead of braces to structure programs so that it's
@@ -55,16 +18,12 @@ To install jedi manually:
   myself.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
-  (when jedi-is-installed
-    (jedi:setup))
   (highlight-indentation-current-column-mode)
+  (sphinx-doc-mode 1)
   (setq imenu-create-index-function 'python-imenu-create-index)
   (modify-syntax-entry ?_ "w")
   (setq prettify-symbols-alist
-        '(("!=" . ?≠)
-          (">=" . ?≥)
-          ("<=" . ?≤)
-          ("lambda" . ?λ)))
+        '(("lambda" . ?λ)))
   (prettify-symbols-mode 1))
 
 (with-eval-after-load 'python
@@ -79,9 +38,9 @@ To install jedi manually:
    :END:
 
 #+begin_src emacs-lisp
-    (add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
-    (add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
-    (add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode))
+(add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
+(add-to-list 'auto-mode-alist '("\\.pxd\\'" . cython-mode))
+(add-to-list 'auto-mode-alist '("\\.pxi\\'" . cython-mode))
 #+end_src
 
 ** Set up for SConstruct
@@ -126,6 +85,8 @@ Or you can use *M-x C-u run-python* command to run Python interpreter. Here
  python-shell-completion-string-code
  "';'.join(get_ipython().Completer.all_completions('''%s'''))\n")
 #+end_src
+
+To yank in [[help:inferior-python-mode][inferior-python-mode]], use [[help:helm-show-kill-ring][helm-show-kill-ring]].
 
 ** Run Windows Python interpreter in Cygwin platform
    :PROPERTIES:

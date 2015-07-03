@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: type :: ...
+# key: t
+# --
+type($1)$2 :: $0 !

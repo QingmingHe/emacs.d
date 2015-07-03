@@ -16,6 +16,8 @@ Include =isearch=, =replace=, =grep=, =occur= and so on.
 
 (eval-after-load "grep"
   `(progn
+     (define-key grep-mode-map (kbd "C-c C-c") 'wgrep-change-to-wgrep-mode)
+     (define-key grep-mode-map (kbd "e") 'wgrep-change-to-wgrep-mode)
      (define-key grep-mode-map (kbd "j") 'compilation-next-error)
      (define-key grep-mode-map (kbd "k") 'compilation-previous-error)
      (define-key grep-mode-map (kbd "d") 'compilation-display-error-dwim)))
@@ -47,6 +49,12 @@ Don't grep repositories and some files.
 
 #+begin_src emacs-lisp
 (setq wgrep-auto-save-buffer t)
+(with-eval-after-load 'wgrep
+  (define-key wgrep-mode-map (kbd "C-c C-c") 'wgrep-finish-edit))
+(defadvice wgrep-change-to-wgrep-mode (after wgrep-enable-evil-state activate)
+  (evil-normal-state))
+(defadvice wgrep-to-original-mode (before wgrep-enable-emacs-state activate)
+  (evil-emacs-state))
 #+end_src
 
 ** anzu and evil anzu
@@ -60,6 +68,12 @@ Don't grep repositories and some files.
 #+end_src
 
 ** Incremental search
+*** Instantly highlight all matches
+
+#+begin_src emacs-lisp
+(setq lazy-highlight-initial-delay 0.1)
+#+end_src
+
 *** Use regexp search by default
 
 + *C-s* to repeat search
@@ -82,8 +96,6 @@ Don't grep repositories and some files.
                  isearch-string
                (regexp-quote isearch-string))))))
 (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-(with-eval-after-load 'evil
-  (define-key evil-motion-state-map (kbd "M-i") 'helm-swoop-from-evil-search))
 #+end_src
 
 *** Isearch yank do what I mean
@@ -137,10 +149,42 @@ mimic [[help:highlight-symbol-at-point][highlight-symbol-at-point]].
 (define-key isearch-mode-map (kbd "M-%") 'evil-replace-from-isearch)
 #+end_src
 
-*** Pinyin search
+*** Pinyin search and other
 
 #+begin_src emacs-lisp
 (define-key isearch-mode-map "\C-p" #'isearch-toggle-pinyin)
+(define-key isearch-mode-map "\C-g" #'isearch-cancel)
+#+end_src
+
+*** Isearch and ace jump
+
+#+begin_src emacs-lisp
+(define-key isearch-mode-map (kbd ";") 'avy-isearch)
+#+end_src
+
+*** Isearch delete fail characters or one character
+
+#+begin_src emacs-lisp
+(defun isearch-del-fail-or-char ()
+  (interactive)
+  (if (= 0 (length isearch-string))
+      (progn
+        (ding)
+        (message "No more isearch string: "))
+    (setq isearch-string
+          (substring
+           isearch-string
+           0
+           (or (isearch-fail-pos) (1- (length isearch-string))))
+          isearch-message
+          (mapconcat 'isearch-text-char-description isearch-string ""))
+    (when isearch-other-end (goto-char isearch-other-end))
+    (isearch-search)
+    (isearch-push-state)
+    (isearch-update)))
+
+(define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-fail-or-char)
+(define-key isearch-mode-map "\177" 'isearch-del-fail-or-char)
 #+end_src
 
 ** Occur

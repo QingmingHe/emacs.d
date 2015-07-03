@@ -1,0 +1,73 @@
+#+TITLE: Starter Kit Version Control
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Version Control
+** Git and Magit
+*** Basics
+
++ Use Ido with Magit.
++ Setting the full path for Git makes Magit a little bit faster.
+#+begin_src emacs-lisp
+(setq magit-completing-read-function 'magit-ido-completing-read)
+(setq magit-git-executable (executable-find "git"))
+#+end_src
+
+*** Resolve merge confliction
+Use [[help:magit-ediff][magit-ediff]] *e* on un-merged item.
+
+*** Git checkout single file
+Use [[help:magit-discard-item][magit-discard-item]] *k* on item.
+
+** Disable version control in Emacs
+
+I almost never use version control system bundled with Emacs and it always
+slows down Emacs. Disable it completely.
+#+begin_src emacs-lisp
+(setq vc-handled-backends nil)
+#+end_src
+
+** Disable backup files
+
+I always handles my project and important files through Git so there is no
+need for backup files.
+#+begin_src emacs-lisp
+(setq make-backup-files nil)
+#+end_src
+
+** Compare current buffer and its auto save file
+
+#+begin_src emacs-lisp
+(defun ediff-buffer-with-auto-save ()
+  "Find and display differences between current buffer and its auto save
+file."
+  (interactive)
+  (let ((auto-save-file-name
+         (make-auto-save-file-name)))
+    (if (file-exists-p auto-save-file-name)
+        (ediff-buffers (current-buffer)
+                       (find-file-noselect (make-auto-save-file-name)))
+      (user-error "Current buffer has no auto save file!"))))
+#+end_src
+
+To compare current buffer with its associated file, use
+[[help:diff-buffer-with-file][diff-buffer-with-file]].
+
+** Git gutter
+
+#+begin_src emacs-lisp
+(defun toggle-git-gutter-and-linum ()
+  (interactive)
+  (cond
+   ((and linum-mode git-gutter-mode)
+    (git-gutter-mode -1))
+   ((and linum-mode (not git-gutter-mode))
+    (linum-mode -1)
+    (git-gutter-mode 1))
+   ((and (not linum-mode) git-gutter-mode)
+    (git-gutter-mode -1)
+    (linum-mode 1))
+   (t
+    (linum-mode 1))))
+#+end_src

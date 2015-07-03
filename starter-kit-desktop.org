@@ -2,6 +2,9 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit Desktop
+  :PROPERTIES:
+  :TANGLE:   no
+  :END:
 
 Desktop will load, at startup, the buffers you were editing when you last quit
 Emacs.
@@ -26,7 +29,7 @@ saved globally.
 (setq history-length 128)
 (setq kill-ring-max 128)
 (setq regexp-search-ring-max 128)
-(setq desktop-auto-save-timeout 120)
+(setq desktop-auto-save-timeout 600)
 (setq desktop-globals-to-save
       '((extended-command-history     . history-length)
         (file-name-history            . history-length)
@@ -46,8 +49,7 @@ saved globally.
         (dired-regexp-history         . history-length)
         (dired-shell-command-history  . history-length)
         (desktop-missing-file-warning . history-length)
-        (register-alist               . history-length)
-        (kill-ring                    . history-length)))
+        (register-alist               . history-length)))
 
 (defadvice desktop-save (around del-dup-desktop-save activate)
   (mapc
@@ -57,5 +59,21 @@ saved globally.
   ad-do-it)
 
 (desktop-read)
-(desktop-save-mode 1)
 #+END_SRC
+
+* Starter Kit History
+
+[[help:savehist][savehist]] is much lighter than [[help:desktop][desktop]].
+#+begin_src emacs-lisp
+(setq savehist-additional-variables
+      '(extended-command-history
+        search-ring
+        regexp-search-ring
+        grep-history
+        grep-find-history
+        regexp-history
+        dired-regexp-history))
+(setq savehist-file (expand-file-name ".savehist" starter-kit-dir))
+(savehist-mode 1)
+(run-with-idle-timer 600 t 'savehist-autosave)
+#+end_src

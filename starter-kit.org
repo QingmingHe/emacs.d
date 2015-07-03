@@ -256,17 +256,6 @@ interested in the actual code implementing the starter kit.
   (add-to-list 'custom-theme-load-path (concat starter-kit-dir "themes"))
   #+end_src
 
-- Ubiquitous Packages which should be loaded on startup rather than
-  autoloaded on demand since they are likely to be used in every
-  session.
-  #+name: starter-kit-load-on-startup
-  #+begin_src emacs-lisp
-  (eval-when-compile (require 'subr-x))
-  (when (window-system)
-    (require 'pos-tip))
-  (require 'popup)
-  #+end_src
-
 - Function to check if a packages exist in the load path.  This may be
   used to preempt the installation of ELPA versions of packages whose
   source may already be found in the load path.
@@ -392,10 +381,46 @@ interested in the actual code implementing the starter kit.
   (ensure-packages-compiled)
   #+end_src
 
-- Load auto load file
+- Load auto load file.
 
   #+begin_src emacs-lisp
   (load-file autoload-file)
+  #+end_src
+
+- Macros to lazily define hydra. As hydra.el is over one thousand lines, it
+  consumes some time to load at Emacs start up. So define macros that only
+  defines hydra until hydra body is called.
+
+  #+begin_src emacs-lisp
+  (defmacro with-defhydra (name keymap key &rest hydradef)
+    (let ((name-defined (intern (format "defhydra-%s-defined-p" name)))
+          (hydra-body-name (intern (concat name "/body"))))
+      `(progn
+         (setq ,name-defined nil)
+         (define-key ,keymap ,key
+           (lambda ()
+             (interactive)
+             (unless ,name-defined
+               (defhydra ,(intern name) nil
+                 ,name
+                 ,@hydradef)
+               (setq ,name-defined t))
+             (call-interactively ',hydra-body-name))))))
+
+  (defmacro with-defhydra-evil-leader (name key &rest hydradef)
+    (let ((name-defined (intern (format "defhydra-%s-defined-p" name)))
+          (hydra-body-name (intern (concat name "/body"))))
+      `(progn
+         (setq ,name-defined nil)
+         (evil-leader/set-key ,key
+           (lambda ()
+             (interactive)
+             (unless ,name-defined
+               (defhydra ,(intern name) nil
+                 ,name
+                 ,@hydradef)
+               (setq ,name-defined t))
+             (call-interactively ',hydra-body-name))))))
   #+end_src
 
 ** Starter kit core
@@ -403,8 +428,8 @@ interested in the actual code implementing the starter kit.
    :CUSTOM_ID: starter-kit-core
    :END:
 The following files contain the remainder of the core of the Emacs Starter
-Kit.  All of the code in this section should be loaded by everyone using the
-starter kit.  You should note that the sequence is very important.
+Kit. All of the code in this section should be loaded by everyone using the
+starter kit. You should note that the sequence is very important.
 #+BEGIN_SRC emacs-lisp
 (starter-kit-fast-load "defuns")
 (starter-kit-fast-load "misc")
@@ -415,11 +440,14 @@ starter kit.  You should note that the sequence is very important.
 (starter-kit-fast-load "org")
 (starter-kit-fast-load "gui")
 (starter-kit-fast-load "dired")
+(starter-kit-fast-load "vc")
 (starter-kit-fast-load "project")
 (starter-kit-fast-load "flycheck")
 (starter-kit-fast-load "helm")
 (starter-kit-fast-load "yasnippet")
-(starter-kit-fast-load "autocomplete")
+(starter-kit-fast-load "complete")
+(starter-kit-fast-load "company")
+;; (starter-kit-fast-load "autocomplete")
 (starter-kit-fast-load "browser")
 (starter-kit-fast-load "dictionary")
 (starter-kit-fast-load "bindings")
@@ -492,9 +520,31 @@ After we've loaded all the Starter Kit defaults, lets load the User's stuff.
 
 This should be placed at end of starter kit and configures the initial
 windows.
+
+*** Don't show Emacs tutorial
 #+BEGIN_SRC emacs-lisp
 (setq inhibit-splash-screen t)
 (setq debug-on-error nil)
+#+END_SRC
+
+*** Ensure server safe in windows
+
+On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
+redefine server-ensure-safe-dir function to suppress this kind of error.
+Besides, you should make =server-socket-dir= directory manually or server
+cannot start. After server started, summon Emacs in terminal by:
+#+begin_src sh :tangle no
+emacsclient -t FILE
+#+end_src
+
+#+BEGIN_SRC emacs-lisp
+(require 'server)
+(when *cygwin*
+  (defun server-ensure-safe-dir (dir) "Noop" t)
+  (unless (file-exists-p server-socket-dir)
+    (mkdir server-socket-dir)))
+(unless (server-running-p)
+  (server-start))
 #+END_SRC
 
 * Footnotes

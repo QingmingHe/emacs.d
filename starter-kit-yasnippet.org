@@ -17,14 +17,16 @@ inspired by TextMate's templating syntax.
 (setq yas-indent-line 'fixed)
 ;; Don't re-activate snippet fields after undo/redo
 (setq yas-snippet-revival nil)
-(require 'yasnippet)
+;; so snippet can be triggered inside snippet
+(setq yas-triggers-in-field t)
+;; disable tab for `yas-minor-mode' and `yas-keymap' for that each mode has
+;; its own tab
+(with-eval-after-load 'yasnippet
+  (define-key yas-minor-mode-map (kbd "<tab>") nil)
+  (define-key yas-minor-mode-map (kbd "TAB") nil)
+  (define-key yas-keymap [(tab)] nil)
+  (define-key yas-keymap (kbd "TAB") nil))
 (yas-global-mode 1)
-;; disable tab for `yas-minor-mode' and `yas-keymap' for each mode has its
-;; own tab
-(define-key yas-minor-mode-map (kbd "<tab>") nil)
-(define-key yas-minor-mode-map (kbd "TAB") nil)
-(define-key yas-keymap [(tab)] nil)
-(define-key yas-keymap (kbd "TAB") nil)
 #+END_SRC
 
 ** Snippet mode
@@ -46,7 +48,8 @@ $0")
 #+begin_src emacs-lisp
 (defun snippet-mode-setup ()
   (define-key yas-keymap (read-kbd-macro "TAB") 'yas-next-field))
-(add-hook 'snippet-mode-hook 'snippet-mode-setup)
+(with-eval-after-load 'yasnippet
+  (add-hook 'snippet-mode-hook 'snippet-mode-setup))
 #+end_src
 
 ** Configure Yasnippets for Org Mode
@@ -77,6 +80,8 @@ following function allows these two to play nicely together.
 ** Use popup
 #+begin_src emacs-lisp
 (defun yas-popup-isearch-prompt (prompt choices &optional display-fn)
+  (unless (featurep 'popup)
+    (require 'popup))
   (popup-menu*
    (mapcar
     (lambda (choice)
@@ -93,3 +98,22 @@ following function allows these two to play nicely together.
       '(yas-popup-isearch-prompt
         yas-no-prompt))
 #+end_src
+
+** How to write snippets
+*** Mirrors with transformation
+
+Sometimes you want to determine content of a field according to content of
+another. The simple example is c header inclusion statement where system
+headers are quoted by *<>* while user headers are quoted by *""*. In this case
+[[help:yas-text][yas-text]] can be used to obtain the content of a mirror field.
+#+begin_example
+#include ${1:`(yas-choose-value '("<" "\""))`}$0${1:$(yas-c-include-system-or-user yas-text)}
+#+end_example
+
+Note that:
++ The value of an *${n:$(* means that it is interperted as a mirror for field
+  *n* with a transformation.
++ For some reason [[help:yas-text][yas-text]] should be the first argument of first lisp
+  function.
++ yas-c-include-system-or-user is defined in =.yas-setup.el= in the snippets
+  directory.

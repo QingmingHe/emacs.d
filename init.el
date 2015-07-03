@@ -28,13 +28,18 @@
 (setq auctex-root (locate-library "auctex"))
 (when auctex-root
   (setq auctex-root (file-name-directory auctex-root)))
-
-;; load Org-mode from source when the ORG_HOME environment variable is set
-(when (getenv "ORG_HOME")
-  (let ((org-lisp-dir (expand-file-name "lisp" (getenv "ORG_HOME"))))
-    (when (file-directory-p org-lisp-dir)
-      (add-to-list 'load-path org-lisp-dir)
-      (require 'org))))
+(setq flycheck-Fortran-checker
+      (or
+       (when (and
+              (getenv "FLYCHECK_Fortran_CHECKER")
+              (string-match "ifort" (getenv "FLYCHECK_Fortran_CHECKER")))
+         'fortran-ifort)
+       'fortran-gfortran+))
+(cond
+ ((eq flycheck-Fortran-checker 'fortran-ifort)
+  (setq prj/cmake-fortran-compiler "ifort"))
+ (t
+  (setq prj/cmake-fortran-compiler "gfortran")))
 
 (defun starter-kit-fast-load (&optional file)
   "Load starter kit configuration FILE. A FILE can be file name such as
@@ -65,7 +70,8 @@ without loading the org FILE; otherwise the org FILE will be loaded by
       (load-file elisp-file))
     (message
      (format "%s consumes %.06f to load."
-             file (float-time (time-since last-time))))))
+             (or file "starter-kit.org")
+             (float-time (time-since last-time))))))
 
 ;; load the starter kit from the `after-init-hook' so all packages are loaded
 (add-hook 'after-init-hook
@@ -73,11 +79,6 @@ without loading the org FILE; otherwise the org FILE will be loaded by
     ;; remember this directory
     (setq starter-kit-dir
           ,(file-name-directory (or load-file-name (buffer-file-name))))
-    ;; only load org-mode later if we didn't load it just now
-    ,(unless (and (getenv "ORG_HOME")
-                  (file-directory-p
-                   (expand-file-name "lisp" (getenv "ORG_HOME"))))
-       '(require 'org))
     ;; load up the starter kit.
     ;; As the initial value of `org-babel-load-languages' is '(emacs-lisp . t),
     ;; only the emacs-lisp code block will be loaded.

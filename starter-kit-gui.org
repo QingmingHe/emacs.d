@@ -4,8 +4,7 @@
 * Starter Kit Gui
 ** All kinds of preferences
 #+begin_src emacs-lisp
-(setq visible-bell t
-      echo-keystrokes 0.1
+(setq echo-keystrokes 0.1
       font-lock-maximum-decoration t
       transient-mark-mode t
       color-theme-is-global t
@@ -20,6 +19,21 @@
       ediff-window-setup-function 'ediff-setup-windows-plain
       oddmuse-directory (concat starter-kit-dir "oddmuse")
       xterm-mouse-mode t)
+#+end_src
+
+** Visible bell
+
+I can't recognize frame flashing. So flash the mode-line instead.
+#+begin_src emacs-lisp
+(defvar visible-bell-time-last 0.1
+  "Time last for visible bell.")
+
+(defun my-visible-bell ()
+  (invert-face 'mode-line)
+  (run-with-timer visible-bell-time-last nil 'invert-face 'mode-line))
+
+(setq visible-bell nil)
+(setq ring-bell-function #'my-visible-bell)
 #+end_src
 
 ** Line number in terminal
@@ -67,19 +81,9 @@ don't need it.
                       :strike-through t))
 #+end_src
 
-** Window numbering
-
-Changing from one window to another is so easy in Emacs with window number,
-you just key in *M-n* to jump to n-th window numbered by the plugin.
-#+BEGIN_SRC emacs-lisp
-(window-numbering-mode 1)
-#+END_SRC
-
 ** Emacs Layout
 
-It's not easy to recognize the completion words in horizontally split window
-if two windows are already split horizontally. Therefore set Emacs to split
-vertically by default.
+Set Emacs split to horizontal by default.
 #+BEGIN_SRC emacs-lisp
 (setq split-height-threshold nil)
 (setq split-width-threshold 160)
@@ -94,7 +98,7 @@ You really don't need this; trust me.
 (when window-system
   (setq frame-title-format '(buffer-file-name "%f" (:eval default-directory)))
   (blink-cursor-mode -1)
-  (scroll-bar-mode 0)
+  (scroll-bar-mode -1)
   (tooltip-mode -1)
   (tool-bar-mode -1)
   (when (require 'mwheel nil 'no-error) (mouse-wheel-mode t)))
@@ -136,6 +140,10 @@ other data on the mode line.
 (eval-after-load "key-combo"               '(diminish 'key-combo-mode))
 (eval-after-load "simple"                  '(diminish 'visual-line-mode))
 (eval-after-load "simple"                  '(diminish 'auto-fill-function))
+(eval-after-load "sphinx-doc"              '(diminish 'sphinx-doc-mode))
+(eval-after-load "anaconda-mode"           '(diminish 'anaconda-mode))
+(eval-after-load "company"                 '(diminish 'company-mode))
+(eval-after-load "compile"                 '(diminish 'compilation-shell-minor-mode))
 #+END_SRC
 
 ** Font for English and Chinese
@@ -164,7 +172,8 @@ other data on the mode line.
 #+END_SRC
 
 #+begin_src emacs-lisp
-(require 'chinese-fonts-setup)
+(when (window-system)
+  (require 'chinese-fonts-setup))
 #+end_src
 
 *** Install font
@@ -196,3 +205,15 @@ WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
 #+begin_src emacs-lisp
 (load-theme 'zenburn t)
 #+end_src
+
+** Disable recentering
+
+For smooth scrolling and disabling the auto-recentering of emacs screen when
+moving cursor. Set scroll margin to be 4 so that an ape can see the following
+lines of codes.
+#+BEGIN_SRC emacs-lisp
+(setq scroll-step 1
+      scroll-conservatively 10000
+      auto-window-vscroll nil)
+(setq scroll-margin 4)
+#+END_SRC

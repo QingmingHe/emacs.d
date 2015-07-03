@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: include
+# key: in
+# --
+#include ${1:`(yas-choose-value '("<" "\""))`}$0${1:$(yas-c-include-system-or-user yas-text)}

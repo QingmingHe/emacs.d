@@ -10,47 +10,68 @@ Use gtags, etags, imenu ... to handle projects.
 First define projects.
 #+BEGIN_SRC emacs-lisp
 (setq prj/update-tags-verbose nil)
-(setq prj/touch-cmake-at-create t)
-(setq project-mode-loaded nil)
+(setq prj/completion-backend 'company)
+
+;; lazy load project mode
+(setq prj/global-mode-loaded nil)
 (defun lazy-load-project-mode ()
-  (unless project-mode-loaded
+  (unless prj/global-mode-loaded
     (require 'project)
     (global-project-mode 1)
     (prj/setup)
-    (setq project-mode-loaded t)))
+    (setq prj/global-mode-loaded t)
+    (remove-hook 'find-file-hook 'lazy-load-project-mode)))
 (add-hook 'find-file-hook 'lazy-load-project-mode)
 
 (setq project-roots
       `(("CExamples"
          :root-contains-files (".CExample-root.el")
-         :tags-tool "gtags"
-         :lighter "C-e")
+         :tags-tool "gtags")
         ("SUGAR"
          :root-contains-files (".SUGAR-root.el")
          :exclude-paths ("benchmarks" "docs" "html" "latex" "lib" "test" "unittest")
-         :use-auto-complete (f90-mode)
-         :lighter "SUGAR")
+         :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
+         :use-completion (f90-mode)
+         :use-packages (hdf5 mpi)
+         :after-found-hdf5 (lambda ()
+                             (project-root-append-data
+                              :fortran-definitions
+                              '("USE_HDF5")
+                              nil t))
+         :after-found-mpi (lambda ()
+                            (project-root-append-data
+                             :fortran-definitions
+                             '("USE_MPI")
+                             nil t)))
+        ("openmc"
+         :root-contains-files (".openmc-root")
+         :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
+         :use-completion (f90-mode)
+         :use-packages (hdf5 mpi openmp))
+        ("ctags"
+         :root-contains-files (".ctags-root")
+         :tags-tool "gtags"
+         :c-include-paths ("." "main" "parsers")
+         :c-definitions ("HAVE_CONFIG_H"))
+        ("mcnp"
+         :root-contains-files (".mcnp-root")
+         :exclude-paths ("run_tests" "Testing"))
         ("EmacsConfig"
          :root-contains-files (".EmacsConfig-root.el")
-         :exclude-paths ("backups" "auto-save-list")
-         :lighter "Econf")
+         :exclude-paths ("backups" "auto-save-list"))
         ("UFP"
          :root-contains-files (".UFP-root.el")
          :exclude-paths ("Debug" "input" "kintab" "output" "plib" "scratch"
-                         "ulib" "文档")
-         :lighter "UFP")
+                         "ulib" "文档"))
         ("RMET21"
          :root-contains-files ("RMET21" "GEXSCO" "SLAMBD" "WLUTIL")
          :exclude-paths ("BROADR" "BUILD" "BUILD_CYGWIN" "CMAKE" "build_debug"
-                         "build_release" "TESTS")
-         :lighter "RMET21")
+                         "build_release" "TESTS"))
         ("pyPkgs"
          :root-contains-files (".pyPkgs.el")
-         :exclude-paths ("build")
-         :lighter "pyPkgs")
+         :exclude-paths ("build"))
         ("GTD"
-         :root-contains-files ("inbox.org" "projects.org" "notes.org")
-         :lighter "GTD")))
+         :root-contains-files ("inbox.org" "projects.org" "notes.org"))))
 #+END_SRC
 
 ** Ctags
@@ -104,7 +125,7 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
   (interactive)
   (setq helm-etags-match-part-only (not helm-etags-match-part-only)))
 (eval-after-load "helm-tags"
-  `(define-key helm-etags-map (kbd "C-c C-c") 'helm-etags-toggle-match-part-only))
+  `(define-key helm-etags-map (kbd "C-c C-t") 'helm-etags-toggle-match-part-only))
 #+end_src
 
 ** Gtags
@@ -126,18 +147,21 @@ Toggle match part only. See also [[elisp:(describe-variable 'helm-etags-match-pa
 #+END_SRC
 
 ** imenu
+*** Rescan imenu after save file
 
-#+BEGIN_SRC emacs-lisp
-(eval-after-load "imenu"
-  `(require 'imenu+))
-
+#+begin_src emacs-lisp
+(setq imenu-sort-function #'imenu--sort-by-position)
 (setq imenu-auto-rescan nil)
 (defun starter-kit-imenu-rescan ()
   (interactive)
+  (require 'imenu)
   (when (derived-mode-p 'org-mode 'prog-mode 'markdown-mode 'rst-mode)
     (imenu--menubar-select imenu--rescan-item)))
 (add-hook 'after-save-hook 'starter-kit-imenu-rescan)
+#+end_src
 
+*** Imenu with Ido
+#+BEGIN_SRC emacs-lisp
 (defun my-imenu (&optional symbol-list)
   "Refresh imenu and jump to a place in the buffer using Ido."
   (interactive)

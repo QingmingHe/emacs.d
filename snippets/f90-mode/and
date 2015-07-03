@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .and.
+# key: a
+# --
+.AND. $0

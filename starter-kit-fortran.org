@@ -13,11 +13,6 @@ Fortran is a major language for scientific computation but a minor for other.
   (setq-local er/try-expand-list
               (append er/try-expand-list
                       '(f90-mark-block)))
-  (setq prettify-symbols-alist
-        '(("/=" . ?≠)
-          (">=" . ?≥)
-          ("<=" . ?≤)))
-  (prettify-symbols-mode 1)
   (evil-define-key 'normal f90-mode-map
     "J" 'my-f90-join-lines)
   (evil-define-key 'normal f90-mode-map
@@ -75,11 +70,29 @@ type(SomeType) :: atype ! object of SomeType"
     (align-regexp begin end "\\(\\s-*\\)::" 1 1 nil)
     (align-regexp begin end "::\\(\\s-*\\)" 1 1 nil)
     (align-regexp begin end "\\(\\s-*\\)!" 1 1 nil)))
+
 (defun f90-align-comment-or-regexp (arg)
   (interactive "P")
   (if arg
       (call-interactively 'align-regexp)
-    (align-regexp (region-beginning) (region-end) "\\(\\s-*\\)!" 1 1 nil)))
+    (align-regexp (region-beginning)
+                  (region-end)
+                  "[\]a-zA-Z0-9_)\\.\"]\\(\\s-*\\)!"
+                  1 1 nil)))
+
+(defun f90-align-comment-buffer ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let (b0 b1)
+      (while (re-search-forward
+              "[ \t]*\\(type.*::\\|[^!]*\\(subroutine\\|function\\)\\)"
+              nil t)
+        (setq b0 (line-beginning-position))
+        (f90-end-of-block)
+        (setq b1 (line-end-position))
+        (align-regexp b0 b1 "[\]a-zA-Z0-9_)\\.\"]\\(\\s-*\\)!" 1 1 nil)))))
+
 (with-eval-after-load 'f90
   (define-key f90-mode-map (kbd "M-\\") 'f90-align-comment-or-regexp))
 #+END_SRC

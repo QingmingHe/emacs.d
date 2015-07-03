@@ -13,9 +13,11 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
    :END:
 #+name: starter-kit-define-lisp-keys
 #+begin_src emacs-lisp
-(define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
-(define-key emacs-lisp-mode-map (kbd "C-x C-j") 'eval-last-sexp)
-(define-key org-mode-map (kbd "C-x C-j") 'eval-last-sexp)
+(with-eval-after-load 'lisp-mode
+  (define-key lisp-interaction-mode-map (kbd "C-x C-j") 'eval-print-last-sexp)
+  (define-key emacs-lisp-mode-map (kbd "C-x C-j") 'eval-last-sexp))
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-x C-j") 'eval-last-sexp))
 #+end_src
 
 ** Emacs Lisp
@@ -27,13 +29,7 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 (add-to-list 'auto-mode-alist '("Cask\\'" . emacs-lisp-mode))
 (defun my-emacs-lisp-config ()
   (turn-on-eldoc-mode)
-  (starter-kit-remove-elc-on-save)
-  (setq prettify-symbols-alist
-        '(("lambda" . ?λ)
-          ("/=" . ?≠)
-          (">=" . ?≥)
-          ("<=" . ?≤)))
-  (prettify-symbols-mode 1))
+  (starter-kit-remove-elc-on-save))
 
 (defun starter-kit-remove-elc-on-save ()
   "If you're saving an elisp file, likely the .elc is no longer valid."
@@ -143,13 +139,14 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
    :END:
 
 #+begin_src emacs-lisp
-(catch 'scheme-found
-  (mapc
-   (lambda (prog)
-     (when (executable-find prog)
-       (setq scheme-program-name prog)
-       (throw 'scheme-found prog)))
-   '("guile" "racket" "csi")))
+(with-eval-after-load 'scheme
+  (catch 'scheme-found
+    (mapc
+     (lambda (prog)
+       (when (executable-find prog)
+         (setq scheme-program-name prog)
+         (throw 'scheme-found prog)))
+     '("guile" "racket" "csi"))))
 
 (defun kh/get-scheme-proc-create ()
   "Create one scheme process if no one is created."

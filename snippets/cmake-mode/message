@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: message
+# key: me
+# --
+message(${1:`(yas-choose-value '("STATUS" "WARNING" "AUTHOR_WARNING" "FATAL_ERROR" "SEND_ERROR"))`} "$0")

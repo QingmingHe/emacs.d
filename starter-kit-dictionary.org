@@ -50,11 +50,10 @@ sdcv is a command-line version of stardict.
                       (action . (("Insert the word" . (lambda (c)
                                                         (delete-region ,b0 ,b1)
                                                         (insert c)))
-                                 ("Search word by sdcv" . helm-english-words-search)))))
-          :keymap (let ((map (make-sparse-keymap)))
-                    (set-keymap-parent map helm-map)
-                    (define-key map (kbd "C-j") 'helm-english-words-search)
-                    map))))
+                                 ("Search word by sdcv"
+                                  . helm-english-words-search)))
+                      (persistent-help . "Search this word by sdcv")
+                      (persistent-action . helm-english-words-search))))))
 
 (global-set-key (kbd "M-?") 'helm-english-words)
 #+end_src

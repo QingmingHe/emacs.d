@@ -19,38 +19,17 @@ Things that don't fit anywhere else.
 #+begin_src emacs-lisp
 (setq epa-file-cache-passphrase-for-symmetric-encryption nil)
 (setq epa-file-inhibit-auto-save t)
+(setq my-epa-loaded nil)
 (defun lazy-load-auto-encryption-mode ()
-  (unless auto-encryption-mode
-    (auto-encryption-mode 1)))
+  (unless my-epa-loaded
+    (let* ((fname (buffer-file-name))
+           (ext (when fname (file-name-extension fname))))
+      (when (and ext (string= ext "gpg"))
+        (auto-encryption-mode 1)
+        (setq my-epa-loaded t)
+        (remove-hook 'find-file-hook 'lazy-load-auto-encryption-mode)))))
 (add-hook 'find-file-hook 'lazy-load-auto-encryption-mode)
 #+end_src
-
-** Ensure server safe in windows
-
-On Windows and Cygwin, errors of /some/path/ is unsafe often occur. So
-redefine server-ensure-safe-dir function to suppress this kind of error.
-Besides, you should make =server-socket-dir= directory manually or server
-cannot start. After server started, summon Emacs in terminal by:
-#+begin_src sh :tangle no
-emacsclient -t FILE
-#+end_src
-
-#+BEGIN_SRC emacs-lisp
-(require 'server)
-(when *cygwin*
-  (defun server-ensure-safe-dir (dir) "Noop" t)
-  (unless (file-exists-p server-socket-dir)
-    (mkdir server-socket-dir)))
-(unless (server-running-p)
-  (server-start))
-#+END_SRC
-
-** Winner mode
-
-Winner mode enables you goto previous windows configuration easily.
-#+BEGIN_SRC emacs-lisp
-(winner-mode 1)
-#+END_SRC
 
 ** Save places in opened files
 
@@ -63,51 +42,59 @@ previously visited the same file.
 (defun lazy-load-saveplace ()
   (unless saveplace-loaded
     (require 'saveplace)
-    (setq saveplace-loaded t)))
+    (save-place-find-file-hook)
+    (setq saveplace-loaded t)
+    (remove-hook 'find-file-hook 'lazy-load-saveplace)))
 (add-hook 'find-file-hook 'lazy-load-saveplace)
 #+END_SRC
 
 ** Transparently open compressed files
 
 #+begin_src emacs-lisp
+(setq my-autocompression-loaded nil)
+(defun my-compressed-file-p ()
+  (let* ((fname (buffer-file-name))
+         (ext (when fname (file-name-extension fname))))
+    (and
+     ext
+     (string-match
+      "\\(Z\\|bz2\\|tbz2?\\|tgz\\|svgz\\|sifz\\|g?z\\|lz\\|lzma\\|xz\\|txz\\|dz\\|\\)\\'"
+      ext))))
 (defun lazy-load-auto-compression-mode ()
-  (unless auto-compression-mode
-    (auto-compression-mode t)))
+  (when (and
+         (not my-autocompression-loaded)
+         (my-compressed-file-p))
+    (auto-compression-mode 1)
+    (setq my-autocompression-loaded t)
+    (remove-hook 'find-file-hook 'lazy-load-auto-compression-mode)))
 (add-hook 'find-file-hook 'lazy-load-auto-compression-mode)
 #+end_src
 
 ** Save a list of recent files visited
 
 #+begin_src emacs-lisp
+(defun my-clean-and-save-recentf ()
+  (interactive)
+  (unless (file-locked-p recentf-save-file)
+    (recentf-cleanup)
+    (recentf-save-list)))
 (defun lazy-load-recentf ()
   (unless recentf-mode
-    (recentf-mode))
-  (recentf-track-opened-file))
+    (recentf-mode)
+    (recentf-track-opened-file)
+    (remove-hook 'find-file-hook 'lazy-load-recentf)))
 (setq recentf-max-saved-items 1000
-      recentf-exclude '("/tmp/" "/ssh:" "\\.git/"))
+      recentf-exclude '("/tmp/" "/ssh:" "\\.git/")
+      recentf-auto-cleanup 'never)
 (add-hook 'find-file-hook 'lazy-load-recentf)
+(setq recentf-clean-and-save-timer
+      (run-with-idle-timer 600 t 'my-clean-and-save-recentf))
 #+end_src
 
 ** Seed the random number
 
 #+begin_src emacs-lisp
 (random t)
-#+end_src
-
-** Backup files
-
-Rather than saving backup files scattered all over the file system, let them
-live in the =/tmp= directory.
-#+begin_src emacs-lisp
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
-(setq version-control t
-      delete-old-versions t
-      backup-by-copying t
-      kept-old-versions 2
-      kept-new-versions 6)
 #+end_src
 
 ** Bookmark
@@ -121,33 +108,22 @@ live in the =/tmp= directory.
 #+BEGIN_SRC emacs-lisp
 (defun lazy-load-auto-revert-mode ()
   (unless global-auto-revert-mode
-    (global-auto-revert-mode 1)))
+    (global-auto-revert-mode 1)
+    (remove-hook 'find-file-hook 'lazy-load-auto-revert-mode)))
 (add-hook 'find-file-hook 'lazy-load-auto-revert-mode)
 #+END_SRC
 
 ** 80 Column Rule; auto fill
 
-It's a good habit to obey to 80 column rule. In the convenience of adding
-continuation marker in code such as Fortran, two columns are spared.
+It's a good habit to obey to 80 column rule.
 #+BEGIN_SRC emacs-lisp
-(setq default-fill-column 78)
+(setq default-fill-column 80)
+(setq-default require-final-newline t)
 (defadvice do-auto-fill (around my-indent-after-fill activate)
   (let ((p (point)))
     ad-do-it
     (when (/= p (point))
       (indent-for-tab-command))))
-#+END_SRC
-
-** Disable recentering
-
-For smooth scrolling and disabling the auto-recentering of emacs screen when
-moving cursor. Set scroll margin to be 4 so that an ape can see the following
-lines of codes.
-#+BEGIN_SRC emacs-lisp
-(setq scroll-step 1
-      scroll-conservatively 10000
-      auto-window-vscroll nil)
-(setq scroll-margin 4)
 #+END_SRC
 
 ** Garbage collection
@@ -160,13 +136,14 @@ set it to be 20 MB to save time.
 
 ** Ediff and diff
 
-Recover previous windows configuration when quitting ediff.
+Split window horizontally rather than vertically in Ediff.
 #+BEGIN_SRC emacs-lisp
 (setq vc-diff-switches '("-b" "-B" "-u"))
 (setq vc-git-diff-switches nil)
 (setq diff-switches "-u")
-(eval-after-load "ediff"
-  `(add-hook 'ediff-after-quit-hook-internal 'winner-undo))
+(setq-default ediff-window-setup-function 'ediff-setup-windows-plain
+              ediff-split-window-function 'split-window-horizontally
+              ediff-merge-split-window-function 'split-window-horizontally)
 #+END_SRC
 
 ** Executable scripts
@@ -190,7 +167,8 @@ larger than `large-file-warning-threshold'."
       (whitespace-cleanup-mode 1))))
 (defun lazy-load-whitespace-cleanup-mode ()
   (unless global-whitespace-cleanup-mode
-    (global-whitespace-cleanup-mode 1)))
+    (global-whitespace-cleanup-mode 1)
+    (remove-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)))
 (add-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)
 #+end_src
 
@@ -204,6 +182,9 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
   (setq tramp-use-ssh-controlmaster-options nil))
 (setq tramp-default-method "ssh")
 #+end_src
+
+Tramp may hung when copying large files through *ssh*. You can use *scp*
+instead.
 
 ** Pinyin input
 
@@ -244,15 +225,12 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
 (defalias 'yes-or-no-p 'y-or-n-p)
 #+end_src
 
-** Git and Magit
-
-#+begin_src emacs-lisp
-(setq magit-completing-read-function 'magit-ido-completing-read)
-#+end_src
-
 ** Auto indent after yank
 
 #+begin_src emacs-lisp
+(defvar auto-indent-after-yank t
+  "Whether auto indent after yanking.")
+
 (dolist (command '(insert-for-yank))
    (eval `(defadvice ,command (after indent-region activate)
             (and (not current-prefix-arg)
@@ -263,9 +241,17 @@ unix-domain sockets and it's not possible to enable ControlMaster (Google
                                                       c-mode c++-mode
                                                       objc-mode latex-mode
                                                       plain-tex-mode f90-mode
-                                                      fortran-mode))
+                                                      fortran-mode cmake-mode))
                  (let ((mark-even-if-inactive transient-mark-mode))
-                   (indent-region (region-beginning) (region-end) nil))))))
+                   (when auto-indent-after-yank
+                     (indent-region (region-beginning) (region-end) nil)))))))
+
+(defun toggle-auto-indent-after-yank ()
+  (interactive)
+  (setq auto-indent-after-yank (not auto-indent-after-yank))
+  (if auto-indent-after-yank
+      (message "Auto indent after yank enabled!")
+    (message "Auto indent after yank disabled!")))
 #+end_src
 
 ** Enable disabled commands

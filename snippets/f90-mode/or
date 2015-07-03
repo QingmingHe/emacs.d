@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: .or.
+# key: o
+# --
+.OR. $0

@@ -14,6 +14,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 #+begin_src emacs-lisp
 (set-default 'indent-tabs-mode nil)
+(set-default 'tab-width 4)
 #+end_src
 
 ** Move beginning/end of line
@@ -28,13 +29,11 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
            (= (line-beginning-position) cur-point))
       (back-to-indentation))))
 
-(global-set-key [remap move-beginning-of-line] 'move-beginning-of-line-dwim)
 (global-set-key [remap move-end-of-line] 'end-of-visual-line)
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "0") 'move-beginning-of-line-dwim)
   (define-key evil-normal-state-map (kbd "$") 'end-of-visual-line))
 (with-eval-after-load 'org
-  (define-key org-mode-map (kbd "C-a") 'move-beginning-of-line-dwim)
   (define-key org-mode-map (kbd "C-e") 'end-of-visual-line))
 #+end_src
 
@@ -48,10 +47,18 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 ** Org mode
 
 #+begin_src emacs-lisp
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-(global-set-key "\C-cc" 'org-capture)
-(global-set-key "\C-cj" 'org-clock-goto)
+(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c l") 'org-store-link)
+(with-defhydra
+ "hydra-org"
+ global-map
+ (kbd "C-c o")
+ ("c" org-capture "capture")
+ ("l" org-store-link "storeLink")
+ ("L" org-insert-link "insertLink")
+ ("j" org-clock-goto "clockGoTo")
+ ("a" org-agenda "agenda")
+ ("q" nil "quit"))
 #+end_src
 
 ** Cycle case of word or region
@@ -81,11 +88,15 @@ Toggles between: all lower, Init Caps, ALL CAPS."
 
       (cond
        ((string= "all lower" (get this-command 'state))
-        (upcase-initials-region p1 p2) (put this-command 'state "init caps"))
-       ((string= "init caps" (get this-command 'state))
-        (upcase-region p1 p2) (put this-command 'state "all caps"))
+        (upcase-region p1 p2)
+        (put this-command 'state "all caps"))
        ((string= "all caps" (get this-command 'state))
-        (downcase-region p1 p2) (put this-command 'state "all lower"))))))
+        (downcase-region p1 p2)
+        (upcase-initials-region p1 p2)
+        (put this-command 'state "init caps"))
+       ((string= "init caps" (get this-command 'state))
+        (downcase-region p1 p2)
+        (put this-command 'state "all lower"))))))
 (global-set-key (kbd "M-u") 'xah-toggle-letter-case)
 #+end_src
 
@@ -102,24 +113,22 @@ to expand or contract region.
 (global-set-key (kbd "C-=") 'er/expand-region)
 #+END_SRC
 
-** Run shell command asynchronously by default
-
-#+begin_src emacs-lisp :tangle no
-(global-set-key (kbd "M-!") 'async-shell-command)
-#+end_src
-
 ** Key Chord mode
-*** Use *jk* to quite every thing
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
-(require 'key-chord)
+(defun evil-exit-emacs-to-normal ()
+  (interactive)
+  (evil-exit-emacs-state)
+  (evil-normal-state))
 (setq key-chord-two-keys-delay 0.05)
 (eval-after-load 'evil
   `(progn
      (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
      (key-chord-define evil-normal-state-map "jk" 'keyboard-quit)
-     (key-chord-define evil-visual-state-map "jk" 'keyboard-quit)))
+     (key-chord-define evil-ex-completion-map "jk" 'abort-recursive-edit)
+     (key-chord-define evil-emacs-state-map "jk" 'evil-exit-emacs-to-normal)
+     (key-chord-define evil-visual-state-map "jk" 'evil-exit-visual-state)))
 (key-chord-define minibuffer-local-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-ns-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-completion-map "jk" 'minibuffer-keyboard-quit)
@@ -128,146 +137,23 @@ Use *jk* key chord to quite everything.
 (key-chord-mode 1)
 #+end_src
 
-*** Banish the Shift key in evil normal/insert state
-
-Do you really need them? Once accustomed to key chords below, I can not play
-with vim any longer.
+I have do some hack with isearch to reproduce the *jk* magic.
 #+begin_src emacs-lisp
-(with-eval-after-load 'evil
-  (key-chord-define evil-normal-state-map "33" "#")
-  (key-chord-define evil-normal-state-map "44" "$")
-  (key-chord-define evil-normal-state-map "55" "%")
-  (key-chord-define evil-normal-state-map "88" "*"))
-#+end_src
-
-*** Use key chord to select window
-
-Meta key is too far away to press. I use six windows at most.
-#+begin_src emacs-lisp
-(key-chord-define-global "ja" 'select-window-1)
-(key-chord-define-global "jb" 'select-window-2)
-(key-chord-define-global "jc" 'select-window-3)
-(key-chord-define-global "jd" 'select-window-4)
-(key-chord-define-global "je" 'select-window-5)
-(key-chord-define-global "jf" 'select-window-6)
-(key-chord-define-global "jg" 'select-window-0)
-#+end_src
-
-*** Append a space in evil insert state
-
-#+begin_src emacs-lisp
-(defun evil-insert-state-append-space ()
-  (interactive)
-  (insert " ")
-  (backward-char))
-(key-chord-define evil-insert-state-map "df" 'evil-insert-state-append-space)
-#+end_src
-
-*** Banish shift key
-
-#+begin_src emacs-lisp
-(defun banish-shift-by-key-chord ()
-  (interactive)
-  (dotimes (i 26)
-    (let ((j (+ i 97))
-          (k (+ i 65)))
-      (key-chord-define
-       evil-insert-state-local-map
-       (format "%c%c" j j)
-       (format "%c" k))))
-  (key-chord-define evil-insert-state-local-map "--" "_")
-  (key-chord-define evil-insert-state-local-map "99" "(")
-  (key-chord-define evil-insert-state-local-map "00" ")")
-  (key-chord-define evil-insert-state-local-map "88" "*"))
-#+end_src
-
-*** Misc
-
-#+begin_src emacs-lisp
-(key-chord-define-global "iw" 'flyspell-correct-word-before-point)
-#+end_src
-
-** Super TAB for program modes
-
-#+begin_src emacs-lisp
-(setq ac-dwim nil)
-;; don't let ac auto start
-(setq ac-auto-start nil)
-;; so `yas-expand' will return nil if not expanded
-(setq yas-fallback-behavior 'return-nil)
-;; so snippet can be triggered inside snippet
-(setq yas-triggers-in-field t)
-
-(defun tab-for-anything ()
-  "Try to `yas-expand', `auto-complete-1', `yas-next-field',
-`indent-for-tab-command'."
-  (interactive)
-  (let* ((bnds (bounds-of-thing-at-point 'symbol))
-         (b0 (car bnds))
-         (b1 (cdr bnds))
-         (p (point)))
-    (cond ((and yas-minor-mode
-                b0
-                b1
-                (<= (- p b0) 2)
-                (= p b1)
-                (yas-expand)))
-          ((and auto-complete-mode
-                b0
-                b1
-                (= p b1)
-                (auto-complete-1)))
-          ((and yas-minor-mode
-                (yas--snippets-at-point))
-           (when (and (looking-back " ")
-                      (looking-at "[\]})\n\[({, ]"))
-             (delete-region (1- p) p))
-           (yas-next-field))
-          (t
-           (indent-for-tab-command)))))
-
-(defun ac-expand-common-or-abort ()
-  "Refresh `ac-candidates' and expand common part."
-  (interactive)
-  (ac-update t)
-  (ac-expand-common)
-  (when (eq 1 (length ac-candidates))
-    (ac-abort)))
-
-(defun setup-tab-for-anything ()
-  (interactive)
-  (define-key yas-minor-mode-map (kbd "<tab>") nil)
-  (define-key yas-minor-mode-map (kbd "TAB") nil)
-  (define-key yas-keymap [(tab)] nil)
-  (define-key yas-keymap (kbd "TAB") nil)
-  (define-key ac-completing-map "\t" 'ac-expand-common-or-abort)
-  (define-key ac-completing-map [tab] 'ac-expand-common-or-abort)
-  (local-set-key (read-kbd-macro "TAB") 'tab-for-anything))
-
-(defun disable-tab-for-yas-prog ()
-  (interactive)
-  (when (derived-mode-p 'prog-mode)
-    (define-key yas-keymap [(tab)] nil)
-    (define-key yas-keymap (kbd "TAB") nil)))
-
-(defun ac-auto-refresh-candidates ()
-  (when (and auto-complete-mode ac-candidates)
-    (ac-update t)))
-
-(add-hook 'post-self-insert-hook 'ac-auto-refresh-candidates)
-(add-hook 'prog-mode-hook 'setup-tab-for-anything)
-(add-hook 'cmake-mode-hook 'setup-tab-for-anything)
-(add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
+(defun isearch-enable-key-chord ()
+  (key-chord-mode 1)
+  (key-chord-define isearch-mode-map "jk" 'isearch-cancel))
+(add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
 #+end_src
 
 ** Popup
 
 #+begin_src emacs-lisp
-(define-key popup-menu-keymap (kbd "M-n") 'popup-next)
-(define-key popup-menu-keymap (kbd "TAB") 'popup-next)
-(define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
-(define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
-(define-key popup-menu-keymap (kbd "M-p") 'popup-previous)
+(with-eval-after-load 'popup
+  (define-key popup-menu-keymap (kbd "M-n") 'popup-next)
+  (define-key popup-menu-keymap (kbd "TAB") 'popup-next)
+  (define-key popup-menu-keymap (kbd "<tab>") 'popup-next)
+  (define-key popup-menu-keymap (kbd "<backtab>") 'popup-previous)
+  (define-key popup-menu-keymap (kbd "M-p") 'popup-previous))
 #+end_src
 
 ** Hungry delete
@@ -296,36 +182,79 @@ indented. You don't have to rebind =RET= to [[help:newline-and-indent][newline-a
 (electric-indent-mode 1)
 #+end_src
 
-** Ido mode
+** Ace window and ace jump
+*** Some basic setup
 
-+ ido-mode is like magic pixie dust!
-+ Sometimes ido can't find a file, just run *M-x ido-reread-directory* or
-  *C-l* in minibuffer to refresh ido candidates.
-+ Use *C-d* to enter dired from file switching.
-#+srcname: starter-kit-loves-ido-mode
 #+begin_src emacs-lisp
-(setq ido-enable-prefix nil
-      ido-enable-flex-matching t
-      ido-create-new-buffer 'always
-      ido-use-filename-at-point nil
-      ido-use-virtual-buffers t
-      ido-auto-merge-work-directories-length -1
-      ido-save-directory-list-file (concat starter-kit-dir ".ido.last")
-      ido-max-prospects 10
-      ido-use-filename-at-point 'guess)
-;; disable ido faces to see flx highlights.
-(setq ido-enable-flex-matching t)
-(setq ido-use-faces nil)
-(require 'ido)
-(require 'flx-ido)
-(ido-mode 1)
-(ido-everywhere 1)
-(flx-ido-mode 1)
-(global-set-key (kbd "C-x C-f") 'ido-find-file)
-;; key bindings. For some reason key bindings have to be set in `ido-setup-hook'
-(defun ido-setup-key-bindings ()
-  (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
-  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match)
-  (define-key ido-completion-map (kbd "C-c C-c") 'ido-restrict-to-matches))
-(add-hook 'ido-setup-hook 'ido-setup-key-bindings)
+(setq avy-all-windows nil)
+#+end_src
+
+*** Ace window
+
+Ace window is superior to window numbering for that window numbering shows
+number in the mode line which is not friendly to my eyes.
+#+begin_src emacs-lisp
+(defun ace-window-dwim (&optional arg)
+  (interactive "P")
+  (cond
+   ((equal arg '(4))
+    (call-interactively 'ace-delete-window))
+   ((equal arg '(16))
+    (call-interactively 'ace-maximize-window))
+   (t
+    (call-interactively 'ace-window))))
+(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+(global-set-key (kbd "C-x o") #'ace-window-dwim)
+#+end_src
+
+I can't connect the number with the direction of window splitting.
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x -") #'split-window-below)
+(global-set-key (kbd "C-x \\") #'split-window-right)
+#+end_src
+
+*** Ace link
+
+Just press =SPC-w=, the first character of word where you want to go and select
+the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
+back.
+#+BEGIN_SRC emacs-lisp
+(let ((key "o"))
+      (eval-after-load "info"
+        `(define-key Info-mode-map ,key 'ace-link-info))
+      (eval-after-load "compile"
+        `(define-key compilation-mode-map ,key 'ace-link-compilation))
+      (eval-after-load "help-mode"
+        `(define-key help-mode-map ,key 'ace-link-help))
+      (eval-after-load "eww"
+        `(progn
+           (define-key eww-link-keymap ,key 'ace-link-eww)
+           (define-key eww-mode-map ,key 'ace-link-eww)))
+      (eval-after-load 'cus-edit
+        `(progn
+           (define-key custom-mode-map ,key 'ace-link-custom))))
+#+END_SRC
+
+*** Ace jump
+
+Ace jump is set in [[file:starter-kit-evil.org::*Normal%20state%20map][Normal state map]] and [[file:starter-kit-search.org::*Isearch%20and%20ace%20jump][Isearch and ace jump]].
+
+*** Face of avy
+
+#+begin_src emacs-lisp
+(custom-set-faces
+ '(avy-lead-face-0 ((t (:background "color-20" :foreground "white")))))
+#+end_src
+
+** Multiple cursors
+
+#+begin_src emacs-lisp
+(with-defhydra-evil-leader
+ "hydra-evil-leader-multiple-cursors"
+ "mc"
+ ("n" mc/mark-next-like-this "next")
+ ("p" mc/mark-previous-like-this "previous")
+ ("a" mc/mark-all-like-this "all")
+ ("l" mc/edit-lines "lines")
+ ("q" nil "quit"))
 #+end_src

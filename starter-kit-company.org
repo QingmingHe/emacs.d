@@ -1,14 +1,181 @@
 #+TITLE: Starter Kit Company
 #+OPTIONS: toc:nil num:nil ^:nil
 
-Company and auto complete provide a font end for completion based on several
-backend.
+* Starter Kit Company
+** Basic setup
 
+Activate company for coding:
+#+begin_src emacs-lisp
+(add-hook 'prog-mode-hook 'company-mode)
+(add-hook 'cmake-mode-hook 'company-mode)
+(add-hook 'inferior-python-mode-hook 'company-mode)
+(setq company-idle-delay 0.2
+      company-require-match nil
+      company-auto-complete nil
+      company-show-numbers t
+      company-selection-wrap-around t
+      company-dabbrev-downcase nil
+      company-clang-insert-arguments nil
+      company-gtags-insert-arguments nil
+      company-begin-commands '(self-insert-command))
+(with-eval-after-load 'company
+  (require 'company-statistics)
+  (company-statistics-mode))
+#+end_src
+
+** Key bindings
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "C-n") 'company-select-next)
+  (define-key company-active-map (kbd "C-p") 'company-select-previous))
+#+end_src
+
+** Company backends
+
+Set the default backends for all modes.
 #+BEGIN_SRC emacs-lisp
-(setq company-idle-delay 0.2)
+(with-eval-after-load 'company
+  (setq company-backends
+        '(company-capf
+          (company-etags company-gtags company-dabbrev-code company-keywords)
+          company-dabbrev))
+  (make-variable-buffer-local 'company-backends))
 #+END_SRC
 
-Ropemacs is too slow and I never use it.
-#+BEGIN_SRC emacs-lisp
-(setq company-backends (delete 'company-ropemacs company-backends))
-#+END_SRC
+** Emacs lisp
+
+#+begin_src emacs-lisp
+(defun elisp-company-setup ()
+  (add-to-list 'company-backends
+               '(company-capf company-dabbrev-code)))
+
+(add-hook 'emacs-lisp-mode-hook 'elisp-company-setup)
+#+end_src
+
+** Python mode
+
+Use anaconda as backend.
+#+begin_src emacs-lisp
+(defun python-company-setup ()
+  (when jedi-is-installed
+    (anaconda-mode)
+    (add-to-list 'company-backends
+                 '(company-anaconda
+                   ;; Do you really need this "words in same mode buffers"
+                   ;; backend? Anaconda already has supports for "words in
+                   ;; buffer" and "keywords" or likewise and is smarter than
+                   ;; the `company-dabbrev-code' backend. To complete words in
+                   ;; other buffers, use `hippie-expand' instead.
+                   ;; company-dabbrev-code
+                   ))))
+
+(add-hook 'python-mode-hook 'python-company-setup)
+
+(with-eval-after-load 'python
+  (if (eq 0
+          (call-process-shell-command
+           "python -c \"import jedi;import six;import service_factory\""))
+      (setq jedi-is-installed t)
+    (setq jedi-is-installed nil)
+    (warn "six, service_factory and jedi should be installed!")))
+#+end_src
+
+** C
+
+#+begin_src emacs-lisp
+(defun c-company-setup ()
+  (when clang-installed
+    (unless (featurep 'company-clang)
+      (require 'company-clang))
+    (unless company-clang--version
+      (setq company-clang--version (company-clang-version)))
+    (add-to-list 'company-backends
+                 '(company-clang
+                   company-dabbrev-code
+                   company-keywords)))
+  (add-to-list 'company-backends 'company-c-headers))
+
+(add-hook 'c-mode-hook 'c-company-setup)
+(add-hook 'c++-mode-hook 'c-company-setup)
+
+(with-eval-after-load 'cc-mode
+  (if (executable-find "clang")
+      (setq clang-installed t)
+    (setq clang-installed nil)))
+#+end_src
+
+** CMake
+
+#+begin_src emacs-lisp
+(defun cmake-company-setup ()
+  (when cmake-installed
+    (add-to-list 'company-backends
+                 '(company-cmake
+                   company-dabbrev))))
+
+(add-hook 'cmake-mode-hook 'cmake-company-setup)
+
+(with-eval-after-load 'cmake-mode
+  (if (executable-find "cmake")
+      (setq cmake-installed t)
+    (setq cmake-installed nil)))
+#+end_src
+
+** Super tab for yasnippet or indent
+
+See also [[file:starter-kit-autocomplete.org::*Super%20TAB%20for%20program%20modes][Super TAB for program modes]] which set up tab for [[help:auto-complete-mode][auto-complete-mode]],
+[[help:yas-minor-mode][yas-minor-mode]] and [[help:indent-for-tab-command][indent-for-tab-command]]. This is not placed in [[file:starter-kit-bindings.org][bindings]] for
+that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for%20program%20modes][Super TAB for program modes]].
+#+begin_src emacs-lisp
+(defun tab-expand-or-indent ()
+  (interactive)
+  (let* ((bounds (bounds-of-thing-at-point 'word))
+         (b0 (car bounds))
+         (b1 (cdr bounds))
+         (p (point))
+         (yas-fallback-behavior 'return-nil))
+    (cond
+     ((and yas-minor-mode
+           b0
+           b1
+           (<= (- p b0) 3)
+           (= p b1)
+           (yas-expand)))
+     ((and yas-minor-mode
+           (yas--snippets-at-point))
+      (when (and (looking-back " ")
+                 (looking-at "[\]})\n\[({, ]"))
+        (delete-region (1- p) p))
+      (yas-next-field))
+     (t
+      (indent-for-tab-command)))))
+
+(defun setup-super-tab ()
+  (interactive)
+  (local-set-key (kbd "TAB") #'tab-expand-or-indent)
+  (local-set-key [tab] #'tab-expand-or-indent))
+
+(add-hook 'prog-mode-hook #'setup-super-tab)
+(add-hook 'cmake-mode-hook #'setup-super-tab)
+
+(defun disable-tab-for-yas-prog ()
+  (interactive)
+  (when (derived-mode-p 'prog-mode)
+    (define-key yas-keymap [(tab)] nil)
+    (define-key yas-keymap (kbd "TAB") nil)))
+
+(add-hook 'yas-before-expand-snippet-hook 'disable-tab-for-yas-prog)
+
+(defun company-expand-or-comp ()
+  (interactive)
+  (let ((yas-fallback-behavior 'return-nil))
+    (or
+     (and yas-minor-mode
+          (yas-expand))
+     (company-complete-common))))
+
+(with-eval-after-load 'company
+  (define-key company-mode-map [remap company-complete-common]
+    #'company-expand-or-comp))
+#+end_src

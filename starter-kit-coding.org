@@ -33,7 +33,7 @@ a lambda doesn't already exist in the list.
   (when (window-system)
     (hideshowvis-enable)
     (hideshowvis-symbols)))
-(add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs)
+;; (add-hook 'starter-kit-coding-hook 'starter-kit-turn-on-hs)
 
 (defun starter-kit-turn-on-linum ()
   (interactive)
@@ -65,10 +65,12 @@ a lambda doesn't already exist in the list.
 [[help:show-paren-mode][show-paren-mode]] and [[help:electric-pair-mode][electric-pair-mode]] are lighter than smartparens and
 minimally intrusive.
 #+begin_src emacs-lisp
-(setq undo-tree-visualizer-timestamps t)
-    (setq undo-tree-visualizer-diff t)
 (show-paren-mode 1)
 (electric-pair-mode 1)
+(setq electric-pair-open-newline-between-pairs t)
+(setq electric-pair-pairs
+      '((?\" . ?\")
+        (?{ . ?})))
 #+end_src
 
 ** Show function name in the header line                                        :which:function:mode:
@@ -175,4 +177,11 @@ indentation rules."
   (modify-syntax-entry ?_ "w"))
 (add-hook 'nxml-mode-hook 'my-nxml-config)
 (setq nxml-slash-auto-complete-flag t)
+
+(evil-leader/set-key-for-mode 'nxml-mode
+  "ne" (lambda ()
+         "Go to next error or first error in current `nxml-mode' buffer."
+         (interactive)
+         (unless (rng-next-error nil)
+           (rng-first-error))))
 #+END_SRC

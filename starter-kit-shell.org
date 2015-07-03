@@ -14,6 +14,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (setq eshell-cmpl-cycle-completions nil
       eshell-save-history-on-exit t
       eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'"
+      eshell-cmpl-ignore-case t
       ;; I'd like to keep all the history
       eshell-history-size 10000
       eshell-hist-ignoredups t
@@ -57,7 +58,7 @@ is pre-populated with some generally applicable aliases.
 *** Key bindings
 
 + Use *C-a* to move to beginning of line of beginning of command line.
-+ Use *C-p* or *M-p* to complete eshell history with helm.
++ Use *C-p* to complete eshell history with helm.
 
 #+begin_src emacs-lisp
 (defun my-eshell-goto-bottom ()
@@ -65,14 +66,43 @@ is pre-populated with some generally applicable aliases.
   (evil-goto-line)
   (eshell-bol))
 
+(defun my-eshell-prev-prompt ()
+  (interactive)
+  (forward-line 0)
+  (re-search-backward eshell-prompt-regexp)
+  (eshell-bol))
+
+(defun my-eshell-next-prompt ()
+  (interactive)
+  (re-search-forward eshell-prompt-regexp)
+  (eshell-bol))
+
 (defun my-eshell-keybinding ()
-  (define-key eshell-mode-map "\C-a" 'eshell-bol)
-  (define-key eshell-mode-map (kbd "M-p") 'helm-eshell-history)
-  (define-key eshell-mode-map (kbd "C-p") 'helm-eshell-history)
-  (define-key eshell-mode-map [remap eshell-pcomplete] 'helm-esh-pcomplete)
-  (evil-define-key 'normal eshell-mode-map (kbd "G") 'my-eshell-goto-bottom)
-  (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history))
+  (define-key eshell-mode-map "\C-a" #'eshell-bol)
+  (define-key eshell-mode-map [remap eshell-pcomplete] #'eshell-ido-or-helm)
+  (define-key eshell-mode-map [remap eshell-previous-prompt] #'my-eshell-prev-prompt)
+  (define-key eshell-mode-map [remap eshell-next-prompt] #'my-eshell-next-prompt)
+  (evil-define-key 'normal eshell-mode-map (kbd "G") #'my-eshell-goto-bottom)
+  (evil-define-key 'insert eshell-mode-map (kbd "C-p") 'helm-eshell-history)
+  (evil-define-key 'normal eshell-mode-map (kbd "C-p")
+    (lambda ()
+      (interactive)
+      (call-interactively 'evil-append)
+      (helm-eshell-history))))
 (add-hook 'eshell-mode-hook 'my-eshell-keybinding)
+#+end_src
+
+*** Better complete in eshell
+
+Use ido to complete file name and helm for the other.
+#+begin_src emacs-lisp
+(defun eshell-ido-or-helm ()
+  "Use ido to complete file and helm for other in eshell."
+  (interactive)
+  (or
+   (and (fboundp 'my-ido-expand-fname)
+        (my-ido-expand-fname))
+   (helm-esh-pcomplete)))
 #+end_src
 
 *** Eldoc
@@ -114,6 +144,17 @@ is pre-populated with some generally applicable aliases.
              (insert (format "%s\n" item))))
          his-ring)
         (write-region (point-min) (point-max) eshell-history-file-name nil 'no-message)))))
+#+end_src
+
+*** Other configuration
+
+#+begin_src emacs-lisp
+(defun my-eshell-config ()
+  (require 'subr-x)
+  (compilation-shell-minor-mode 1)
+  (visual-line-mode 1)
+  (adaptive-wrap-prefix-mode 1))
+(add-hook 'eshell-mode-hook #'my-eshell-config)
 #+end_src
 
 *** Tips
@@ -166,8 +207,8 @@ shell file name to be bash. Don't add =--login= to explicit-bash-args, or
 shell will run at =~/= path with the =default-directory= to be that of
 previous buffer. This will make path completion problematic.
 #+begin_src emacs-lisp
-(eval-after-load "shell"
-  `(define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "C-p") 'helm-comint-input-ring))
 (setq explicit-shell-file-name (executable-find "bash"))
 (setq explicit-bash-args '("--noediting" "-i"))
 #+end_src
@@ -181,10 +222,14 @@ You can key in command in char mode and copy/paste in line mode. The follow
 function and kbd provide easy toggling.
 
 #+BEGIN_SRC emacs-lisp
-(eval-after-load "term"
-  `(add-hook 'term-mode-hook
-             (lambda ()
-               (define-key term-mode-map (kbd "C-c C-j") 'term-char-mode))))
+(defun term-toggle-mode ()
+  (interactive)
+  (if (term-in-line-mode)
+      (term-char-mode)
+    (term-line-mode)))
+(with-eval-after-load 'term
+  (define-key term-mode-map (kbd "C-c C-t") #'term-toggle-mode)
+  (define-key term-raw-map (kbd "C-c C-t") #'term-toggle-mode))
 #+END_SRC
 
 ** Shell script

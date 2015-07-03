@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: begin_example ... end_example
+# key: begin_example ... end_example
+# --
+#+begin_example
+$0
+#+end_example

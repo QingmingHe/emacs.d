@@ -267,37 +267,17 @@ or =defcustom= with =setq= or use =eval-defun=.
 ** Copy file/buffer name
 
 #+begin_src emacs-lisp
-(defun copy-buffer-file-name-as-kill ()
-  (interactive)
-  (let ((fname (buffer-file-name)))
-    (when fname
-      (kill-new fname)
-      (message fname))))
-
 (defun copy-buffer-name-as-kill ()
   (interactive)
-  (kill-new (buffer-name))
-  (message (buffer-name)))
-
-(defun copy-buffer-directory-name-as-kill ()
-  (interactive)
-  (kill-new (expand-file-name default-directory))
-  (message (expand-file-name default-directory)))
-
-(defun locate-library-and-kill (lib-name)
-  (interactive
-   (list (read-string "library to locate: " nil nil
-                      (if (region-active-p)
-                          (buffer-substring-no-properties
-                           (region-beginning)
-                           (region-end))
-                        (thing-at-point-no-properties 'symbol)))))
-  (let ((path (locate-library lib-name)))
-    (if path
-        (progn
-          (kill-new path)
-          (message path))
-      (message "%s can't be located!" lib-name))))
+  (let* ((c (read-char "[n]=name [f]=fullName [d]=directoryName"))
+         (thing
+          (cond
+           ((= c ?n) (buffer-name))
+           ((= c ?f) (buffer-file-name))
+           ((= c ?d) (expand-file-name default-directory)))))
+    (when thing
+      (kill-new thing)
+      (message thing))))
 #+end_src
 
 ** Add to PATH environment variable
@@ -354,3 +334,14 @@ visit if current buffer is not visiting a file."
   (define-key keymap-from key nil)
   (define-key keymap-to key (lookup-key keymap-from key)))
 #+end_src
+
+** Reopen file
+
+#+begin_src emacs-lisp
+(defun reopen-current-file ()
+  (interactive)
+  (let ((file (buffer-file-name)))
+    (kill-buffer)
+    (find-file file)))
+#+end_src
+

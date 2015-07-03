@@ -34,7 +34,7 @@ otherwise evil-leader won't be enabled in initial buffers (*scratch*,
 
 ** Evil mode
 
-Set evil mode globally for that the author is a severe Vim user for the past
+Set evil mode globally for that the author is a heavy Vim user for the past
 several years.
 #+BEGIN_SRC emacs-lisp
 (setq-default evil-symbol-word-search t)
@@ -51,85 +51,110 @@ several years.
 (define-key evil-visual-state-map (kbd "-") 'evil-numbers/dec-at-pt)
 #+end_src
 
-** Go to change
-
-It is so happy to key in *g;* or *C-o* to go to last change and *g* or *C-i*,
-to com back.
-
-** Ace jump
-
-Just press =SPC-w=, the first character of word where you want to go and select
-the pop up character, you can move in Emacs quickly. Press *C-x SPE* to jump
-back.
-#+BEGIN_SRC emacs-lisp
-(setq ace-jump-mode-scope 'window)
-(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
-(define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
-(with-eval-after-load 'ace-jump-mode
-  (ace-jump-mode-enable-mark-sync))
-(progn
-  (eval-after-load "info"
-    '(define-key Info-mode-map "o" 'ace-link-info))
-  (eval-after-load "help-mode"
-    '(define-key help-mode-map "o" 'ace-link-help))
-  (eval-after-load "eww"
-    '(progn
-       (define-key eww-link-keymap "o" 'ace-link-eww)
-       (define-key eww-mode-map "o" 'ace-link-eww))))
-#+END_SRC
-
 ** Vim Bindings for Different States
 *** Insert state map
 
+M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
+*jk* to normal state and enjoy the power of *d*.
 #+begin_src emacs-lisp
 (define-key evil-insert-state-map (kbd "C-e") 'move-end-of-line)
 (define-key evil-insert-state-map (kbd "C-y") 'yank)
+(define-key evil-insert-state-map (kbd "C-o") 'yas-expand)
+(define-key evil-insert-state-map (kbd "C-w") 'backward-kill-word-or-hungry-delete)
 #+end_src
 
 *** Visual state map
 
 #+begin_src emacs-lisp
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+
+(defun my-shift-left-visual ()
+  (interactive)
+  (call-interactively #'evil-shift-left)
+  (evil-normal-state)
+  (evil-visual-restore))
+
+(defun my-shift-right-visual ()
+  (interactive)
+  (call-interactively #'evil-shift-right)
+  (evil-normal-state)
+  (evil-visual-restore))
+
+(define-key evil-visual-state-map (kbd "<") #'my-shift-left-visual)
+(define-key evil-visual-state-map (kbd ">") #'my-shift-right-visual)
 #+end_src
 
 *** Normal state map
 
 #+begin_src emacs-lisp
+(evil-define-motion evil-next-visual-line-dwim (count)
+  "Move the cursor COUNT visual lines down."
+  :type exclusive
+  (let ((line-move-visual t))
+    (evil-line-move (or count 1))
+    (when (get-char-property (1- (point)) 'invisible)
+      (beginning-of-visual-line)
+      (end-of-line))))
+
+(evil-define-motion evil-previous-visual-line-dwim (count)
+  "Move the cursor COUNT visual lines up."
+  :type exclusive
+  (let ((line-move-visual t))
+    (evil-line-move (- (or count 1)))
+    (when (get-char-property (1- (point)) 'invisible)
+      (beginning-of-visual-line)
+      (end-of-line))))
+
+(evil-define-motion evil-repeat-search-or-avy-jump (count)
+  "Repeat the last find `count' times or use avy to jump to a search candidates
+if last command is evil-search."
+  :type exclusive
+  (if (or
+       (eq last-command 'evil-search-next)
+       (eq last-command 'evil-search-previous)
+       (eq last-command 'evil-search-word-forward)
+       (eq last-command 'evil-search-word-backward))
+      (let* ((candidates (avi--regex-candidates isearch-string))
+             (avi-background nil)
+             (candidate
+              (avi--process candidates #'avi--overlay-post)))
+        (avi--goto candidate))
+    (evil-repeat-find-char count)))
+
+(define-key evil-normal-state-map (kbd "gl") 'avy-goto-line)
+(define-key evil-normal-state-map (kbd "go") 'avy-goto-word-1)
 (define-key evil-normal-state-map (kbd "C-e") 'move-end-of-line)
-(define-key evil-normal-state-map (kbd "j") 'next-line)
-(define-key evil-normal-state-map (kbd "k") 'previous-line)
+(define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line-dwim)
+(define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line-dwim)
+(define-key evil-normal-state-map (kbd ";") 'evil-repeat-search-or-avy-jump)
+(define-key evil-normal-state-map (kbd "/") 'isearch-forward-regexp)
+(define-key evil-normal-state-map (kbd "?") 'isearch-backward-regexp)
 #+end_src
 
-*** Ex completion map
+*** Evil ex command
 
 #+begin_src emacs-lisp
 (define-key evil-ex-completion-map (kbd "M-p") 'previous-complete-history-element)
 (define-key evil-ex-completion-map (kbd "M-n") 'next-complete-history-element)
-#+end_src
-
-*** Evil ex cmd
-
-#+begin_src emacs-lisp
 (evil-ex-define-cmd "ls" 'ibuffer)
 #+end_src
 
 ** Key bindings with evil leader
 
-+ Universal argument ::
-     - '(4): C-u-<SPC>-*
-     - other number: <NUMBER>-<SPC>-*
-
 #+BEGIN_SRC emacs-lisp
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
-  ;; select window
-  "1" 'select-window-1
-  "2" 'select-window-2
-  "3" 'select-window-3
-  "4" 'select-window-4
-  "5" 'select-window-5
-  "6" 'select-window-6
-  "0" 'select-window-0
+
+  ;; buffer move and window switching
+  "bmh" 'buf-move-left
+  "bmj" 'buf-move-down
+  "bmk" 'buf-move-up
+  "bml" 'buf-move-right
+  "j" 'ace-window
+
+  ;; make and debug
+  "ma" 'compile-dwim
+  "de" 'run-gdb-dwim
 
   ;; fold and unfold
   "zz" (lambda ()
@@ -159,20 +184,45 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
          (cond (outline-minor-mode (hide-body))
                (hs-minor-mode (hs-hide-all))))
 
-  ;; multiple shell
+  ;; shell
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
+  "er" (lambda ()
+         "Eshell Repeat last input.
+
+Find eshell window in current frame and execute last eshell command in that
+window. Come back to current window immediately after send eshell input."
+         (interactive)
+         (let (esh-win esh-buf)
+           (catch 'found-eshell-window
+             (mapc
+              (lambda (window)
+                (when (string-match
+                       "\\`\\*eshell\\*\\(<[0-9]+>\\)?\\'"
+                       (buffer-name (window-buffer window)))
+                  (throw 'found-eshell-window (setq esh-win window))))
+              (window-list)))
+           (save-selected-window
+             (if esh-win
+                 (select-window esh-win)
+               (if (setq esh-buf (get-buffer "*eshell*<>"))
+                   (pop-to-buffer esh-buf)
+                 (user-error "Are you kidding me!")))
+             (goto-char (point-max))
+             (when (re-search-backward eshell-prompt-regexp nil t 2)
+               (eshell-bol)
+               (call-interactively 'eshell-send-input)))))
 
   ;; tags
-  ;; to force update etags cache of helm-tags, type C-u-<SPC>-t-a
   "ta" (lambda (arg)
          (interactive "P")
-         (if (project-root-data :use-gtags project-details)
-             ;; for some reason `exit' symbol should be `catch' TODO
-             (catch 'exit
-               (helm-gtags-select))
-           (helm-etags-select arg)))
-  "dta" 'helm-gtags-dwim
+         (if project-details
+             (if (project-root-data :use-gtags project-details)
+                 (if (thing-at-point 'symbol)
+                     (helm-gtags-find-tag-from-here)
+                   (call-interactively 'helm-gtags-select))
+               (prj/helm-etags))
+           (helm-etags-select nil)))
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()
          (interactive)
@@ -183,13 +233,29 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
   "tl" (lambda ()
          (interactive)
          (cond ((eq major-mode 'org-mode)
-                (helm-org-in-buffer-headings))
+                (unless (featurep 'helm-regexp)
+                  (require 'helm-regexp))
+                (helm-occur-init-source)
+                (let ((bufs (list (buffer-name (current-buffer)))))
+                  (helm-attrset 'moccur-buffers bufs helm-source-occur)
+                  (helm-set-local-variable 'helm-multi-occur-buffer-list bufs)
+                  (helm-set-local-variable
+                   'helm-multi-occur-buffer-tick
+                   (cl-loop for b in bufs
+                            collect (buffer-chars-modified-tick (get-buffer b)))))
+                (helm :sources 'helm-source-occur
+                      :buffer "*helm occur*"
+                      :history 'helm-grep-history
+                      :preselect (and (memq 'helm-source-occur helm-sources-using-default-as-input)
+                                      (format "%s:%d:" (buffer-name) (line-number-at-pos (point))))
+                      :input "^\\*+\\  "
+                      :truncate-lines t))
                (t (call-interactively 'helm-imenu))))
   "sw" 'helm-swoop
   "oc" 'occur-dwim
 
   ;; buffers, files
-  "bb" 'helm-mini
+  "bl" 'helm-mini
   "ff" 'ido-find-file
   "ss" (lambda (arg)
          "With prefix ARG, save all buffers and update tags for these files;
@@ -199,18 +265,7 @@ otherwise save current buffer."
              (prj/save-buffers-and-update-tags)
            (save-buffer)))
   "kk" 'kill-this-buffer
-  "pp" 'prj/helm-mini
-  "gs" 'magit-status
-  "gr" (lambda ()
-         "Run `prj/grep' if a project root is found; otherwise run `rgrep'."
-         (interactive)
-         (if project-details
-             (call-interactively 'prj/grep)
-           (call-interactively 'rgrep)))
-
-  ;; ace jump
-  "w" 'ace-jump-word-mode
-  "l" 'ace-jump-line-mode
+  "dd" 'ido-dired-dwim
 
   ;; replace
   "rd" (lambda ()
@@ -226,6 +281,8 @@ otherwise save current buffer."
            (anzu-query-replace-at-cursor-thing)))
 
   ;; misc
+  "gs" 'magit-status
+  "gr" 'rgrep
   "fm" 'flycheck-buffer
   "ne" (lambda ()
          "Go to next error of flycheck. If flycheck is not enabled, enabled it
@@ -250,13 +307,14 @@ before call this command."
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
-  "co" (lambda ()
+  "co" (lambda (arg)
          "If region is active, comment or un-comment the region; otherwise
 comment or un-comment current line."
-         (interactive)
+         (interactive "p")
          (if (region-active-p)
              (comment-or-uncomment-region (region-beginning) (region-end))
-           (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
+           (comment-or-uncomment-region (line-beginning-position)
+                                        (line-end-position arg))))
   "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 
@@ -309,3 +367,213 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
    (eshell-mode               . insert)
    (shell-mode                . insert)))
 #+END_SRC
+
+** Cursor in terminal
+
++ It's hard to distinguish between insert state and normal state if the cursor
+  is a block at both state in terminal. Better to switch to a bar in insert
+  state just as in Gui.
++ I've no idea how to determine whether Emacs is running in Mintty and
+  Tmux. So if all other conditions are not met, just fallback to
+  set-evil-cursor-mintty-tmux or set-evil-cursor-mintty-no-tmux.
++ To change cursor display in terminal:
+  #+begin_src sh :tangle no
+  echo -ne "\ePtmux;\e\e[3 q\e\\"
+  #+end_src
+  However, call this command by [[help:call-process][call-process]] or [[help:shell-command][shell-command]] don't work at
+  all. [[help:send-string-to-terminal][send-string-to-terminal]] works fine.
+#+begin_src emacs-lisp
+(defun set-evil-cursor-mintty-tmux ()
+  (when (evil-emacs-state-p)
+    (send-string-to-terminal "\ePtmux;\e\e[1 q\e\\"))
+  (when (evil-insert-state-p)
+    (send-string-to-terminal "\ePtmux;\e\e[5 q\e\\"))
+  (when (evil-normal-state-p)
+    (send-string-to-terminal "\ePtmux;\e\e[1 q\e\\")))
+
+(defun set-evil-cursor-mintty-no-tmux ()
+  (when (evil-emacs-state-p)
+    (send-string-to-terminal "\e\e[1 q\e\\"))
+  (when (evil-insert-state-p)
+    (send-string-to-terminal "\e\e[5 q\e\\"))
+  (when (evil-normal-state-p)
+    (send-string-to-terminal "\e\e[1 q\e\\")))
+
+(unless (display-graphic-p)
+  (require 'evil-terminal-cursor-changer)
+  (if (not (or
+            (etcc--on-xterm?)
+            (etcc--on-iterm?)
+            (etcc--on-gnome-terminal?)
+            (etcc--on-konsole?)))
+      (progn
+        (remove-hook 'post-command-hook 'etcc--set-evil-cursor)
+        (if (etcc--on-tmux?)
+            (add-hook 'post-command-hook 'set-evil-cursor-mintty-tmux)
+          (add-hook 'post-command-hook 'set-evil-cursor-mintty-no-tmux)))
+    (setq evil-visual-state-cursor 'box)
+    (setq evil-insert-state-cursor 'bar)
+    (setq evil-emacs-state-cursor 'hbar)))
+#+end_src
+
+** tmux and xclip Clipboard
+
+#+begin_src emacs-lisp
+(evil-define-operator tmux-save-region (beg end type register yank-handler)
+  "Save region into tmux kill ring."
+  :move-point nil
+  :repeat nil
+  (interactive "<R><x><y>")
+  (let ((evil-was-yanked-without-register
+         (and evil-was-yanked-without-register (not register))))
+    (cond
+     ((eq type 'block)
+      (tmux-save-rectangle beg end register yank-handler))
+     ((eq type 'line)
+      (tmux-save-lines beg end register yank-handler))
+     (t
+      (tmux-save-characters beg end register yank-handler)))))
+
+(defun tmux-save-rectangle (beg end &optional register yank-handler)
+  "Saves the rectangle defined by region BEG and END into the kill-ring."
+  (let ((lines (list nil)))
+    (evil-apply-on-rectangle #'extract-rectangle-line beg end lines)
+    ;; We remove spaces from the beginning and the end of the next.
+    ;; Spaces are inserted explicitly in the yank-handler in order to
+    ;; NOT insert lines full of spaces.
+    (setq lines (nreverse (cdr lines)))
+    ;; `text' is used as default insert text when pasting this rectangle
+    ;; in another program, e.g., using the X clipboard.
+    (let* ((yank-handler (list (or yank-handler
+                                   #'evil-yank-block-handler)
+                               lines
+                               nil
+                               'evil-delete-yanked-rectangle))
+           (text (propertize (mapconcat #'identity lines "\n")
+                             'yank-handler yank-handler)))
+      (when register
+        (evil-set-register register text))
+      (when evil-was-yanked-without-register
+        (evil-set-register ?0 text)) ; "0 register contains last yanked text
+      (unless (eq register ?_)
+        (kill-new text))
+      (call-process-shell-command
+       (format "tmux set-buffer \"%s\"" (substring-no-properties text))))))
+
+(defun tmux-save-lines (beg end &optional register yank-handler)
+  "Saves the lines in the region BEG and END into the kill-ring."
+  (let* ((text (filter-buffer-substring beg end))
+         (yank-handler (list (or yank-handler
+                                 #'evil-yank-line-handler))))
+    ;; Ensure the text ends with a newline. This is required
+    ;; if the deleted lines were the last lines in the buffer.
+    (when (or (zerop (length text))
+              (/= (aref text (1- (length text))) ?\n))
+      (setq text (concat text "\n")))
+    (setq text (propertize text 'yank-handler yank-handler))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "tmux set-buffer \"%s\"" (substring-no-properties text)))))
+
+(defun tmux-save-characters (beg end &optional register yank-handler)
+  "Saves the characters defined by the region BEG and END in the kill-ring."
+  (let ((text (filter-buffer-substring beg end)))
+    (when yank-handler
+      (setq text (propertize text 'yank-handler (list yank-handler))))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "tmux set-buffer \"%s\"" (substring-no-properties text)))))
+
+(defun tmux-yank ()
+  (interactive)
+  (call-process "tmux" nil t nil "show-buffer"))
+
+(evil-define-operator xclip-save-region (beg end type register yank-handler)
+  "Save region into xclip."
+  :move-point nil
+  :repeat nil
+  (interactive "<R><x><y>")
+  (let ((evil-was-yanked-without-register
+         (and evil-was-yanked-without-register (not register))))
+    (cond
+     ((eq type 'block)
+      (xclip-save-rectangle beg end register yank-handler))
+     ((eq type 'line)
+      (xclip-save-lines beg end register yank-handler))
+     (t
+      (xclip-save-characters beg end register yank-handler)))))
+
+(defun xclip-save-rectangle (beg end &optional register yank-handler)
+  "Saves the rectangle defined by region BEG and END into the kill-ring."
+  (let ((lines (list nil)))
+    (evil-apply-on-rectangle #'extract-rectangle-line beg end lines)
+    ;; We remove spaces from the beginning and the end of the next.
+    ;; Spaces are inserted explicitly in the yank-handler in order to
+    ;; NOT insert lines full of spaces.
+    (setq lines (nreverse (cdr lines)))
+    ;; `text' is used as default insert text when pasting this rectangle
+    ;; in another program, e.g., using the X clipboard.
+    (let* ((yank-handler (list (or yank-handler
+                                   #'evil-yank-block-handler)
+                               lines
+                               nil
+                               'evil-delete-yanked-rectangle))
+           (text (propertize (mapconcat #'identity lines "\n")
+                             'yank-handler yank-handler)))
+      (when register
+        (evil-set-register register text))
+      (when evil-was-yanked-without-register
+        (evil-set-register ?0 text)) ; "0 register contains last yanked text
+      (unless (eq register ?_)
+        (kill-new text))
+      (call-process-shell-command
+       (format "xclip \"%s\"" (substring-no-properties text))))))
+
+(defun xclip-save-lines (beg end &optional register yank-handler)
+  "Saves the lines in the region BEG and END into the kill-ring."
+  (let* ((text (filter-buffer-substring beg end))
+         (yank-handler (list (or yank-handler
+                                 #'evil-yank-line-handler))))
+    ;; Ensure the text ends with a newline. This is required
+    ;; if the deleted lines were the last lines in the buffer.
+    (when (or (zerop (length text))
+              (/= (aref text (1- (length text))) ?\n))
+      (setq text (concat text "\n")))
+    (setq text (propertize text 'yank-handler yank-handler))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "xclip \"%s\"" (substring-no-properties text)))))
+
+(defun xclip-save-characters (beg end &optional register yank-handler)
+  "Saves the characters defined by the region BEG and END in the kill-ring."
+  (let ((text (filter-buffer-substring beg end)))
+    (when yank-handler
+      (setq text (propertize text 'yank-handler (list yank-handler))))
+    (when register
+      (evil-set-register register text))
+    (when evil-was-yanked-without-register
+      (evil-set-register ?0 text)) ; "0 register contains last yanked text
+    (unless (eq register ?_)
+      (kill-new text))
+    (call-process-shell-command
+     (format "xclip \"%s\"" (substring-no-properties text)))))
+
+(defun xclip-yank ()
+  (interactive)
+  (call-process "xclip" nil t nil "-o"))
+#+end_src

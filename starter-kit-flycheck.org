@@ -40,37 +40,28 @@ codes:
 ((f90-mode . ((flycheck-gfortran-include-path . ("path0" "other/path")))))
 #+END_SRC
 
-The built in fortran-gfortran doesn't support Chinese errors and warnings. An
-=flycheck-fortran-gfortran-zh= plugin is used.
 #+BEGIN_SRC emacs-lisp
-(setq my-flycheck-gfortran-found (executable-find "gfortran"))
+(setq flycheck-fortran+-remove-temp-after-check t)
 (defun my-flycheck-f90-setup ()
   (when (and
-         my-flycheck-gfortran-found
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (setq flycheck-gfortran-language-standard "f2008")
-    (flycheck-select-checker 'fortran-gfortran-zh)
+    (setq flycheck-fortran+-language-standard 'f08)
+    (flycheck-select-checker flycheck-Fortran-checker)
     (flycheck-mode)))
-(eval-after-load "f90"
-  `(progn
-     (require 'flycheck)
-     (require 'flycheck-fortran-gfortran-zh)
-     (add-hook 'f90-mode-hook 'my-flycheck-f90-setup)))
+(with-eval-after-load 'f90
+  (require 'flycheck-fortran+)
+  (add-hook 'f90-mode-hook 'my-flycheck-f90-setup))
 
 (defun my-flycheck-f77-setup ()
   (when (and
-         my-flycheck-gfortran-found
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (setq flycheck-gfortran-language-standard "legacy")
-    (setq flycheck-gfortran-layout 'fixed)
-    (flycheck-select-checker 'fortran-gfortran-zh)
-    (flycheck-mode)
-    (flycheck-buffer)))
+    (setq flycheck-gfortran-language-standard 'f77)
+    (flycheck-select-checker flycheck-Fortran-checker)
+    (flycheck-mode)))
 (with-eval-after-load 'fortran
-  (require 'flycheck)
-  (require 'flycheck-fortran-gfortran-zh)
+  (require 'flycheck-fortran+)
   (add-hook 'fortran-mode-hook 'my-flycheck-f77-setup))
 #+END_SRC
 
@@ -86,15 +77,16 @@ Select checker for that flake8 is not always available.
          (not
           (member (file-name-nondirectory (buffer-file-name))
                   '("SConstruct" "SConscript"))))
-    (if (executable-find "flake8")
-        (flycheck-select-checker 'python-flake8)
-      (flycheck-select-checker 'python-pycompile))
+    (flycheck-select-checker my-flycheck-py-checker)
     (setq-local flycheck-check-syntax-automatically '(mode-enabled save))
     (flycheck-mode)))
 
 (eval-after-load "python"
   `(progn
      (require 'flycheck)
+     (setq my-flycheck-py-checker
+           (cond ((executable-find "flake8") 'python-flake8)
+                 (t 'python-pycompile)))
      (add-hook 'python-mode-hook 'my-flycheck-python-setup)))
 #+END_SRC
 
@@ -114,7 +106,6 @@ connection this way:
 #+begin_src emacs-lisp
 (defun my-flycheck-c-setup ()
   (when (and
-         (executable-find "gcc")
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
     (progn
@@ -123,6 +114,7 @@ connection this way:
 (eval-after-load "cc-mode"
   `(progn
      (require 'flycheck)
+     (setq my-flycheck-gcc-found (executable-find "gcc"))
      (add-hook 'c-mode-hook 'my-flycheck-c-setup)
      (add-hook 'c++-mode-hook 'my-flycheck-c-setup)))
 #+end_src

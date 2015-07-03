@@ -95,6 +95,9 @@
                  (concat " -path \"" default-directory path "\" -prune ")))
              paths "-o"))
 
+(defvar project-root-name-split "@"
+  "Split of name and root of `project-root-seen-projects'.")
+
 (defvar project-root-rep-paths
   '(".git" ".hg" ".svn")
   "Repository paths at project root.")
@@ -168,8 +171,7 @@ match."
 (defun project-root-get-root (project)
   "Fetch the root path of the project according to the tests
 described in PROJECT."
-  (let ((root (plist-get project :root))
-        (new-root))
+  (let (root new-root)
     (catch 'not-a-project
       (mapc
        (lambda (test)
@@ -178,27 +180,39 @@ described in PROJECT."
            (setq new-root
                  (funcall (cdr test) (plist-get project (car test))))
            (cond
-             ((null new-root)
-              (throw 'not-a-project nil))
-             ;; check root is so far consistent
-             ((and (not (null root))
-                   (not (string= root new-root)))
-              (throw 'not-a-project nil))
-             (t
-              (setq root new-root)))))
-       project-root-test-dispatch)
-      (when root
-        (file-name-as-directory root)))))
+            ((null new-root)
+             (throw 'not-a-project nil))
+            ;; check root is so far consistent
+            ((and (not (null root))
+                  (not (string= root new-root)))
+             (throw 'not-a-project nil))
+            (t
+             (setq root new-root)))))
+       project-root-test-dispatch))
+    (when root
+      (file-name-as-directory root))))
 
-(defun project-root-data (key &optional project)
-  "Grab the value (if any) for key in PROJECT. If PROJECT is omitted then
-attempt to get the value for the current project."
+(defun project-root-data (key &optional project remove-dups)
+  "Grab the value (if any) for key in PROJECT.
+
+If PROJECT is omitted then attempt to get the value for the current project. Try
+to obtain from `project-roots' firstly; if not found, find from
+`project-root-cache'."
   (let ((p (or project project-details))
-        val)
-    (setq val
-          (or
-           (plist-get (cdr (assoc (car p) project-roots)) key)
-           (plist-get (cdr (assoc (car p) project-roots-cache)) key)))
+        (sp project-root-name-split)
+        val-0 val-1 val)
+    (setq val-0
+          (plist-get
+           (cdr (assoc (car (split-string (car p) sp)) project-roots))
+           key)
+          val-1
+          (plist-get (cdr (assoc (car p) project-roots-cache)) key))
+    (if (and val-0 val-1 (listp val-0) (listp val-1))
+        (progn
+          (setq val (append val-0 val-1))
+          (when remove-dups
+            (setq val (cl-remove-duplicates val))))
+      (setq val (or val-0 val-1)))
     (when (and (eq :filename-regex key)
                (null val))
       (setq val project-root-file-regexp))
@@ -209,17 +223,29 @@ attempt to get the value for the current project."
        project-root-rep-paths))
     val))
 
-(defun project-root-set-data (prop val &optional p)
-  "Set PROP of P to VAL. P is a project, VAL is a property symbol, val is
-anything."
-  (let ((p (or p (project-root-fetch))))
+(defun project-root-set-data (prop val &optional p remove-dups)
+  "Set PROP of project P to VAL.
+
+The PROP of `project-roots' is set to nil if UNSET-PROJECT-ROOTS, the PROP of
+`project-root-cache' is set to VAL."
+  (let ((p (or p project-details))
+        (sp project-root-name-split))
     (when p
       (unless (assoc (car p) project-roots-cache)
         (add-to-list 'project-roots-cache `(,(car p))))
+      (when remove-dups
+        (setq val (cl-remove-duplicates val)))
       (put-alist
        (car p)
        (plist-put (cdr (assoc (car p) project-roots-cache)) prop val)
        project-roots-cache))))
+
+(defun project-root-append-data (prop val &optional p remove-dups)
+  (let ((p (or p project-details))
+        (vals (append val (project-root-data prop p))))
+    (when remove-dups
+      (setq vals (cl-remove-duplicates vals)))
+    (project-root-set-data prop vals p)))
 
 (defun project-root-project-name-from-dir (project)
   "Generate cute name for project from its directory name."
@@ -242,22 +268,21 @@ anything."
         (setq project-root-seen-projects (read (buffer-string))))))
 
 (defun project-root-fetch (&optional dont-run-on-hit)
-  "Attempt to fetch the root project for the current file. Tests
-will be used as defined in `project-roots'."
+  "Attempt to fetch the root project for the current file.
+
+Tests will be used as defined in `project-roots'. Returns fetched project."
   (interactive)
-  (let ((project
-         (catch 'root-found
-           (unless (mapc
-                    (lambda (project)
-                      (let ((name (car project))
-                            (run (project-root-data :on-hit project))
-                            (root (project-root-get-root (cdr project))))
-                        (when root
-                          (when (and root (not dont-run-on-hit) run)
-                            (funcall run (cons name root)))
-                          (throw 'root-found (cons name root)))))
-                    project-roots)
-             nil))))
+  (let* ((sp project-root-name-split)
+         (project
+          (catch 'root-found
+            (unless (mapc
+                     (lambda (project)
+                       (let ((name (car project))
+                             (root (project-root-get-root (cdr project))))
+                         (when root
+                           (throw 'root-found (cons (concat name sp root) root)))))
+                     project-roots)
+              nil))))
     ;; set the actual var used by apps and add to the global project
     ;; list
     (when project
@@ -271,7 +296,10 @@ will be used as defined in `project-roots'."
   (unless (member p project-root-seen-projects)
     (add-to-list 'project-root-seen-projects p)
     (project-root-save-roots))
-  (setq project-details p))
+  ;; don't set project-details duplicately.
+  (unless project-details
+    (setq project-details p))
+  p)
 
 (defun project-root-every (pred seq)
   "Return non-nil if pred of each element, of seq is non-nil."
