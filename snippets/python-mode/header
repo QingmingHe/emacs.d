@@ -2,7 +2,7 @@
 # name: header
 # key: header
 # --
-#!/usr/bin/env python
+#!/bin/env python
 # -*- coding: utf-8 -*-
 """ ${1:brief description}
 

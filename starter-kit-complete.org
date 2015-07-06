@@ -85,7 +85,7 @@ always fallback from file completion to directory by C-j."
   (interactive)
   (let (dir-at-point bounds b0 b1)
     (cond
-     ((looking-back "[ \t\n]")
+     ((looking-back "\\(^\\|[ \t\"']\\)")
       (setq dir-at-point "."
             b0 (point)
             b1 b0)

@@ -34,24 +34,8 @@
 
 ;;; project configure/initialize
 
-(defvar prj/auto-set-flags-if-needed t
-  "Whether auto set flags.")
-
-(defvar prj/temp-dir
-  (expand-file-name "project-temp-dir/" temporary-file-directory)
-  "Temporary directory.")
-
-(defvar prj/cmake-find-packages-headers
-  "cmake_minimum_required(VERSION 2.8)
-enable_language(Fortran)
-"
-  "Header content of CMake script.")
-
 (defvar prj/c++-system-include-paths nil
   "System path for c++ include files.")
-
-(defvar prj/cmake-exec (executable-find "cmake")
-  "Executable for CMake.")
 
 (defvar prj/language-flags-vars
   '((f90-mode
@@ -86,76 +70,8 @@ enable_language(Fortran)
      :args-str (c-eldoc-includes)))
   "An alist that contains modes and its corresponding compiler flags variables.")
 
-(defvar prj/cmake-find-packages-alist
-  '((hdf5
-     :-cmake-file-content "find_package(HDF5)"
-     :-package-found "HDF5_FOUND"
-     :fortran-include-paths "HDF5_INCLUDE_DIR"
-     :c-include-paths "HDF5_INCLUDE_DIR"
-     :cxx-include-paths "HDF5_INCLUDE_DIR")
-    (mpi
-     :-cmake-file-content "find_package(MPI)"
-     :-fortran-found "MPI_Fortran_FOUND"
-     :-c-found "MPI_C_FOUND"
-     :-cxx-found "MPI_CXX_FOUND"
-     :fortran-include-paths "MPI_Fortran_INCLUDE_PATH"
-     :c-include-paths "MPI_C_INCLUDE_PATH"
-     :cxx-include-paths "MPI_CXX_INCLUDE_PATH")
-    (openmp
-     :-cmake-file-content "find_package(OpenMP)
-if(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"GNU\")
-  set(OpenMP_Fortran_FLAGS \"-fopenmp\")
-elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"Intel\")
-  set(OpenMP_Fortran_FLAGS \"-openmp\")
-elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"PGI\")
-  set(OpenMP_Fortran_FLAGS \"-mp\")
-elseif(\"${CMAKE_Fortran_COMPILER_ID}\" STREQUAL \"XL\")
-  set(OpenMP_Fortran_FLAGS \"-qsmp\")
-else()
-  set(OpenMP_Fortran_FLAGS \" \")
-endif()"
-     :fortran-args "OpenMP_Fortran_FLAGS"
-     :c-args "OpenMP_C_FLAGS"
-     :cxx-args "OpenMP_CXX_FLAGS")
-    (gtk2
-     :-cmake-file-content "find_package(GTK2 2.6 REQUIRED gtk)"
-     :c-include-paths "GTK2_INCLUDE_DIRS"
-     :cxx-include-paths "GTK2_INCLUDE_DIRS"))
-  "An alist contains package names and method to find flags through cmake.")
-
-(defvar prj/compile-flags-prop
-  '(:-compile-flags
-    :fortran-definitions
-    :fortran-args
-    :fortran-include-paths
-    :c-definitions
-    :c-args
-    :c-include-paths
-    :cxx-definitions
-    :cxx-include-paths
-    :cxx-args)
-  "Compile flags properties.")
-
-(defvar prj/cmake-fortran-compiler nil
-  "Fortran compiler.")
-
-(defvar prj/cmake-c-compiler nil
-  "C compiler.")
-
-(defvar prj/cmake-cxx-compiler nil
-  "CXX compiler.")
-
 (defvar prj/project-locals-file ".project-locals.el"
   "Files containing project local variables.")
-
-(defvar prj/use-locals-dir t
-  "Whether use `prj/project-locals-dir' to store cache.")
-
-(defvar prj/project-locals-dir ".project-locals.d"
-  "Internal project locals directory.")
-
-(defvar prj/project-compile-locals-file "compile-flags"
-  "File containing compiling flags.")
 
 (defvar prj/load-project-locals-if-exists t
   "Whether load project local variables.")
@@ -672,7 +588,7 @@ all modified buffers."
   (when (boundp symbol)
     (add-to-list (make-local-variable symbol) elem)))
 
-(defun prj/set-language-flags-0 (include-paths definitions &optional args)
+(defun prj/set-language-flags (&optional include-paths definitions args)
   (let* ((p (or project-details (project-root-fetch)))
          (proot (cdr p))
          (vars (cdr (assoc major-mode prj/language-flags-vars)))
@@ -753,97 +669,6 @@ all modified buffers."
         args))
      (plist-get vars :args-str))))
 
-(defun prj/set-language-flags (p buffer)
-  "Set compile flags for current BUFFER of project P."
-  (let ((packages (project-root-data :use-packages p))
-        flags compile-locals-file prop val)
-    ;; read in flags cache
-    (unless (project-root-data :-compile-flags p)
-      (when (and prj/use-locals-dir
-                 (setq
-                  compile-locals-file
-                  (project-root-data
-                   :-project-compile-locals-file
-                   p))
-                 (file-exists-p compile-locals-file))
-        (with-temp-buffer
-          (message
-           (format "loading compile flags from %s ..." compile-locals-file))
-          (insert-file-contents compile-locals-file)
-          (goto-char (point-min))
-          (while (setq prop (ignore-errors (read (current-buffer))))
-            (setq val (ignore-errors (read (current-buffer))))
-            (project-root-set-data prop val p t))
-          (message "done"))))
-    (when packages
-      ;; find package by cmake
-      (unless (project-root-data :-compile-flags p)
-        (project-root-set-data
-         :-compile-flags
-         (prj/cmake-find-packages packages p buffer)
-         p)
-        ;; write flags to cache file
-        (when (and prj/use-locals-dir
-                   compile-locals-file)
-          (with-temp-buffer
-            (mapc
-             (lambda (prop)
-               (print prop (current-buffer))
-               (print (project-root-data prop p t) (current-buffer)))
-             prj/compile-flags-prop)
-            (message (format "write compile flags to %s" compile-locals-file))
-            (write-region
-             (point-min) (point-max) compile-locals-file nil 0)))))
-    (setq flags (project-root-data :-compile-flags p))
-    (when (derived-mode-p 'c++-mode)
-      (unless prj/c++-system-include-paths
-        (setq prj/c++-system-include-paths
-              (prj/c++-system-include-paths))))
-    ;; set flags for current buffer
-    (with-current-buffer buffer
-      (cond
-       ((derived-mode-p 'c++-mode)
-        (prj/set-language-flags-0
-         (append prj/c++-system-include-paths
-                 (plist-get flags :cxx-include-paths)
-                 (project-root-data :cxx-include-paths p))
-         (append (plist-get flags :cxx-definitions)
-                 (project-root-data :cxx-definitions p))
-         (append (plist-get flags :c-args))))
-       ((derived-mode-p 'c-mode)
-        (prj/set-language-flags-0
-         (append (plist-get flags :c-include-paths)
-                 (project-root-data :c-include-paths p))
-         (append (plist-get flags :c-definitions)
-                 (project-root-data :c-definitions p))
-         (append (plist-get flags :cxx-args))))
-       ((derived-mode-p 'f90-mode 'fortran-mode)
-        (prj/set-language-flags-0
-         (append (plist-get flags :fortran-include-paths)
-                 (project-root-data :fortran-include-paths p))
-         (append (plist-get flags :fortran-definitions)
-                 (project-root-data :fortran-definitions p))
-         (append (plist-get flags :fortran-args))))))))
-
-;;;###autoload
-(defun prj/clear-compile-locals ()
-  (interactive)
-  (let ((p (or project-details (project-root-fetch)))
-        compile-locals-file)
-    (when p
-      (mapc
-       (lambda (prop)
-         (project-root-set-data prop nil p))
-       prj/compile-flags-prop)
-      (when (and prj/use-locals-dir
-                 (setq
-                  compile-locals-file
-                  (project-root-data
-                   :-project-compile-locals-file
-                   p))
-                 (file-exists-p compile-locals-file))
-        (delete-file compile-locals-file)))))
-
 (defun prj/map-plist (fn plist)
   (let ((pl plist)
         vals)
@@ -852,124 +677,20 @@ all modified buffers."
       (setq pl (cddr pl)))
     (nreverse vals)))
 
-(defun prj/cmake-obtain-flags (buffer keywords)
-  "Obtain flags from CMake output."
-  (with-current-buffer buffer
-    (goto-char (point-min))
-    (let (flags flag)
-      (while (re-search-forward
-              (format "^-- \\[prj\\] %s \\(.+\\)$" keywords) nil t)
-        (setq flag (match-string-no-properties 1))
-        (unless (or (null flag) (string-match "-NOTFOUND" flag))
-          (mapc
-           (lambda (f)
-             (add-to-list 'flags f))
-           (split-string flag ";"))))
-      flags)))
-
-(defun prj/cmake-find-packages (packages &optional p buffer)
-  (when (file-exists-p prj/temp-dir)
-    (delete-directory prj/temp-dir t))
-  (mkdir prj/temp-dir)
-  (let ((default-directory prj/temp-dir)
-        plist cmake-file-content flags flags-pkg after-found-fn flags-pkg-found
-        keywords package-found language-found)
-    ;; write data into CMakeLists.txt
-    (with-temp-buffer
-      (insert prj/cmake-find-packages-headers)
-      (mapc
-       (lambda (pkg)
-         (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
-           (if (setq cmake-file-content (plist-get plist :-cmake-file-content))
-               (insert (format "%s\n" cmake-file-content))
-             (insert (format "find_package(%s)\n" (upcase (symbol-name pkg)))))
-           (when (setq package-found (plist-get plist :-package-found))
-             (insert (format "if(%s)\n" package-found)))
-           (prj/map-plist
-            (lambda (prop val)
-              (when (string-match "^:\\(fortran\\|c\\|cxx\\)-" (symbol-name prop))
-                (when (setq
-                       language-found
-                       (plist-get
-                        plist
-                        (intern
-                         (format
-                          ":-%s-found"
-                          (match-string-no-properties 1 (symbol-name prop))))))
-                  (insert (format "if(%s)\n" language-found)))
-                (insert (format "message(STATUS \"[prj] :%s%s: ${%s}\")\n"
-                                (symbol-name pkg) (symbol-name prop) val))
-                (when language-found
-                  (insert "endif()\n"))))
-            plist)
-           (when package-found
-             (insert (format "endif()\n" package-found)))))
-       packages)
-      (write-region (point-min) (point-max) prj/cmake-list-file nil 0))
-    (with-temp-buffer
-      ;; execute CMake
-      (call-process-shell-command
-       (format "%s %s %s %s ."
-               prj/cmake-exec
-               (if prj/cmake-fortran-compiler
-                   (format "-DCMAKE_Fortran_COMPILER=%s"
-                           prj/cmake-fortran-compiler)
-                 "")
-               (if prj/cmake-c-compiler
-                   (format "-DCMAKE_C_COMPILER=%s"
-                           prj/cmake-c-compiler)
-                 "")
-               (if prj/cmake-cxx-compiler
-                   (format "-DCMAKE_CXX_COMPILER=%s"
-                           prj/cmake-cxx-compiler)
-                 ""))
-       nil t)
-      ;; obtain flags for all packages
-      (mapc
-       (lambda (pkg)
-         (when (setq plist (cdr (assoc pkg prj/cmake-find-packages-alist)))
-           ;; obtain flags for each package
-           (setq flags-pkg-found nil)
-           (prj/map-plist
-            (lambda (prop val)
-              (when (string-match "^:\\(fortran\\|c\\|cxx\\)-" (symbol-name prop))
-                (setq flags-pkg
-                      (prj/cmake-obtain-flags
-                       (current-buffer)
-                       (format ":%s%s:" (symbol-name pkg) (symbol-name prop))))
-                (when flags-pkg
-                  (setq flags-pkg-found t))
-                (setq flags
-                      (plist-put flags prop
-                                 (append (plist-get flags prop) flags-pkg)))))
-            plist)
-           ;; execute after found package function
-           (when (and
-                  flags-pkg-found
-                  p
-                  buffer
-                  (setq after-found-fn
-                        (project-root-data
-                         (intern (format ":after-found-%s" pkg))
-                         p)))
-             (with-current-buffer buffer
-               (let ((project-details p))
-                 (funcall after-found-fn))))))
-       packages))
-    flags))
-
 (defun prj/c++-system-include-paths ()
   "Get path of system c++ include files."
-  (let (b0 b1)
-    (with-temp-buffer
-      (call-process-shell-command
-       "gcc -v -x c++ /dev/null -fsyntax-only" nil t)
-      (goto-char (point-min))
-      (setq b0 (search-forward "#include <...> search starts here:\n"))
-      (search-forward "End of search list.")
-      (forward-line -1)
-      (setq b1 (line-end-position))
-      (split-string (buffer-substring-no-properties b0 b1)))))
+  (or prj/c++-system-include-paths
+      (setq prj/c++-system-include-paths
+            (let (b0 b1)
+              (with-temp-buffer
+                (call-process-shell-command
+                 "gcc -v -x c++ /dev/null -fsyntax-only" nil t)
+                (goto-char (point-min))
+                (setq b0 (search-forward "#include <...> search starts here:\n"))
+                (search-forward "End of search list.")
+                (forward-line -1)
+                (setq b1 (line-end-position))
+                (split-string (buffer-substring-no-properties b0 b1)))))))
 
 ;;; project helm mini
 
@@ -1591,20 +1312,6 @@ The format of `prj/project-locals-file' is identical to that of
               (cdr local))))
          locals)))))
 
-(defun prj/setup-locals-dir (p)
-  (project-root-set-data
-   :-project-locals-dir
-   (expand-file-name prj/project-locals-dir default-directory)
-   p)
-  (project-root-set-data
-   :-project-compile-locals-file
-   (expand-file-name
-    prj/project-compile-locals-file
-    (project-root-data :-project-locals-dir p)))
-  (when (and prj/use-locals-dir
-             (not (file-exists-p prj/project-locals-dir)))
-    (mkdir prj/project-locals-dir)))
-
 ;;;###autoload
 (define-minor-mode project-minor-mode
   "Minor mode for handling project."
@@ -1620,8 +1327,6 @@ The format of `prj/project-locals-file' is identical to that of
                  fname
                  (not (file-remote-p fname)))
             (let ((default-directory (cdr p)))
-              ;; setup project locals directory
-              (prj/setup-locals-dir p)
               ;; mode line lighter
               (setq
                prj/buffer-mode-lighter
@@ -1671,11 +1376,6 @@ The format of `prj/project-locals-file' is identical to that of
                 (auto-insert))
               ;; run project hooks
               (run-hooks (project-root-data :prj-setup-hooks p)))
-            ;; set compile flags
-            (when (and
-                   prj/auto-set-flags-if-needed
-                   (eval `(derived-mode-p ,@prj/cmake-modes)))
-              (prj/set-language-flags p (current-buffer)))
             ;; load project local variables
             (when (and
                    (file-exists-p

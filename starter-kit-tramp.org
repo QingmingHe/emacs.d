@@ -1,0 +1,100 @@
+#+TITLE: Starter Kit Tramp
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit Tramp
+** Tramp
+
+Unfortunately currently Cygwin doesn't support file descriptor passing via
+unix-domain sockets and it's not possible to enable ControlMaster (Google
+=Cygwin ssh ControlMaster=).
+#+begin_src emacs-lisp
+(when *cygwin*
+  (setq tramp-use-ssh-controlmaster-options nil))
+(setq tramp-default-method "ssh")
+#+end_src
+
+Tramp may hung when copying large files through *ssh*. You can use *scp*
+instead.
+
+** Usage of SSH
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+*** SSH keygen
+
+First generate =~/.ssh/id_rsa.pub= at your local computer.
+#+begin_src sh
+ssh-keygen -t rsa -C "your@email"
+#+end_src
+
+Then append content of =~/.ssh/id_rsa.pub= at local computer to
+=~/.ssh/authorized_keys= of remote computer.
+
+*** SSH alias
+
+The basic example:
+#+begin_example
+Host necp
+    HostName 10.255.255.1
+    User necp
+#+end_example
+
+Then ssh to remote server by:
+#+begin_src sh
+ssh necp
+#+end_src
+
+*** SSH tunnel through transfer server
+
+Make ssh tunnel by:
+#+begin_src sh
+ssh -fN -L 4321:10.0.0.78:22 necp@10.255.255.1
+#+end_src
+where =10.0.0.78= is remote server, =10.255.255.1= is transfer server.
+
+To simplify ssh command, set ssh alias:
+#+begin_example
+Host 78
+    HostName localhost
+    Port 4321
+    User qmhe
+#+end_example
+
+Then access remote server by:
+#+begin_src sh
+ssh 78
+#+end_src
+
+or:
+#+begin_src sh
+git clone 78:/path/to/repo .
+#+end_src
+
+** X
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+
+The minimal easiest way to use X.
+
+*** Cygwin X
+
+Install *xinit*. Set *DISPLAY* environment variable:
+#+begin_src sh
+export DISPLAY=:0
+#+end_src
+Go to server:
+#+begin_src sh
+ssh -Y <server>
+#+end_src
+
+*** Xming
+
+Install and launch Xming. Set *DISPLAY* environment variable:
+#+begin_src sh
+export DISPLAY=localhost:0
+#+end_src
+Go to server:
+#+begin_src sh
+ssh -Y <server>
+#+end_src

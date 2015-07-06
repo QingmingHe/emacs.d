@@ -75,7 +75,8 @@ previously visited the same file.
 #+begin_src emacs-lisp
 (defun my-clean-and-save-recentf ()
   (interactive)
-  (unless (file-locked-p recentf-save-file)
+  (unless (or (file-locked-p recentf-save-file)
+              (not (symbolp 'recentf-save-file)))
     (recentf-cleanup)
     (recentf-save-list)))
 (defun lazy-load-recentf ()
@@ -171,20 +172,6 @@ larger than `large-file-warning-threshold'."
     (remove-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)))
 (add-hook 'find-file-hook 'lazy-load-whitespace-cleanup-mode)
 #+end_src
-
-** Tramp
-
-Unfortunately currently Cygwin doesn't support file descriptor passing via
-unix-domain sockets and it's not possible to enable ControlMaster (Google
-=Cygwin ssh ControlMaster=).
-#+begin_src emacs-lisp
-(when *cygwin*
-  (setq tramp-use-ssh-controlmaster-options nil))
-(setq tramp-default-method "ssh")
-#+end_src
-
-Tramp may hung when copying large files through *ssh*. You can use *scp*
-instead.
 
 ** Pinyin input
 
