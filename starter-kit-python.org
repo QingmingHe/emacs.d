@@ -20,11 +20,9 @@ Support for the Python programming language.
 (defun my-python-conf ()
   (highlight-indentation-current-column-mode)
   (sphinx-doc-mode 1)
+  (eldoc-mode 1)
   (setq imenu-create-index-function 'python-imenu-create-index)
-  (modify-syntax-entry ?_ "w")
-  (setq prettify-symbols-alist
-        '(("lambda" . ?λ)))
-  (prettify-symbols-mode 1))
+  (modify-syntax-entry ?_ "w"))
 
 (with-eval-after-load 'python
   (require 'highlight-indentation)
