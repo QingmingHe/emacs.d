@@ -149,7 +149,8 @@ Use this to exclude portions of your project: \"-not -regex \\\".*vendor.*\\\"\"
 (defvar project-root-file-regexp
   (let ((maps
          '(org md rst txt c cc cxx cpp c++ h hpp hxx java f F for FOR f77 F77
-               f90 F90 f95 F95 f03 F03 f08 F08 py pl rb el lisp cl scheme mk)))
+               f90 F90 f95 F95 f03 F03 f08 F08 inc py pl rb el lisp cl scheme
+               mk)))
     (if (executable-find "ctags")
         (regexify-ext-list
          (with-temp-buffer
