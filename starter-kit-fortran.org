@@ -16,7 +16,9 @@ Fortran is a major language for scientific computation but a minor for other.
   (evil-define-key 'normal f90-mode-map
     "J" 'my-f90-join-lines)
   (evil-define-key 'normal f90-mode-map
-    "%" 'f-evil-jump-item))
+    "%" 'f-evil-jump-item)
+  (local-set-key (kbd "C-c C-p") 'f90-beginning-of-subprogram)
+  (local-set-key (kbd "C-c C-n") 'f90-end-of-subprogram))
 
 (eval-after-load "f90"
   `(progn
@@ -34,6 +36,11 @@ Fortran is a major language for scientific computation but a minor for other.
 (with-eval-after-load 'fortran
   (require 'f90)
   (add-hook 'fortran-mode-hook 'my-fortran-config))
+
+(defadvice f90-beginning-of-subprogram (before push-mark-before-fbos activate)
+  (push-mark (point) t))
+(defadvice f90-end-of-subprogram (before push-mark-before-feos activate)
+  (push-mark (point) t))
 #+END_SRC
 
 ** Fortran indent
