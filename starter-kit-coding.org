@@ -185,3 +185,9 @@ indentation rules."
          (unless (rng-next-error nil)
            (rng-first-error))))
 #+END_SRC
+
+** Matlab
+
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
+#+end_src
