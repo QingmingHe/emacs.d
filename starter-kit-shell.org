@@ -55,6 +55,18 @@ is pre-populated with some generally applicable aliases.
         (expand-file-name "./" (expand-file-name "eshell" starter-kit-dir)))
 #+end_src
 
+Eshell prompt:
+#+begin_src emacs-lisp
+(setq eshell-prompt-function
+      (function
+       (lambda ()
+         (concat (abbreviate-file-name (eshell/pwd))
+                 "\n"
+                 (if (= (user-uid) 0) "# " "$ ")))))
+
+(setq eshell-prompt-regexp "^[#$] ")
+#+end_src
+
 *** Key bindings
 
 + Use *C-a* to move to beginning of line of beginning of command line.
