@@ -288,6 +288,16 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
   (Man-getpage-in-background file))
 #+end_src
 
+** Add dired to recent file
+
+#+begin_src emacs-lisp
+(defun recentf-add-dired-file ()
+  (require 'recentf)
+  (when (eq major-mode 'dired-mode)
+    (recentf-add-file dired-directory)))
+(add-hook 'dired-mode-hook #'recentf-add-dired-file)
+#+end_src
+
 ** Tips
 
 - *w* copies file name to ring. *C-u 0 w* copies full path.
