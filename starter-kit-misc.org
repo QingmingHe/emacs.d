@@ -75,8 +75,8 @@ previously visited the same file.
 #+begin_src emacs-lisp
 (defun my-clean-and-save-recentf ()
   (interactive)
-  (unless (or (file-locked-p recentf-save-file)
-              (not (symbolp 'recentf-save-file)))
+  (when (and recentf-mode
+             (not (file-locked-p recentf-save-file)))
     (recentf-cleanup)
     (recentf-save-list)))
 (defun lazy-load-recentf ()
