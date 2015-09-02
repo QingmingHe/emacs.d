@@ -286,3 +286,9 @@ Ace jump is set in [[file:starter-kit-evil.org::*Normal%20state%20map][Normal st
  ("l" mc/edit-lines "lines")
  ("q" nil "quit"))
 #+end_src
+
+** Buffers and files
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+#+end_src
