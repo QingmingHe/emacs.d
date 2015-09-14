@@ -220,7 +220,7 @@ expanded.  Otherwise will be recognized as path relative to project root."
 
 1. Load project root cache from \"~/.emacs.d/.project-roots;\"
 2. Add `project-root-save-roots' to `kill-emacs-hook';"
-  (message "[Prj] loading project roots form %s ..."
+  (message "[Prj] loading project roots from %s ..."
            project-root-storage-file)
   (project-root-load-roots)
   (add-hook 'kill-emacs-hook 'project-root-save-roots))
