@@ -58,11 +58,14 @@ Set the default backends for all modes.
 Use anaconda as backend.
 #+begin_src emacs-lisp
 (defun python-company-setup ()
-  (when jedi-is-installed
-    (anaconda-mode)
-    (add-to-list 'company-backends
-                 '(company-anaconda
-                   company-dabbrev-code))))
+  (if jedi-is-installed
+      (progn
+        (anaconda-mode)
+        (add-to-list 'company-backends
+                     '(company-anaconda
+                       company-dabbrev-code)))
+    (setq company-backends
+          '(company-etags company-gtags company-dabbrev-code company-keywords))))
 
 (add-hook 'python-mode-hook 'python-company-setup)
 
