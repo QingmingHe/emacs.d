@@ -8,7 +8,7 @@ ${1:`
         (save-excursion
           (beginning-of-line)
           (point)))
-       (remain (- (+ 4 default-fill-column) (- here beg))))
+       (remain (- (+ 3 default-fill-column) (- here beg))))
   (make-string remain ?#))
 `}
 # $0

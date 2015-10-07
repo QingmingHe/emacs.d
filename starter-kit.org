@@ -438,6 +438,7 @@ starter kit. You should note that the sequence is very important.
 (when *cygwin*
   (starter-kit-fast-load "win32"))
 (starter-kit-fast-load "org")
+(starter-kit-fast-load "tramp")
 (starter-kit-fast-load "gui")
 (starter-kit-fast-load "dired")
 (starter-kit-fast-load "vc")

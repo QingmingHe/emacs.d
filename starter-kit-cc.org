@@ -16,3 +16,14 @@
      (add-hook 'c-mode-hook 'my-c-common-config)
      (add-hook 'c++-mode-hook 'my-c-common-config)))
 #+END_SRC
+
+** C insert -> token
+
+#+begin_src emacs-lisp
+(defun cc-insert--> ()
+  (interactive)
+  (insert "->"))
+
+(with-eval-after-load 'cc-mode
+  (key-chord-define c-mode-map ".." #'cc-insert-->))
+#+end_src

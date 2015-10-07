@@ -114,6 +114,16 @@ to expand or contract region.
 #+END_SRC
 
 ** Key Chord mode
+*** Key chord mode
+
+#+begin_src emacs-lisp
+(key-chord-mode 1)
+#+end_src
+
+*** Quit everything
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
 
 Use *jk* key chord to quite everything.
 #+begin_src emacs-lisp
@@ -134,7 +144,6 @@ Use *jk* key chord to quite everything.
 (key-chord-define minibuffer-local-completion-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-must-match-map "jk" 'minibuffer-keyboard-quit)
 (key-chord-define minibuffer-local-isearch-map "jk" 'minibuffer-keyboard-quit)
-(key-chord-mode 1)
 #+end_src
 
 I have do some hack with isearch to reproduce the *jk* magic.
@@ -143,6 +152,25 @@ I have do some hack with isearch to reproduce the *jk* magic.
   (key-chord-mode 1)
   (key-chord-define isearch-mode-map "jk" 'isearch-cancel))
 (add-hook 'isearch-mode-hook 'isearch-enable-key-chord)
+#+end_src
+
+*** From insert to normal
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'evil
+  (key-chord-define evil-insert-state-map "jj" #'evil-normal-state))
+#+end_src
+
+*** execute command
+
+#+begin_src emacs-lisp
+(key-chord-define-global "mx" #'helm-M-x)
+#+end_src
+
+*** Ace window
+
+#+begin_src emacs-lisp
+(key-chord-define-global "mm" 'ace-window)
 #+end_src
 
 ** Popup
@@ -257,4 +285,10 @@ Ace jump is set in [[file:starter-kit-evil.org::*Normal%20state%20map][Normal st
  ("a" mc/mark-all-like-this "all")
  ("l" mc/edit-lines "lines")
  ("q" nil "quit"))
+#+end_src
+
+** Buffers and files
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 #+end_src

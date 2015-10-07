@@ -48,25 +48,24 @@ available size. The heading line will not be hided if
     (cons file-num dir-num)))
 
 (defun my-dired-present-heading ()
-  (let* ((buffer-read-only nil)
-         (num (my-count-files-under-dir "."))
-         (file-num (car num))
-         (dir-num (cdr num))
-         size aline)
+  (let ((free-size
+         (/ (/
+             (string-to-int (or (get-free-disk-space ".") "0"))
+             1024.0) 1024.0))
+        buffer-read-only num file-num dir-num size aline)
     (save-excursion
       (goto-char (point-min))
-      (forward-line 1)
-      (setq aline
-            (buffer-substring-no-properties
-             (line-beginning-position) (line-end-position)))
-      (when (string-match "total[a-zA-Z ]+\\([0-9\\.]+[KMG]?\\)" aline)
-        (setq size (match-string-no-properties 1 aline))
+      (while (re-search-forward
+              "^ +\\(/.*\\):\n +total[a-zA-Z ]+\\([0-9\\.]+[KMG]?\\)" nil t)
+        (setq num
+              (my-count-files-under-dir (match-string-no-properties 1))
+              file-num (car num)
+              dir-num (cdr num)
+              size (match-string-no-properties 2))
         (delete-region (line-beginning-position) (line-end-position))
         (insert (format
                  "  files: %i directories: %i used: %s available: %.1fG \n"
-                 file-num dir-num size
-                 (/ (/ (string-to-int (or (get-free-disk-space ".") "0"))
-                       1024.0) 1024.0)))))
+                 file-num dir-num size free-size))))
     (set-buffer-modified-p nil)))
 
 (add-hook 'dired-after-readin-hook #'my-dired-present-heading)
@@ -287,6 +286,16 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
    (list
     (ido-read-file-name ": " nil (dired-get-file-for-visit))))
   (Man-getpage-in-background file))
+#+end_src
+
+** Add dired to recent file
+
+#+begin_src emacs-lisp
+(defun recentf-add-dired-file ()
+  (require 'recentf)
+  (when (eq major-mode 'dired-mode)
+    (recentf-add-file dired-directory)))
+(add-hook 'dired-mode-hook #'recentf-add-dired-file)
 #+end_src
 
 ** Tips

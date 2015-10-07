@@ -67,6 +67,7 @@ M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
 
 #+begin_src emacs-lisp
 (define-key evil-visual-state-map (kbd "v") 'er/expand-region)
+(define-key evil-visual-state-map (kbd "C-e") 'move-end-of-line)
 
 (defun my-shift-left-visual ()
   (interactive)
@@ -109,6 +110,8 @@ M-DEL is too hard to press and too harm to my finger. C-w is also not easy, so
   "Repeat the last find `count' times or use avy to jump to a search candidates
 if last command is evil-search."
   :type exclusive
+  (unless (featurep 'avy)
+    (require 'avy))
   (if (or
        (eq last-command 'evil-search-next)
        (eq last-command 'evil-search-previous)
@@ -266,6 +269,7 @@ otherwise save current buffer."
            (save-buffer)))
   "kk" 'kill-this-buffer
   "dd" 'ido-dired-dwim
+  "pp" 'prj/helm-mini
 
   ;; replace
   "rd" (lambda ()
