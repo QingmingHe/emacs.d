@@ -101,6 +101,17 @@
 (defvar prj/cmake-list-file "CMakeLists.txt"
   "CMake file.")
 
+(defvar prj/ctest-run-test-buffer "*ctest*"
+  "Buffer to run ctest.")
+
+(defvar prj/ctest-run-test-command nil
+  "Command to run unit test.")
+(make-variable-buffer-local 'prj/ctest-run-test-command)
+
+(defvar prj/ctest-run-test-dir nil
+  "Directory to run unit test.")
+(make-variable-buffer-local 'prj/ctest-run-test-dir)
+
 (defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
@@ -580,6 +591,47 @@ all modified buffers."
     (mapcar
      (lambda (buf) (with-current-buffer buf (save-buffer)))
      not-prj-buffers)))
+
+;;; project cmake ctest
+
+(defun prj/ctest-run-test (arg)
+  "run unit test of current piece of code in `prj/ctest-run-test-buffer'.
+
+If ARG, set directory to run unit test and command to run unit test by force;
+otherwise use the directory and command set before which are read from
+minibuffer."
+  (interactive "P")
+  (let ((p (or project-details (project-root-fetch)))
+        ctest-dir ctest-command)
+    (if p
+        (progn
+          (when (or
+                 arg
+                 (null prj/ctest-run-test-dir))
+            (setq prj/ctest-run-test-dir
+                  (ido-read-directory-name "ctest dir: ")))
+          (setq ctest-dir prj/ctest-run-test-dir)
+          (when (or
+                 arg
+                 (null prj/ctest-run-test-command))
+            (setq prj/ctest-run-test-command
+                  (read-shell-command
+                   "ctest command: "
+                   (format
+                    "cmake %s && make -j && ctest --output-on-failure -R %s"
+                    (cdr p)
+                    (file-name-base (buffer-file-name))))))
+          (setq ctest-command prj/ctest-run-test-command)
+          (pop-to-buffer
+           (get-buffer-create prj/ctest-run-test-buffer))
+          (setq default-directory ctest-dir)
+          (erase-buffer)
+          (start-process-shell-command
+           "ctest-run-test"
+           (current-buffer)
+           ctest-command)
+          (other-window -1))
+      (user-error "no project found"))))
 
 ;;; project compiler flags
 
