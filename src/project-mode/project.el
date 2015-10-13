@@ -122,10 +122,6 @@ library.")
 (defvar prj/ctags-exec (executable-find "ctags")
   "Executable of Exuberant Ctags.")
 
-(defvar prj/tags-tool-found
-  (or prj/global-exec prj/ctags-exec)
-  "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
-
 (defvar prj/gtags-conf-file-guess
   `(,(expand-file-name "~/.globalrc")
     "/usr/share/gtags/gtags.conf"
@@ -694,7 +690,7 @@ minibuffer."
      (lambda (var)
        (mapc
         (lambda (-D-definition)
-          (prj/add-to-list var definition))
+          (prj/add-to-list var -D-definition))
         -D-definitions))
      (plist-get vars :-D-definition))
     (mapc
@@ -1402,13 +1398,13 @@ The format of `prj/project-locals-file' is identical to that of
                        (string=
                         "none"
                         (setq tags-tool (project-root-data :tags-tool p)))
-                       (not prj/tags-tool-found))
+                       (not (or prj/global-exec prj/ctags-exec)))
                 (when (project-root-file-is-project-file fname p)
                   (add-hook 'after-save-hook
                             'prj/update-tags-single-file nil t))
-                (cond ((string= "gtags" tags-tool)
+                (cond ((and (string= "gtags" tags-tool) prj/global-exec)
                        (project-root-set-data :-use-gtags t p))
-                      ((string= "ctags" tags-tool)
+                      ((and (string= "ctags" tags-tool) prj/ctags-exec)
                        (project-root-set-data :-use-gtags nil p))
                       (t
                        (project-root-set-data :-use-gtags nil p)))
