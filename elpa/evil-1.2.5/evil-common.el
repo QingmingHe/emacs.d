@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.1.1
+;; Version: 1.2.5
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -35,6 +35,7 @@
 (declare-function evil-visual-state-p "evil-states")
 (declare-function evil-visual-restore "evil-states")
 (declare-function evil-motion-state "evil-states")
+(declare-function evil-ex-p "evil-ex")
 
 ;;; Compatibility for Emacs 23
 (unless (fboundp 'deactivate-input-method)
@@ -975,6 +976,7 @@ Like `move-end-of-line', but retains the goal column."
 This behavior is contingent on the variable `evil-move-cursor-back';
 use the FORCE parameter to override it."
   (when (and (eolp)
+             (not evil-move-beyond-eol)
              (not (bolp))
              (= (point)
                 (save-excursion
@@ -1325,6 +1327,22 @@ Signals an error at buffer boundaries unless NOERROR is non-nil."
              ;; Maybe we should just `ding'?
              (signal (car err) (cdr err))))))))))
 
+(defun evil-forward-syntax (syntax &optional count)
+  "Move point to the end or beginning of a sequence of characters in
+SYNTAX.
+Stop on reaching a character not in SYNTAX."
+  (let ((notsyntax (if (= (aref syntax 0) ?^)
+                       (substring syntax 1)
+                     (concat "^" syntax))))
+    (evil-motion-loop (dir (or count 1))
+      (cond
+       ((< dir 0)
+        (skip-syntax-backward notsyntax)
+        (skip-syntax-backward syntax))
+       (t
+        (skip-syntax-forward notsyntax)
+        (skip-syntax-forward syntax))))))
+
 (defun evil-forward-chars (chars &optional count)
   "Move point to the end or beginning of a sequence of CHARS.
 CHARS is a character set as inside [...] in a regular expression."
@@ -1634,10 +1652,18 @@ WORD is a sequence of non-whitespace characters
 Moves point COUNT symbols forward or (- COUNT) symbols backward
 if COUNT is negative. Point is placed after the end of the
 symbol (if forward) or at the first character of the symbol (if
-backward). The boundaries of a symbol are determined by
-`forward-symbol'."
-  (evil-motion-loop (dir (or count 1))
-    (forward-symbol dir)))
+backward). A symbol is either determined by `forward-symbol', or
+is a sequence of characters not in the word, symbol or whitespace
+syntax classes."
+  (evil-forward-nearest
+   count
+   #'(lambda (&optional cnt)
+       (evil-forward-syntax "^w_->" cnt))
+   #'(lambda (&optional cnt)
+       (let ((pnt (point)))
+         (forward-symbol cnt)
+         (if (= pnt (point)) cnt 0)))
+   #'forward-evil-empty-line))
 
 (defun forward-evil-defun (&optional count)
   "Move forward COUNT defuns.
@@ -1973,6 +1999,10 @@ The following special registers are supported.
   \"  the unnamed register
   *  the clipboard contents
   +  the clipboard contents
+  <C-w> the word at point (ex mode only)
+  <C-a> the WORD at point (ex mode only)
+  <C-o> the symbol at point (ex mode only)
+  <C-f> the current file at point (ex mode only)
   %  the current file name (read only)
   #  the alternate file name (read only)
   /  the last search pattern (read only)
@@ -1994,8 +2024,31 @@ The following special registers are supported.
               (x-get-selection-value))
              ((eq register ?+)
               (x-get-clipboard))
+             ((eq register ?\C-W)
+              (unless (evil-ex-p)
+                (user-error "Register <C-w> only available in ex state"))
+              (with-current-buffer evil-ex-current-buffer
+                (thing-at-point 'evil-word)))
+             ((eq register ?\C-A)
+              (unless (evil-ex-p)
+                (user-error "Register <C-a> only available in ex state"))
+              (with-current-buffer evil-ex-current-buffer
+                (thing-at-point 'evil-WORD)))
+             ((eq register ?\C-O)
+              (unless (evil-ex-p)
+                (user-error "Register <C-o> only available in ex state"))
+              (with-current-buffer evil-ex-current-buffer
+                (thing-at-point 'evil-symbol)))
+             ((eq register ?\C-F)
+              (unless (evil-ex-p)
+                (user-error "Register <C-f> only available in ex state"))
+              (with-current-buffer evil-ex-current-buffer
+                (thing-at-point 'filename)))
              ((eq register ?%)
-              (or (buffer-file-name) (user-error "No file name")))
+              (or (buffer-file-name (and (evil-ex-p)
+                                         (minibufferp)
+                                         evil-ex-current-buffer))
+                  (user-error "No file name")))
              ((= register ?#)
               (or (with-current-buffer (other-buffer) (buffer-file-name))
                   (user-error "No file name")))
@@ -2949,22 +3002,36 @@ linewise, otherwise it is character wise."
     (cond
      ((> dir 0) (goto-char end) (setq other beg))
      (t (goto-char beg) (setq other end)))
-    ;; if current is only selected object ...
-    (when (and (= beg (car bnd)) (= end (cdr bnd)))
-      (if objbnd
-          ;; current match is thing, add whitespace
-          (let ((wsend (evil-bounds-of-not-thing-at-point thing dir)))
-            (if (not wsend) ;; no whitespace at end, try beginning
-                (save-excursion
-                  (goto-char other)
-                  (setq wsend (evil-bounds-of-not-thing-at-point thing (- dir)))
-                  (when wsend (setq other wsend addcurrent t)))
-              ;; add whitespace at end
-              (goto-char wsend)
-              (setq addcurrent t)))
-        ;; current match is whitespace, add thing
-        (forward-thing thing dir)
-        (setq addcurrent t)))
+    (cond
+     ;; do nothing more than only current is selected
+     ((not (and (= beg (car bnd)) (= end (cdr bnd)))))
+     ;; current match is thing, add whitespace
+     (objbnd
+      (let ((wsend (evil-with-restriction
+                       ;; restrict to current line if we do non-line selection
+                       (and (not line) (line-beginning-position))
+                       (and (not line) (line-end-position))
+                     (evil-bounds-of-not-thing-at-point thing dir))))
+        (cond
+         (wsend
+          ;; add whitespace at end
+          (goto-char wsend)
+          (setq addcurrent t))
+         (t
+          ;; no whitespace at end, try beginning
+          (save-excursion
+            (goto-char other)
+            (setq wsend
+                  (evil-with-restriction
+                      ;; restrict to current line if we do non-line selection
+                      (and (not line) (line-beginning-position))
+                      (and (not line) (line-end-position))
+                    (evil-bounds-of-not-thing-at-point thing (- dir))))
+            (when wsend (setq other wsend addcurrent t)))))))
+     ;; current match is whitespace, add thing
+     (t
+      (forward-thing thing dir)
+      (setq addcurrent t)))
     ;; possibly count current object as selection
     (if addcurrent (setq count (1- count)))
     ;; move

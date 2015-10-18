@@ -2,7 +2,7 @@
 ;; Author: Vegard Øye <vegard_oye at hotmail.com>
 ;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
 
-;; Version: 1.1.1
+;; Version: 1.2.5
 
 ;;
 ;; This file is NOT part of GNU Emacs.
@@ -628,7 +628,9 @@ mapping will always be the ESC prefix map."
   (if (and (not evil-inhibit-esc)
            (or evil-local-mode (evil-ex-p))
            (not (evil-emacs-state-p))
-           (equal (this-single-command-keys) [?\e])
+           (let ((keys (this-single-command-keys)))
+             (and (> (length keys) 0)
+                  (= (aref keys (1- (length keys))) ?\e)))
            (sit-for evil-esc-delay))
       (prog1 [escape]
         (when defining-kbd-macro
@@ -1101,7 +1103,7 @@ cursor, or a list of the above." name))
        (defun ,toggle (&optional arg)
          ,(format "Enable %s. Disable with negative ARG.
 If ARG is nil, don't display a message in the echo area.%s" name doc)
-         (interactive "p")
+         (interactive)
          (cond
           ((and (numberp arg) (< arg 1))
            (setq evil-previous-state evil-state
