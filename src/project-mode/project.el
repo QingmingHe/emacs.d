@@ -601,7 +601,7 @@ all modified buffers."
          (setq dir (expand-file-name dir proot-upper))
          (when (file-directory-p dir)
            (throw 'find-test-dir (setq test-dir dir))))
-       '("build" "build_debug" "build_release")))
+       '("build_debug" "build" "build_release")))
     (unless test-dir
       (catch 'find-test-dir
         (mapc
@@ -611,6 +611,7 @@ all modified buffers."
          (directory-files "." t))))
     test-dir))
 
+;;;###autoload
 (defun prj/ctest-run-test (arg)
   "run unit test of current piece of code in `prj/ctest-run-test-buffer'.
 
