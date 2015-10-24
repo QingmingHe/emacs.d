@@ -590,6 +590,27 @@ all modified buffers."
 
 ;;; project cmake ctest
 
+(defun prj/ctest-guess-test-dir (p)
+  "Guess where to run ctest."
+  (let (proot proot-upper test-dir)
+    (setq proot (cdr p)
+          proot-upper (expand-file-name ".." proot))
+    (catch 'find-test-dir
+      (mapc
+       (lambda (dir)
+         (setq dir (expand-file-name dir proot-upper))
+         (when (file-directory-p dir)
+           (throw 'find-test-dir (setq test-dir dir))))
+       '("build" "build_debug" "build_release")))
+    (unless test-dir
+      (catch 'find-test-dir
+        (mapc
+         (lambda (dir)
+           (when (string-match "build.*$" dir)
+             (throw 'find-test-dir (setq test-dir dir))))
+         (directory-files "." t))))
+    test-dir))
+
 (defun prj/ctest-run-test (arg)
   "run unit test of current piece of code in `prj/ctest-run-test-buffer'.
 
@@ -597,15 +618,16 @@ If ARG, set directory to run unit test and command to run unit test by force;
 otherwise use the directory and command set before which are read from
 minibuffer."
   (interactive "P")
-  (let ((p (or project-details (project-root-fetch)))
-        ctest-dir ctest-command)
+  (let* ((p (or project-details (project-root-fetch)))
+         (guess-test-dir (prj/ctest-guess-test-dir p))
+         ctest-dir ctest-command)
     (if p
         (progn
-          (when (or
-                 arg
-                 (null prj/ctest-run-test-dir))
+          (if (or arg (null guess-test-dir))
+              (setq prj/ctest-run-test-dir
+                    (ido-read-directory-name "ctest dir: "))
             (setq prj/ctest-run-test-dir
-                  (ido-read-directory-name "ctest dir: ")))
+                  (or prj/ctest-run-test-dir guess-test-dir)))
           (setq ctest-dir prj/ctest-run-test-dir)
           (when (or
                  arg
@@ -620,7 +642,10 @@ minibuffer."
           (setq ctest-command prj/ctest-run-test-command)
           (pop-to-buffer
            (get-buffer-create prj/ctest-run-test-buffer))
-          (setq default-directory ctest-dir)
+          (prj/ctest-mode)
+          (setq default-directory ctest-dir
+                prj/ctest-run-test-dir ctest-dir
+                prj/ctest-run-test-command ctest-command)
           (erase-buffer)
           (start-process-shell-command
            "ctest-run-test"
@@ -628,6 +653,29 @@ minibuffer."
            ctest-command)
           (other-window -1))
       (user-error "no project found"))))
+
+(defun prj/ctest-rerun-test ()
+  (interactive)
+  (when (and
+         prj/ctest-run-test-dir
+         prj/ctest-run-test-command
+         (string= (buffer-name) prj/ctest-run-test-buffer)
+         (eq major-mode 'prj/ctest-mode))
+    (erase-buffer)
+    (start-process-shell-command
+     "ctest-run-test"
+     (current-buffer)
+     prj/ctest-run-test-command)))
+
+(defvar prj/ctest-mode-map nil
+  "Key map for `prj/ctest-mode'.")
+
+(let ((map (make-sparse-keymap)))
+  (define-key map (kbd "C-c C-c") 'prj/ctest-rerun-test)
+  (setq prj/ctest-mode-map map))
+
+(define-derived-mode prj/ctest-mode fundamental-mode
+  (use-local-map prj/ctest-mode-map))
 
 ;;; project compiler flags
 
