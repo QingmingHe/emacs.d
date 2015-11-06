@@ -112,6 +112,10 @@
   "Directory to run unit test.")
 (make-variable-buffer-local 'prj/ctest-run-test-dir)
 
+(defvar prj/ctest-associate-buffer nil
+  "The buffer associated with `prj/ctest-run-test-buffer'.")
+(make-variable-buffer-local 'prj/ctest-associate-buffer)
+
 (defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
@@ -324,6 +328,15 @@ from project root to PATH-BEGIN."
         (setq dir (file-name-directory (directory-file-name dir)))))
     file-full-path))
 
+(defun prj/touch-cmake-lists (&optional p)
+  "Touch CMakeLists.txt of project."
+  (let ((p (or p project-details (project-root-fetch))))
+    (when p
+      (mapc
+       (lambda (cmake-file)
+         (call-process "touch" nil 0 nil cmake-file))
+       (prj/go-up-dir-find-file prj/cmake-list-file p)))))
+
 ;;;###autoload
 (defun prj/add-new-source (file &optional p)
   "Add new source file to project and touch `prj/cmake-list-file' if
@@ -337,11 +350,7 @@ from project root to PATH-BEGIN."
         (progn
           (find-file file)
           (when prj/touch-cmake-lists-at-create-new-file
-            (mapc
-             (lambda (cmake-file)
-               (call-process "touch" nil 0 nil cmake-file))
-             (prj/go-up-dir-find-file
-              prj/cmake-list-file p (file-name-directory file)))))
+            (prj/touch-cmake-lists p)))
       (message "Project is not found!"))))
 
 ;;;###autoload
@@ -621,6 +630,7 @@ minibuffer."
   (interactive "P")
   (let* ((p (or project-details (project-root-fetch)))
          (guess-test-dir (prj/ctest-guess-test-dir p))
+         (associate-buffer (current-buffer))
          ctest-dir ctest-command)
     (if p
         (progn
@@ -629,6 +639,7 @@ minibuffer."
                     (ido-read-directory-name "ctest dir: "))
             (setq prj/ctest-run-test-dir
                   (or prj/ctest-run-test-dir guess-test-dir)))
+          (prj/touch-cmake-lists p)
           (setq ctest-dir prj/ctest-run-test-dir)
           (when (or
                  arg
@@ -646,7 +657,8 @@ minibuffer."
           (prj/ctest-mode)
           (setq default-directory ctest-dir
                 prj/ctest-run-test-dir ctest-dir
-                prj/ctest-run-test-command ctest-command)
+                prj/ctest-run-test-command ctest-command
+                prj/ctest-associate-buffer associate-buffer)
           (erase-buffer)
           (start-process-shell-command
            "ctest-run-test"
@@ -662,6 +674,9 @@ minibuffer."
          prj/ctest-run-test-command
          (string= (buffer-name) prj/ctest-run-test-buffer)
          (eq major-mode 'prj/ctest-mode))
+    (when prj/ctest-associate-buffer
+      (with-current-buffer prj/ctest-associate-buffer
+        (prj/touch-cmake-lists)))
     (erase-buffer)
     (start-process-shell-command
      "ctest-run-test"
