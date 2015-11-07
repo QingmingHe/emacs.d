@@ -1,3 +1,22 @@
+(defface dired-tar-mode-line-fail
+  '((default :inherit compilation-error)
+    (((class color) (min-colors 16)) (:foreground "Red1" :weight bold))
+    (((class color) (min-colors 8)) (:foreground "red"))
+    (t (:inverse-video t :weight bold)))
+  "Face for `dired-tar-mode''s \"error\" mode line indicator.")
+
+(defface dired-tar-mode-line-exit
+  '((default :inherit compilation-info)
+    (((class color) (min-colors 16))
+     (:foreground "ForestGreen" :weight bold))
+    (((class color)) (:foreground "green" :weight bold))
+    (t (:weight bold)))
+  "Face for `dired-tar-mode''s \"exit\" mode line indicator.")
+
+(defface dired-tar-mode-line-run
+  '((t :inherit compilation-warning))
+  "Face for `dired-tar-mode''s \"running\" mode line indicator.")
+
 (defvar dired-tar-tar-command "tar"
   "Command of tar.")
 
@@ -24,8 +43,7 @@
   (interactive)
   (let ((process (get-process dired-tar-process-name)))
     (when process
-      (interrupt-process process)
-      (dired-tar-sentinel))))
+      (interrupt-process process))))
 
 (defun dired-tar-revert-dired ()
   (when dired-tar-dired-buffer
@@ -33,9 +51,16 @@
       (revert-buffer))))
 
 (defun dired-tar-sentinel (proc msg)
-  (compilation-sentinel proc msg)
+  (ding)
   (dired-tar-revert-dired)
-  (setq dired-tar-dired-buffer nil))
+  (setq dired-tar-dired-buffer nil)
+  (setq mode-line-process
+        (propertize
+         (format ":%s [%s]" (process-status proc) (process-exit-status proc))
+         'help-echo msg
+         'face (if (> (process-exit-status proc) 0)
+                   'dired-tar-mode-line-fail
+                 'dired-tar-mode-line-exit))))
 
 (defun dired-untar-file (arg)
   (interactive "P")
@@ -61,6 +86,8 @@
                      tarball
                      "-C"
                      dir))
+      (setq mode-line-process
+            '(:propertize ":%s" face dired-tar-mode-line-run))
       (set-process-sentinel process 'dired-tar-sentinel))))
 
 (defun dired-tar-files (arg)
@@ -88,6 +115,8 @@
                        "jcvf"
                        tarball
                        ,@files)))
+      (setq mode-line-process
+            '(:propertize ":%s" face dired-tar-mode-line-run))
       (set-process-sentinel process 'dired-tar-sentinel))))
 
 (defun dired-tar-tar-untar ()
@@ -102,7 +131,7 @@
 (with-eval-after-load "dired"
   (define-key dired-mode-map (kbd "T") 'dired-tar-tar-untar))
 
-(define-derived-mode dired-tar-mode fundamental-mode "dired tar mode"
+(define-derived-mode dired-tar-mode fundamental-mode "dired-tar"
   "A major mode to run tar."
   (use-local-map dired-tar-mode-map))
 
