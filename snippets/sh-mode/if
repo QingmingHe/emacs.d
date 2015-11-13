@@ -1,0 +1,8 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: if
+# key: if
+# --
+if [[ $0 ]]
+then
+
+fi
