@@ -186,6 +186,9 @@ indentation rules."
            (rng-first-error))))
 #+END_SRC
 
+*** Comment xml
+[[elisp:comment-or-uncomment-region][comment and uncomment]] xml is not stable. TODO
+
 ** Matlab
 
 #+begin_src emacs-lisp
