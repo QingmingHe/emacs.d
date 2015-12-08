@@ -650,7 +650,7 @@ minibuffer."
                    (format
                     "cmake %s; make -j; ctest --output-on-failure -R %s"
                     (cdr p)
-                    (file-name-base (buffer-file-name))))))
+                    (prj/ctest-guess-test-name (buffer-file-name))))))
           (setq ctest-command prj/ctest-run-test-command)
           (pop-to-buffer
            (get-buffer-create prj/ctest-run-test-buffer))
@@ -682,6 +682,11 @@ minibuffer."
      "ctest-run-test"
      (current-buffer)
      prj/ctest-run-test-command)))
+
+(defun prj/ctest-guess-test-name (bf)
+  (let ((str (file-name-base bf)))
+    (string-match "\\(test_\\)?\\(.+\\)" str)
+    (match-string 2 str)))
 
 (defvar prj/ctest-mode-map nil
   "Key map for `prj/ctest-mode'.")
