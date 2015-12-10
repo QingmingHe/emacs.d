@@ -63,16 +63,12 @@ saved globally.
 
 * Starter Kit History
 
-[[help:savehist][savehist]] is much lighter than [[help:desktop][desktop]].
+[[help:savehist][savehist]] is much lighter than [[help:desktop][desktop]]. You should take care of this plugin for
+that when file of =.savehist= grows too big, the memory consumed by Emacs will
+also grows extraordinary.
 #+begin_src emacs-lisp
 (setq savehist-additional-variables
-      '(extended-command-history
-        search-ring
-        regexp-search-ring
-        grep-history
-        grep-find-history
-        regexp-history
-        dired-regexp-history))
+      '(extended-command-history))
 (setq savehist-file (expand-file-name ".savehist" starter-kit-dir))
 (savehist-mode 1)
 (run-with-idle-timer 600 t 'savehist-autosave)
