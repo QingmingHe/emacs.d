@@ -67,9 +67,9 @@ saved globally.
 that when file of =.savehist= grows too big, the memory consumed by Emacs will
 also grows extraordinary.
 #+begin_src emacs-lisp
+(setq savehist-save-minibuffer-history nil)
 (setq savehist-additional-variables
       '(extended-command-history))
 (setq savehist-file (expand-file-name ".savehist" starter-kit-dir))
 (savehist-mode 1)
-(run-with-idle-timer 600 t 'savehist-autosave)
 #+end_src
