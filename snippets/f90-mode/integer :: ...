@@ -2,4 +2,8 @@
 # name: integer :: ...
 # key: i
 # --
-integer$1 :: $0 !
+`(if (and (symbolp 'project-details)
+          (car project-details)
+          (string-match "^necp_x" (car project-details)))
+     "intknd"
+   "integer")`$1 :: $0
