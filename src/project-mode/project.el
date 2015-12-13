@@ -607,7 +607,8 @@ all modified buffers."
     (catch 'find-test-dir
       (mapc
        (lambda (dir)
-         (setq dir (expand-file-name dir proot-upper))
+         (setq dir (file-name-as-directory
+                    (expand-file-name dir proot-upper)))
          (when (file-directory-p dir)
            (throw 'find-test-dir (setq test-dir dir))))
        '("build_debug" "build" "build_release")))
@@ -616,7 +617,8 @@ all modified buffers."
         (mapc
          (lambda (dir)
            (when (string-match "build.*$" dir)
-             (throw 'find-test-dir (setq test-dir dir))))
+             (throw 'find-test-dir
+                    (setq test-dir (file-name-as-directory dir)))))
          (directory-files "." t))))
     test-dir))
 
