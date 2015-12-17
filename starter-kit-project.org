@@ -60,7 +60,10 @@ First define projects.
          :root-contains-files (".pyPkgs.el")
          :exclude-paths ("build"))
         ("GTD"
-         :root-contains-files ("inbox.org" "projects.org" "notes.org"))))
+         :root-contains-files ("inbox.org" "projects.org" "notes.org"))
+        ("necp_x"
+         :root-contains-files (".necp_x-root")
+         :use-completion (f90-mode))))
 #+END_SRC
 
 ** Ctags

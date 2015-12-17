@@ -2,4 +2,8 @@
 # name: real(8) :: ...
 # key: r
 # --
-real(8)$1 :: $0 !
+`(if (and (symbolp 'project-details)
+          (car project-details)
+          (string-match "^necp_x" (car project-details)))
+     "realkd"
+   "real(8)")`$1 :: $0

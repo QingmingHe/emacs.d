@@ -101,6 +101,21 @@
 (defvar prj/cmake-list-file "CMakeLists.txt"
   "CMake file.")
 
+(defvar prj/ctest-run-test-buffer "*ctest*"
+  "Buffer to run ctest.")
+
+(defvar prj/ctest-run-test-command nil
+  "Command to run unit test.")
+(make-variable-buffer-local 'prj/ctest-run-test-command)
+
+(defvar prj/ctest-run-test-dir nil
+  "Directory to run unit test.")
+(make-variable-buffer-local 'prj/ctest-run-test-dir)
+
+(defvar prj/ctest-associate-buffer nil
+  "The buffer associated with `prj/ctest-run-test-buffer'.")
+(make-variable-buffer-local 'prj/ctest-associate-buffer)
+
 (defvar prj/helm-candidate-number-limit 100
   "Limit of helm candidates. This variable should be set before load this
 library.")
@@ -110,10 +125,6 @@ library.")
 
 (defvar prj/ctags-exec (executable-find "ctags")
   "Executable of Exuberant Ctags.")
-
-(defvar prj/tags-tool-found
-  (or prj/global-exec prj/ctags-exec)
-  "Whether find a tags generation tool. A tool may be GNU global or Ctags.")
 
 (defvar prj/gtags-conf-file-guess
   `(,(expand-file-name "~/.globalrc")
@@ -317,6 +328,15 @@ from project root to PATH-BEGIN."
         (setq dir (file-name-directory (directory-file-name dir)))))
     file-full-path))
 
+(defun prj/touch-cmake-lists (&optional p)
+  "Touch CMakeLists.txt of project."
+  (let ((p (or p project-details (project-root-fetch))))
+    (when p
+      (mapc
+       (lambda (cmake-file)
+         (call-process "touch" nil 0 nil cmake-file))
+       (prj/go-up-dir-find-file prj/cmake-list-file p)))))
+
 ;;;###autoload
 (defun prj/add-new-source (file &optional p)
   "Add new source file to project and touch `prj/cmake-list-file' if
@@ -330,11 +350,7 @@ from project root to PATH-BEGIN."
         (progn
           (find-file file)
           (when prj/touch-cmake-lists-at-create-new-file
-            (mapc
-             (lambda (cmake-file)
-               (call-process "touch" nil 0 nil cmake-file))
-             (prj/go-up-dir-find-file
-              prj/cmake-list-file p (file-name-directory file)))))
+            (prj/touch-cmake-lists p)))
       (message "Project is not found!"))))
 
 ;;;###autoload
@@ -581,6 +597,109 @@ all modified buffers."
      (lambda (buf) (with-current-buffer buf (save-buffer)))
      not-prj-buffers)))
 
+;;; project cmake ctest
+
+(defun prj/ctest-guess-test-dir (p)
+  "Guess where to run ctest."
+  (let (proot proot-upper test-dir)
+    (setq proot (cdr p)
+          proot-upper (expand-file-name ".." proot))
+    (catch 'find-test-dir
+      (mapc
+       (lambda (dir)
+         (setq dir (file-name-as-directory
+                    (expand-file-name dir proot-upper)))
+         (when (file-directory-p dir)
+           (throw 'find-test-dir (setq test-dir dir))))
+       '("build_debug" "build" "build_release")))
+    (unless test-dir
+      (catch 'find-test-dir
+        (mapc
+         (lambda (dir)
+           (when (string-match "build.*$" dir)
+             (throw 'find-test-dir
+                    (setq test-dir (file-name-as-directory dir)))))
+         (directory-files "." t))))
+    test-dir))
+
+;;;###autoload
+(defun prj/ctest-run-test (arg)
+  "run unit test of current piece of code in `prj/ctest-run-test-buffer'.
+
+If ARG, set directory to run unit test and command to run unit test by force;
+otherwise use the directory and command set before which are read from
+minibuffer."
+  (interactive "P")
+  (let* ((p (or project-details (project-root-fetch)))
+         (guess-test-dir (prj/ctest-guess-test-dir p))
+         (associate-buffer (current-buffer))
+         ctest-dir ctest-command)
+    (if p
+        (progn
+          (if (or arg (null guess-test-dir))
+              (setq prj/ctest-run-test-dir
+                    (ido-read-directory-name "ctest dir: "))
+            (setq prj/ctest-run-test-dir
+                  (or prj/ctest-run-test-dir guess-test-dir)))
+          (prj/touch-cmake-lists p)
+          (setq ctest-dir prj/ctest-run-test-dir)
+          (when (or
+                 arg
+                 (null prj/ctest-run-test-command))
+            (setq prj/ctest-run-test-command
+                  (read-shell-command
+                   "ctest command: "
+                   (format
+                    "cmake %s; make -j; ctest --output-on-failure -R %s"
+                    (cdr p)
+                    (prj/ctest-guess-test-name (buffer-file-name))))))
+          (setq ctest-command prj/ctest-run-test-command)
+          (pop-to-buffer
+           (get-buffer-create prj/ctest-run-test-buffer))
+          (prj/ctest-mode)
+          (setq default-directory ctest-dir
+                prj/ctest-run-test-dir ctest-dir
+                prj/ctest-run-test-command ctest-command
+                prj/ctest-associate-buffer associate-buffer)
+          (erase-buffer)
+          (start-process-shell-command
+           "ctest-run-test"
+           (current-buffer)
+           ctest-command)
+          (other-window -1))
+      (user-error "no project found"))))
+
+(defun prj/ctest-rerun-test ()
+  (interactive)
+  (when (and
+         prj/ctest-run-test-dir
+         prj/ctest-run-test-command
+         (string= (buffer-name) prj/ctest-run-test-buffer)
+         (eq major-mode 'prj/ctest-mode))
+    (when prj/ctest-associate-buffer
+      (with-current-buffer prj/ctest-associate-buffer
+        (prj/touch-cmake-lists)))
+    (erase-buffer)
+    (start-process-shell-command
+     "ctest-run-test"
+     (current-buffer)
+     prj/ctest-run-test-command)))
+
+(defun prj/ctest-guess-test-name (bf)
+  (let ((str (file-name-base bf)))
+    (string-match "\\(test_\\)?\\(.+\\)" str)
+    (match-string 2 str)))
+
+(defvar prj/ctest-mode-map nil
+  "Key map for `prj/ctest-mode'.")
+
+(let ((map (make-sparse-keymap)))
+  (define-key map (kbd "C-c C-c") 'prj/ctest-rerun-test)
+  (setq prj/ctest-mode-map map))
+
+(define-derived-mode prj/ctest-mode fundamental-mode
+  (use-local-map prj/ctest-mode-map))
+
 ;;; project compiler flags
 
 (defun prj/add-to-list (symbol elem)
@@ -642,7 +761,7 @@ all modified buffers."
      (lambda (var)
        (mapc
         (lambda (-D-definition)
-          (prj/add-to-list var definition))
+          (prj/add-to-list var -D-definition))
         -D-definitions))
      (plist-get vars :-D-definition))
     (mapc
@@ -1350,13 +1469,13 @@ The format of `prj/project-locals-file' is identical to that of
                        (string=
                         "none"
                         (setq tags-tool (project-root-data :tags-tool p)))
-                       (not prj/tags-tool-found))
+                       (not (or prj/global-exec prj/ctags-exec)))
                 (when (project-root-file-is-project-file fname p)
                   (add-hook 'after-save-hook
                             'prj/update-tags-single-file nil t))
-                (cond ((string= "gtags" tags-tool)
+                (cond ((and (string= "gtags" tags-tool) prj/global-exec)
                        (project-root-set-data :-use-gtags t p))
-                      ((string= "ctags" tags-tool)
+                      ((and (string= "ctags" tags-tool) prj/ctags-exec)
                        (project-root-set-data :-use-gtags nil p))
                       (t
                        (project-root-set-data :-use-gtags nil p)))

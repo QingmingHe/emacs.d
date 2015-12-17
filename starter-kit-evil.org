@@ -158,6 +158,7 @@ if last command is evil-search."
   ;; make and debug
   "ma" 'compile-dwim
   "de" 'run-gdb-dwim
+  "ut" 'prj/ctest-run-test
 
   ;; fold and unfold
   "zz" (lambda ()

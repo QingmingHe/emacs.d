@@ -2,4 +2,8 @@
 # name: logical :: ...
 # key: l
 # --
-logical$1 :: $0 !
+`(if (and (symbolp 'project-details)
+          (car project-details)
+          (string-match "^necp_x" (car project-details)))
+     "logknd"
+   "logical")`$1 :: $0

@@ -51,3 +51,7 @@ defined:
 (autoload 'rst-mode "rst")
 (autoload 'eim-use-package "eim" "Another emacs input method" t)
 (autoload 'eim-insert-ascii "eim-extra" "Use a key to insert English." t)
+(autoload 'adaptive-wrap-prefix-mode "adaptive-wrap" "\
+Wrap the buffer text with adaptive filling.
+
+\(fn &optional ARG)" t nil)
