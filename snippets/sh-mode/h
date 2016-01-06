@@ -1,0 +1,6 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: h
+# key: h
+# --
+#!/usr/bin/env bash
+$0
