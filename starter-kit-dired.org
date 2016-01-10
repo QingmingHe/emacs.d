@@ -166,7 +166,7 @@ buffer. This command uses ido to complete read a file or directory name from
 all files and directories under current path and jump to it in current Dired
 buffer."
          (interactive)
-         (let ((fname (ido-completing-read
+         (let ((fname (helm-comp-read
                        "Goto file or dir: "
                        (directory-files "."))))
            (cond
