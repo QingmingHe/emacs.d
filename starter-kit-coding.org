@@ -153,6 +153,18 @@ for these files.
 #+END_SRC
 
 ** Xml
+
+*** Basic configuration
+
+I don't like nxml-mode at all. It's too heavy, just use sgml-mode instead.
+#+begin_src emacs-lisp
+(defalias 'xml-mode 'sgml-mode
+  "Use `sgml-mode' instead of `nxml-mode'.")
+(defun my-xml-config ()
+  (modify-syntax-entry ?_ "w"))
+(add-hook 'sgml-mode-hook 'my-xml-config)
+#+end_src
+
 *** Pretty print xml
 
 #+BEGIN_SRC emacs-lisp
@@ -163,31 +175,30 @@ between them. It then indents the markup by using nxml's
 indentation rules."
   (interactive "r")
   (save-excursion
-    (nxml-mode)
     (goto-char begin)
     (while (search-forward-regexp "\>[ \\t]*\<" nil t)
       (backward-char) (insert "\n"))
     (indent-region begin end)))
 #+END_SRC
 
-*** Other config
-
-#+BEGIN_SRC emacs-lisp
-(defun my-nxml-config ()
-  (modify-syntax-entry ?_ "w"))
-(add-hook 'nxml-mode-hook 'my-nxml-config)
-(setq nxml-slash-auto-complete-flag t)
-#+END_SRC
-
 *** Comment xml
+    :PROPERTIES:
+    :TANGLE:   no
+    :END:
 
 The original comment uncomment command is not stable.
 #+begin_src emacs-lisp
 (defun my-comment-uncomment-xml (beg end)
   (interactive "P")
-  (if (my-xml-commented-p beg end)
-      (my-uncomment-xml-region beg end)
-    (my-comment-xml-region beg end)))
+  (let ((beg0 (save-excursion
+                (goto-char beg)
+                (line-beginning-position)))
+        (end0 (save-excursion
+                (goto-char (1- end))
+                (line-end-position))))
+    (if (my-xml-commented-p beg0 end0)
+        (my-uncomment-xml-region beg0 end0)
+      (my-comment-xml-region beg0 end0))))
 
 (defun my-xml-commented-p (beg end)
   (string-match-p ".*<!--.*-->.*" (buffer-substring-no-properties beg end)))

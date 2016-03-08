@@ -5,8 +5,12 @@
 ** Preferences for flycheck
 
 #+begin_src emacs-lisp
+;; (with-eval-after-load 'flycheck
+;;   (setq flycheck-display-errors-function
+;;         #'flycheck-pos-tip-error-messages))
 (with-eval-after-load 'flycheck
-  (setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+  (setq flycheck-display-errors-function
+        #'flycheck-display-error-messages))
 (setq flycheck-display-errors-delay 0.5)
 #+end_src
 
@@ -120,18 +124,29 @@ connection this way:
 #+end_src
 
 ** xml
-   :PROPERTIES:
-   :TANGLE:   no
-   :END:
 
+Original flycheck doesn't support sgml-mode.
 #+begin_src emacs-lisp
 (defun my-flycheck-xml-setup ()
-  (rng-validate-mode -1)
   (when (and
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (flycheck-mode)))
-(with-eval-after-load 'nxml-mode
+    (flycheck-mode)
+    (setq-local flycheck-highlighting-mode nil)
+    (setq-local flycheck-display-errors-function
+                #'flycheck-display-error-messages)))
+(with-eval-after-load 'sgml-mode
   (require 'flycheck)
-  (add-hook 'nxml-mode-hook 'my-flycheck-xml-setup))
+
+  (flycheck-define-checker xml-xmllint
+    "A XML syntax checker and validator using the xmllint utility.
+
+The xmllint is part of libxml2, see URL
+`http://www.xmlsoft.org/'."
+    :command ("xmllint" "--noout" source)
+    :error-patterns
+    ((error line-start (file-name) ":" line ": " (message) line-end))
+    :modes (xml-mode nxml-mode sgml-mode))
+
+  (add-hook 'sgml-mode-hook 'my-flycheck-xml-setup))
 #+end_src

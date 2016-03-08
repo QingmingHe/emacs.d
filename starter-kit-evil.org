@@ -294,42 +294,33 @@ otherwise save current buffer."
 and then check the buffer. Move to first error if reached last error position
 before call this command."
          (interactive)
-         (cond ((eq major-mode 'nxml-mode)
-                (or (rng-next-error 1) (rng-first-error)))
-               (t
-                (unless flycheck-mode
-                  (flycheck-mode)
-                  (flycheck-buffer))
-                (let ((pos (flycheck-next-error-pos nil nil))
-                      (counts (length (flycheck-count-errors flycheck-current-errors))))
-                  (if pos
-                      (goto-char pos)
-                    (if (> counts 0)
-                        (progn
-                          (goto-char (point-min))
-                          (flycheck-next-error))
-                      (message "No error")))))))
+         (unless flycheck-mode
+           (flycheck-mode)
+           (flycheck-buffer))
+         (let ((pos (flycheck-next-error-pos nil nil))
+               (counts (length (flycheck-count-errors flycheck-current-errors))))
+           (if pos
+               (goto-char pos)
+             (if (> counts 0)
+                 (progn
+                   (goto-char (point-min))
+                   (flycheck-next-error))
+               (message "No error")))))
   "sd" (lambda ()
          (interactive)
          (if (executable-find "sdcv")
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
-  "co" (lambda (arg)
+  "co" (lambda ()
          "If region is active, comment or un-comment the region; otherwise
 comment or un-comment current line."
-         (interactive "p")
-         (cond ((eq major-mode 'nxml-mode)
-                (if (region-active-p)
-                    (my-comment-uncomment-xml
-                     (region-beginning) (region-end))
-                  (my-comment-uncomment-xml
-                   (line-beginning-position) (line-end-position))))
-               (t (if (region-active-p)
-                      (comment-or-uncomment-region
-                       (region-beginning) (region-end))
-                    (comment-or-uncomment-region
-                     (line-beginning-position) (line-end-position arg))))))
+         (interactive)
+         (if (region-active-p)
+             (comment-or-uncomment-region
+              (region-beginning) (region-end))
+           (comment-or-uncomment-region
+            (line-beginning-position) (line-end-position))))
   "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 
