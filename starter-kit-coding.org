@@ -177,17 +177,66 @@ indentation rules."
   (modify-syntax-entry ?_ "w"))
 (add-hook 'nxml-mode-hook 'my-nxml-config)
 (setq nxml-slash-auto-complete-flag t)
-
-(evil-leader/set-key-for-mode 'nxml-mode
-  "ne" (lambda ()
-         "Go to next error or first error in current `nxml-mode' buffer."
-         (interactive)
-         (unless (rng-next-error nil)
-           (rng-first-error))))
 #+END_SRC
 
 *** Comment xml
-[[elisp:comment-or-uncomment-region][comment and uncomment]] xml is not stable. TODO
+
+The original comment uncomment command is not stable.
+#+begin_src emacs-lisp
+(defun my-comment-uncomment-xml (beg end)
+  (interactive "P")
+  (if (my-xml-commented-p beg end)
+      (my-uncomment-xml-region beg end)
+    (my-comment-xml-region beg end)))
+
+(defun my-xml-commented-p (beg end)
+  (string-match-p ".*<!--.*-->.*" (buffer-substring-no-properties beg end)))
+
+(defun my-comment-xml-line ()
+  (interactive)
+  (save-excursion
+    (back-to-indentation)
+    (insert "<!-- ")
+    (end-of-line)
+    (skip-syntax-backward " " (line-beginning-position))
+    (insert " -->")))
+
+(defun my-uncomment-xml-line ()
+  (interactive)
+  (save-excursion
+    (back-to-indentation)
+    (re-search-forward "<!-- *" nil t)
+    (let (i0 i1)
+      (setq i1 (point)
+            i0 (search-backward "<"))
+      (delete-region i0 i1))
+    (end-of-line)
+    (forward-line)
+    (re-search-backward "-->" nil t)
+    (skip-syntax-backward " " (line-beginning-position))
+    (let (i0 i1)
+      (setq i0 (point)
+            i1 (search-forward ">"))
+      (delete-region i0 i1))))
+
+(defun my-comment-xml-region (beg end &optional arg)
+  (interactive "r")
+  (let ((l1 (line-number-at-pos (1- end))))
+    (save-excursion
+      (goto-char beg)
+      (while (<= (line-number-at-pos) l1)
+        (my-comment-xml-line)
+        (next-logical-line)))))
+
+(defun my-uncomment-xml-region (beg end &optional arg)
+  (interactive "r")
+  (let ((l1 (line-number-at-pos (1- end))))
+    (save-excursion
+      (goto-char beg)
+      (while (<= (line-number-at-pos) l1)
+        (my-uncomment-xml-line)
+        (next-logical-line)))))
+#+end_src
 
 ** Matlab
 

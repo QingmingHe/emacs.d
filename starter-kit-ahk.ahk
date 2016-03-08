@@ -10,5 +10,5 @@
 ; Capslock::Control
 ; #IfWinActive
 
-+Capslock::Capslock
+Control::Capslock
 Capslock::Control

@@ -118,3 +118,20 @@ connection this way:
      (add-hook 'c-mode-hook 'my-flycheck-c-setup)
      (add-hook 'c++-mode-hook 'my-flycheck-c-setup)))
 #+end_src
+
+** xml
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+
+#+begin_src emacs-lisp
+(defun my-flycheck-xml-setup ()
+  (rng-validate-mode -1)
+  (when (and
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
+    (flycheck-mode)))
+(with-eval-after-load 'nxml-mode
+  (require 'flycheck)
+  (add-hook 'nxml-mode-hook 'my-flycheck-xml-setup))
+#+end_src
