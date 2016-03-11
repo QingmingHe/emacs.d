@@ -312,15 +312,18 @@ before call this command."
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
-  "co" (lambda ()
+  "co" (lambda (arg)
          "If region is active, comment or un-comment the region; otherwise
 comment or un-comment current line."
-         (interactive)
+         (interactive "p")
          (if (region-active-p)
              (comment-or-uncomment-region
               (region-beginning) (region-end))
-           (comment-or-uncomment-region
-            (line-beginning-position) (line-end-position))))
+           (if arg
+               (comment-or-uncomment-region
+                (line-beginning-position) (line-end-position arg))
+             (comment-or-uncomment-region
+              (line-beginning-position) (line-end-position)))))
   "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 

@@ -15,8 +15,9 @@
      (require 'dired-tar)
      (require 'dired+)
      ;; Emacs 24.4+
-     (when (fboundp 'dired-hide-details-mode)
-       (global-dired-hide-details-mode -1))))
+     ;; (when (fboundp 'dired-hide-details-mode)
+     ;;   (global-dired-hide-details-mode -1))
+     ))
 #+END_SRC
 
 - l: Is the only mandatory one.
