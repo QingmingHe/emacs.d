@@ -345,3 +345,14 @@ visit if current buffer is not visiting a file."
     (find-file file)))
 #+end_src
 
+** Delete blank lines
+
+#+begin_src emacs-lisp
+(defun my-delete-blank-lines ()
+  (interactive)
+  (require 'evil)
+  (evil-ex (format "%sg/^\\s-*$/d"
+                   (if (region-active-p)
+                       "'<,'>"
+                     ""))))
+#+end_src
