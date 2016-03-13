@@ -75,6 +75,13 @@ Highlight current line in Dired buffer.
   (add-hook 'dired-after-readin-hook #'hl-line-mode))
 #+end_src
 
+More colorful dired.
+#+begin_src emacs-lisp
+(with-eval-after-load 'dired
+  (require 'dired-rainbow)
+  (dired-rainbow-define-chmod executable "Green" "-.*x.*"))
+#+end_src
+
 ** Basic settings
 
 #+BEGIN_SRC emacs-lisp
