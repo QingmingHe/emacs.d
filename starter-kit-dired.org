@@ -184,7 +184,9 @@ buffer."
      (define-key dired-mode-map (kbd "n") #'dired-move-to-next-or-first)
      (define-key dired-mode-map (kbd "T") #'dired-tar-tar-untar)
      (define-key dired-mode-map (kbd "N") #'dired-man-file)
-     (define-key dired-mode-map (kbd "p") #'dired-move-to-previous-or-last)))
+     (define-key dired-mode-map (kbd "p") #'dired-move-to-previous-or-last)
+     (define-key dired-mode-map (kbd "C-f") #'scroll-up-command)
+     (define-key dired-mode-map (kbd "C-b") #'scroll-down-command)))
 #+end_src
 
 ** Find name Dired
