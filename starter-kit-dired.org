@@ -10,14 +10,11 @@
       (concat "-lah1v --group-directories-first " dired-listing-time-style))
 (setq dired-hide-details-hide-information-lines nil)
 (setq dired-hide-details-hide-symlink-targets nil)
+(setq diredp-hide-details-initially-flag nil)
 (eval-after-load "dired"
   `(progn
      (require 'dired-tar)
-     (require 'dired+)
-     ;; Emacs 24.4+
-     ;; (when (fboundp 'dired-hide-details-mode)
-     ;;   (global-dired-hide-details-mode -1))
-     ))
+     (require 'dired+)))
 #+END_SRC
 
 - l: Is the only mandatory one.
