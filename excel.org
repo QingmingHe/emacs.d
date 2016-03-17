@@ -1,0 +1,5 @@
+* EXCEL notes
+
+** root mean square error
+
+SQRT(SUMSQ(DC41:EJ74)/COUNTA(DC41:EJ74))
