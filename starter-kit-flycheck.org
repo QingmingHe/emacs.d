@@ -150,3 +150,17 @@ The xmllint is part of libxml2, see URL
 
   (add-hook 'sgml-mode-hook 'my-flycheck-xml-setup))
 #+end_src
+
+** shell script
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'sh-script
+  (require 'flycheck)
+  (add-hook 'sh-mode-hook 'my-flycheck-sh-setup))
+
+(defun my-flycheck-sh-setup ()
+  (when (and
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
+    (flycheck-mode)))
+#+end_src
