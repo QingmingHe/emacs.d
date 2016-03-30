@@ -23,7 +23,8 @@ Support for the Python programming language.
   (when jedi-is-installed
     (eldoc-mode 1))
   (setq imenu-create-index-function 'python-imenu-create-index)
-  (modify-syntax-entry ?_ "w"))
+  (modify-syntax-entry ?_ "w")
+  (define-key python-mode-map (kbd "C-h f") #'anaconda-mode-view-doc))
 
 (with-eval-after-load 'python
   (require 'highlight-indentation)
