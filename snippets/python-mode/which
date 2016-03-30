@@ -1,0 +1,5 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: which
+# key: which
+# --
+from distutils.spawn import find_executable
