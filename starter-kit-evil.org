@@ -422,7 +422,8 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
           (add-hook 'post-command-hook 'set-evil-cursor-mintty-no-tmux)))
     (setq evil-visual-state-cursor 'box)
     (setq evil-insert-state-cursor 'bar)
-    (setq evil-emacs-state-cursor 'hbar)))
+    (setq evil-emacs-state-cursor 'hbar)
+    (add-hook 'post-command-hook 'etcc--set-evil-cursor)))
 #+end_src
 
 ** tmux and xclip Clipboard
