@@ -214,7 +214,7 @@ window. Come back to current window immediately after send eshell input."
                  (user-error "Are you kidding me!")))
              (goto-char (point-max))
              (when (re-search-backward
-                    (format "%s *[^ ]+$" eshell-prompt-regexp) nil t 5)
+                    (format "%s[[:alnum:]\\.\\$]+" eshell-prompt-regexp) nil t 5)
                (eshell-bol)
                (call-interactively 'eshell-send-input)))))
 
