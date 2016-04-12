@@ -2,4 +2,4 @@
 # name: .not.
 # key: n
 # --
-.NOT. $0
+.not. $0
