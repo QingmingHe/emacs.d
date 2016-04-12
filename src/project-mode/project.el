@@ -505,6 +505,8 @@ of ctags."
   (let* ((fname (buffer-file-name))
          (p (or p project-details (project-root-fetch)))
          (tags-file (project-root-data :-tags-file p)))
+    (unless (file-exists-p tags-file)
+      (prj/generate-etags))
     (when (and p fname tags-file)
       (prj/update-etags-files tags-file `(,fname)))))
 
@@ -662,10 +664,11 @@ minibuffer."
                 prj/ctest-run-test-command ctest-command
                 prj/ctest-associate-buffer associate-buffer)
           (erase-buffer)
-          (start-process-shell-command
-           "ctest-run-test"
-           (current-buffer)
-           ctest-command)
+          (async-shell-command
+           ctest-command
+           (current-buffer))
+          (when (featurep 'evil)
+            (evil-normal-state))
           (other-window -1))
       (user-error "no project found"))))
 
@@ -680,10 +683,9 @@ minibuffer."
       (with-current-buffer prj/ctest-associate-buffer
         (prj/touch-cmake-lists)))
     (erase-buffer)
-    (start-process-shell-command
-     "ctest-run-test"
-     (current-buffer)
-     prj/ctest-run-test-command)))
+    (async-shell-command
+     prj/ctest-run-test-command
+     (current-buffer))))
 
 (defun prj/ctest-guess-test-name (bf)
   (let ((str (file-name-base bf)))
