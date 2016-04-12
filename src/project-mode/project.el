@@ -658,12 +658,11 @@ minibuffer."
           (setq ctest-command prj/ctest-run-test-command)
           (pop-to-buffer
            (get-buffer-create prj/ctest-run-test-buffer))
-          (prj/ctest-mode)
+          (erase-buffer)
           (setq default-directory ctest-dir
                 prj/ctest-run-test-dir ctest-dir
                 prj/ctest-run-test-command ctest-command
                 prj/ctest-associate-buffer associate-buffer)
-          (erase-buffer)
           (async-shell-command
            ctest-command
            (current-buffer))
@@ -672,35 +671,10 @@ minibuffer."
           (other-window -1))
       (user-error "no project found"))))
 
-(defun prj/ctest-rerun-test ()
-  (interactive)
-  (when (and
-         prj/ctest-run-test-dir
-         prj/ctest-run-test-command
-         (string= (buffer-name) prj/ctest-run-test-buffer)
-         (eq major-mode 'prj/ctest-mode))
-    (when prj/ctest-associate-buffer
-      (with-current-buffer prj/ctest-associate-buffer
-        (prj/touch-cmake-lists)))
-    (erase-buffer)
-    (async-shell-command
-     prj/ctest-run-test-command
-     (current-buffer))))
-
 (defun prj/ctest-guess-test-name (bf)
   (let ((str (file-name-base bf)))
     (string-match "\\(test_\\)?\\(.+\\)" str)
     (match-string 2 str)))
-
-(defvar prj/ctest-mode-map nil
-  "Key map for `prj/ctest-mode'.")
-
-(let ((map (make-sparse-keymap)))
-  (define-key map (kbd "C-c C-c") 'prj/ctest-rerun-test)
-  (setq prj/ctest-mode-map map))
-
-(define-derived-mode prj/ctest-mode fundamental-mode
-  (use-local-map prj/ctest-mode-map))
 
 ;;; project compiler flags
 
