@@ -2,4 +2,4 @@
 # name: .or.
 # key: o
 # --
-.OR. $0
+.or. $0

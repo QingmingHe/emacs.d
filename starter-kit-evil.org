@@ -158,7 +158,12 @@ if last command is evil-search."
   ;; make and debug
   "ma" 'compile-dwim
   "de" 'run-gdb-dwim
-  "ut" 'prj/ctest-run-test
+  "ut" '(lambda ()
+          (interactive)
+          (require 'project)
+          (if (string= prj/ctest-run-test-buffer (buffer-name))
+              (call-interactively #'prj/ctest-rerun-test)
+            (call-interactively #'prj/ctest-run-test)))
 
   ;; fold and unfold
   "zz" (lambda ()

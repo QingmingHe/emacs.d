@@ -658,18 +658,37 @@ minibuffer."
           (setq ctest-command prj/ctest-run-test-command)
           (pop-to-buffer
            (get-buffer-create prj/ctest-run-test-buffer))
+          (setq default-directory ctest-dir)
           (erase-buffer)
-          (setq default-directory ctest-dir
-                prj/ctest-run-test-dir ctest-dir
-                prj/ctest-run-test-command ctest-command
-                prj/ctest-associate-buffer associate-buffer)
           (async-shell-command
            ctest-command
            (current-buffer))
+          (setq prj/ctest-run-test-dir ctest-dir
+                prj/ctest-run-test-command ctest-command
+                prj/ctest-associate-buffer associate-buffer)
           (when (featurep 'evil)
             (evil-normal-state))
           (other-window -1))
       (user-error "no project found"))))
+
+(defun prj/ctest-rerun-test ()
+  (interactive)
+  (if (get-buffer prj/ctest-run-test-buffer)
+      (progn
+        (pop-to-buffer prj/ctest-run-test-buffer)
+        (let ((ctest-dir prj/ctest-run-test-dir)
+              (ctest-command prj/ctest-run-test-command)
+              (associate-buffer prj/ctest-associate-buffer))
+          (async-shell-command
+           prj/ctest-run-test-command
+           (current-buffer))
+          (setq prj/ctest-run-test-dir ctest-dir
+                prj/ctest-run-test-command ctest-command
+                prj/ctest-associate-buffer associate-buffer))
+        (when (featurep 'evil)
+          (evil-normal-state))
+        (other-window -1))
+    (user-error "no last ctest")))
 
 (defun prj/ctest-guess-test-name (bf)
   (let ((str (file-name-base bf)))
