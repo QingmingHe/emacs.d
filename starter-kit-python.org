@@ -27,6 +27,7 @@ Support for the Python programming language.
   (define-key python-mode-map (kbd "C-h f") #'anaconda-mode-view-doc))
 
 (with-eval-after-load 'python
+  ;; zenburn-bg+1
   (require 'highlight-indentation)
   (set-face-background 'highlight-indentation-current-column-face "#4F4F4F")
   (add-hook 'python-mode-hook 'my-python-conf t))

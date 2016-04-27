@@ -206,6 +206,12 @@ WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
 (load-theme 'zenburn t)
 #+end_src
 
+** Highliht current line
+
+#+begin_src emacs-lisp
+(global-hl-line-mode 1)
+#+end_src
+
 ** Disable recentering
 
 For smooth scrolling and disabling the auto-recentering of emacs screen when

@@ -652,7 +652,7 @@ minibuffer."
                   (read-shell-command
                    "ctest command: "
                    (format
-                    "cmake %s; make -j; ctest --output-on-failure -R %s"
+                    "cmake -DCMAKE_BUILD_TYPE:STRING=\"Debug\" %s; make -j; ctest --output-on-failure -R %s"
                     (cdr p)
                     (prj/ctest-guess-test-name (buffer-file-name))))))
           (setq ctest-command prj/ctest-run-test-command)
