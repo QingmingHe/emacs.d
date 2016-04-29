@@ -191,6 +191,30 @@ from http://stackoverflow.com/questions/1587972/how-to-display-indentation-guide
   ;; shell
   "mn" 'multi-eshell-switch
   "me" 'multi-eshell
+  "en" (lambda ()
+         (interactive)
+         (let (esh-bufs
+               (i -1))
+           (mapc
+            (lambda (buf)
+              (when (string-match "\\*eshell\\*" (buffer-name buf))
+                (add-to-list 'esh-bufs (buffer-name buf))))
+            (buffer-list))
+           (if esh-bufs
+               (progn
+                 (setq esh-bufs (sort esh-bufs #'string-lessp))
+                 (catch 'found-current-eshell
+                   (mapc
+                    (lambda (buf)
+                      (setq i (1+ i))
+                      (when (string= buf (buffer-name (current-buffer)))
+                        (throw 'found-current-eshell t)))
+                    esh-bufs))
+                 (when (= i (1- (length esh-bufs)))
+                   (setq i -1))
+                 (switch-to-buffer (nth (1+ i) esh-bufs)))
+             (user-error "no eshell buffer"))))
+
   "er" (lambda ()
          "Eshell Repeat last input.
 
@@ -214,7 +238,7 @@ window. Come back to current window immediately after send eshell input."
                  (user-error "Are you kidding me!")))
              (goto-char (point-max))
              (when (re-search-backward
-                    (format "%s[[:alnum:]\\.\\$]+" eshell-prompt-regexp) nil t 5)
+                    (format "%s[[:alnum:]\\.\\$]+" eshell-prompt-regexp) nil t)
                (eshell-bol)
                (call-interactively 'eshell-send-input)))))
 
