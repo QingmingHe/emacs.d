@@ -200,18 +200,6 @@ WenQuanYi can be installed by fontconfig but Emacs can't recognize it.
   (fringe-mode '(4 . 0)))
 #+END_SRC
 
-** Zenburn
-
-#+begin_src emacs-lisp
-(load-theme 'zenburn t)
-#+end_src
-
-** Highliht current line
-
-#+begin_src emacs-lisp
-(global-hl-line-mode 1)
-#+end_src
-
 ** Disable recentering
 
 For smooth scrolling and disabling the auto-recentering of emacs screen when
@@ -223,3 +211,36 @@ lines of codes.
       auto-window-vscroll nil)
 (setq scroll-margin 4)
 #+END_SRC
+
+** Theme
+
+*** Theme zenburn
+    :PROPERTIES:
+    :TANGLE: yes
+    :END:
+
+#+begin_src emacs-lisp
+(load-theme 'zenburn t)
+(global-hl-line-mode 1)
+(with-eval-after-load 'python
+  (require 'highlight-indentation)
+  (set-face-background 'highlight-indentation-current-column-face zenburn-bg+1))
+#+end_src
+
+*** Theme ample
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
+
+#+begin_src emacs-lisp
+(load-theme 'ample t t)
+(load-theme 'ample-flat t t)
+(load-theme 'ample-light t t)
+(enable-theme 'ample-light)
+(with-eval-after-load 'python
+  (require 'highlight-indentation)
+  ;; ample/region=dark
+  (set-face-background 'highlight-indentation-current-column-face "#ABA991"))
+(with-eval-after-load 'dired
+  (add-hook 'dired-after-readin-hook #'hl-line-mode))
+#+end_src
