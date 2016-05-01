@@ -37,6 +37,10 @@ which typesets HTML into plain text.
                   '("dictionary" "http://dictionary.reference.com/search?q=%s" utf-8))
      (add-to-list 'w3m-search-engine-alist
                   '("youdao" "http://dict.youdao.com/search?q=%s" utf-8))
+     (add-to-list 'w3m-search-engine-alist
+                  '("Stack Overflow" "https://stackoverflow.com/search?q=%s" utf-8))
+     (add-to-list 'w3m-search-engine-alist
+                  '("Bing" "http://www.bing.com/search?q=%s" utf-8))
      (setq w3m-search-default-engine "yahoo")))
 #+END_SRC
 
