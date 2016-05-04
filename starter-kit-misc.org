@@ -85,7 +85,7 @@ previously visited the same file.
     (recentf-track-opened-file)
     (remove-hook 'find-file-hook 'lazy-load-recentf)))
 (setq recentf-max-saved-items 2000
-      recentf-exclude '("/tmp/" "/ssh:" "\\.git/")
+      recentf-exclude '("/tmp/" "/ssh:" "\\.git/" "/scp:")
       recentf-auto-cleanup 'never)
 (add-hook 'find-file-hook 'lazy-load-recentf)
 (setq recentf-clean-and-save-timer
