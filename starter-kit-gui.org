@@ -224,7 +224,7 @@ lines of codes.
 (global-hl-line-mode 1)
 (with-eval-after-load 'python
   (require 'highlight-indentation)
-  (set-face-background 'highlight-indentation-current-column-face zenburn-bg+1))
+  (set-face-background 'highlight-indentation-current-column-face "#4F4F4F"))
 #+end_src
 
 *** Theme ample
