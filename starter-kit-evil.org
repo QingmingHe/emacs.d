@@ -153,7 +153,6 @@ if last command is evil-search."
   "bmj" 'buf-move-down
   "bmk" 'buf-move-up
   "bml" 'buf-move-right
-  "j" 'ace-window
 
   ;; make and debug
   "ma" 'compile-dwim
@@ -164,6 +163,11 @@ if last command is evil-search."
           (if (string= prj/ctest-run-test-buffer (buffer-name))
               (call-interactively #'prj/ctest-rerun-test)
             (call-interactively #'prj/ctest-run-test)))
+
+  ;; copy, cut in terminal
+  "dd" 'simpleclip-cut
+  "yy" 'xclip-save-region
+  "pp" 'simpleclip-paste
 
   ;; fold and unfold
   "zz" (lambda ()
@@ -434,6 +438,8 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 ** tmux and xclip Clipboard
 
 #+begin_src emacs-lisp
+(defvar xclip-temp-file "/tmp/xclip-temp-file")
+
 (evil-define-operator tmux-save-region (beg end type register yank-handler)
   "Save region into tmux kill ring."
   :move-point nil
@@ -513,6 +519,11 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
   (interactive)
   (call-process "tmux" nil t nil "show-buffer"))
 
+(defun xclip-save-from-file ()
+  (call-process-shell-command
+   (format "xsel -cb"))
+  (call-process "xsel" xclip-temp-file nil nil "-b" "-i"))
+
 (evil-define-operator xclip-save-region (beg end type register yank-handler)
   "Save region into xclip."
   :move-point nil
@@ -551,8 +562,10 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
         (evil-set-register ?0 text)) ; "0 register contains last yanked text
       (unless (eq register ?_)
         (kill-new text))
-      (call-process-shell-command
-       (format "xclip \"%s\"" (substring-no-properties text))))))
+      (with-temp-buffer
+        (insert text)
+        (write-region (point-min) (point-max) xclip-temp-file nil 0))
+      (xclip-save-from-file))))
 
 (defun xclip-save-lines (beg end &optional register yank-handler)
   "Saves the lines in the region BEG and END into the kill-ring."
@@ -571,8 +584,10 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
       (evil-set-register ?0 text)) ; "0 register contains last yanked text
     (unless (eq register ?_)
       (kill-new text))
-    (call-process-shell-command
-     (format "xclip \"%s\"" (substring-no-properties text)))))
+    (with-temp-buffer
+      (insert text)
+      (write-region (point-min) (point-max) xclip-temp-file nil 0))
+    (xclip-save-from-file)))
 
 (defun xclip-save-characters (beg end &optional register yank-handler)
   "Saves the characters defined by the region BEG and END in the kill-ring."
@@ -585,8 +600,10 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
       (evil-set-register ?0 text)) ; "0 register contains last yanked text
     (unless (eq register ?_)
       (kill-new text))
-    (call-process-shell-command
-     (format "xclip \"%s\"" (substring-no-properties text)))))
+    (with-temp-buffer
+      (insert text)
+      (write-region (point-min) (point-max) xclip-temp-file nil 0))
+    (xclip-save-from-file)))
 
 (defun xclip-yank ()
   (interactive)

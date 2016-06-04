@@ -1,0 +1,8 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: select type
+# key: se
+# --
+select type ($1)
+type is ($2)
+  $0
+end select
