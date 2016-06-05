@@ -165,7 +165,7 @@ if last command is evil-search."
             (call-interactively #'prj/ctest-run-test)))
 
   ;; copy, cut in terminal
-  "dd" 'simpleclip-cut
+  "cc" 'simpleclip-cut
   "yy" 'xclip-save-region
   "pp" 'simpleclip-paste
 
