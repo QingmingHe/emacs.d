@@ -1,0 +1,10 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: omp
+# key: omp
+# --
+`
+(progn
+  (while
+      (/= (line-beginning-position) (point))
+    (backward-delete-char 1))
+  "!$omp")` 
