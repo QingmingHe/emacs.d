@@ -21,7 +21,8 @@
                 (expand-file-name
                  "../build_syntax/library/necl_gm_endf70_wims69e")))
               (setq flycheck-fortran+-module-path
-                    (expand-file-name "../build_syntax/src")))
+                    (expand-file-name "../build_syntax/src"))
+              (setq flycheck-fortran+-enable-openmp t))
             (unless flycheck-mode
               (flycheck-mode 1))
             (flycheck-buffer)))))))
