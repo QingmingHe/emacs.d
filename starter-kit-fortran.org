@@ -59,6 +59,11 @@ Default indentation for Fortran is not that friendly.
 (setq f90-type-indent 2)
 #+END_SRC
 
+Don't indent for some special statements.
+#+begin_src emacs-lisp
+(setq f90-directive-comment-re "\\(!hpf\\$\\|!\\$omp\\)")
+#+end_src
+
 ** Declaration align
 
 Align variable declaration. Key binding is *C-c C-i*.
