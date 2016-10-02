@@ -254,19 +254,25 @@ window. Come back to current window immediately after send eshell input."
   ;; tags
   "ta" (lambda (arg)
          (interactive "P")
-         (if project-details
-             (if (project-root-data :use-gtags project-details)
-                 (if (thing-at-point 'symbol)
-                     (helm-gtags-find-tag-from-here)
-                   (call-interactively 'helm-gtags-select))
-               (prj/helm-etags))
-           (helm-etags-select nil)))
+         (cond ((and (eq major-mode 'python-mode) jedi-is-installed)
+                (call-interactively 'anaconda-mode-find-definitions))
+               (t
+                (if project-details
+                    (if (project-root-data :use-gtags project-details)
+                        (if (thing-at-point 'symbol)
+                            (helm-gtags-find-tag-from-here)
+                          (call-interactively 'helm-gtags-select))
+                      (prj/helm-etags))
+                  (helm-etags-select nil)))))
   "rta" 'helm-gtags-find-rtag
   "at" (lambda ()
          (interactive)
-         (if (project-root-data :use-gtags project-details)
-             (helm-gtags-pop-stack)
-           (pop-tag-mark)))
+         (cond ((and (eq major-mode 'python-mode) jedi-is-installed)
+                (call-interactively 'anaconda-mode-go-back))
+               (t
+                (if (project-root-data :use-gtags project-details)
+                    (helm-gtags-pop-stack)
+                  (pop-tag-mark)))))
   "ota" 'helm-org-agenda-files-headings
   "tl" (lambda ()
          (interactive)

@@ -1,12 +1,13 @@
 # -*- mode: snippet; require-final-newline: nil -*-
 # name: header
-# key: header
+# key: h
 # --
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """ ${1:brief description}
 
-Author: Qingming He @ NECP
+Author: Qingming He
+Email: he_qing_ming@foxmail.com
 Date: `(format-time-string "%Y-%m-%d %T")`
 
 Description

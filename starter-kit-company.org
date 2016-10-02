@@ -63,12 +63,14 @@ Use anaconda as backend.
         (anaconda-mode)
         (add-to-list 'company-backends
                      '(company-anaconda
-                       company-dabbrev-code)))
+                       ;; company-dabbrev-code
+                       )))
     (setq company-backends
           '(company-etags company-gtags company-dabbrev-code company-keywords))))
 
 (add-hook 'python-mode-hook 'python-company-setup)
 
+(setq-default jedi-is-installed nil)
 (with-eval-after-load 'python
   (if (eq 0
           (call-process-shell-command
