@@ -61,6 +61,8 @@ First define projects.
          :exclude-paths ("build"))
         ("GTD"
          :root-contains-files ("inbox.org" "projects.org" "notes.org"))
+        ("openmoc"
+         :root-contains-files (".openmoc-root"))
         ("necp_x"
          :root-contains-files (".necp_x-root")
          :use-completion (f90-mode))))

@@ -91,8 +91,9 @@ Use anaconda as backend.
       (setq company-clang--version (company-clang-version)))
     (add-to-list 'company-backends
                  '(company-clang
-                   company-dabbrev-code
-                   company-keywords)))
+                   ;; company-dabbrev-code
+                   ;; company-keywords
+                   )))
   (add-to-list 'company-backends 'company-c-headers))
 
 (add-hook 'c-mode-hook 'c-company-setup)
