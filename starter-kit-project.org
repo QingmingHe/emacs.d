@@ -16,7 +16,7 @@ First define projects.
 (setq prj/global-mode-loaded nil)
 (defun lazy-load-project-mode ()
   (unless prj/global-mode-loaded
-    (require 'project)
+    (require 'prj-project)
     (global-project-mode 1)
     (prj/setup)
     (setq prj/global-mode-loaded t)

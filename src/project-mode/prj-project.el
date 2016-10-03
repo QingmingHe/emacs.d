@@ -1523,7 +1523,7 @@ Enable `global-project-mode' only when all following conditions are meet:
 (define-globalized-minor-mode global-project-mode project-minor-mode
   project-mode-on-safe
   :init-value nil
-  :require 'project)
+  :require 'prj-project)
 
 ;;;###autoload
 (defun prj/re-turn-on-project-minor-mode (arg)
@@ -1541,6 +1541,6 @@ very useful when you have changed some settings of `project-roots'"
        (buffer-list)
      `(,(current-buffer)))))
 
-(provide 'project)
+(provide 'prj-project)
 
 ;;; project.el ends here

@@ -6,6 +6,13 @@
 ;;
 
 ;; activate debugging, similar to emacs --debug-init
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (setq debug-on-error t
       debug-on-signal nil
       debug-on-quit nil)
@@ -13,10 +20,10 @@
 ;; determine system type and emacs version
 (setq *cygwin* (eq system-type 'cygwin))
 (setq *linux*  (eq system-type 'gnu/linux))
-(if (< emacs-major-version 24)
-    (error "Emacs version should be >= 24.4")
-  (when (< emacs-minor-version 4)
-    (error "Emacs version should be >= 24.4")))
+;; (if (< emacs-major-version 24)
+;;     (error "Emacs version should be >= 24.4")
+;;   (when (< emacs-minor-version 4)
+;;     (error "Emacs version should be >= 24.4")))
 (unless (or *cygwin* *linux*)
   (error "Only support cygwin or gnu/linux system"))
 
