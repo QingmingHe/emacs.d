@@ -18,6 +18,8 @@ Support for the Python programming language.
   myself.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
+  (setq ipython-version
+        (shell-command-to-string "ipython --version"))
   (highlight-indentation-current-column-mode)
   (sphinx-doc-mode 1)
   ;(when jedi-is-installed
@@ -69,11 +71,17 @@ Activate IPython in ansi-term.
 #+END_SRC
 
 Or you can use *M-x C-u run-python* command to run Python interpreter. Here
-*C-u* prefix enables you input the Python interpreter such IPython.
+*C-u* prefix enables you input the Python interpreter such IPython. IPython 5
+has a new terminal interface, which is not compatible with Emacs' inferior
+shells. To fix it, add the *--simple-prompt* flag to the IPython command. See
+[[http://emacs.stackexchange.com/questions/24453/weird-shell-output-when-using-ipython-5][StackExchange]].
 #+begin_src emacs-lisp
 (setq
  python-shell-interpreter "ipython"
- python-shell-interpreter-args ""
+ python-shell-interpreter-args
+ (if (string-match-p "^5\\." ipython-version)
+     "--simple-prompt -i"
+   "")
  python-shell-prompt-regexp "In \\[[0-9]+\\]: "
  python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: "
  python-shell-completion-setup-code
