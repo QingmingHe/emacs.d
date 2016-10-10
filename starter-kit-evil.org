@@ -159,7 +159,7 @@ if last command is evil-search."
   "de" 'run-gdb-dwim
   "ut" '(lambda ()
           (interactive)
-          (require 'project)
+          (require 'prj-project)
           (if (string= prj/ctest-run-test-buffer (buffer-name))
               (call-interactively #'prj/ctest-rerun-test)
             (call-interactively #'prj/ctest-run-test)))
