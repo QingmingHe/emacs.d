@@ -10,5 +10,5 @@
           (prj/set-language-flags
            `(,(getenv "_PYTHON_INC_PATH")
              ,@(prj/c++-system-include-paths))
-           `("SWIG" "__cplusplus" "FP_PRECISION=double" "VEC_LENGTH=8"
-             "OPENMP")))))))
+           `("SWIG""FP_PRECISION=double" "VEC_LENGTH=8" "OPENMP" "DOUBLE"
+             "VEC_ALIGNMENT=16" "GCC")))))))
