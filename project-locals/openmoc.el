@@ -7,6 +7,8 @@
   . ((eval
       . (progn
           (setq-local flycheck-gcc-openmp t)
+          (setq-local compile-command "python setup.py install --user --fp=double")
+          (setq-local compile-dir-default (cdr project-details))
           (prj/set-language-flags
            `(,(getenv "_PYTHON_INC_PATH")
              ,@(prj/c++-system-include-paths))
