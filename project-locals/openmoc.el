@@ -2,7 +2,6 @@
   . ((eval
       . (progn
           (when (string-match-p "\\.h$" buffer-file-name)
-            (message buffer-file-name)
             (call-interactively 'c++-mode))))))
  (c++-mode
   . ((eval
