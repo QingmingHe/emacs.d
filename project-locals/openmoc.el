@@ -7,7 +7,9 @@
  (c++-mode
   . ((eval
       . (progn
+          (setq-local flycheck-gcc-openmp t)
           (prj/set-language-flags
            `(,(getenv "_PYTHON_INC_PATH")
              ,@(prj/c++-system-include-paths))
-           `("SWIG" "__cplusplus" "FP_PRECISION=double" "VEC_LENGTH=8")))))))
+           `("SWIG" "__cplusplus" "FP_PRECISION=double" "VEC_LENGTH=8"
+             "OPENMP")))))))
