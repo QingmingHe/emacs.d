@@ -698,8 +698,8 @@ minibuffer."
 ;;; project compiler flags
 
 (defun prj/add-to-list (symbol elem)
-  "Add ELEM to SYMBOL locally if SYMBOL has been defined."
-  (when (boundp symbol)
+  "Add ELEM to SYMBOL locally if SYMBOL has been defined and ELEM is not nil."
+  (when (and (boundp symbol) elem)
     (add-to-list (make-local-variable symbol) elem)))
 
 (defun prj/set-language-flags (&optional include-paths definitions args)
@@ -709,17 +709,20 @@ minibuffer."
          (includes
           (mapcar
            (lambda (path)
-             (expand-file-name path proot))
+             (when path
+               (expand-file-name path proot)))
            include-paths))
          (-I-includes
           (mapcar
            (lambda (include)
-             (concat "-I" include))
+             (when include
+               (concat "-I" include)))
            includes))
          (-D-definitions
           (mapcar
            (lambda (definition)
-             (concat "-D" definition))
+             (when definition
+               (concat "-D" definition)))
            definitions)))
     (mapc
      (lambda (var)
