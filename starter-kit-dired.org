@@ -300,6 +300,46 @@ PATTERN is sequence of first character of PinYin from Chinese file name."
 (add-hook 'dired-mode-hook #'recentf-add-dired-file)
 #+end_src
 
+** Open w32 program at point in Dired and eshell
+
+#+BEGIN_SRC emacs-lisp
+(defun dired-open-w32-prog-at-point (arg)
+  "Open Windows program at point in dired. With prefix, read argument passed
+to program from minibuffer."
+  (interactive "P")
+  (let ((prog-name (dired-get-file-for-visit))
+        (prog-argv
+         (when arg
+           (read-shell-command "Argv passed to prog: "))))
+    (when prog-argv
+      (setq prog-argv (cygwin-to-win-path prog-argv)))
+    (w32-shell-execute "open" prog-name (format "\"%s\"" prog-argv))))
+
+(defun dired-open-nautilus ()
+  (interactive)
+  (call-process-shell-command "nautilus ."))
+
+(defun dired-open-w32-or-nautilus ()
+  (interactive)
+  (if (executable-find "nautilus")
+      (call-interactively 'dired-open-nautilus)
+    (if *cygwin*
+        (call-interactively 'dired-open-w32-prog-at-point)
+      (user-error "no nautilus or windows"))))
+
+;; eshell alias: alias wf 'eshell-open-w32-prog $*'
+(defun eshell-open-w32-prog (args)
+  (w32-shell-execute
+   "open"
+   (expand-file-name (car args))
+   (when (cdr args) (mapconcat 'concat (cdr args) " "))
+   nil))
+
+(eval-after-load "dired"
+  `(define-key dired-mode-map "/" 'dired-open-w32-or-nautilus))
+#+END_SRC
+
+
 ** Tips
 
 - *w* copies file name to ring. *C-u 0 w* copies full path.
