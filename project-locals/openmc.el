@@ -5,6 +5,7 @@
           (setq-local compile-dir-default
                       (expand-file-name "~/codes/openmc"))
           (add-to-list 'flycheck-fortran+-definitions "UNIX")
+          (add-to-list 'flycheck-fortran+-definitions "MAX_COORD=10")
           (setq flycheck-fortran+-module-path
                 (expand-file-name "~/codes/openmc/build_syntax/include"))
           (if (getenv "HDF5_ROOT")
