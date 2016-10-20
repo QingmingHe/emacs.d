@@ -94,6 +94,11 @@ Select checker for that flake8 is not always available.
      (add-hook 'python-mode-hook 'my-flycheck-python-setup)))
 #+END_SRC
 
+Set max line length to be 80:
+#+begin_src emacs-lisp
+(setq flycheck-flake8-maximum-line-length 80)
+#+end_src
+
 You can install flake8 with its dependencies without direct Internet
 connection this way:
 1. Download flake8 and its packages *pip install flake8
