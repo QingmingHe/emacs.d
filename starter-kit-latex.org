@@ -10,12 +10,38 @@
 First install the latest *texlive*. Then install *auctex*:
 #+begin_src sh
 cd ~/.emacs.d/auctex-11.88/
-./configure
+./configure --with-lispdir=path/to/site-lisp
 make
 make install
 #+end_src
 
 ** cdlatex
+
+To combine yasnippet with cdlatex:
+#+begin_src emacs-lisp
+(defun tab-yas-or-cdlatex ()
+  (interactive)
+  (let* ((bounds (bounds-of-thing-at-point 'word))
+         (b0 (car bounds))
+         (b1 (cdr bounds))
+         (p (point))
+         (yas-fallback-behavior 'return-nil))
+    (cond
+     ((and yas-minor-mode
+           b0
+           b1
+           (<= (- p b0) 3)
+           (= p b1)
+           (yas-expand)))
+     ((and yas-minor-mode
+           (yas--snippets-at-point))
+      (when (and (looking-back " ")
+                 (looking-at "[\]})\n\[({, ]"))
+        (delete-region (1- p) p))
+      (yas-next-field))
+     (t
+      (call-interactively 'cdlatex-tab)))))
+#+end_src
 
 I use *yasnippet* to expand math command, latex environments, ... So
 [[help:cdlatex-command-alist-default][cdlatex-command-alist-default]] is of no use. The cdlatex-style of inserting
@@ -27,6 +53,7 @@ math symbols with prefix =`= and ='= is very strange and disturbing. I use
   (define-key cdlatex-mode-map
     (cdlatex-get-kbd-vector cdlatex-math-symbol-prefix)
     'self-insert-command)
+  (define-key cdlatex-mode-map "\t" 'tab-yas-or-cdlatex)
   (define-key cdlatex-mode-map
     (cdlatex-get-kbd-vector cdlatex-math-modify-prefix)
     'self-insert-command))
@@ -98,7 +125,9 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
    'TeX-command-list
    '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"
      TeX-run-TeX nil TeX-master))
-  (setq TeX-command-default "XeLaTeX")
+  (setq LaTeX-command-style
+        '(("" "%(PDF)%(latex) %(extraopts) -shell-escape %S%(PDFout)")))
+  (setq TeX-command-default "LaTex")
   (setq TeX-save-query nil)
   (setq TeX-show-compilation t)
   (turn-on-flyspell)
