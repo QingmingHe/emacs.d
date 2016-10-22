@@ -142,6 +142,23 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
   (add-hook 'LaTeX-mode-hook 'my-latex-config))
 #+END_SRC
 
+** Imenu for LaTeX
+
+Define my own imenu for LaTeX.
+#+begin_src emacs-lisp
+(defun my-latex-imenu-create-index-function ()
+  (imenu--generic-function imenu-generic-expression))
+
+(defun my-latex-imenu-setup ()
+  (setq-local imenu-create-index-function 'my-latex-imenu-create-index-function)
+  (setq-local imenu-generic-expression
+              '(("Frame" "^ *\\\\begin{frame}{\\(.+\\)}" 1)
+                ("Section" "^ *\\\\section\\*?{\\(.+\\)}" 1)
+                ("Subsection" "^ *\\\\subsection\\*?{\\(.+\\)}" 1))))
+
+(add-hook 'LaTeX-mode-hook 'my-latex-imenu-setup)
+#+end_src
+
 ** RefTeX
 
 #+BEGIN_QUOTE
