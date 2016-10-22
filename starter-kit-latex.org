@@ -16,6 +16,9 @@ make install
 #+end_src
 
 ** cdlatex
+   :PROPERTIES:
+   :TANGLE:   no
+   :END:
 
 To combine yasnippet with cdlatex:
 #+begin_src emacs-lisp
@@ -99,7 +102,7 @@ inverse search, activate ... mode, though the author never succeed.
 (when auctex-root
   (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode))
 (setq TeX-source-correlate-start-server t)
-(setq TeX-view-program-list '(("Evince" "evince -f --page-index=%(outpage) %o")))
+(setq TeX-view-program-list '(("Evince" "evince -s -i %(outpage) %o")))
 (setq TeX-view-program-selection '((output-pdf "Evince")))
 #+END_SRC
 
@@ -131,9 +134,10 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
   (setq TeX-save-query nil)
   (setq TeX-show-compilation t)
   (turn-on-flyspell)
-  (LaTeX-math-mode)
+  ;; (LaTeX-math-mode)
   (reftex-mode)
-  (cdlatex-mode))
+  ;; (cdlatex-mode)
+  (TeX-fold-mode))
 (when auctex-root
   (add-hook 'LaTeX-mode-hook 'my-latex-config))
 #+END_SRC

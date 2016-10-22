@@ -1,7 +1,9 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
-# name: begin any ... end any
-# key: be
+# name: frame
+# key: fr
 # --
-\begin{$1}
-$0
-\end{$1}
+\begin{frame}{${1:Title}}
+
+  $0
+
+\end{frame}
