@@ -206,6 +206,30 @@ Possible value are:
   :group 'helm-grep
   :type '(alist :key-type string :value-type function))
 
+(defcustom helm-grep-pipe-cmd-switches nil
+  "A list of additional parameters to pass to grep pipe command.
+This will be used for pipe command for multiple pattern matching
+for grep, zgrep ack-grep and git-grep backends.
+If you add extra args for ack-grep, use ack-grep options,
+for others (grep, zgrep and git-grep) use grep options.
+Here are the commands where you may want to add switches:
+
+    grep --color=always
+    ack-grep --smart-case --color
+
+You probably don't need to use this unless you know what you are doing."
+  :group 'helm-grep
+  :type 'string)
+
+(defcustom helm-grep-ag-pipe-cmd-switches nil
+  "A list of additional parameters to pass to grep-ag pipe command.
+Use parameters compatibles with the backend you are using
+\(i.e AG for AG, PT for PT or RG for RG)
+
+You probably don't need to use this unless you know what you are doing."
+  :group 'helm-grep
+  :type 'string)
+
 
 ;;; Faces
 ;;
@@ -254,7 +278,6 @@ Possible value are:
     (define-key map (kbd "M-<up>")   'helm-goto-precedent-file)
     (define-key map (kbd "C-c o")    'helm-grep-run-other-window-action)
     (define-key map (kbd "C-c C-o")  'helm-grep-run-other-frame-action)
-    (define-key map (kbd "C-w")      'helm-yank-text-at-point)
     (define-key map (kbd "C-x C-s")  'helm-grep-run-save-buffer)
     (when helm-grep-use-ioccur-style-keys
       (define-key map (kbd "<right>")  'helm-execute-persistent-action)
@@ -267,7 +290,6 @@ Possible value are:
     (set-keymap-parent map helm-map)
     (define-key map (kbd "M-<down>") 'helm-goto-next-file)
     (define-key map (kbd "M-<up>")   'helm-goto-precedent-file)
-    (define-key map (kbd "C-w")      'helm-yank-text-at-point)
     map)
   "Keymap used in pdfgrep.")
 
@@ -426,19 +448,19 @@ It is intended to use as a let-bound variable, DON'T set this globaly.")
          (helm-grep-default-command
           (concat helm-grep-default-command " %m")) ; `%m' like multi.
          (patterns (split-string helm-pattern))
+         (pipe-switches (mapconcat 'identity helm-grep-pipe-cmd-switches " "))
          (pipes
           (helm-aif (cdr patterns)
               (cl-loop with pipcom = (pcase (helm-grep-command)
                                        ;; Use grep for GNU regexp based tools.
                                        ((or "grep" "zgrep" "git-grep")
-                                        (replace-regexp-in-string
-                                         "\\s-\\'" ""
-                                         (format "grep --color=always %s"
-                                                 (if smartcase "-i" ""))))
+                                        (format "grep --color=always%s %s"
+                                                 (if smartcase " -i" "")
+                                                 pipe-switches))
                                        ;; Use ack-grep for PCRE based tools.
                                        ;; Sometimes ack-grep cmd is ack only.
                                        ((and (pred (string-match-p "ack")) ack)
-                                        (format "%s --smart-case --color" ack)))
+                                        (format "%s --smart-case --color %s" ack pipe-switches)))
                        for p in it concat
                        (format " | %s %s" pipcom (shell-quote-argument p)))
             "")))
@@ -906,6 +928,9 @@ These extensions will be added to command line with --include arg of grep."
   ((candidates-process :initform 'helm-grep-collect-candidates)
    (filter-one-by-one :initform 'helm-grep-filter-one-by-one)
    (keymap :initform helm-grep-map)
+   (pcre :initarg :pcre :initform nil
+         :documentation
+         "  Backend is using pcre regexp engine when non--nil.")
    (nohighlight :initform t)
    (nomark :initform t)
    (backend :initarg :backend
@@ -962,10 +987,11 @@ in recurse, and ignore EXTS, search being made recursively on files matching
              (file-remote-p helm-ff-default-directory))
     (error "Error: Remote operation not supported with ack-grep."))
   (let* (non-essential
+         (ack-rec-p (helm-grep-use-ack-p :where 'recursive))
          (exts (and recurse
                     ;; [FIXME] I could handle this from helm-walk-directory.
                     (not (eq backend 'zgrep)) ; zgrep doesn't handle -r opt.
-                    (not (helm-grep-use-ack-p :where 'recursive))
+                    (not ack-rec-p)
                     (or exts (helm-grep-get-file-extensions targets))))
          (include-files
           (and exts
@@ -978,7 +1004,7 @@ in recurse, and ignore EXTS, search being made recursively on files matching
          (types (and (not include-files)
                      (not (eq backend 'zgrep))
                      recurse
-                     (helm-grep-use-ack-p :where 'recursive)
+                     ack-rec-p
                      ;; When %e format spec is not specified
                      ;; ignore types and do not prompt for choice.
                      (string-match "%e" helm-grep-default-command)
@@ -1012,7 +1038,8 @@ in recurse, and ignore EXTS, search being made recursively on files matching
      'default-directory helm-ff-default-directory) ;; [1]
     ;; Setup the source.
     (set source (helm-make-source src-name 'helm-grep-class
-                  :backend backend))
+                  :backend backend
+                  :pcre (if recurse ack-rec-p (helm-grep-use-ack-p))))
     (helm
      :sources source
      :buffer (format "*helm %s*" (helm-grep-command recurse backend))
@@ -1325,14 +1352,12 @@ Ripgrep (rg) types are also supported if this backend is used."
 When TYPE is specified it is one of what returns `helm-grep-ag-get-types'
 if available with current AG version."
   (let* ((patterns (split-string pattern))
-         (smartcase (let ((case-fold-search nil))
-                      (string-match-p
-                       "[[:upper:]]" helm-pattern)))
-         (pipe-cmd (cond ((executable-find "ack") "ack --smart-case --color")
-                         ((executable-find "ack-grep") "ack-grep --smart-case --color")
-                         (t (replace-regexp-in-string
-                             "\\s-\\'" "" (format "grep --perl-regexp --color=always %s"
-                                                  (if smartcase "-i" ""))))))
+         (pipe-switches (mapconcat 'identity helm-grep-ag-pipe-cmd-switches " "))
+         (pipe-cmd (pcase (helm-grep--ag-command)
+                     ((and com (or "ag" "pt"))
+                      (format "%s -S --color%s" com (concat " " pipe-switches)))
+                     (`"rg" (format "TERM=eterm-color rg -S --color=always%s"
+                                    (concat " " pipe-switches)))))
          (cmd (format helm-grep-ag-command
                       (mapconcat 'identity type " ")
                       (shell-quote-argument (car patterns))
@@ -1393,6 +1418,9 @@ if available with current AG version."
 
 (defclass helm-grep-ag-class (helm-source-async)
   ((nohighlight :initform t)
+   (pcre :initarg :pcre :initform t
+         :documentation
+         "  Backend is using pcre regexp engine when non--nil.")
    (keymap :initform helm-grep-map)
    (help-message :initform 'helm-grep-help-message)
    (filter-one-by-one :initform 'helm-grep-filter-one-by-one)
