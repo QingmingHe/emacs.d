@@ -27,3 +27,15 @@
 (with-eval-after-load 'cc-mode
   (key-chord-define c-mode-map ".." #'cc-insert-->))
 #+end_src
+
+** Comment style
+
+#+begin_src emacs-lisp
+(defun set-c-javadoc-comment-style ()
+  (interactive)
+  (setq-local comment-start "/**")
+  (setq-local comment-end "*/")
+  (setq-local c-block-comment-prefix "* "))
+(add-hook 'c-mode-hook 'set-c-javadoc-comment-style)
+(add-hook 'c++-mode-hook 'set-c-javadoc-comment-style)
+#+end_src
