@@ -968,35 +968,36 @@ minibuffer."
   (interactive)
   (unless (featurep 'helm)
     (require 'helm))
-  (helm :sources `(((name . "Project Buffers")
-                    (candidates . prj/helm-buffers-candidates)
-                    (candidate-number-limit . ,prj/helm-candidate-number-limit)
-                    (action . (("Switch to buffer" . switch-to-buffer)
-                               ("Switch to buffer other window" . switch-to-buffer-other-window)
-                               ("Jump to Dired" . prj/helm-jump-to-dired-buffer)
-                               ("Save buffer(s)" . prj/helm-save-buffers)
-                               ("Kill buffer(s)" . prj/helm-kill-buffers)
-                               ("Multi occur on buffer(s)" . prj/helm-multi-occur)
-                               ("Helm multi swoop on buffer(s)" . prj/helm-multi-swoop)
-                               ("Copy buffer name(s) as kill" . prj/helm-copy-path-as-kill))))
-                   ((name . "Project Files")
-                    (candidates . prj/helm-files-candidates)
-                    (candidate-number-limit . ,prj/helm-candidate-number-limit)
-                    (action . (("Find file(s)" . prj/helm-find-files)
-                               ("Find file other window" . find-file-other-window)
-                               ("Jump to Dired" . prj/helm-jump-to-dired-file)
-                               ("Grep files" . prj/helm-grep-files)
-                               ("Copy file name(s) as kill" . prj/helm-copy-path-as-kill))))
-                   ((name . "Create New File")
-                    (dummy)
-                    (action . prj/helm-create-new-file))
-                   ((name . "Seen Projects")
-                    (candidates . prj/helm-seen-projects)
-                    (action . (("Find project root in Dired" . find-file)
-                               ("Generate TAGS" . prj/helm-gen-tags)
-                               ("Remove from seen projects" . prj/helm-remove-seen-projects)
-                               ("Run grep at project files" . prj/helm-grep-project)
-                               ("Run multi occur at project buffers" . prj/helm-occur-project)))))
+  (helm :sources `(
+                   ,(helm-build-sync-source "Project Buffers"
+                      :candidates (prj/helm-buffers-candidates)
+                      :candidate-number-limit prj/helm-candidate-number-limit
+                      :action '(("Switch to buffer" . switch-to-buffer)
+                                ("Switch to buffer other window" .
+                                 switch-to-buffer-other-window)
+                                ("Jump to Dired" . prj/helm-jump-to-dired-buffer)
+                                ("Save buffer" . prj/helm-save-buffers)
+                                ("Kill buffer" . prj/helm-kill-buffers)
+                                ("Multi Occur" . prj/helm-multi-occur)
+                                ("Multi swoop" . prj/helm-multi-swoop)
+                                ("Copy name" . prj/helm-copy-path-as-kill)))
+                   ,(helm-build-sync-source "Project Files"
+                      :candidates (prj/helm-files-candidates)
+                      :candidate-number-limit prj/helm-candidate-number-limit
+                      :action '(("Find files(s)" . prj/helm-find-files)
+                                ("Find file other window"
+                                 . find-file-other-window)
+                                ("Jump to Dired" . prj/helm-jump-to-dired-file)
+                                ("Grep files" . prj/helm-grep-files)
+                                ("Copy name" . prj/helm-copy-path-as-kill)))
+                   ,(helm-build-sync-source "Seen Projects"
+                      :candidates (prj/helm-seen-projects)
+                      :candidate-number-limit prj/helm-candidate-number-limit
+                      :action '(("Find root" . find-file)
+                                ("Generate Tags" . prj/helm-gen-tags)
+                                ("Remove" . prj/helm-remove-seen-projects)
+                                ("Grep" . prj/helm-grep-project)
+                                ("Multi occur" . prj/helm-occur-project))))
         :buffer "*project helm mini*"))
 
 ;;; project helm etags
@@ -1183,18 +1184,18 @@ Symbol at point will be the default input."
         (prj/helm-etags-match-part t)
         (helm-execute-action-at-once-if-one
          prj/helm-etags-execute-action-at-once-if-one))
-    (helm :sources `(((name . "Project tags")
-                      (candidates . prj/helm-etags-candidates)
-                      (match-part . prj/helm-etags-match-part)
-                      (action . (("Go to tag" . (lambda (c)
-                                                  (prj/helm-etags-goto
-                                                   'find-file c)))
-                                 ("Go to tag other window"
-                                  . (lambda (c)
-                                      (prj/helm-etags-goto
-                                       'find-file-other-window c)))))))
-          :input default-input
-          :keymap prj/helm-etags-map)))
+    (helm :sources `(,(helm-build-sync-source "Project tags"
+                        :candidates (prj/helm-etags-candidates)
+                        :match-part 'prj/helm-etags-match-part
+                        :action '(("Go to tag" . (lambda (c)
+                                                   (prj/helm-etags-goto
+                                                    'find-file c)))
+                                  ("Go to tag other window"
+                                   . (lambda (c)
+                                       (prj/helm-etags-goto
+                                        'find-file-other-window c))))))
+          :keymap prj/helm-etags-map
+          :input default-input)))
 
 ;;; auto complete ac-sources and company backends
 
