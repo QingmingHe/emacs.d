@@ -339,7 +339,6 @@ to program from minibuffer."
   `(define-key dired-mode-map "/" 'dired-open-w32-or-nautilus))
 #+END_SRC
 
-
 ** Tips
 
 - *w* copies file name to ring. *C-u 0 w* copies full path.

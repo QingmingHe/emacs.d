@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: document
+# key: do
+# --
+\begin{document}
+
+  $0
+
+\end{document}
