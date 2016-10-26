@@ -119,6 +119,8 @@ connection this way:
          (not (file-remote-p (buffer-file-name))))
     (progn
       (flycheck-select-checker 'c/c++-gcc)
+      (when (eq major-mode 'c++-mode)
+        (setq-local flycheck-gcc-language-standard "c++11"))
       (flycheck-mode))))
 (eval-after-load "cc-mode"
   `(progn
