@@ -33,7 +33,7 @@
 #+begin_src emacs-lisp
 (defun set-c-javadoc-comment-style ()
   (interactive)
-  (setq-local comment-start "/**")
+  (setq-local comment-start "/*")
   (setq-local comment-end "*/")
   (setq-local c-block-comment-prefix "* "))
 (add-hook 'c-mode-hook 'set-c-javadoc-comment-style)
