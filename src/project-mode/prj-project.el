@@ -1481,6 +1481,18 @@ The format of `prj/project-locals-file' is identical to that of
                 (if (project-root-data :-use-gtags p)
                     (unless (file-exists-p "GTAGS")
                       (prj/generate-gtags))
+                  ;; User tags file name or default tags file name
+                  (setq-local
+                   prj/etags-tags-file
+                   (or (let ((user-tags-file
+                              (expand-file-name
+                               (project-root-data :tags-file p))))
+                         (when (and
+                                user-tags-file
+                                (file-directory-p
+                                 (file-name-directory user-tags-file)))
+                           user-tags-file))
+                       prj/etags-tags-file))
                   (unless (file-exists-p prj/etags-tags-file)
                     (prj/generate-etags))
                   (project-root-set-data

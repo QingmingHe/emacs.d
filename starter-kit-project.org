@@ -38,7 +38,8 @@ First define projects.
         ("openmc"
          :root-contains-files (".openmc-root")
          :include-tags ("~/.TAGS/mpi-f90" "~/.TAGS/hdf5-fortran")
-         :use-completion (f90-mode))
+         :use-completion (f90-mode)
+         :tags-file ,(expand-file-name "openmc.tags" "~/.tags"))
         ("ctags"
          :root-contains-files (".ctags-root")
          :tags-tool "gtags")
@@ -62,7 +63,8 @@ First define projects.
         ("GTD"
          :root-contains-files ("inbox.org" "projects.org" "notes.org"))
         ("openmoc"
-         :root-contains-files (".openmoc-root"))
+         :root-contains-files (".openmoc-root")
+         :tags-file ,(expand-file-name "openmoc.tags" "~/.tags"))
         ("necp_x"
          :root-contains-files (".necp_x-root")
          :use-completion (f90-mode))))
