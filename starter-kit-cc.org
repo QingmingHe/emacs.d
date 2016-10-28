@@ -47,14 +47,14 @@ Find the corresponding file and go to function signature.
 (defun my-ff-find-other-file ()
   (interactive)
   (if (string-match-p "\\.\\(cpp\\|cxx\\|c\\|c++\\)$" (buffer-name))
-      (let ((func (split-string (which-function) "::")))
-        (call-interactively 'ff-find-other-file)
+      (let ((func (split-string (or (which-function) "") "::")))
+        (ff-find-other-file t)
         (goto-char (point-min))
         (mapc
          (lambda (str)
            (search-forward str nil t))
          func))
-    (call-interactively 'ff-find-other-file)))
+    (ff-find-other-file t)))
 #+end_src
 
 #+begin_src emacs-lisp
