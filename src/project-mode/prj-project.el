@@ -1485,8 +1485,9 @@ The format of `prj/project-locals-file' is identical to that of
                   (setq-local
                    prj/etags-tags-file
                    (or (let ((user-tags-file
-                              (expand-file-name
-                               (project-root-data :tags-file p))))
+                              (when (project-root-data :tags-file p)
+                                (expand-file-name
+                                 (project-root-data :tags-file p)))))
                          (when (and
                                 user-tags-file
                                 (file-directory-p
