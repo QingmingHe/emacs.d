@@ -23,7 +23,9 @@ Support for the Python programming language.
   (anaconda-eldoc-mode 1)
   (setq imenu-create-index-function 'python-imenu-create-index)
   (modify-syntax-entry ?_ "w")
-  (define-key python-mode-map (kbd "C-h f") #'anaconda-mode-show-doc))
+  (define-key python-mode-map (kbd "C-h f") #'anaconda-mode-show-doc)
+  (define-key python-mode-map (kbd "C-c C-p") #'beginning-of-defun)
+  (define-key python-mode-map (kbd "C-c C-n") #'end-of-defun))
 
 (with-eval-after-load 'python
   (add-hook 'python-mode-hook 'my-python-conf t))

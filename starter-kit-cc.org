@@ -49,14 +49,16 @@ Find the corresponding file and go to function signature.
   (if (string-match-p "\\.\\(cpp\\|cxx\\|c\\|c++\\)$" (buffer-name))
       (let ((func (split-string (or (which-function) "") "::")))
         (ff-find-other-file t)
-        (goto-char (point-min))
-        (mapc
-         (lambda (str)
-           (search-forward str nil t))
-         func))
+        (when (> (length func) 0)
+          (goto-char (point-min))
+          (mapc
+           (lambda (str)
+             (search-forward str nil t))
+           func)))
     (ff-find-other-file t)))
 #+end_src
 
+Define key bindings.
 #+begin_src emacs-lisp
 (defun setup-cc-keybindings ()
   (interactive)
