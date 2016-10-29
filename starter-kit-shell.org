@@ -67,6 +67,27 @@ Eshell prompt:
 (setq eshell-prompt-regexp "^[#$] ")
 #+end_src
 
+*** Jump to recent directory
+
+#+begin_src emacs-lisp
+(defun eshell/j ()
+  (interactive)
+  (require 'helm)
+  (helm :sources `(,(helm-build-sync-source "jump to recent directory"
+                      :candidates (let (dirs)
+                                    (mapc
+                                     (lambda (dir)
+                                       (when (file-directory-p dir)
+                                         (add-to-list 'dirs dir)))
+                                     recentf-list)
+                                    dirs)
+                      :action '(("Insert directory" .
+                                 (lambda (dir)
+                                   (insert "cd ")
+                                   (insert dir)
+                                   (call-interactively 'eshell-send-input))))))))
+#+end_src
+
 *** Key bindings
 
 + Use *C-a* to move to beginning of line of beginning of command line.
