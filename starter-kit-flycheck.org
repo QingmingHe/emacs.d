@@ -107,6 +107,7 @@ connection this way:
 3. Install the packages in a dependent sequence *pip install /path/to/package*.
 
 ** C
+
 + Clang is very good at auto completion but doesn't support OpenMP as well as
   GCC.
 + Clang always can't find the default include paths. Maybe the author is not
@@ -115,19 +116,28 @@ connection this way:
 #+begin_src emacs-lisp
 (defun my-flycheck-c-setup ()
   (when (and
+         (eq major-mode 'c-mode)
+         my-flycheck-gcc-found
          (buffer-file-name)
          (not (file-remote-p (buffer-file-name))))
-    (progn
-      (flycheck-select-checker 'c/c++-gcc)
-      (when (eq major-mode 'c++-mode)
-        (setq-local flycheck-gcc-language-standard "c++11"))
-      (flycheck-mode))))
-(eval-after-load "cc-mode"
-  `(progn
-     (require 'flycheck)
-     (setq my-flycheck-gcc-found (executable-find "gcc"))
-     (add-hook 'c-mode-hook 'my-flycheck-c-setup)
-     (add-hook 'c++-mode-hook 'my-flycheck-c-setup)))
+    (flycheck-select-checker 'c/c++-gcc)
+    (flycheck-mode)))
+
+(defun my-flycheck-c++-setup ()
+  (when (and
+         (eq major-mode 'c++-mode)
+         my-flycheck-gcc-found
+         (buffer-file-name)
+         (not (file-remote-p (buffer-file-name))))
+    (flycheck-select-checker 'c/c++-gcc)
+    (setq-local flycheck-gcc-language-standard "c++11")
+    (flycheck-mode)))
+
+(with-eval-after-load "cc-mode"
+  (require 'flycheck)
+  (setq my-flycheck-gcc-found (executable-find "gcc"))
+  (add-hook 'c-mode-hook 'my-flycheck-c-setup)
+  (add-hook 'c++-mode-hook 'my-flycheck-c++-setup))
 #+end_src
 
 ** xml

@@ -294,3 +294,9 @@ The original comment uncomment command is not stable.
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 #+end_src
+
+** SWIG
+
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.\\(i\\|swg\\)\\'" . swig-mode))
+#+end_src
