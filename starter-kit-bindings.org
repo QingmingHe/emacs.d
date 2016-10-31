@@ -159,6 +159,13 @@ I have do some hack with isearch to reproduce the *jk* magic.
 #+begin_src emacs-lisp
 (with-eval-after-load 'evil
   (key-chord-define evil-insert-state-map "jj" #'evil-normal-state))
+
+(defun company-abort-and-evil-normal-mode ()
+  (interactive)
+  (company-abort)
+  (evil-normal-state))
+(with-eval-after-load 'company
+  (key-chord-define company-active-map "jj" #'company-abort-and-evil-normal-mode))
 #+end_src
 
 *** execute command
