@@ -120,6 +120,15 @@ Use anaconda as backend.
     (setq cmake-installed nil)))
 #+end_src
 
+** LaTeX
+
+#+begin_src emacs-lisp
+(defun my-company-latex-setup ()
+  (company-mode))
+
+(add-hook 'LaTeX-mode-hook 'my-company-latex-setup)
+#+end_src
+
 ** Super tab for yasnippet or indent
 
 See also [[file:starter-kit-autocomplete.org::*Super%20TAB%20for%20program%20modes][Super TAB for program modes]] which set up tab for [[help:auto-complete-mode][auto-complete-mode]],

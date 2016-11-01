@@ -1,0 +1,15 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: documentclass
+# key: doc
+# --
+\documentclass{${1:`(yas-choose-value '("beamer" "article" "report" "book" "letter"))`}}
+
+\title{Title}
+\author{Qingming He}
+\date{\today}
+
+\begin{document}
+
+$0
+
+\end{document}

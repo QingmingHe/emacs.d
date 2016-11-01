@@ -2,8 +2,7 @@
 # name: frame
 # key: fr
 # --
-\begin{frame}{${1:Title}}
-
-  $0
+\begin{frame}
+  \frametitle{$0}
 
 \end{frame}

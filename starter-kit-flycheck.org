@@ -185,7 +185,7 @@ The xmllint is part of libxml2, see URL
 ** LaTeX
 
 Use chktex or lacheck to check syntax of LaTeX.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (defun my-flycheck-latex-setup ()
   (when (and (buffer-file-name)
              (not (file-remote-p (buffer-file-name)))
