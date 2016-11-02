@@ -136,6 +136,7 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
   (turn-on-flyspell)
   ;; (LaTeX-math-mode)
   (reftex-mode)
+  (linum-mode 1)
   ;; (cdlatex-mode)
   (TeX-fold-mode))
 (when auctex-root
