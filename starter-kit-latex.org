@@ -154,6 +154,7 @@ Define my own imenu for LaTeX.
   (setq-local imenu-create-index-function 'my-latex-imenu-create-index-function)
   (setq-local imenu-generic-expression
               '(("Frame" "^ *\\\\begin{frame}{\\(.+\\)}" 1)
+                ("Frame" "^ *\\\\frametitle{\\(.+\\)}" 1)
                 ("Section" "^ *\\\\section\\*?{\\(.+\\)}" 1)
                 ("Subsection" "^ *\\\\subsection\\*?{\\(.+\\)}" 1))))
 
