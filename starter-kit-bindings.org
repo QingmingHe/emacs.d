@@ -304,3 +304,9 @@ Ace jump is set in [[file:starter-kit-evil.org::*Normal%20state%20map][Normal st
 #+begin_src emacs-lisp
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 #+end_src
+
+** Go to beginning of defun
+
+#+begin_src emacs-lisp
+;; use imenu--index-alist
+#+end_src
