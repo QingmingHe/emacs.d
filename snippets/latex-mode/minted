@@ -1,0 +1,31 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: minted
+# key: minted
+# --
+% Use these packages
+% \usepackage{multicol}
+% \usepackage{minted}
+
+% frame should be fragile
+% \begin{frame}[fragile]{}
+
+% Uncomment to set vertical ruler
+% \setlength{\columnseprule}{1pt}
+% \def\columnseprulecolor{\color{blue}}
+
+% Show code in two columns
+\begin{multicols*}{2}
+
+  % To write code in tex file
+  % \begin{minted}{python}
+  % import os
+  % \end{minted}
+  % \mintinline{python}{import os}
+
+  \inputminted[mathescape, linenos, fontsize=\tiny]
+  {python}
+  {file$0}
+
+\end{multicols*}
+
+% \end{frame}

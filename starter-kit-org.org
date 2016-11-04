@@ -43,7 +43,7 @@ at root of org package.
 
 It's painful to update references once a label is changed. Fortunately we have
 the powerful [[help:query-replace-regexp][query-replace-regexp]] which can replace a label and all its
-references at once.
+references at once. This function can also be used in LaTeX.
 #+begin_src emacs-lisp
 (defun org-query-replace-label-and-ref ()
   "Batch replace label and its reference in current buffer by
