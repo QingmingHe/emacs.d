@@ -4,6 +4,6 @@
 # --
 \begin{figure}[h!]
   \centering
-  \includegraphics{$0}
-  \caption{$1}
+  \includegraphics[width=0.8\textwidth]{$0}
+  \caption{Figure Caption}
 \end{figure}
