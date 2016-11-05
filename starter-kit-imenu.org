@@ -1,0 +1,168 @@
+#+TITLE: Starter Kit Imenu
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Imenu
+** Go to previous or next function with imenu
+
+#+begin_src emacs-lisp
+(defun make-imenu-marker-list ()
+  (unless imenu--index-alist
+    (imenu--menubar-select imenu--rescan-item))
+  (let (imenu-marker-list)
+    (mapc
+     (lambda (list1)
+       (if (listp (cdr list1))
+           (progn
+             (mapc
+              (lambda (alist1)
+                (setq imenu-marker-list (cons (cdr alist1) imenu-marker-list)))
+              (cdr list1)))
+         (setq imenu-marker-list (cons (cdr list1) imenu-marker-list))))
+     imenu--index-alist)
+    (sort imenu-marker-list '<)))
+
+(defun search-marker-in-marker-list (marker marker-list search-right)
+  (let ((member-list (member marker marker-list))
+        (pos (if search-right 0 -1)))
+    (if member-list
+        (setq pos (- (length marker-list) (length member-list)))
+      (catch 'found-marker
+        (mapc
+         (lambda (am)
+           (when (> am marker)
+             (throw 'found-marker am))
+           (setq pos (1+ pos)))
+         marker-list)))
+    pos))
+
+(defun imenu-prev-defun ()
+  (require 'imenu)
+  (interactive)
+  (let ((marker (make-marker))
+        (marker-list (make-imenu-marker-list))
+        pos)
+    (when marker-list
+      (move-marker marker (point))
+      (push-mark marker t nil)
+      (setq pos (search-marker-in-marker-list marker marker-list t))
+      (goto-char (nth (1- pos) marker-list)))))
+
+(defun imenu-next-defun ()
+  (require 'imenu)
+  (interactive)
+  (let ((marker (make-marker))
+        (marker-list (make-imenu-marker-list))
+        pos)
+    (when marker-list
+      (move-marker marker (point))
+      (push-mark marker t nil)
+      (setq pos (search-marker-in-marker-list marker marker-list nil))
+      (goto-char (nth (1+ pos) marker-list)))))
+
+(set-keybindings-for-modes-after-load
+ '(((kbd "C-c C-p") . imenu-prev-defun)
+   ((kbd "C-c C-n") . imenu-next-defun))
+ '(python-mode c-mode c++-mode fortran-mode f90-mode
+               LaTeX-mode))
+#+end_src
+
+** Rescan imenu after save file
+
+#+begin_src emacs-lisp
+(setq imenu-sort-function #'imenu--sort-by-position)
+(setq imenu-auto-rescan nil)
+(defun starter-kit-imenu-rescan ()
+  (interactive)
+  (require 'imenu)
+  (when (derived-mode-p 'org-mode 'prog-mode 'markdown-mode 'rst-mode 'LaTeX-mode)
+    (imenu--menubar-select imenu--rescan-item)))
+(add-hook 'after-save-hook 'starter-kit-imenu-rescan)
+#+end_src
+
+** Imenu with Ido
+#+BEGIN_SRC emacs-lisp
+(defun my-imenu (&optional symbol-list)
+  "Refresh imenu and jump to a place in the buffer using Ido."
+  (interactive)
+  (unless (featurep 'imenu)
+    (require 'imenu nil t))
+  (cond
+   ((not symbol-list)
+    (let ((ido-mode ido-mode)
+          (ido-enable-flex-matching
+           (if (boundp 'ido-enable-flex-matching)
+               ido-enable-flex-matching t))
+          name-and-pos symbol-names position)
+      (unless ido-mode
+        (ido-mode 1)
+        (setq ido-enable-flex-matching t))
+      (while (progn
+               (imenu--cleanup)
+               (setq imenu--index-alist nil)
+               (my-imenu (imenu--make-index-alist))
+               (setq selected-symbol
+                     (ido-completing-read "Symbol? " symbol-names))
+               (string= (car imenu--rescan-item) selected-symbol)))
+      (unless (and (boundp 'mark-active) mark-active)
+        (push-mark nil t nil))
+      (setq position (cdr (assoc selected-symbol name-and-pos)))
+      (cond
+       ((overlayp position)
+        (goto-char (overlay-start position)))
+       (t
+        (goto-char position)))))
+   ((listp symbol-list)
+    (dolist (symbol symbol-list)
+      (let (name position)
+        (cond
+         ((and (listp symbol) (imenu--subalist-p symbol))
+          (my-imenu symbol))
+         ((listp symbol)
+          (setq name (car symbol))
+          (setq position (cdr symbol)))
+         ((stringp symbol)
+          (setq name symbol)
+          (setq position
+                (get-text-property 1 'org-imenu-marker symbol))))
+        (unless (or (null position) (null name)
+                    (string= (car imenu--rescan-item) name))
+          (add-to-list 'symbol-names name)
+          (add-to-list 'name-and-pos (cons name position))))))))
+#+END_SRC
+
+** Imenu for LaTeX
+
+Define my own imenu for LaTeX.
+#+begin_src emacs-lisp
+(defun my-latex-imenu-create-index-function ()
+  (imenu--generic-function imenu-generic-expression))
+
+(defun my-latex-imenu-setup ()
+  (setq-local imenu-create-index-function 'my-latex-imenu-create-index-function)
+  (setq-local imenu-generic-expression
+              '(("Frame" "^ *\\\\begin{frame}{\\(.+\\)}" 1)
+                ("Frame" "^ *\\\\frametitle{\\(.+\\)}" 1)
+                ("Section" "^ *\\\\section\\*?{\\(.+\\)}" 1)
+                ("Subsection" "^ *\\\\subsection\\*?{\\(.+\\)}" 1))))
+
+(add-hook 'LaTeX-mode-hook 'my-latex-imenu-setup)
+#+end_src
+
+** Imemu for rnc
+
+#+BEGIN_SRC emacs-lisp
+(setq rnc-enable-imenu t)
+#+END_SRC
+
+** Imenu for python
+
+I don't whether it's a bug or not python.el integrated with Emacs can't
+create imenu index automatically. I have to set imenu-create-index-function
+myself.
+#+begin_src emacs-lisp
+(defun my-python-imenu-setup ()
+  (setq imenu-create-index-function 'python-imenu-create-index))
+(add-hook 'python-mode-hook 'my-python-imenu-setup)
+#+end_src

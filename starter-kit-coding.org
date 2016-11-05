@@ -186,12 +186,6 @@ for these files.
 (add-to-list 'auto-mode-alist '("\\.rnc\\'" . rnc-mode))
 #+END_SRC
 
-*** rnc along with imemu
-
-#+BEGIN_SRC emacs-lisp
-(setq rnc-enable-imenu t)
-#+END_SRC
-
 ** Xml
 
 *** Basic configuration

@@ -456,6 +456,7 @@ starter kit. You should note that the sequence is very important.
 (starter-kit-fast-load "flyspell")
 (starter-kit-fast-load "misc-text")
 (starter-kit-fast-load "search")
+(starter-kit-fast-load "imenu")
 ;; prog mode should be loaded finally
 (starter-kit-fast-load "coding")
 (starter-kit-fast-load "shell")

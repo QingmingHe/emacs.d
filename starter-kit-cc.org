@@ -62,8 +62,6 @@ Define key bindings.
 #+begin_src emacs-lisp
 (defun setup-cc-keybindings ()
   (interactive)
-  (local-set-key (kbd "C-c C-p") 'beginning-of-defun)
-  (local-set-key (kbd "C-c C-n") 'end-of-defun)
   (local-set-key (kbd "C-x C-o") 'my-ff-find-other-file))
 (add-hook 'c-mode-hook 'setup-cc-keybindings)
 (add-hook 'c++-mode-hook 'setup-cc-keybindings)

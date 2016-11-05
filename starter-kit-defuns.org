@@ -356,3 +356,26 @@ visit if current buffer is not visiting a file."
                        "'<,'>"
                      ""))))
 #+end_src
+
+** Setup key bindings for mode after load
+
+Set key bindings by adding setting function to mode hook after loading.
+#+begin_src emacs-lisp
+(defun set-keybindings-for-modes-after-load (key-com-alist modes)
+  (mapc
+   (lambda (mode)
+     (setq --set-keybinding-number
+           (if (boundp '--set-keybinding-number)
+               (1+ --set-keybinding-number)
+             0))
+     (let ((func-name
+            (intern (format "setup-keybingding-for-%s-%i"
+                            (symbol-name mode) --set-keybinding-number))))
+       (eval `(defun ,func-name ()
+                (mapc
+                 (lambda (cell)
+                   (local-set-key (eval (car cell)) (cdr cell)))
+                 ',key-com-alist)))
+       (add-hook (intern (format "%s-hook" (symbol-name mode))) func-name t)))
+   modes))
+#+end_src

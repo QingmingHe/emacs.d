@@ -13,19 +13,13 @@ Support for the Python programming language.
   crucial to determine at which level of indentation the cursor is. Use
   highlight-indentation-current-column-mode to fulfil this purpose. Another
   minor mode highlight-indentation-mode is too heavy taste and not use it.
-+ I don't whether it's a bug or not python.el integrated with Emacs can't
-  create imenu index automatically. I have to set imenu-create-index-function
-  myself.
 #+BEGIN_SRC emacs-lisp
 (defun my-python-conf ()
   (highlight-indentation-current-column-mode)
   (sphinx-doc-mode 1)
   (anaconda-eldoc-mode 1)
-  (setq imenu-create-index-function 'python-imenu-create-index)
   (modify-syntax-entry ?_ "w")
-  (define-key python-mode-map (kbd "C-h f") #'anaconda-mode-show-doc)
-  (define-key python-mode-map (kbd "C-c C-p") #'beginning-of-defun)
-  (define-key python-mode-map (kbd "C-c C-n") #'end-of-defun))
+  (define-key python-mode-map (kbd "C-h f") #'anaconda-mode-show-doc))
 
 (with-eval-after-load 'python
   (add-hook 'python-mode-hook 'my-python-conf t))
