@@ -79,7 +79,8 @@ minimally intrusive.
 (setq which-func-modes
       '(python-mode c-mode c++-mode f90-mode fortran-mode emacs-lisp-mode
                     org-mode perl-mode ruby-mode scheme-mode
-                    rst-mode markdown-mode))
+                    rst-mode markdown-mode LaTeX-mode latex-mode))
+
 (defun starter-kit-which-func-format ()
   (if (eq major-mode 'lisp-interaction-mode)
       (progn
@@ -95,10 +96,12 @@ minimally intrusive.
                 (assq-delete-all 'which-function-mode mode-line-misc-info))
     (setq-local mode-line-misc-info
                 (assq-delete-all 'which-func-mode mode-line-misc-info))))
+
+;; imenu should be setup before which function. so append the hook
 (mapc
  (lambda (mode)
    (add-hook (intern (format "%s-hook" (symbol-name mode)))
-             'starter-kit-which-func-format))
+             'starter-kit-which-func-format t))
  which-func-modes)
 #+end_src
 

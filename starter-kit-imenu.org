@@ -77,7 +77,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
   (interactive)
   (require 'imenu)
   (when (derived-mode-p
-         'org-mode 'prog-mode 'markdown-mode 'rst-mode 'LaTeX-mode 'latex-mode)
+         'org-mode 'prog-mode 'markdown-mode 'rst-mode 'latex-mode)
     (if (null imenu--index-alist)
         (imenu--make-index-alist t)
       (imenu--menubar-select imenu--rescan-item))))
