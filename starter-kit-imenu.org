@@ -9,7 +9,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 #+begin_src emacs-lisp
 (defun make-imenu-marker-list ()
   (unless imenu--index-alist
-    (imenu--menubar-select imenu--rescan-item))
+    (imenu--make-index-alist t))
   (let (imenu-marker-list)
     (mapc
      (lambda (list1)
@@ -76,8 +76,11 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 (defun starter-kit-imenu-rescan ()
   (interactive)
   (require 'imenu)
-  (when (derived-mode-p 'org-mode 'prog-mode 'markdown-mode 'rst-mode 'LaTeX-mode)
-    (imenu--menubar-select imenu--rescan-item)))
+  (when (derived-mode-p
+         'org-mode 'prog-mode 'markdown-mode 'rst-mode 'LaTeX-mode 'latex-mode)
+    (if (null imenu--index-alist)
+        (imenu--make-index-alist t)
+      (imenu--menubar-select imenu--rescan-item))))
 (add-hook 'after-save-hook 'starter-kit-imenu-rescan)
 #+end_src
 
