@@ -48,6 +48,7 @@ irony/
 pyim/
 src/auctex/
 chinese-fonts-setup/
+anaconda-mode/
 
 ## exported and encrypted files
 *gpg
