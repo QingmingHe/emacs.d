@@ -305,6 +305,7 @@ window. Come back to current window immediately after send eshell input."
   ;; buffers, files
   "bl" 'helm-mini
   "ff" 'ido-find-file
+  "fa" 'find-alternate-file
   "ss" (lambda (arg)
          "With prefix ARG, save all buffers and update tags for these files;
 otherwise save current buffer."

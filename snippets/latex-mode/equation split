@@ -2,8 +2,10 @@
 # name: equation split
 # key: sp
 # --
-\begin{split}
-% a & = b + c \\\\
-%   & = d + e
-$0
-\end{split}
+\begin{equation}
+  \begin{split}
+    % a & = b + c \\\\
+    %   & = d + e
+    $0
+  \end{split}
+\end{equation}

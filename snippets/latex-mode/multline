@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
-# name: frame
-# key: fr
+# name: multline
+# key: ml
 # --
-\begin{frame}{$0}
-
-\end{frame}
+\begin{multline}
+  $0
+\end{multline}
