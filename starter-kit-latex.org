@@ -83,7 +83,6 @@ your ~/.emacs.
 
 (setq Tex-auto-save t)
 (setq Tex-parse-self t)
-(setq-default Tex-master nil)
 #+END_SRC
 
 ** PDF preview
@@ -123,7 +122,7 @@ To compile TeX file, just key in *C-c C-c* and select *XeLaTeX*.
 
 #+BEGIN_SRC emacs-lisp
 (defun my-latex-config ()
-  (setq-default TeX-master nil)
+  (setq-default TeX-master t)
   (add-to-list
    'TeX-command-list
    '("XeLaTeX" "%`xelatex -shell-escape -synctex=1 %(mode)%'  %t"

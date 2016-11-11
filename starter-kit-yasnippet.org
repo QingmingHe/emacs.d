@@ -99,6 +99,38 @@ following function allows these two to play nicely together.
         yas-no-prompt))
 #+end_src
 
+** Combine yasnippet with auto insert
+
+#+begin_src emacs-lisp
+(setq-default auto-insert-query nil)
+(setq-default auto-insert 'other)
+(setq-default auto-insert-directory (expand-file-name "~/.emacs.d/autoinsert/"))
+
+(defun my-autoinsert-yas-expand()
+  "Replace text in yasnippet template."
+  (yas-expand-snippet (buffer-string) (point-min) (point-max)))
+
+(with-eval-after-load 'autoinsert
+  (setq auto-insert-alist
+        '((("\\.\\([Hh]\\|hh\\|hpp\\)\\'" . "C / C++ header")
+           . ["template_h" c++-mode my-autoinsert-yas-expand])
+          (("\\.tex\\'" . "TeX/LaTeX")
+           . ["template_tex" my-autoinsert-yas-expand])))
+  ;; (define-auto-insert
+  ;;   "\\.\\([hH]\\|hh\\|hpp\\)\\'"
+  ;;   ["template_h" my-autoinsert-yas-expand])
+  ;; (define-auto-insert
+  ;;   "\\.tex\\'"
+  ;;   ["template_tex" my-autoinsert-yas-expand])
+  )
+
+(defun lazy-load-auto-insert-mode ()
+  (unless auto-insert-mode
+    (auto-insert-mode 1)
+    (remove-hook 'find-file-hook 'lazy-load-auto-insert-mode)))
+(add-hook 'find-file-hook 'lazy-load-auto-insert-mode)
+#+end_src
+
 ** How to write snippets
 *** Mirrors with transformation
 
