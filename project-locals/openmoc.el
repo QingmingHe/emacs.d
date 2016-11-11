@@ -6,7 +6,10 @@
  (nil
   . ((eval
       . (progn
-          (setq-local compile-command "python setup.py install --user --fp=double")
+          (if (executable-find "ccache")
+              (setq-local compile-command
+                          "python setup.py install --user --fp=double --with-ccache")
+            (setq-local compile-command "python setup.py install --user --fp=double"))
           (setq-local compile-dir-default (cdr project-details))))))
  (c++-mode
   . ((eval
