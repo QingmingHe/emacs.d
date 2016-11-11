@@ -65,7 +65,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
  '(((kbd "C-c C-p") . imenu-prev-defun)
    ((kbd "C-c C-n") . imenu-next-defun))
  '(python-mode c-mode c++-mode fortran-mode f90-mode
-               LaTeX-mode))
+               LaTeX-mode emacs-lisp-mode))
 #+end_src
 
 ** Rescan imenu after save file
