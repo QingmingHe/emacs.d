@@ -115,14 +115,7 @@ following function allows these two to play nicely together.
         '((("\\.\\([Hh]\\|hh\\|hpp\\)\\'" . "C / C++ header")
            . ["template_h" c++-mode my-autoinsert-yas-expand])
           (("\\.tex\\'" . "TeX/LaTeX")
-           . ["template_tex" my-autoinsert-yas-expand])))
-  ;; (define-auto-insert
-  ;;   "\\.\\([hH]\\|hh\\|hpp\\)\\'"
-  ;;   ["template_h" my-autoinsert-yas-expand])
-  ;; (define-auto-insert
-  ;;   "\\.tex\\'"
-  ;;   ["template_tex" my-autoinsert-yas-expand])
-  )
+           . ["template_tex" my-autoinsert-yas-expand]))))
 
 (defun lazy-load-auto-insert-mode ()
   (unless auto-insert-mode

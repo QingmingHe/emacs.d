@@ -145,6 +145,16 @@ if last command is evil-search."
 ** Key bindings with evil leader
 
 #+BEGIN_SRC emacs-lisp
+(defun cc-comment-doc-dwim ()
+  (interactive)
+  (let ((comment-start "/**")
+        (comment-end "*/"))
+    (if (region-active-p)
+        (comment-or-uncomment-region
+         (region-beginning) (region-end))
+      (comment-or-uncomment-region
+       (line-beginning-position) (line-end-position)))))
+
 (evil-leader/set-leader "<SPC>")
 (evil-leader/set-key
 
@@ -305,7 +315,9 @@ window. Come back to current window immediately after send eshell input."
   ;; buffers, files
   "bl" 'helm-mini
   "ff" 'ido-find-file
-  "fa" 'find-alternate-file
+  "fa" (lambda ()
+         (interactive)
+         (find-alternate-file (buffer-file-name)))
   "ss" (lambda (arg)
          "With prefix ARG, save all buffers and update tags for these files;
 otherwise save current buffer."
@@ -329,6 +341,26 @@ otherwise save current buffer."
          (interactive)
          (let ((anzu-replace-at-cursor-thing 'buffer))
            (anzu-query-replace-at-cursor-thing)))
+
+  ;; comment
+  "co" (lambda (arg)
+         "If region is active, comment or un-comment the region; otherwise
+comment or un-comment current line."
+         (interactive "p")
+         (if (region-active-p)
+             (comment-or-uncomment-region
+              (region-beginning) (region-end))
+           (if arg
+               (comment-or-uncomment-region
+                (line-beginning-position) (line-end-position arg))
+             (comment-or-uncomment-region
+              (line-beginning-position) (line-end-position)))))
+  "cd" (lambda ()
+         (interactive)
+         (cond ((eq major-mode 'c-mode)
+                (cc-comment-doc-dwim))
+               ((eq major-mode 'c++-mode)
+                (cc-comment-doc-dwim))))
 
   ;; misc
   "gs" 'magit-status
@@ -357,18 +389,6 @@ before call this command."
              (call-interactively 'sdcv-search-input)
            (message "sdcv is not installed!")))
   "qr" 'quickrun
-  "co" (lambda (arg)
-         "If region is active, comment or un-comment the region; otherwise
-comment or un-comment current line."
-         (interactive "p")
-         (if (region-active-p)
-             (comment-or-uncomment-region
-              (region-beginning) (region-end))
-           (if arg
-               (comment-or-uncomment-region
-                (line-beginning-position) (line-end-position arg))
-             (comment-or-uncomment-region
-              (line-beginning-position) (line-end-position)))))
   "iw" 'flyspell-correct-word-before-point)
 #+END_SRC
 
