@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: description
+# key: de
+# --
+\begin{description}
+\item[$0]
+\end{description}
