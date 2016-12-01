@@ -1,0 +1,13 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: columns
+# key: co
+# --
+\begin{columns}
+  \begin{column}{0.5\textwidth}
+    $0
+  \end{column}
+
+  \begin{column}{0.5\textwidth}
+
+  \end{column}
+\end{columns}
