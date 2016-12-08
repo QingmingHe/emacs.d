@@ -1,0 +1,9 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: gather
+# key: ga
+# --
+\begin{gather}
+  % a = b \\\\
+  % c = d
+  $0
+\end{gather}
