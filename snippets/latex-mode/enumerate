@@ -1,0 +1,7 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: enumerate
+# key: en
+# --
+\begin{enumerate}
+\item $0
+\end{enumerate}
