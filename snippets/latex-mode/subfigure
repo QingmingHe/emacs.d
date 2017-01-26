@@ -1,0 +1,22 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: subfigure
+# key: subfig
+# --
+% You should use graphicx, caption and subcaption packages
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.4\linewidth]{image1}
+    \caption{}
+    \label{}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.4\linewidth]{image1}
+    \caption{}
+    \label{}
+  \end{subfigure}
+  \caption{}
+  \label{}
+\end{figure}
