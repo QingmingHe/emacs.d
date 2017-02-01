@@ -1,0 +1,12 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: main
+# key: main
+# --
+#include <stdio.h>
+
+int main (int argc, char* argv[]) {
+
+  $0
+
+  return 0;
+}
