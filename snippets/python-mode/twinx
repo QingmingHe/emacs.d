@@ -2,8 +2,6 @@
 # name: matplotlib twinx
 # key: twinx
 # --
-# Before plotting, you should import matplotlib.pyplot as plt
-
 # Create figure object and axe object by subplots
 fig, ax1 = plt.subplots()
 
@@ -12,17 +10,17 @@ fig, ax1 = plt.subplots()
 # plot(x, y, linestyle="steps")
 ax1.plot()
 # Set properties
-ax1.set(xscale="${1:linear}", yscale="${2:linear}", xlabel="$3", ylabel="$4")
+ax1.set()
 # Show legend specified by label key word in "plot"
-ax1.legend(loc="${5:upper left}")
+ax1.legend(loc="upper left")
 
 # Create another axe
 ax2 = ax1.twinx()
 ax2.plot()
-ax2.set(yscale="${6:linear}", ylabel="$7")
-ax2.legend(loc="${8:upper right}")
+ax2.set()
+ax2.legend(loc="upper right")
 
 # Set title
-plt.title("$9", fontsize="large")
+plt.title("title", fontsize="large")
 # Show fig or save fig: show(), savefig(figname) and close()
 plt.show()
