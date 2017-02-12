@@ -101,7 +101,8 @@ inverse search, activate ... mode, though the author never succeed.
 (when auctex-root
   (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode))
 (setq TeX-source-correlate-start-server t)
-(setq TeX-view-program-list '(("Evince" "evince -f -i %(outpage) %o")))
+;; (setq TeX-view-program-list '(("Evince" "evince -f -i %(outpage) %o")))
+(setq TeX-view-program-list '(("Evince" "evince -i %(outpage) %o")))
 (setq TeX-view-program-selection '((output-pdf "Evince")))
 #+END_SRC
 
