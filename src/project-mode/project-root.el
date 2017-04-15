@@ -382,7 +382,7 @@ DIR is not used."
 (defun project-root-find-executable ()
   (if .project-root-find-executable
       .project-root-find-executable
-    (setq .project-root-find-executable (executable-find "gfind"))
+    (setq .project-root-find-executable find-program)
       (if (not .project-root-find-executable)
           (setq .project-root-find-executable (executable-find "find")))
       .project-root-find-executable))
@@ -399,7 +399,7 @@ DIR is not used."
 (defun project-root-find-cmd (&optional pattern dir p)
   (let* ((p (or p (project-root-fetch)))
          (dir (or dir (cdr p))))
-    (concat (project-root-find-executable) " " dir " "
+    (concat (project-root-find-executable) " " (shell-quote-argument dir) " "
             (project-root-find-prune
              (project-root-exclude-paths p)
              t)

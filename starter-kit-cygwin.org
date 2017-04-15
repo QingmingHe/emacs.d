@@ -1,7 +1,7 @@
-#+TITLE: Starter Kit Win32
+#+TITLE: Starter Kit Cygwin
 #+OPTIONS: toc:nil num:nil ^:nil
 
-* Starter Kit Win32
+* Starter Kit Cygwin
 ** Some notes
 
 + This configuration file should only be loaded under Cygwin.

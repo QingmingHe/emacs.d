@@ -436,7 +436,9 @@ starter kit. You should note that the sequence is very important.
 (starter-kit-fast-load "desktop")
 (starter-kit-fast-load "evil")
 (when *cygwin*
-  (starter-kit-fast-load "win32"))
+  (starter-kit-fast-load "cygwin"))
+(when *windows*
+  (starter-kit-fast-load "windows"))
 (starter-kit-fast-load "org")
 (starter-kit-fast-load "tramp")
 (starter-kit-fast-load "gui")

@@ -20,12 +20,13 @@
 ;; determine system type and emacs version
 (setq *cygwin* (eq system-type 'cygwin))
 (setq *linux*  (eq system-type 'gnu/linux))
+(setq *windows*  (eq system-type 'windows-nt))
 ;; (if (< emacs-major-version 24)
 ;;     (error "Emacs version should be >= 24.4")
 ;;   (when (< emacs-minor-version 4)
 ;;     (error "Emacs version should be >= 24.4")))
-(unless (or *cygwin* *linux*)
-  (error "Only support cygwin or gnu/linux system"))
+;; (unless (or *cygwin* *linux*)
+;;   (error "Only support cygwin or gnu/linux system"))
 
 ;; get environment variables and paths
 (setq gtd-root (getenv "GTD_ROOT"))

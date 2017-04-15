@@ -31,6 +31,7 @@
 (require 'project-root)
 (require 'cl)
 (require 'etags)
+(require 's)
 
 ;;; project configure/initialize
 
@@ -120,10 +121,14 @@
   "Limit of helm candidates. This variable should be set before load this
 library.")
 
-(defvar prj/global-exec (executable-find "global")
+(defvar prj/global-exec
+  (when (executable-find "global")
+    (shell-quote-argument (executable-find "global")))
   "Executable of GNU global.")
 
-(defvar prj/ctags-exec (executable-find "ctags")
+(defvar prj/ctags-exec
+  (when (executable-find "ctags")
+    (shell-quote-argument (executable-find "ctags")))
   "Executable of Exuberant Ctags.")
 
 (defvar prj/gtags-conf-file-guess
@@ -496,9 +501,16 @@ of ctags."
        files)
       (write-region (point-min) (point-max) tags-file nil 0))
     (setq elapsed-time (float-time (time-since last-time)))
-    (eval
-     `(start-process
-       proc-name nil prj/ctags-exec "-e" "-o" tags-file "-a" ,@files))))
+    (if (eq system-type 'windows-nt)
+        (progn
+          (eval
+           `(start-process
+             proc-name
+             nil "cmd" "/c" (s-replace " " "^ " prj/ctags-exec)
+             "-e" "-o" tags-file "-a" ,@files)))
+      (eval
+       `(start-process
+         proc-name nil prj/ctags-exec "-e" "-o" tags-file "-a" ,@files)))))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."

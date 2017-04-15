@@ -49,6 +49,7 @@ pyim/
 src/auctex/
 chinese-fonts-setup/
 anaconda-mode/
+server/
 
 ## exported and encrypted files
 *gpg

@@ -1,0 +1,36 @@
+#+TITLE: Starter Kit Windows
+#+OPTIONS: toc:2 num:nil ^:nil
+
+* Starter Kit Windows
+
+** What to do before use Emacs
+
++ Install and add PATH to Windows and MingW bashrc: universal-ctags, Git, MingW,
+  Aspell, Emacs
++ Add =export LANG=en_US.UTF8= to bashrc and set it to Windows environment
+
+** Add paths before Windows PATH
+
+#+begin_src emacs-lisp
+(when (setq bash-exec (executable-find "bash"))
+  (setq mingw-bin-dir (file-name-directory bash-exec))
+  (setenv "PATH" (concat mingw-bin-dir ";" (getenv "PATH")))
+  (setq find-program (shell-quote-argument (concat mingw-bin-dir "find.exe")))
+  (setq grep-program (shell-quote-argument (concat mingw-bin-dir "grep.exe")))
+  (setq grep-command (format "%s -nH " grep-program))
+  (setq grep-template (format "%s <X> <C> -nH <R> <F>" grep-program)))
+
+(when (setq emacs-exec (executable-find "emacs"))
+  (setq emacs-bin-dir (file-name-directory emacs-exec))
+  (setenv "PATH" (concat emacs-bin-dir ";" (getenv "PATH"))))
+
+(when (setq ctags-exec (executable-find "ctags"))
+  (setq ctags-bin-dir (file-name-directory ctags-exec))
+  (setenv "PATH" (concat ctags-bin-dir ";" (getenv "PATH"))))
+#+end_src
+
+** Some tips
+
++ find file in another dist: key in =/e:/=
++ See [[elisp:prj/update-etags-files][prj/update-etags-files]] how to use
+  =start-process=.
