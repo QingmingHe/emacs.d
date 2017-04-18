@@ -32,6 +32,5 @@
 ** Some tips
 
 + find file in another dist: key in =/e:/=
-+ See [[elisp:prj/update-etags-files][prj/update-etags-files]] how to use
-  =start-process=.
++ See [[elisp:prj/update-etags-files][prj/update-etags-files]] how to use =start-process=.
 + Sometimes you should run program by =cmd /c command= in eshell
