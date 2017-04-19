@@ -69,11 +69,14 @@ Use anaconda as backend.
 
 (add-hook 'python-mode-hook 'python-company-setup)
 
+;; Python-jedi run so slow in Windows
 (setq-default jedi-is-installed nil)
 (with-eval-after-load 'python
-  (if (eq 0
-          (call-process-shell-command
-           "python -c \"import jedi;import six;import service_factory\""))
+  (if (and (not *windows*)
+           (eq
+            0
+            (call-process-shell-command
+             "python -c \"import jedi;import six;import service_factory\"")))
       (setq jedi-is-installed t)
     (setq jedi-is-installed nil)
     (warn "six, service_factory and jedi should be installed!")))
