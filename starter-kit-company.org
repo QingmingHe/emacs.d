@@ -79,7 +79,8 @@ Use anaconda as backend.
              "python -c \"import jedi;import six;import service_factory\"")))
       (setq jedi-is-installed t)
     (setq jedi-is-installed nil)
-    (warn "six, service_factory and jedi should be installed!")))
+    (unless *windows*
+      (warn "six, service_factory and jedi should be installed!"))))
 #+end_src
 
 ** C
