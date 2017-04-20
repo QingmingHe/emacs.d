@@ -351,7 +351,7 @@ just provide a possible one. The meanings of these templates are:
 
 #+BEGIN_SRC emacs-lisp
 (when gtd-root
-  (setq org-directory (format "%s/%s" gtd-root "source")
+  (setq org-directory (format "%s" gtd-root)
         org-default-notes-file (concat org-directory "/inbox.org")
         org-capture-templates
         '(("t" "Task" entry (file+headline org-default-notes-file "Tasks")
