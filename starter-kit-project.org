@@ -67,7 +67,7 @@ First define projects.
          :tags-file ,(expand-file-name "openmoc.tags" "~/.tags")
          :exclude-paths ("build" "openmoc"))
         ("necp_x"
-         :root-contains-files (".necp_x-root")
+         :root-contains-files (".necp-x-root")
          :use-completion (f90-mode))))
 #+END_SRC
 
