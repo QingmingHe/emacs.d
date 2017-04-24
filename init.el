@@ -29,13 +29,21 @@
 ;;   (error "Only support cygwin or gnu/linux system"))
 
 ;; get environment variables and paths
-(setq gtd-root (getenv "GTD_ROOT"))
-(setq dropbox-root (getenv "DROPBOX_ROOT"))
+(setq gtd-root
+      (if (file-directory-p (expand-file-name "gtd" "~"))
+          (expand-file-name "gtd" "~")
+        (getenv "GTD_ROOT")))
+(setq dropbox-root
+      (if (file-directory-p (expand-file-name "Dropbox" "~"))
+          (expand-file-name "Dropbox" "~")
+        (getenv "DROPBOX_ROOT")))
 (setq midnight-root (getenv "MIDNIGHT_ROOT"))
 (setq cygwin-root (getenv "CYGWIN_ROOT"))
 (setq auctex-root (locate-library "auctex"))
 (when auctex-root
   (setq auctex-root (file-name-directory auctex-root)))
+
+;; set Fortran checker
 (setq flycheck-Fortran-checker
       (or
        (when (and
