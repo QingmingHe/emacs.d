@@ -625,7 +625,7 @@ all modified buffers."
                     (expand-file-name dir proot-upper)))
          (when (file-directory-p dir)
            (throw 'find-test-dir (setq test-dir dir))))
-       '("build_debug" "build" "build_release")))
+       '("build_syntax" "build" "build_release")))
     (unless test-dir
       (catch 'find-test-dir
         (mapc
