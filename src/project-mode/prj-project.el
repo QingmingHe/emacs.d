@@ -647,6 +647,7 @@ minibuffer."
   (let* ((p (or project-details (project-root-fetch)))
          (guess-test-dir (prj/ctest-guess-test-dir p))
          (associate-buffer (current-buffer))
+         (ctest-test-name (prj/ctest-guess-test-name (buffer-file-name)))
          ctest-dir ctest-command)
     (if p
         (progn
@@ -660,13 +661,15 @@ minibuffer."
           (when (or
                  arg
                  (null prj/ctest-run-test-command))
-            (setq prj/ctest-run-test-command
-                  (read-shell-command
-                   "ctest command: "
-                   (format
-                    "cmake %s; make -j; ctest --output-on-failure -R %s"
-                    (cdr p)
-                    (prj/ctest-guess-test-name (buffer-file-name))))))
+            (setq
+             prj/ctest-run-test-command
+             (read-shell-command
+              "ctest command: "
+              (format
+               "cmake %s; make -j %s; ctest --output-on-failure -R %s"
+               (cdr p)
+               (format "test_%s" ctest-test-name)
+               ctest-test-name))))
           (setq ctest-command prj/ctest-run-test-command)
           (pop-to-buffer
            (get-buffer-create prj/ctest-run-test-buffer))
