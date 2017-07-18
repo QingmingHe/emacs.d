@@ -1,0 +1,8 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: ch
+# key: ch
+# --
+plt.rcParams['font.serif'] = ['NSimSun']
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['axes.unicode_minus'] = False
+# 有中文出现需要u'内容'
