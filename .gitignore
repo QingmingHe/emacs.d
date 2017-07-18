@@ -50,6 +50,7 @@ src/auctex/
 chinese-fonts-setup/
 anaconda-mode/
 server/
+auctex*/
 
 ## exported and encrypted files
 *gpg
