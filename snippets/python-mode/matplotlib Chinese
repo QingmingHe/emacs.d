@@ -1,6 +1,0 @@
-# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
-# name: matplotlib Chinese
-# key: matplotlib Chinese
-# --
-import matplotlib as mpl
-mpl.rcParams['font.sans-serif'] = ['SimHei']
