@@ -1,0 +1,17 @@
+# -*- coding: utf-8; mode: snippet; require-final-newline: nil -*-
+# name: tabular
+# key: tab
+# --
+% \usepackage{tabularx}
+% \usepackage{float}
+\begin{table}[H]
+  \centering
+  \caption{Caption\label{tab:label}}
+  \begin{tabularx}{\textwidth}{@{}*3{>{\centering\arraybackslash}X}@{}}
+    \toprule
+    word & word & word \\\\
+    \midrule
+    val & val & val \\\\
+    \bottomrule
+  \end{tabularx}
+\end{table}

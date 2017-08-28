@@ -2,7 +2,8 @@
 # name: figure
 # key: fig
 # --
-\begin{figure}[h!]
+\usepackage{float}
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.8\textwidth]{$0}
   \caption{Figure Caption}

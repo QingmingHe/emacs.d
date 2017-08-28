@@ -2,18 +2,21 @@
 # name: subfigure
 # key: subfig
 # --
-% You should use graphicx, caption and subcaption packages
-\begin{figure}
+% \usepackage{graphics}
+% \usepackage{caption}
+% \usepackage{subcaption}
+% \usepackage{float}
+\begin{figure}[H]
   \centering
-  \begin{subfigure}{0.5\textwidth}
+  \begin{subfigure}{0.4\textwidth}
     \centering
-    \includegraphics[width=0.4\linewidth]{image1}
+    \includegraphics[width=\textwidth]{image1}
     \caption{}
     \label{}
   \end{subfigure}
-  \begin{subfigure}{0.5\textwidth}
+  \begin{subfigure}{0.4\textwidth}
     \centering
-    \includegraphics[width=0.4\linewidth]{image1}
+    \includegraphics[width=\textwidth]{image1}
     \caption{}
     \label{}
   \end{subfigure}
