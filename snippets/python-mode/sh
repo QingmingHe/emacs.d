@@ -7,6 +7,6 @@ import matplotlib.pyplot as plt
 plt.rcParams['font.serif'] = ['NSimSun']
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['axes.unicode_minus'] = False
-matplotlib.rcParams.update({'font.size': 15,
-                            'legend.fontsize': 15})
+matplotlib.rcParams.update({'font.size': 12,
+                            'legend.fontsize': 12})
 # 有中文出现需要：u'中文'
