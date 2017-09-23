@@ -17,3 +17,4 @@ alias gr git remote $*
 alias gd git diff $*
 alias v find-file-other-window $1
 alias rea eshell-read-aliases-list
+alias valgrind valgrind --leak-check=full $*
