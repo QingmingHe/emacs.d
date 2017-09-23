@@ -253,3 +253,10 @@ larger than `large-file-warning-threshold'."
 ;; may be dangerous
 ;; (setq disabled-command-function nil)
 #+end_src
+
+** Load PATH from shell
+
+#+begin_src emacs-lisp
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+#+end_src
