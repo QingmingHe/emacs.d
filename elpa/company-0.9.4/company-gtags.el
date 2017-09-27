@@ -65,8 +65,9 @@ completion."
 (defun company-gtags--fetch-tags (prefix)
   (with-temp-buffer
     (let (tags)
-      (when (= 0 (call-process company-gtags-executable nil
-                               (list (current-buffer) nil) nil "-xGq" (concat "^" prefix)))
+      (when (= 0 (process-file company-gtags-executable nil
+                               ;; "-T" goes through all the tag files listed in GTAGSLIBPATH
+                               (list (current-buffer) nil) nil "-xGqT" (concat "^" prefix)))
         (goto-char (point-min))
         (cl-loop while
                  (re-search-forward (concat
