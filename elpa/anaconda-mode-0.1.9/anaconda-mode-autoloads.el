@@ -1,10 +1,10 @@
 ;;; anaconda-mode-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-(add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
+(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "anaconda-mode" "anaconda-mode.el" (22513 7788
-;;;;;;  502425 821000))
+;;;### (autoloads nil "anaconda-mode" "anaconda-mode.el" (22987 42072
+;;;;;;  461047 313000))
 ;;; Generated autoloads from anaconda-mode.el
 
 (autoload 'anaconda-mode "anaconda-mode" "\

@@ -4,8 +4,8 @@
 
 ;; Author: Artem Malyshev <proofit404@gmail.com>
 ;; URL: https://github.com/proofit404/anaconda-mode
-;; Package-Version: 0.1.5
-;; Version: 0.1.5
+;; Package-Version: 0.1.9
+;; Version: 0.1.9
 ;; Package-Requires: ((emacs "24") (pythonic "0.1.0") (dash "2.6.0") (s "1.9") (f "0.16.2"))
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -86,10 +86,15 @@
   :group 'anaconda-mode
   :type 'boolean)
 
+(defcustom anaconda-mode-lighter " Anaconda"
+  "Text displayed in the mode line when `anaconda-mode’ is active."
+  :group 'anaconda-mode
+  :type 'sexp)
+
 
 ;;; Server.
 
-(defvar anaconda-mode-server-version "0.1.5"
+(defvar anaconda-mode-server-version "0.1.9"
   "Server version needed to run anaconda-mode.")
 
 (defvar anaconda-mode-server-command "
@@ -110,7 +115,8 @@ anaconda_mode.main(sys.argv[1:])
 
 (defun anaconda-mode-show-process-buffer ()
   "Display `anaconda-mode-process-buffer'."
-  (pop-to-buffer anaconda-mode-process-buffer))
+  (let ((buffer (get-buffer-create anaconda-mode-process-buffer)))
+    (display-buffer buffer)))
 
 (defvar anaconda-mode-process-fail-hook nil
   "Hook running when any of `anaconda-mode' fails by some reason.")
@@ -161,7 +167,7 @@ from setuptools.command import easy_install
 directory = os.path.expanduser(sys.argv[-2])
 version = sys.argv[-1]
 sys.path.append(directory)
-easy_install.main(['-d', directory, '-S', directory, '-a',
+easy_install.main(['-d', directory, '-S', directory, '-a', '-Z',
                    'anaconda_mode==' + version])
 " "Install `anaconda_mode' server.")
 
@@ -391,7 +397,7 @@ submitted."
                       (or (not (equal anaconda-mode-request-buffer (current-buffer)))
                           (not (equal anaconda-mode-request-point (point)))
                           (not (equal anaconda-mode-request-tick (buffer-chars-modified-tick))))))
-                (message "Skip anaconda-mode %s response" command)
+                (run-hook-with-args 'anaconda-mode-response-skip-hook command)
               (search-forward-regexp "\r?\n\r?\n" nil t)
               (let* ((json-array-type 'list)
                      (response (condition-case nil
@@ -435,6 +441,9 @@ virtual environment.")
 
 (defvar anaconda-mode-response-buffer "*anaconda-response*"
   "Buffer name for error report when `anaconda-mode' fail to read server response.")
+
+(defvar anaconda-mode-response-skip-hook nil
+  "Hook running when `anaconda-mode' decide to skip server response.")
 
 (defvar anaconda-mode-response-read-fail-hook nil
   "Hook running when `anaconda-mode' fail to read server response.")
@@ -728,7 +737,7 @@ PRESENTER is the function used to format buffer content."
   (setq next-error-function #'anaconda-mode-next-definition))
 
 (defun anaconda-mode-next-definition (num _reset)
-  "Navigate tot the next definition in the view buffer.
+  "Navigate to the next definition in the view buffer.
 NUM is the number of definitions to move forward.  RESET mean go
 to the beginning of buffer before definitions navigation."
   (forward-button num)
@@ -760,7 +769,7 @@ to the beginning of buffer before definitions navigation."
   "Code navigation, documentation lookup and completion for Python.
 
 \\{anaconda-mode-map}"
-  :lighter " Anaconda"
+  :lighter anaconda-mode-lighter
   :keymap anaconda-mode-map)
 
 ;;;###autoload

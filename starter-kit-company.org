@@ -62,8 +62,9 @@ Use anaconda as backend.
       (progn
         (anaconda-mode)
         (add-to-list 'company-backends
-                     '(company-anaconda
-                       company-dabbrev-code)))
+                     '(company-keywords
+                       company-dabbrev-code
+                       company-anaconda)))
     (setq company-backends
           '(company-etags company-gtags company-dabbrev-code company-keywords))))
 
