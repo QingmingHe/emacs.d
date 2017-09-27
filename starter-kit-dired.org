@@ -13,9 +13,9 @@
   (setq
    dired-listing-switches
    (concat "-lah1v --group-directories-first " dired-listing-time-style)))
-(setq dired-hide-details-hide-information-lines nil)
-(setq dired-hide-details-hide-symlink-targets nil)
-(setq diredp-hide-details-initially-flag nil)
+;(setq dired-hide-details-hide-information-lines nil)
+;(setq dired-hide-details-hide-symlink-targets nil)
+;(setq diredp-hide-details-initially-flag nil)
 (eval-after-load "dired"
   `(progn
      (require 'dired-tar)

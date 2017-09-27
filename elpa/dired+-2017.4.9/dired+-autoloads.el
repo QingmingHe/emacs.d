@@ -1,10 +1,15 @@
 ;;; dired+-autoloads.el --- automatically extracted autoloads
 ;;
 ;;; Code:
-(add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
+(add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "dired+" "dired+.el" (21750 51937 111922 800000))
+;;;### (autoloads nil "dired+" "dired+.el" (22987 36571 18474 67000))
 ;;; Generated autoloads from dired+.el
+
+(defvar diff-switches "-c" "\
+*A string or list of strings specifying switches to be passed to diff.")
+
+(custom-autoload 'diff-switches "dired+" t)
 
 (defvar diredp-auto-focus-frame-for-thumbnail-tooltip-flag nil "\
 *Non-nil means automatically focus the frame for a thumbnail tooltip.
@@ -16,6 +21,37 @@ This option has no effect if `diredp-image-preview-in-tooltip' is nil.
 It also has no effect for Emacs versions prior to Emacs 22.")
 
 (custom-autoload 'diredp-auto-focus-frame-for-thumbnail-tooltip-flag "dired+" t)
+
+(defvar diredp-bind-problematic-terminal-keys t "\
+*Non-nil means bind some keys that might not work in terminal mode.
+This applies to keys that use modifiers Meta and Shift together.
+If you use Emacs in terminal mode (`emacs -nw') and your terminal does
+not support the use of such keys then customize this option to nil.")
+
+(custom-autoload 'diredp-bind-problematic-terminal-keys "dired+" t)
+
+(defvar diredp-compressed-extensions '(".tar" ".taz" ".tgz" ".arj" ".lzh" ".lzma" ".xz" ".zip" ".z" ".Z" ".gz" ".bz2") "\
+*List of compressed-file extensions, for highlighting.")
+
+(custom-autoload 'diredp-compressed-extensions "dired+" t)
+
+(defvar diredp-dwim-any-frame-flag pop-up-frames "\
+*Non-nil means the target directory can be in a window in another frame.
+Only visible frames are considered.
+This is used by ``dired-dwim-target-directory'.
+This option has no effect for Emacs versions before Emacs 22.")
+
+(custom-autoload 'diredp-dwim-any-frame-flag "dired+" t)
+
+(unless (fboundp 'define-minor-mode) (defcustom diredp-highlight-autofiles-mode t "*Non-nil means highlight names of files that are autofile bookmarks.\nAutofiles that have tags are highlighted using face\n`diredp-tagged-autofile-name'.  Those with no tags are highlighted\nusing face `diredp-autofile-name'.\n\nSetting this option directly does not take effect; use either\n\\[customize] or command `diredp-highlight-autofiles-mode'.\n\nNOTE: When `dired+.el' is loaded (for the first time per Emacs\nsession), the highlighting is turned ON, regardless of the option\nvalue.  To prevent this and have the highlighting OFF by default, you\nmust do one of the following:\n\n * Put (diredp-highlight-autofiles-mode -1) in your init file, AFTER\n   it loads `dired+.el'.\n\n * Customize the option to `nil', AND ensure that your `custom-file'\n   (or the `custom-saved-variables' part of your init file) is\n   evaluated before `dired+.el' is loaded.\n\nThis option has no effect unless you use libraries `Bookmark and\n`highlight.el'." :set (lambda (symbol value) (diredp-highlight-autofiles-mode (if value 1 -1))) :initialize 'custom-initialize-default :type 'boolean :group 'Dired-Plus :require 'dired+))
+
+(defvar diredp-ignore-compressed-flag t "\
+*Non-nil means to font-lock names of compressed files as ignored files.
+This applies to filenames whose extensions are in
+`diredp-compressed-extensions'.  If nil they are highlighted using
+face `diredp-compressed-file-name'.")
+
+(custom-autoload 'diredp-ignore-compressed-flag "dired+" t)
 
 (defvar diredp-image-preview-in-tooltip (or (and (boundp 'image-dired-thumb-size) image-dired-thumb-size) 100) "\
 *Whether and what kind of image preview to show in a tooltip.
@@ -33,10 +69,27 @@ This option has no effect for Emacs versions prior to Emacs 22.")
 
 (custom-autoload 'diredp-image-preview-in-tooltip "dired+" t)
 
-(defvar diff-switches "-c" "\
-*A string or list of strings specifying switches to be passed to diff.")
+(defvar diredp-image-show-this-file-use-frame-flag t "\
+Non-nil means `diredp-image-show-this-file' uses another frame.
+If nil then it uses another window.  Using another frame means you
+have more control over the image size when you use a prefix arg.
 
-(custom-autoload 'diff-switches "dired+" t)
+If it uses another window then the prefix arg controls only the
+minimum window height, not necessarily the image scale (height).
+
+\(If the buffer displaying the image is already considered a
+special-display buffer by your Emacs setup, then a nil value of this
+option has no effect.)")
+
+(custom-autoload 'diredp-image-show-this-file-use-frame-flag "dired+" t)
+
+(defvar diredp-max-frames 200 "\
+*Max number of frames, for commands that find files in separate frames.
+These commands are `dired-do-find-marked-files' and
+`diredp-do-find-marked-files-recursive'.  See their descriptions for
+the circumstances in which they show the files in separate frames.")
+
+(custom-autoload 'diredp-max-frames "dired+" t)
 
 (defvar diredp-prompt-for-bookmark-prefix-flag nil "\
 *Non-nil means prompt for a prefix string for bookmark names.")
@@ -55,7 +108,13 @@ name and DESCRIPTION describes DRIVE.")
 
 (custom-autoload 'diredp-wrap-around-flag "dired+" t)
 
-(unless (fboundp 'define-minor-mode) (defcustom diredp-highlight-autofiles-mode t "*Non-nil means highlight names of files that are autofile bookmarks.\nAutofiles that have tags are highlighted using face\n`diredp-tagged-autofile-name'.  Those with no tags are highlighted\nusing face `diredp-autofile-name'.\n\nSetting this option directly does not take effect; use either\n\\[customize] or command `diredp-highlight-autofiles-mode'.\n\nNOTE: When `dired+.el' is loaded (for the first time per Emacs\nsession), the highlighting is turned ON, regardless of the option\nvalue.  To prevent this and have the highlighting OFF by default, you\nmust do one of the following:\n\n * Put (diredp-highlight-autofiles-mode -1) in your init file, AFTER\n   it loads `dired+.el'.\n\n * Customize the option to `nil', AND ensure that your `custom-file'\n   (or the `custom-saved-variables' part of your init file) is\n   evaluated before `dired+.el' is loaded.\n\nThis option has no effect unless you use libraries `Bookmark and\n`highlight.el'." :set (lambda (symbol value) (diredp-highlight-autofiles-mode (if value 1 -1))) :initialize 'custom-initialize-default :type 'boolean :group 'Dired-Plus :require 'dired+))
+(autoload 'diredp-image-dired-create-thumb "dired+" "\
+Create thumbnail image file for FILE (default: file on current line).
+With a prefix arg, replace any existing thumbnail for FILE.
+With a numeric prefix arg (not a cons), use it as the thumbnail size.
+Return the name of the thumbnail image file, or nil if none.
+
+\(fn FILE &optional ARG)" t nil)
 
 (autoload 'image-dired-dired-insert-marked-thumbs "dired+" "\
 Insert thumbnails before file names of marked files in the Dired buffer.
@@ -70,16 +129,79 @@ files (previous -N files, if N < 0).
 
 \(fn &optional ARG)" t nil)
 
+(autoload 'diredp-image-dired-comment-file "dired+" "\
+Add comment to this image file.
+
+\(fn)" t nil)
+
+(autoload 'diredp-image-dired-tag-file "dired+" "\
+Tag this image file with an `image-dired' tag.
+
+\(fn)" t nil)
+
+(autoload 'diredp-image-dired-delete-tag "dired+" "\
+Remove an `image-dired' tag from  this image file.
+
+\(fn)" t nil)
+
+(autoload 'diredp-image-dired-display-thumb "dired+" "\
+Pop to thumbnail of this image file, in `image-dired-thumbnail-buffer'.
+If a thumbnail image does not yet exist for this file, create it.
+With a prefix arg, append the thumbnail to the thumbnails buffer,
+instead of clearing the buffer first.
+
+\(fn &optional APPEND)" t nil)
+
+(autoload 'diredp-image-dired-copy-with-exif-name "dired+" "\
+Copy this image file to your main image directory.
+Uses `image-dired-get-exif-file-name' to name the new file.
+
+\(fn)" t nil)
+
+(autoload 'diredp-image-dired-edit-comment-and-tags "dired+" "\
+Edit comment and tags for this image file.
+
+\(fn)" t nil)
+
+(autoload 'diredp-do-display-images "dired+" "\
+Display the marked image files.
+A prefix argument ARG specifies files to use instead of those marked.
+ An integer means use the next ARG files (previous -ARG, if < 0).
+ `C-u': Use the current file (whether or not any files are marked).
+ More than one `C-u' means use all files in the Dired buffer, as if
+ they were all marked.
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'diredp-image-show-this-file "dired+" "\
+Show the image file named on this line in another frame or window.
+Option `diredp-image-show-this-file-use-frame-flag' which is used.
+
+With a prefix arg, shrink the image to fit a frame that many lines
+high or a window at least that many lines high.
+Otherwise, show the image full size.
+Note:
+ * To show the image full size, you can also use `\\<dired-mode-map>\\[dired-find-file]'.
+ * To show the image in another window, at whatever scale fits there,
+   you can use `\\[image-dired-dired-display-image]'.
+
+\(fn &optional ARG)" t nil)
+
 (autoload 'diredp-dired-for-files "dired+" "\
-Same as `dired' with a non-positive prefix arg.
-You are prompted for names of files and directories to list, and then
-you are prompted for the name of the Dired buffer that lists them.
-Use `C-g' when you are done.  See `dired'.
+Dired file names that you enter, in a Dired buffer that you name.
+You are prompted for the name of the Dired buffer to use.
+You are then prompted for names of files and directories to list,
+ which can be located anywhere.
+Use `C-g' when you are done.
+
+With a prefix arg you are first prompted for the `ls' switches to use.
+
+See also `dired' (including the advice).
 
 \(fn ARG &optional SWITCHES)" t nil)
 
 (autoload 'diredp-dired-for-files-other-window "dired+" "\
-Same as `diredp-dired-for-files' except uses another window.
+Same as `diredp-dired-for-files', except uses another window.
 
 \(fn ARG &optional SWITCHES)" t nil)
 
@@ -139,9 +261,13 @@ buffer, then its `default-directory' is the same as the
 
 If you use a non-positive prefix arg, then you can next choose
 additional file and directory names to add to the listing.  Use `C-g'
-when done choosing them.  Any directory names you choose this way are
-included as single entries in the listing - the directory contents are
-not included (these directories are not unioned).
+when done choosing them.
+
+Any directory names you choose this way are included as single entries
+in the listing - the directory contents are not included (these
+directories are not unioned).  To instead include the contents of a
+directory chosen this way, use a glob pattern: `/*' after the
+directory name.
 
 You are then prompted for the Dired buffers to union.  Use `C-g' when
 done choosing them.  These Dired listings to union are included in the
@@ -155,11 +281,18 @@ the entry is marked.  Similarly, in case of conflict over an included
 subdirectory between it being hidden or shown, it is hidden, but its
 contained files are also listed.
 
+See also command `diredp-add-to-dired-buffer'.
+
 From Lisp:
  DIRED-NAME is the name of the resulting Dired union buffer.
  DIRBUFS is a list of the names of Dired buffers to union.
  SWITCHES is a string of `ls' switches.
  EXTRA is a list of files & directories to be included in the listing.
+
+\(fn DIRED-NAME DIRBUFS &optional SWITCHES EXTRA)" t nil)
+
+(autoload 'diredp-dired-union-other-window "dired+" "\
+Same as `diredp-dired-union', except use other window.
 
 \(fn DIRED-NAME DIRBUFS &optional SWITCHES EXTRA)" t nil)
 
@@ -172,14 +305,23 @@ The buffer must either not exist yet or must list arbitrary file and
 directory names.  That is, it cannot be an ordinary Dired directory
 listing - those cannot be modified.
 
-If you want to include a directory listing (ordinary or of arbitrary
-file names), and not just add a line for a directory name, then use
-command `diredp-dired-union' instead.
+Any directory names you choose this way are included as single entries
+in the listing - the directory contents are not included (these
+directories are not unioned).  To instead include the contents of a
+directory chosen this way, use a glob pattern: `/*' after the
+directory name.
+
+See also command `diredp-dired-union'.
 
 From Lisp:
  DIRED-NAME is the name of the Dired buffer to modify.
  TO-ADD is the list of files and dirs to add to it.
  SWITCHES is the string of `ls' switches.
+
+\(fn DIRED-NAME TO-ADD &optional SWITCHES)" t nil)
+
+(autoload 'diredp-add-to-dired-buffer-other-window "dired+" "\
+Same as `diredp-add-to-dired-buffer', except use other window.
 
 \(fn DIRED-NAME TO-ADD &optional SWITCHES)" t nil)
 
@@ -213,6 +355,7 @@ With a prefix arg:
 
 (autoload 'diredp-dired-inserted-subdirs "dired+" "\
 Open Dired for each of the subdirs inserted in this Dired buffer.
+A separate Dired buffer is used for each of them.
 With a prefix arg, create the Dired buffers but do not display them.
 Markings and current Dired switches are preserved.
 
@@ -240,8 +383,6 @@ A prefix arg specifies files to use instead of the marked files:
  * C-u C-u C-u C-u: All files and directories, including `.' and `..'
  * Any other prefix arg: The current line's file only.
 
-\(Note that a prefix arg acts
-
 You can use `RET' or `mouse-2' to visit any of the files.
 If `tooltip-mode' is on then moving the mouse over image-file names
 shows image previews.
@@ -263,7 +404,7 @@ Like using \\<dired-mode-map>`\\[dired-maybe-insert-subdir]' at each marked dire
 Insert the marked subdirs, including those in marked subdirs.
 Like `diredp-insert-subdirs', but act recursively on subdirs.
 The subdirs inserted are those that are marked in the current Dired
-buffer, or all subdirs in the directory if none are marked.  Marked
+buffer, or ALL subdirs in the directory if none are marked.  Marked
 subdirectories are handled recursively in the same way (their marked
 subdirs are inserted...).
 
@@ -342,7 +483,7 @@ Dired buffer and all subdirs, recursively.
 \(fn &optional IGNORE-MARKS-P APPEND DO-NOT-POP)" t nil)
 
 (autoload 'diredp-image-dired-tag-files-recursive "dired+" "\
-Tag marked file(s) in dired, including those in marked subdirs
+Tag marked files with an `image-dired' tag, including in marked subdirs.
 Like `image-dired-tag-files', but act recursively on subdirs.
 The files included are those that are marked in the current Dired
 buffer, or all files in the directory if none are marked.  Marked
@@ -354,7 +495,7 @@ Dired buffer and all subdirs, recursively.
 \(fn &optional IGNORE-MARKS-P)" t nil)
 
 (autoload 'diredp-image-dired-delete-tag-recursive "dired+" "\
-Remove tag for selected file(s), including those in marked subdirs.
+Remove `image-dired' tag for marked files, including in marked subdirs.
 Like `image-dired-delete-tag', but act recursively on subdirs.
 The files included are those that are marked in the current Dired
 buffer, or all files in the directory if none are marked.  Marked
@@ -457,14 +598,34 @@ display them.
 With numeric prefix ARG <= 0, ignore all marks - include all files in
 this Dired buffer and all subdirs, recursively.
 
+Note that prefix-argument behavior is different for this command than
+for `dired-do-find-marked-files'.  In particular, a negative numeric
+prefix arg does not cause the files to be shown in separate frames.
+Only non-nil `pop-up-frames' (or equivalent configuration) causes
+the files to be shown in separate frames.
+
 \(fn &optional ARG)" t nil)
 
 (autoload 'diredp-do-query-replace-regexp-recursive "dired+" "\
-Do `query-replace-regexp' of FROM with TO, on all marked files.
-If you exit (\\[keyboard-quit], RET or q), you can resume the query replace
-with the command \\[tags-loop-continue].
+Do `query-replace-regexp' on marked files, including in marked subdirs.
+Query-replace FROM with TO.
 
-\(fn FROM TO &optional IGNORE-MARKS-P)" t nil)
+Like `dired-do-query-replace', but act recursively on subdirs.
+The files included are those that are marked in the current Dired
+buffer, or all files in the directory if none are marked.  Marked
+subdirectories are handled recursively in the same way.
+
+With an (explicit) numeric prefix argument:
+
+* >= 0 means ignore all marks - include ALL files in this Dired buffer
+  and all subdirs, recursively.
+
+* <= 0 means replace only word-delimited matches.
+
+If you exit (`\\[keyboard-quit]', `RET' or `q'), you can resume the query replacement
+using `\\[tags-loop-continue]'.
+
+\(fn FROM TO &optional ARG)" t nil)
 
 (autoload 'diredp-do-grep-recursive "dired+" "\
 Run `grep' on marked files, including those in marked subdirs.
@@ -532,6 +693,90 @@ subdirectories are handled recursively in the same way.
 
 \(fn &optional ARG)" t nil)
 
+(autoload 'diredp-mark-files-regexp-recursive "dired+" "\
+Mark all files matching REGEXP, including those in marked subdirs.
+Like `dired-mark-files-regexp' but act recursively on marked subdirs.
+
+The files included are those that are marked in the current Dired
+buffer, or all files in the directory if none are marked.  Marked
+subdirectories are handled recursively in the same way.
+
+The file names to be matched by this command are always absolute -
+they include the full directory.  Note that this does NOT correspond
+to the default behavior for `dired-mark-files-regexp'.  The other
+matching possibilities offered by `dired-mark-files-regexp' are not
+available for this command.
+
+Directories `.' and `..' are never marked.
+
+A non-negative prefix arg means to UNmark the files instead.
+
+A non-positive prefix arg means to ignore subdir markings and act
+instead on ALL subdirs.  That is, mark all matching files in this
+directory and all descendant directories.
+
+REGEXP is an Emacs regexp, not a shell wildcard.  Thus, use `\\.o$' for
+object files--just `.o' will mark more than you might think.
+
+REGEXP is added to `regexp-search-ring', for regexp search.
+
+Note: If there is more than one Dired buffer for a given subdirectory
+then only the first such is used.
+
+\(fn REGEXP &optional MARKER-CHAR IGNORE-MARKS-P)" t nil)
+
+(autoload 'diredp-mark-autofiles-recursive "dired+" "\
+Mark all autofiles, that is, files that have an autofile bookmark.
+A non-negative prefix arg means to unmark them instead.
+
+A non-positive prefix arg means to ignore subdir markings and act
+instead on ALL subdirs.  That is, mark all in this directory and all
+descendant directories.
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'diredp-mark-executables-recursive "dired+" "\
+Mark all executable files, including in marked subdirs.
+The files included are those that are marked in the current Dired
+buffer, or all files in the directory if none are marked.  Marked
+subdirectories are handled recursively in the same way.
+
+A non-negative prefix arg means to unmark them instead.
+
+A non-positive prefix arg means to ignore subdir markings and act
+instead on ALL subdirs.  That is, mark all in this directory and all
+descendant directories.
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'diredp-mark-directories-recursive "dired+" "\
+Mark all directories except `.' and `..', including in marked subdirs.
+The directories included are those that are marked in the current
+Dired buffer, or all subdirs in the directory if none are marked.
+Marked subdirectories are handled recursively in the same way.
+
+A non-negative prefix arg means to unmark them instead.
+
+A non-positive prefix arg means to ignore subdir markings and act
+instead on ALL subdirs.  That is, mark all in this directory and all
+descendant directories.
+
+\(fn &optional ARG)" t nil)
+
+(autoload 'diredp-mark-symlinks-recursive "dired+" "\
+Mark all symbolic links, including in marked subdirs.
+The symlinks included are those that are marked in the current Dired
+buffer, or all symlinks in the directory if none are marked.  Marked
+subdirectories are handled recursively in the same way.
+
+A non-negative prefix arg means to unmark them instead.
+
+A non-positive prefix arg means to ignore subdir markings and act
+instead on ALL subdirs.  That is, mark all in this directory and all
+descendant directories.
+
+\(fn &optional ARG)" t nil)
+
 (autoload 'diredp-capitalize-recursive "dired+" "\
 Rename marked files, including in marked subdirs, by capitalizing them.
 Like `diredp-capitalize', but act recursively on subdirs.
@@ -570,6 +815,34 @@ With a prefix argument, ignore all marks - include all files in this
 Dired buffer and all subdirs, recursively.
 
 \(fn &optional IGNORE-MARKS-P)" t nil)
+
+(autoload 'diredp-do-apply-function-recursive "dired+" "\
+Apply FUNCTION to the marked files.
+Like `diredp-do-apply-function' but act recursively on subdirs.
+
+The files acted on are those that are marked in the current Dired
+buffer, or all files in the directory if none are marked.  Marked
+subdirectories are handled recursively in the same way.
+
+With a plain prefix ARG (`C-u'), visit each file and invoke FUNCTION
+ with no arguments.
+Otherwise, apply FUNCTION to each file name.
+
+Any other prefix arg behaves according to the ARG argument of
+`dired-get-marked-files'.  In particular, `C-u C-u' operates on all
+files in the Dired buffer.
+
+\(fn FUNCTION &optional ARG)" t nil)
+
+(autoload 'diredp-do-delete-recursive "dired+" "\
+Delete marked (not flagged) files, including in marked subdirs.
+Like `dired-do-delete' but act recursively on subdirs.
+
+The files to be deleted are those that are marked in the current Dired
+buffer, or all files in the directory if none are marked.  Marked
+subdirectories are handled recursively in the same way.
+
+\(fn ARG)" t nil)
 
 (autoload 'diredp-do-move-recursive "dired+" "\
 Move marked files, including in marked subdirs, to a given directory.
@@ -645,6 +918,7 @@ Dired buffer and all subdirs, recursively.
 
 (autoload 'diredp-do-redisplay-recursive "dired+" "\
 Redisplay marked file lines, including those in marked subdirs.
+Non-nil MSGP means show status messages.
 Like `dired-do-redisplay' with no args, but act recursively on
 subdirs.
 
@@ -671,6 +945,10 @@ Same as `diredp-marked', but uses a different window.
 Mark all files with a certain EXTENSION for use in later commands.
 A `.' is not automatically prepended to the string entered.
 Non-nil prefix argument UNMARK-P means unmark instead of mark.
+
+Non-interactively, EXTENSION is the extension (a string).  It can also
+  be a list of extension strings.
+Optional argument UNMARK-P is the prefix arg.
 
 \(fn EXTENSION &optional UNMARK-P)" t nil)
 
@@ -896,6 +1174,21 @@ You need library `bookmark+.el' to use this command.
 
 \(fn EVENT)" t nil)
 
+(autoload 'diredp-mark-autofiles "dired+" "\
+Mark all autofiles, that is, files that have an autofile bookmark.
+
+\(fn)" t nil)
+
+(autoload 'diredp-unmark-autofiles "dired+" "\
+Unmark all autofiles, that is, files that have an autofile bookmark.
+
+\(fn)" t nil)
+
+(autoload 'diredp-mark/unmark-autofiles "dired+" "\
+Mark all autofiles, or unmark if UNMARKP is non-nil.
+
+\(fn &optional UNMARKP)" nil nil)
+
 (autoload 'diredp-do-bookmark "dired+" "\
 Bookmark the marked (or the next prefix argument) files.
 Each bookmark name is the non-directory portion of the file name,
@@ -967,7 +1260,7 @@ See also command `diredp-do-bookmark-in-bookmark-file'.
 \(fn BOOKMARK-FILE &optional PREFIX ARG)" t nil)
 
 (autoload 'diredp-do-bookmark-in-bookmark-file "dired+" "\
-Bookmark files in BOOKMARK-FILE and save BOOKMARK-FILE.
+Bookmark marked files in BOOKMARK-FILE and save BOOKMARK-FILE.
 The files bookmarked are the marked files, by default.
 The bookmarked position is the beginning of the file.
 You are prompted for BOOKMARK-FILE.  The default is `.emacs.bmk' in
@@ -1031,6 +1324,17 @@ your ~/.emacs, where VALUE is 1 to reuse or -1 to not reuse:
 
  (diredp-toggle-find-file-reuse-dir VALUE)
 
+Note: This affects only these commands:
+
+  `dired-find-file'
+  `diredp-mouse-find-file'
+
+It does not affect the corresponding `-other-window' commands.  Note
+too that, by default, mouse clicks to open files or directories open
+in another window: command `diredp-mouse-find-file-other-window', not
+`diredp-mouse-find-file'.  If you want a mouse click to reuse a
+directory then bind `mouse-2' to `diredp-mouse-find-file' instead.
+
 \(fn FORCE-P)" t nil)
 
 (autoload 'diredp-omit-marked "dired+" "\
@@ -1061,6 +1365,18 @@ Try to guess a useful default value for FILE2, as follows:
 
 \(fn FILE2)" t nil)
 
+(autoload 'diredp-do-apply-function "dired+" "\
+Apply FUNCTION to the marked files.
+With a plain prefix ARG (`C-u'), visit each file and invoke FUNCTION
+ with no arguments.
+Otherwise, apply FUNCTION to each file name.
+
+Any other prefix arg behaves according to the ARG argument of
+`dired-get-marked-files'.  In particular, `C-u C-u' operates on all
+files in the Dired buffer.
+
+\(fn FUNCTION &optional ARG)" t nil)
+
 (autoload 'dired-do-compress "dired+" "\
 Compress or uncompress marked (or next prefix argument) files.
 A prefix argument ARG specifies files to use instead of marked.
@@ -1073,26 +1389,67 @@ A prefix argument ARG specifies files to use instead of marked.
 \(fn &optional ARG)" t nil)
 
 (autoload 'dired-do-byte-compile "dired+" "\
-Byte compile marked (or next prefix argument) Emacs Lisp files.
-A prefix argument ARG specifies files to use instead of marked.
- An integer means use the next ARG files (previous -ARG, if < 0).
- `C-u': Use the current file (whether or not any are marked).
- `C-u C-u': Use all files in Dired, except directories.
- `C-u C-u C-u': Use all files and directories, except `.' and `..'.
- `C-u C-u C-u C-u': Use all files and all directories.
+Byte compile marked Emacs Lisp files.
+A prefix argument ARG specifies files to use instead of those marked.
+ * An integer means use the next ARG files (previous -ARG, if < 0).
+ * Two or more `C-u' (e.g. `C-u C-u') means ignore any marks and use
+   all files in the Dired buffer.
+ * Any other prefix arg means use the current file.
 
 \(fn &optional ARG)" t nil)
 
 (autoload 'dired-do-load "dired+" "\
-Load the marked (or next prefix argument) Emacs Lisp files.
-A prefix argument ARG specifies files to use instead of marked.
- An integer means use the next ARG files (previous -ARG, if < 0).
- `C-u': Use the current file (whether or not any are marked).
- `C-u C-u': Use all files in Dired, except directories.
- `C-u C-u C-u': Use all files and directories, except `.' and `..'.
- `C-u C-u C-u C-u': Use all files and all directories.
+Load the marked Emacs Lisp files.
+A prefix argument ARG specifies files to use instead of those marked.
+ * An integer means use the next ARG files (previous -ARG, if < 0).
+ * Two or more `C-u' (e.g. `C-u C-u') means ignore any marks and use
+   all files in the Dired buffer.
+ * Any other prefix arg means use the current file.
 
 \(fn &optional ARG)" t nil)
+
+(autoload 'dired-do-search "dired+" "\
+Search through all marked files for a match for REGEXP.
+Stops when a match is found.
+To continue searching for next match, use command \\[tags-loop-continue].
+
+A prefix arg behaves as follows:
+ * An integer means use the next ARG files (previous -ARG, if < 0).
+ * Two or more `C-u' (e.g. `C-u C-u') means ignore any marks and use
+   all files in the Dired buffer.
+ * Any other prefix arg means use the current file.
+
+\(fn REGEXP &optional ARG)" t nil)
+
+(autoload 'dired-do-query-replace-regexp "dired+" "\
+Do `query-replace-regexp' of FROM with TO, on all marked files.
+NOTE: A prefix arg for this command acts differently than for other
+commands, so that you can use it to request word-delimited matches.
+
+With a prefix argument:
+ * An odd number of plain `C-u': act on the marked files, but replace
+   only word-delimited matches.
+ * More than one plain `C-u': act on all files, ignoring whether any
+   are marked.
+ * Any other prefix arg: Act on the next numeric-prefix files.
+
+So for example:
+ * `C-u C-u C-u': act on all files, replacing word-delimited matches.
+ * `C-u 4': act on the next 4 files.  `C-4' means the same thing.
+ * `C-u': act on the marked files, replacing word-delimited matches.
+
+If you exit (\\[keyboard-quit], RET or q), you can resume the query replace
+with the command \\[tags-loop-continue].
+
+\(fn FROM TO &optional ARG)" t nil)
+
+(autoload 'diredp-do-grep "dired+" "\
+Run `grep' on marked (or next prefix arg) files.
+A prefix argument behaves according to the ARG argument of
+`dired-get-marked-files'.  In particular, `C-u C-u' operates on all
+files in the Dired buffer.
+
+\(fn COMMAND-ARGS)" t nil)
 
 (autoload 'dired-maybe-insert-subdir "dired+" "\
 Move to Dired subdirectory line or subdirectory listing.
@@ -1128,23 +1485,36 @@ default value using \\<dired-mode-map>\\[dired-reset-subdir-switches].  See Info
 
 (autoload 'dired-do-find-marked-files "dired+" "\
 Find marked files, displaying all of them simultaneously.
-With a prefix ARG >= 0, just find the files but do not show them.
+With no prefix argument:
 
-If no prefix ARG, and variable `pop-up-frames' is non-nil, or
-if prefix ARG < 0, then each file is displayed in a separate frame.
+* If `pop-up-frames' is nil then split the current window across all
+  marked files, as evenly as possible.  Remaining lines go to the
+  bottom-most window.  The number of files that can be displayed this
+  way is restricted by the height of the current window and
+  `window-min-height'.
 
-Otherwise (no prefix ARG and nil `pop-up-frames'), the current window
-is split across all marked files, as evenly as possible.  Remaining
-lines go to the bottom-most window.  The number of files that can be
-displayed this way is restricted by the height of the current window
-and `window-min-height'.
+* If `pop-up-frames' is non-nil then show each marked file in a
+  separate frame (not window).
 
-A prefix argument also behaves according to the ARG argument of
-`dired-get-marked-files'.  In particular, `C-u C-u' operates on all
-files in the Dired buffer.
+With a prefix argument:
 
-To keep the Dired buffer displayed, type \\[split-window-vertically] first.
-To display just the marked files, type \\[delete-other-windows] first.
+* One or more plain `C-u' behaves as for `dired-get-marked-files'.
+  In particular, `C-u C-u' means ignore any markings and operate on
+  ALL files and directories (except `.' and `..') in the Dired buffer.
+
+* A numeric prefix arg >= 0 means just find (visit) the marked files -
+  do not show them.
+
+* A numeric prefix arg < 0 means show each marked file in a separate
+  frame (not window).  (This is the same behavior as no prefix arg
+  with non-nil `pop-up-frames'.)
+
+Note that a numeric prefix argument acts differently with this command
+than it does with other `dired-do-*' commands: it does NOT act on the
+next or previous (abs ARG) files, ignoring markings.
+
+To keep the Dired buffer displayed, split the window (e.g., `C-x 2')
+first.  To show only the marked files, type `\\[delete-other-windows]' first.
 
 \(fn &optional ARG)" t nil)
 
@@ -1168,7 +1538,8 @@ in this case there is no buffer reuse.
 \(fn &optional OTHER-WINDOW)" t nil)
 
 (autoload 'diredp-next-line "dired+" "\
-Move down lines then position at filename.
+Move down lines then position cursor at filename.
+If `goal-column' is non-nil then put the cursor at that column.
 Optional prefix ARG says how many lines to move; default is one line.
 
 If `diredp-wrap-around-flag' is non-nil then wrap around if none is
@@ -1178,7 +1549,8 @@ Otherwise, just move to the buffer limit.
 \(fn ARG)" t nil)
 
 (autoload 'diredp-previous-line "dired+" "\
-Move up lines then position at filename.
+Move up lines then position cursor at filename.
+If `goal-column' is non-nil then put the cursor at that column.
 Optional prefix ARG says how many lines to move; default is one line.
 
 If `diredp-wrap-around-flag' is non-nil then wrap around if none is
@@ -1241,16 +1613,60 @@ non-empty directories is allowed.
 \(fn &optional ARG)" t nil)
 
 (autoload 'dired-mark-files-regexp "dired+" "\
-Mark all files matching REGEXP for use in later commands.
-A prefix argument means to unmark them instead.
-`.' and `..' are never marked.
+Mark all file names matching REGEXP for use in later commands.
+`.' and `..' are never marked or unmarked by this command.
 
-REGEXP is an Emacs regexp, not a shell wildcard.  Thus, use `\\.o$' for
-object files--just `.o' will mark more than you might think.
+Whether to mark or unmark, and what form of file name to match, are
+governed by the prefix argument.  For this, a plain (`C-u') or a
+double-plain (`C-u C-u') prefix arg is considered only as such - it is
+not considered numerically.
+
+Whether to mark or unmark:
+
+ - No prefix arg, a positive arg, or a negative arg means mark.
+
+ - Plain (`C-u'), double-plain (`C-u C-u'), or zero (e.g. `M-0' means
+   unmark.
+
+The form of a file name used for matching:
+
+ - No prefix arg (to mark) or a plain prefix arg (`C-u', to unmark)
+   means use the relative file name (no directory part).
+
+ - A negative arg (e.g. `M--', to mark) or a zero arg (e.g. `M-0', to
+   unmark) means use the absolute file name, that is, including all
+   directory components.
+
+ - A positive arg (e.g. `M-+', to mark) or a double plain arg (`C-u
+   C-u', to unmark) means construct the name relative to
+   `default-directory'.  For an entry in an inserted subdir listing,
+   this means prefix the relative file name (no directory part) with
+   the subdir name relative to `default-directory'.
+
+Note that the default matching behavior of this command is different
+for Dired+ than it is for vanilla Emacs.  Using a positive prefix arg
+or a double plain prefix arg (`C-u C-u' gives you the same behavior as
+vanilla Emacs (marking or unmarking, respectively): matching against
+names that are relative to the `default-directory'.
+
+What Dired+ offers in addition is the possibility to match against
+names that are relative (have no directory part - `M--' or `M-0', to
+mark or unmark, respectively) or absolute (no prefix arg or `C-u',
+respectively).  The default behavior uses relative names because this
+is likely to be the more common use case.  But matching against
+absolute names gives you more flexibility.
+
+REGEXP is an Emacs regexp, not a shell wildcard.  Thus, use `\\.o$'
+for object files--just `.o' might mark more than you might expect.
 
 REGEXP is added to `regexp-search-ring', for regexp search.
 
-\(fn REGEXP &optional MARKER-CHAR)" t nil)
+Non-interactively:
+ MARKER-CHAR is the marker character - used for `dired-marker-char'.
+ LOCALP is passed to `dired-get-filename'.  It determines the form of
+   filename that is matched against REGEXP.
+
+\(fn REGEXP &optional MARKER-CHAR LOCALP)" t nil)
 
 (autoload 'diredp-capitalize "dired+" "\
 Rename all marked (or next ARG) files by capitalizing them.
@@ -1260,8 +1676,15 @@ Makes the first char of the name uppercase and the others lowercase.
 
 (autoload 'diredp-delete-this-file "dired+" "\
 In Dired, delete the file on the cursor line, upon confirmation.
+This uses `delete-file'.
+If the file is a symlink, remove the symlink.  If the file has
+multiple names, it continues to exist with the other names.
 
-\(fn)" t nil)
+For Emacs 24 and later, a prefix arg means that if
+`delete-by-moving-to-trash' is non-nil then trash the file instead of
+deleting it.
+
+\(fn &optional USE-TRASH-CAN)" t nil)
 
 (autoload 'diredp-capitalize-this-file "dired+" "\
 In Dired, rename the file on the cursor line by capitalizing it.
@@ -1391,23 +1814,29 @@ You need library `bookmark+.el' to use this command.
 
 \(fn EVENT)" t nil)
 
-(autoload 'diredp-describe-file "dired+" "\
-In Dired, describe this file or directory.
-You need library `help-fns+.el' to use this command.
-If the file has an autofile bookmark and you use library `Bookmark+',
-then show also the bookmark information (tags etc.).  In this case, a
-prefix arg shows the internal form of the bookmark.
+(defalias 'diredp-show-metadata 'diredp-describe-autofile)
+
+(autoload 'diredp-describe-autofile "dired+" "\
+Show the metadata for the file of the current line.
+The file must name an autofile bookmark.  The metadata is the bookmark
+information.
+
+With a prefix argument, show the internal definition of the bookmark.
+
+You need library `bookmark+.el' for this command.
 
 \(fn &optional INTERNAL-FORM-P)" t nil)
 
-(autoload 'diredp-mouse-describe-file "dired+" "\
-Describe the clicked file.
-You need library `help-fns+.el' to use this command.
-If the file has an autofile bookmark and you use library `Bookmark+',
-then show also the bookmark information (tags etc.).  In this case, a
-prefix arg shows the internal form of the bookmark.
+(defalias 'diredp-show-metadata-for-marked 'diredp-describe-marked-autofiles)
 
-\(fn EVENT &optional INTERNAL-FORM-P)" t nil)
+(autoload 'diredp-describe-marked-autofiles "dired+" "\
+Show metadata for the marked files.
+If no file is marked, describe ALL autofiles in this directory.
+With a prefix argument, show the internal (Lisp) form of the metadata.
+
+You need library `bookmark+.el' for this command.
+
+\(fn &optional INTERNAL-FORM-P)" t nil)
 
 (autoload 'diredp-byte-compile-this-file "dired+" "\
 In Dired, byte compile the (Lisp source) file on the cursor line.
@@ -1426,9 +1855,10 @@ In Dired, change the mode of the file on the cursor line.
 
 (autoload 'dired-mark-sexp "dired+" "\
 Mark files for which PREDICATE returns non-nil.
-With non-nil prefix arg UNMARK-P, unmark those files instead.
+With a prefix arg, unmark or unflag those files instead.
 
-PREDICATE is a lisp sexp that can refer to the following variables:
+PREDICATE is a lisp sexp that can refer to the following symbols as
+variables:
 
     `mode'   [string]  file permission bits, e.g. \"-rw-r--r--\"
     `nlink'  [integer] number of links to file
@@ -1450,6 +1880,18 @@ Examples:
      First, Dired just the source files: `dired *.el'.
      Then, use \\[dired-mark-sexp] with this sexp:
           (not (file-exists-p (concat name \"c\")))
+
+There's an ambiguity when a single integer not followed by a unit
+prefix precedes the file mode: It is then parsed as inode number
+and not as block size (this always works for GNU coreutils ls).
+
+Another limitation is that the uid field is needed for the
+function to work correctly.  In particular, the field is not
+present for some values of `ls-lisp-emulation'.
+
+This function operates only on the buffer content and does not
+refer at all to the underlying file system.  Contrast this with
+`find-dired', which might be preferable for the task at hand.
 
 \(fn PREDICATE &optional UNMARK-P)" t nil)
 
