@@ -41,7 +41,9 @@ previously visited the same file.
 (setq saveplace-loaded nil)
 (defun lazy-load-saveplace ()
   (unless saveplace-loaded
-    (require 'saveplace)
+    (if (< emacs-major-version 25)
+        (require 'saveplace)
+      (save-place-mode 1))
     (save-place-find-file-hook)
     (setq saveplace-loaded t)
     (remove-hook 'find-file-hook 'lazy-load-saveplace)))
