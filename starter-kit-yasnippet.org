@@ -22,6 +22,7 @@ inspired by TextMate's templating syntax.
 ;; disable tab for `yas-minor-mode' and `yas-keymap' for that each mode has
 ;; its own tab
 (with-eval-after-load 'yasnippet
+  (add-to-list 'warning-suppress-types '(yasnippet backquote-change))
   (define-key yas-minor-mode-map (kbd "<tab>") nil)
   (define-key yas-minor-mode-map (kbd "TAB") nil)
   (define-key yas-keymap [(tab)] nil)
