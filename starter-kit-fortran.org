@@ -59,7 +59,7 @@ Default indentation for Fortran is not that friendly.
 
 Don't indent for some special statements.
 #+begin_src emacs-lisp
-(setq f90-directive-comment-re "\\(!hpf\\$\\|!\\$omp\\)")
+(setq f90-directive-comment-re "\\(!hpf\\$\\|!\\$omp\\|!--\\|!>\\)")
 #+end_src
 
 ** Declaration align

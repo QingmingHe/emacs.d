@@ -152,8 +152,12 @@ that it's counterpart of [[file:starter-kit-autocomplete.org::*Super%20TAB%20for
            b0
            b1
            (<= (- p b0) 3)
-           (= p b1)
-           (yas-expand)))
+           (= p b1))
+      (when (derived-mode-p 'f90-mode)
+        (cond
+         ((looking-back "  fn") (delete-char -4) (insert "fn"))
+         ((looking-back "  su") (delete-char -4) (insert "su"))))
+      (yas-expand))
      ((and yas-minor-mode
            (yas--snippets-at-point))
       (when (and (looking-back " ")
