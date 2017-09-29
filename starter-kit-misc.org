@@ -262,3 +262,15 @@ larger than `large-file-warning-threshold'."
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
 #+end_src
+
+** Minibuffer
+
+#+begin_src emacs-lisp
+(defun minibuffer-inactive-mode-hook-setup ()
+  (set-syntax-table (let* ((table (make-syntax-table)))
+                      (modify-syntax-entry ?/ "." table)
+                      table)))
+
+(add-hook 'minibuffer-inactive-mode-hook
+          'minibuffer-inactive-mode-hook-setup)
+#+end_src
