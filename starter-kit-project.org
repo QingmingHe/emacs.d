@@ -21,7 +21,9 @@ First define projects.
     (prj/setup)
     (setq prj/global-mode-loaded t)
     (remove-hook 'find-file-hook 'lazy-load-project-mode)))
-(add-hook 'find-file-hook 'lazy-load-project-mode)
+(if (executable-find "ctags")
+    (add-hook 'find-file-hook 'lazy-load-project-mode)
+  (warn "ctags is not installed"))
 
 (setq project-roots
       `(("CExamples"
