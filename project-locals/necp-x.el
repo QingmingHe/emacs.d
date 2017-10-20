@@ -9,16 +9,22 @@
               (add-to-list 'flycheck-fortran+-definitions "DBL_REAL")
               (add-to-list
                'flycheck-fortran+-definitions
-               (format
-                "necl_ce_default=\"'%s'\""
-                (expand-file-name
-                 "library/necl_ce_endf70")))
+               "necl_ce_default=\"''\"")
               (add-to-list
                'flycheck-fortran+-definitions
-               (format
-                "necl_mg_default=\"'%s'\""
-                (expand-file-name
-                 "library/necl_gm_endf70_wims69e")))
+               "necl_mg_default=\"''\"")
+              (add-to-list
+               'flycheck-fortran+-definitions
+               "depletion_lib_default1=\"''\"")
+              (add-to-list
+               'flycheck-fortran+-definitions
+               "depletion_lib_default2=\"''\"")
+              (add-to-list
+               'flycheck-fortran+-definitions
+               "depletion_lib_default3=\"''\"")
+              (add-to-list
+               'flycheck-fortran+-definitions
+               "depletion_lib_default4=\"''\"")
               (if (getenv "NECP_X_build_syntax")
                   (setq-local
                    compile-dir-default
