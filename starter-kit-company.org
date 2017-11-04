@@ -130,8 +130,15 @@ Use anaconda as backend.
 #+begin_src emacs-lisp
 (defun my-company-latex-setup ()
   (company-mode))
-
 (add-hook 'LaTeX-mode-hook 'my-company-latex-setup)
+#+end_src
+
+** ReST
+
+#+begin_src emacs-lisp
+(defun my-company-rst-setup ()
+  (company-mode 1))
+(add-hook 'rst-mode-hook 'my-company-rst-setup)
 #+end_src
 
 ** Super tab for yasnippet or indent
