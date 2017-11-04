@@ -1,7 +1,7 @@
 (("src/"
   . ((eval
       . (progn
-          (setq whilecpace-cleanup-mode-only-if-initially-clean nil)
+          (setq whitespace-cleanup-mode-only-if-initially-clean nil)
           (when (derived-mode-p 'fortran-mode 'f90-mode)
             (with-project-root
                 (add-to-list 'flycheck-fortran+-include-paths
@@ -41,4 +41,8 @@
               (setq flycheck-fortran+-enable-openmp t))
             (unless flycheck-mode
               (flycheck-mode 1))
-            (flycheck-buffer)))))))
+            (flycheck-buffer))))))
+ (rst-mode
+  . ((eval
+      . (progn
+          (setq whitespace-cleanup-mode-only-if-initially-clean nil))))))
