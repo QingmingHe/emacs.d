@@ -5,7 +5,7 @@
           (with-project-root
               (setq-local compile-dir-default (expand-file-name ".."))
               (setq flycheck-fortran+-module-path
-                    (expand-file-name "../BUILD_SYNTAX/include")))
+                    (expand-file-name "../build_syntax/include")))
           (unless flycheck-mode
             (flycheck-mode 1))
           (flycheck-buffer))))))
