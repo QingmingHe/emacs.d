@@ -666,8 +666,7 @@ minibuffer."
              (read-shell-command
               "ctest command: "
               (format
-               "cmake %s; make -j %s; ctest --output-on-failure -R %s"
-               (cdr p)
+               "make %s && ctest --output-on-failure -R %s"
                (format "test_%s" ctest-test-name)
                ctest-test-name))))
           (setq ctest-command prj/ctest-run-test-command)
