@@ -501,16 +501,21 @@ of ctags."
        files)
       (write-region (point-min) (point-max) tags-file nil 0))
     (setq elapsed-time (float-time (time-since last-time)))
-    (if (eq system-type 'windows-nt)
-        (progn
-          (eval
-           `(start-process
-             proc-name
-             nil "cmd" "/c" (s-replace " " "^ " prj/ctags-exec)
-             "-e" "-o" tags-file "-a" ,@files)))
-      (eval
-       `(start-process
-         proc-name nil prj/ctags-exec "-e" "-o" tags-file "-a" ,@files)))))
+    (eval
+     `(start-process
+       proc-name nil (file-name-base prj/ctags-exec)
+       "-e" "-o" tags-file "-a" ,@files))
+    ;; (if (eq system-type 'windows-nt)
+    ;;     (progn
+    ;;       (eval
+    ;;        `(start-process
+    ;;          proc-name
+    ;;          nil "cmd" "/c" (s-replace " " "^ " prj/ctags-exec)
+    ;;          "-e" "-o" tags-file "-a" ,@files)))
+    ;;   (eval
+    ;;    `(start-process
+    ;;      proc-name nil prj/ctags-exec "-e" "-o" tags-file "-a" ,@files)))
+    ))
 
 (defun prj/update-etags-single-file (&optional p)
   "Update TAGS for current project file."
