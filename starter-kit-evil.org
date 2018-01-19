@@ -249,16 +249,13 @@ window. Come back to current window immediately after send eshell input."
              (mapc
               (lambda (window)
                 (when (string-match
-                       "\\`\\*eshell\\*\\(<[0-9]+>\\)?\\'"
+                       "\\`\\*eshell\\*\\(<[0-9]+>\\)?.*\\'"
                        (buffer-name (window-buffer window)))
                   (throw 'found-eshell-window (setq esh-win window))))
               (window-list)))
            (save-selected-window
-             (if esh-win
-                 (select-window esh-win)
-               (if (setq esh-buf (get-buffer "*eshell*<>"))
-                   (pop-to-buffer esh-buf)
-                 (user-error "Are you kidding me!")))
+             (when esh-win
+               (select-window esh-win))
              (goto-char (point-max))
              (when (re-search-backward
                     (format "%s[[:alnum:]\\.\\$]+" eshell-prompt-regexp) nil t)
