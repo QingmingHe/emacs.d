@@ -179,6 +179,22 @@ Use ido to complete file name and helm for the other.
         (write-region (point-min) (point-max) eshell-history-file-name nil 'no-message)))))
 #+end_src
 
+*** Rename buffer name after change directory
+
+#+begin_src emacs-lisp
+(defun eshell-change-bufname-after-cd ()
+  (require 's)
+  (let (basename fullname words)
+    (setq words (s-split "@" (buffer-name)))
+    (if (> (length words) 1)
+        (setq basename (car words))
+      (setq basename (buffer-name)))
+    (setq fullname (format "%s@%s" basename default-directory))
+    (rename-buffer fullname)))
+
+(add-hook 'eshell-directory-change-hook 'eshell-change-bufname-after-cd)
+#+end_src
+
 *** Other configuration
 
 #+begin_src emacs-lisp
