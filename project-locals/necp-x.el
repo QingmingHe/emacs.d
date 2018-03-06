@@ -37,7 +37,7 @@
                     (if (getenv "NECP_X_build_syntax")
                         (concat (file-name-as-directory
                                  (getenv "NECP_X_build_syntax")) "src")
-                      (expand-file-name "../build_syntax/src")))
+                      (expand-file-name "../build/src")))
               (setq flycheck-fortran+-enable-openmp t))
             (unless flycheck-mode
               (flycheck-mode 1))
