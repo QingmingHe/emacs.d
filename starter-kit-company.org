@@ -66,7 +66,7 @@ Use anaconda as backend.
                        company-dabbrev-code
                        company-anaconda)))
     (setq company-backends
-          '(company-dabbrev-code company-keywords))))
+          '((company-dabbrev-code company-keywords)))))
 
 (add-hook 'python-mode-hook 'python-company-setup)
 
