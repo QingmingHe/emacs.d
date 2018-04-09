@@ -6,7 +6,7 @@
             (with-project-root
                 (add-to-list 'flycheck-fortran+-include-paths
                              (expand-file-name "src/utilities/"))
-              (add-to-list 'flycheck-fortran+-definitions "DBL_REAL")
+                (add-to-list 'flycheck-fortran+-definitions "DBL_REAL")
               (add-to-list
                'flycheck-fortran+-definitions
                "necl_ce_default=\"''\"")
@@ -25,18 +25,9 @@
               (add-to-list
                'flycheck-fortran+-definitions
                "depletion_lib_default4=\"''\"")
-              (if (getenv "NECP_X_build_syntax")
-                  (setq-local
-                   compile-dir-default
-                   (expand-file-name
-                    (concat
-                     (file-name-as-directory
-                      (getenv "NECP_X_build_syntax")) "..")))
-                (setq-local compile-dir-default (expand-file-name "..")))
-              (setq flycheck-fortran+-module-path
-                    (if (getenv "NECP_X_build_syntax")
-                        (concat (file-name-as-directory
-                                 (getenv "NECP_X_build_syntax")) "src")
+              (setq-local flycheck-fortran+-module-path
+                    (if (string-match-p "Drivers" buffer-file-name)
+                        (expand-file-name "../build/src/Drivers")
                       (expand-file-name "../build/src")))
               (setq flycheck-fortran+-enable-openmp t))
             (unless flycheck-mode
