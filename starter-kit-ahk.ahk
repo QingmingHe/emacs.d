@@ -10,5 +10,8 @@
 ; Capslock::Control
 ; #IfWinActive
 
+SetTitleMatchMode, 2
+#IfWinNotActive, Oracle VM VirtualBox
 Control::Capslock
 Capslock::Control
+#IfWinNotActive
