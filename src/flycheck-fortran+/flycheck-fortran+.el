@@ -146,6 +146,7 @@ CHECKER should be `fortran-ifort'. BUFFER is current buffer checked."
             "-Wextra"
             "-fsyntax-only"
             "-fshow-column"
+            "-ffree-line-length-none"
             "-fno-diagnostics-show-caret"
             "-fno-diagnostics-show-option"
             "-iquote" (eval (flycheck-c/c++-quoted-include-directory))
